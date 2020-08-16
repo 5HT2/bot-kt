@@ -1,16 +1,23 @@
+buildscript {
+    ext.kotlin_version = "$bot_kotlin_version"
+}
+
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.72'
+    id "org.jetbrains.kotlin.jvm" version "$bot_kotlin_version"
 }
 
 group 'org.kamiblue'
-version '1.0-SNAPSHOT'
+version "$bot_kt_version"
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "com.github.Tea-Ayataka:Kordis:$bot_kordis_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$bot_kotlinx_coroutines_version"
 }
 
 compileKotlin {
