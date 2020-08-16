@@ -21,6 +21,7 @@ dependencies {
     implementation "com.google.code.gson:gson:$bot_gson_version"
     implementation "io.ktor:ktor-client-okhttp:$bot_ktor_version"
     implementation "com.neovisionaries:nv-websocket-client:$bot_nv_websocket_version"
+    implementation "com.github.qos-ch.slf4j:integration:$bot_slf4j_version"
 }
 
 compileKotlin {
