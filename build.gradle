@@ -18,6 +18,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "com.github.Tea-Ayataka:Kordis:$bot_kordis_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$bot_kotlinx_coroutines_version"
+    implementation "com.google.code.gson:gson:$bot_gson_version"
+    implementation "io.ktor:ktor-client-okhttp:$bot_ktor_version"
+    implementation "com.neovisionaries:nv-websocket-client:$bot_nv_websocket_version"
 }
 
 compileKotlin {
