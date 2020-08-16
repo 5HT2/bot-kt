@@ -10,6 +10,7 @@ fun main() = runBlocking {
 
 class TestBot {
     suspend fun start() {
+        println("Starting bot!")
         val client = Kordis.create {
             token = "< insert your bot token here >"
 
@@ -21,6 +22,7 @@ class TestBot {
             // Annotation based Event Listener
             addListener(this@TestBot)
         }
+        println("Initialized bot!")
     }
 
     @EventHandler
