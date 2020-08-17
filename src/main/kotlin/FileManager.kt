@@ -1,11 +1,9 @@
 import FileManager.authConfigData
 import FileManager.mutesConfigData
 import com.google.gson.Gson
-import net.ayataka.kordis.entity.user.User
 import java.io.Reader
 import java.nio.file.Files
 import java.nio.file.Paths
-
 
 /**
  * @author dominikaaaa
@@ -13,19 +11,19 @@ import java.nio.file.Paths
  */
 object FileManager {
     private val gson = Gson()
-    var authConfigData: Map<*, *>? = null
-    var mutesConfigData: Map<*, *>? = null
+    var authConfigData: AuthConfig? = null
+    var mutesConfigData: MuteConfig? = null
 
     fun writeConfig() {
 
     }
 
-    fun readConfig(configType: ConfigType): Map<*, *>? {
+    fun readConfig(configType: ConfigType): Any? {
         try {
             val reader: Reader = Files.newBufferedReader(Paths.get(configType.fileName))
-            configType.dataMap = gson.fromJson(reader, configType.clazz) as Map<*,*>
+            configType.dataMap = gson.fromJson(reader, configType.clazz)
             reader.close()
-        } catch (ex: java.lang.Exception) {
+        } catch (ex: Exception) {
             ex.printStackTrace()
             return null
         }
@@ -41,7 +39,7 @@ object FileManager {
  * }
  * [clazz] is the associated class with the [dataMap] format
  */
-enum class ConfigType(val fileName: String, var dataMap: Map<*, *>?, val clazz: Class<*>) {
+enum class ConfigType(val fileName: String, var dataMap: Any, val clazz: Class<*>) {
     AUTH("auth.json", authConfigData, AuthConfig::class.java),
     MUTE("mutes.json", mutesConfigData, MuteConfig::class.java)
 }
@@ -50,28 +48,11 @@ enum class ConfigType(val fileName: String, var dataMap: Map<*, *>?, val clazz: 
  * [botToken] is the token given to you from https://discord.com/developers/applications/BOT_ID_HERE/bot
  * [githubToken] can be generated with the full "repo" access checked https://github.com/settings/tokens
  */
-class AuthConfig {
-    var botToken: String? = null
-    var githubToken: String? = null
-
-
-    fun AuthType(botToken: String?, githubToken: String?) {
-        this.botToken = botToken
-        this.githubToken = githubToken
-    }
-}
+data class AuthConfig(val botToken: String, val githubToken: String)
 
 /**
  * [id] is the user snowflake ID
  * [unixUnmute] is the UNIX time of then they should be unmuted.
  * When adding a new [unixUnmute] time, it should be current UNIX time + mute time in seconds
  */
-class MuteConfig {
-    var id: Int? = null
-    var unixUnmute: Int? = null
-
-    fun MuteConfig(id: Int?, unixUnmute: Int?) {
-        this.id = id
-        this.unixUnmute = unixUnmute
-    }
-}
+data class MuteConfig(val id: Long, val unixUnmute: Long)
