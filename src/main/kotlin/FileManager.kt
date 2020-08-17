@@ -20,28 +20,16 @@ object FileManager {
 
     }
 
-    fun readConfig(reload: Boolean, configType: ConfigType): Map<*, *>? {
-        if (reload || authConfigData == null) {
-            try {
-                val reader: Reader = Files.newBufferedReader(Paths.get(configType.fileName))
-                authConfigData = gson.fromJson(reader, MutableMap::class.java)
-                reader.close()
-            } catch (ex: Exception) {
-                ex.printStackTrace()
-                return null
-            }
-        }
-
+    fun readConfig(configType: ConfigType): Map<*, *>? {
         try {
             val reader: Reader = Files.newBufferedReader(Paths.get(configType.fileName))
-
-            configType.dataMap = gson.fromJson(reader, configType.clazz)
-
+            configType.dataMap = gson.fromJson(reader, configType.clazz) as Map<*,*>
             reader.close()
         } catch (ex: java.lang.Exception) {
             ex.printStackTrace()
+            return null
         }
-        return authConfigData
+        return configType.dataMap
     }
 }
 
