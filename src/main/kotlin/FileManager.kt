@@ -13,7 +13,6 @@ import java.nio.file.Paths
  */
 object FileManager {
     private val gson = Gson()
-    const val config = "config.json"
     var authConfigData: Map<*, *>? = null
     var mutesConfigData: Map<*, *>? = null
 
@@ -36,14 +35,7 @@ object FileManager {
         try {
             val reader: Reader = Files.newBufferedReader(Paths.get(configType.fileName))
 
-            val user = gson.fromJson(
-                reader,
-                when (configType) {
-                    ConfigType.AUTH -> AuthConfig::class.java
-                    else -> null
-                }
-            )
-
+            configType.dataMap = gson.fromJson(reader, configType.clazz)
 
             reader.close()
         } catch (ex: java.lang.Exception) {
@@ -53,8 +45,17 @@ object FileManager {
     }
 }
 
-enum class ConfigType(val fileName: String, val dataMap: Map<*, *>?) {
-    AUTH("auth.json", authConfigData), MUTE("mutes.json", mutesConfigData)
+/**
+ * [fileName] is the file name on disk
+ * [dataMap] is a Map<*,*> in the format of <foo, bar> here:
+ * {
+ *     "foo": "bar"
+ * }
+ * [clazz] is the associated class with the [dataMap] format
+ */
+enum class ConfigType(val fileName: String, var dataMap: Map<*, *>?, val clazz: Class<*>) {
+    AUTH("auth.json", authConfigData, AuthConfig::class.java),
+    MUTE("mutes.json", mutesConfigData, MuteConfig::class.java)
 }
 
 /**
