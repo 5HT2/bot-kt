@@ -11,17 +11,17 @@ import java.nio.file.Paths
  */
 object FileManager {
     private val gson = Gson()
-    var authConfigData: AuthConfig? = null
-    var mutesConfigData: MuteConfig? = null
+    var authConfigData: Map<*, *>? = null
+    var mutesConfigData: Map<*, *>? = null
 
     fun writeConfig() {
 
     }
 
-    fun readConfig(configType: ConfigType): Any? {
+    fun readConfig(configType: ConfigType): Map<*, *>? {
         try {
             val reader: Reader = Files.newBufferedReader(Paths.get(configType.fileName))
-            configType.dataMap = gson.fromJson(reader, configType.clazz)
+            configType.dataMap = gson.fromJson(reader, configType.clazz) as Map<*, *>
             reader.close()
         } catch (ex: Exception) {
             ex.printStackTrace()
@@ -39,7 +39,7 @@ object FileManager {
  * }
  * [clazz] is the associated class with the [dataMap] format
  */
-enum class ConfigType(val fileName: String, var dataMap: Any, val clazz: Class<*>) {
+enum class ConfigType(val fileName: String, var dataMap: Map<*, *>?, val clazz: Class<*>) {
     AUTH("auth.json", authConfigData, AuthConfig::class.java),
     MUTE("mutes.json", mutesConfigData, MuteConfig::class.java)
 }
