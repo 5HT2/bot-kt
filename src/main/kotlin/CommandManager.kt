@@ -4,7 +4,7 @@ import commands.ExampleCommand
 import java.util.*
 
 fun main() {
-    Scanner(System.`in`).use { s ->
+/*    Scanner(System.`in`).use { s ->
         val dispatcher = CommandDispatcher<Cmd>()
 
         dispatcher.register(ExampleCommand)
@@ -20,5 +20,5 @@ fun main() {
                 println("You have a syntax error: ${e.message}")
             }
         }
-    }
+    }*/
 }
