@@ -1,10 +1,14 @@
-# Intellij IDEA
+# Bot configuration files
+auth.json
+mutes.json
+
+# Intellij IDEA configuration files
 .idea/
 
-# Gradle
+# Gradle cache
 .gradle/
 
-# Compiled class file
+# Compiled class files
 *.class
 build/
 
