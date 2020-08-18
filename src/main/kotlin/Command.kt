@@ -1,4 +1,5 @@
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 
 /**
  * @author dominikaaaa
@@ -8,4 +9,6 @@ open class Command(_name: String) : LiteralArgumentBuilder<Cmd>(_name) {
     val name = _name
 }
 
-class Cmd
+class Cmd(_event: MessageReceiveEvent) {
+    val event = _event
+}

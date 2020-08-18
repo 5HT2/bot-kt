@@ -10,6 +10,7 @@ import Command
 object ExampleCommand : Command("ec") {
     init {
         then(literal<Cmd>("1").executes {
+            Respond.reply(it.source.event, "uwu")
             println("[$name] First argument!")
             0
         }.then(literal<Cmd>("2").executes {
