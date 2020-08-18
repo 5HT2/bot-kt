@@ -1,3 +1,6 @@
+import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.exceptions.CommandSyntaxException
+import commands.ExampleCommand
 import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.event.EventHandler
@@ -5,10 +8,11 @@ import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import net.ayataka.kordis.event.events.server.user.UserJoinEvent
 
 fun main() = runBlocking {
-    TestBot().start()
+    Bot().start()
 }
 
-class TestBot {
+class Bot {
+    private val dispatcher = CommandDispatcher<Cmd>()
     suspend fun start() {
         println("Starting bot!")
         val config = FileManager.readConfig<AuthConfig>(ConfigType.AUTH, false)
@@ -27,46 +31,27 @@ class TestBot {
             }
 
             // Annotation based Event Listener
-            addListener(this@TestBot)
+            addListener(this@Bot)
         }
+
+        registerCommands()
         println("Initialized bot!")
+    }
+
+    /**
+     * TODO: use annotations for Commands and automatically register
+     */
+    fun registerCommands() {
+        dispatcher.register(ExampleCommand)
     }
 
     @EventHandler
     suspend fun onMessageReceive(event: MessageReceiveEvent) {
-        // Simple ping-pong
-        if (event.message.content.equals(";ping", true)) {
-            event.message.channel.send("Pong! Latency is 115ms. API Latency is 72ms\n")
-        }
-
-        val server = event.server!!
-        // Sending an embedded message
-        if (event.message.content == ";serverinfo") {
-//            event.message.channel.send("${server.name} ${server.id} ${server.emojis.size}")
-            event.message.channel.send {
-                embed {
-                    author(name = server.name)
-                    field("ID", server.id)
-                    field("Server created", Converter.epochToDate(server.timestamp.epochSecond).toString(), true)
-//                    field("Members", server.members.joinToString { it.name }, true)
-//                    field("Text channels", server.textChannels.joinToString { it.name })
-//                    field("Voice channels", server.voiceChannels.joinToString { it.name }.ifEmpty { "None" })
-//                    field("Emojis", server.emojis.size, true)
-//                    field("Roles", server.roles.joinToString { "<@&${it.id}>" }, true)
-//                    field("Owner", server.owner!!.mention, true)
-//                    field("Region", server.region.displayName, true)
-                }
-            }
-        }
-
-        // Adding a role
-        if (event.message.content.equals("!member", true)) {
-            val server = event.server ?: return
-            val member = event.message.member ?: return
-
-            server.roles.findByName("Member", true)?.let {
-                member.addRole(it)
-            }
+        try {
+            val exit = dispatcher.execute(event.message.content, Cmd(event))
+            println("(executed with exit code $exit)")
+        } catch (e: CommandSyntaxException) {
+            println("You have a syntax error: ${e.message}")
         }
     }
 }
