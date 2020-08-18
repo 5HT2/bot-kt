@@ -35,29 +35,29 @@ class TestBot {
     @EventHandler
     suspend fun onMessageReceive(event: MessageReceiveEvent) {
         // Simple ping-pong
-        if (event.message.content.equals("!ping", true)) {
-            event.message.channel.send("!pong")
+        if (event.message.content.equals(";ping", true)) {
+            event.message.channel.send("Pong! Latency is 115ms. API Latency is 72ms\n")
         }
 
+        val server = event.server!!
         // Sending an embedded message
-/*
-        if (event.message.content == "!serverinfo") {
+        if (event.message.content == ";serverinfo") {
+//            event.message.channel.send("${server.name} ${server.id} ${server.emojis.size}")
             event.message.channel.send {
                 embed {
                     author(name = server.name)
                     field("ID", server.id)
-                    field("Server created", server.timestamp.formatAsDate(), true)
-                    field("Members", server.members.joinToString { it.name }, true)
-                    field("Text channels", server.textChannels.joinToString { it.name })
-                    field("Voice channels", server.voiceChannels.joinToString { it.name }.ifEmpty { "None" })
-                    field("Emojis", server.emojis.size, true)
-                    field("Roles", server.roles.joinToString { it.name }, true)
-                    field("Owner", server.owner!!.mention, true)
-                    field("Region", server.region.displayName, true)
+                    field("Server created", Converter.epochToDate(server.timestamp.epochSecond).toString(), true)
+//                    field("Members", server.members.joinToString { it.name }, true)
+//                    field("Text channels", server.textChannels.joinToString { it.name })
+//                    field("Voice channels", server.voiceChannels.joinToString { it.name }.ifEmpty { "None" })
+//                    field("Emojis", server.emojis.size, true)
+//                    field("Roles", server.roles.joinToString { "<@&${it.id}>" }, true)
+//                    field("Owner", server.owner!!.mention, true)
+//                    field("Region", server.region.displayName, true)
                 }
             }
         }
-*/
 
         // Adding a role
         if (event.message.content.equals("!member", true)) {
