@@ -1,7 +1,6 @@
 import FileManager.authConfigData
 import FileManager.mutesConfigData
 import com.google.gson.Gson
-import java.io.Reader
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -10,24 +9,42 @@ import java.nio.file.Paths
  * @since 2020/08/16 19:48
  */
 object FileManager {
-    private val gson = Gson()
-    var authConfigData: Map<*, *>? = null
-    var mutesConfigData: Map<*, *>? = null
+    val gson = Gson()
+    var authConfigData: AuthConfig? = null
+    var mutesConfigData: MuteConfig? = null
 
-    fun writeConfig() {
+    fun writeConfig(configType: ConfigType) {
 
     }
 
-    fun readConfig(configType: ConfigType): Map<*, *>? {
-        try {
-            val reader: Reader = Files.newBufferedReader(Paths.get(configType.fileName))
-            configType.dataMap = gson.fromJson(reader, configType.clazz) as Map<*, *>
-            reader.close()
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            return null
+    /**
+     * Reads config from memory if it's already been read
+     *
+     * [reload] will reload the file in memory and return the new file dataMap
+     * [configType] is the type of config you'd like to return
+     * [T] is [configType].clazz
+     */
+    inline fun <reified T> readConfig(configType: ConfigType, reload: Boolean): T? {
+        return if (configType.dataMap != null && !reload) {
+            configType.dataMap as T?
+        } else {
+            readConfigFromFile<T>(configType)
         }
-        return configType.dataMap
+    }
+
+    /**
+     * [configType] is the type of config you'd like to return
+     * [T] is [configType].clazz
+     */
+    inline fun <reified T> readConfigFromFile(configType: ConfigType): T? {
+        return try {
+            Files.newBufferedReader(Paths.get(configType.fileName)).use {
+                gson.fromJson(it, T::class.java)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 }
 
@@ -38,8 +55,10 @@ object FileManager {
  *     "foo": "bar"
  * }
  * [clazz] is the associated class with the [dataMap] format
+ *
+ * @see FileManager.readConfig when adding new types. Due to JVM limitations you have to manually add them to the when() statement
  */
-enum class ConfigType(val fileName: String, var dataMap: Map<*, *>?, val clazz: Class<*>) {
+enum class ConfigType(val fileName: String, var dataMap: Any?, val clazz: Class<*>) {
     AUTH("auth.json", authConfigData, AuthConfig::class.java),
     MUTE("mutes.json", mutesConfigData, MuteConfig::class.java)
 }

@@ -11,8 +11,15 @@ fun main() = runBlocking {
 class TestBot {
     suspend fun start() {
         println("Starting bot!")
+        val config = FileManager.readConfig<AuthConfig>(ConfigType.AUTH, false)
+
+        if (config?.botToken == null) {
+            println("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
+            return
+        }
+
         val client = Kordis.create {
-            token = "< insert your bot token here >"
+            token = config.botToken
 
             // Simple Event Handler
             addHandler<UserJoinEvent> {
