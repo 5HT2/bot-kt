@@ -22,5 +22,3 @@ fun main() {
         }
     }
 }
-
-class Cmd
