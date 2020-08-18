@@ -7,3 +7,5 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 open class Command(_name: String) : LiteralArgumentBuilder<Cmd>(_name) {
     val name = _name
 }
+
+class Cmd
