@@ -18,7 +18,7 @@ object FileManager {
     }
 
     /**
-     * Reads config from memory if it's already been read
+     * Reads config from memory if it's already been read.
      *
      * [reload] will reload the file in memory and return the new file dataMap
      * [configType] is the type of config you'd like to return
@@ -33,6 +33,8 @@ object FileManager {
     }
 
     /**
+     * Reads config file from disk. Use readConfig() instead, with reload set to true if you really need to refresh from disk.
+     * 
      * [configType] is the type of config you'd like to return
      * [T] is [configType].clazz
      */
@@ -55,8 +57,6 @@ object FileManager {
  *     "foo": "bar"
  * }
  * [clazz] is the associated class with the [dataMap] format
- *
- * @see FileManager.readConfig when adding new types. Due to JVM limitations you have to manually add them to the when() statement
  */
 enum class ConfigType(val fileName: String, var dataMap: Any?, val clazz: Class<*>) {
     AUTH("auth.json", authConfigData, AuthConfig::class.java),
