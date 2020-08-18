@@ -11,7 +11,7 @@ The moderation bot for KAMI Blue's Discord, written in Kotlin for reliability.
 
 ## Usage
 
-Create your `auth.json` like below. Generate `githubToken` with full "repo" access checked [here](https://github.com/settings/tokens) and you can get your bot token [here](https://discord.com/developers/applications/BOT_ID_HERE/bot).
+Create your `auth.json` like below. Generate `githubToken` with full `repo:status` and `public_repo` access checked [here](https://github.com/settings/tokens) and you can get your bot token [here](https://discord.com/developers/applications/BOT_ID_HERE/bot).
 ```json
 {
     "botToken": "token",
