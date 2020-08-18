@@ -12,6 +12,7 @@ version "$bot_kt_version"
 repositories {
     mavenCentral()
     maven { url 'https://jitpack.io' }
+    maven { url 'https://libraries.minecraft.net' }
 }
 
 dependencies {
@@ -21,7 +22,9 @@ dependencies {
     implementation "com.google.code.gson:gson:$bot_gson_version"
     implementation "io.ktor:ktor-client-okhttp:$bot_ktor_version"
     implementation "com.neovisionaries:nv-websocket-client:$bot_nv_websocket_version"
-    compile "org.slf4j:slf4j-nop:$bot_slf4j_version" // used to get rid of NOP warning. http://www.slf4j.org/codes.html#StaticLoggerBinder
+    // used to get rid of NOP warning. http://www.slf4j.org/codes.html#StaticLoggerBinder
+    compile "com.mojang:brigadier:$bot_brigadier_version"
+    compile "org.slf4j:slf4j-nop:$bot_slf4j_version"
 }
 
 compileKotlin {
