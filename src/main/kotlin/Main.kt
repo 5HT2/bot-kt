@@ -1,6 +1,7 @@
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import commands.ExampleCommand
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.event.EventHandler
@@ -46,9 +47,9 @@ class Bot {
     }
 
     @EventHandler
-    suspend fun onMessageReceive(event: MessageReceiveEvent) {
+    suspend fun onMessageReceive(event: MessageReceiveEvent) = coroutineScope {
         try {
-            val message = if (event.message.content[0] == ';') event.message.content.substring(1) else return
+            val message = if (event.message.content[0] == ';') event.message.content.substring(1) else return@coroutineScope
             val cmd = Cmd(event)
             val exit = dispatcher.execute(message, cmd)
             cmd.file(event)

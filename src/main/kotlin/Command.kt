@@ -1,7 +1,7 @@
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -13,8 +13,7 @@ open class Command(_name: String) : LiteralArgumentBuilder<Cmd>(_name) {
     val name = _name
 }
 
-class Cmd(_event: MessageReceiveEvent) {
-    val event = _event
+class Cmd(val event: MessageReceiveEvent) {
 
     private var asyncQueue: ConcurrentLinkedQueue<suspend MessageReceiveEvent.() -> Unit> = ConcurrentLinkedQueue()
 
@@ -22,9 +21,9 @@ class Cmd(_event: MessageReceiveEvent) {
         asyncQueue.add(block)
     }
 
-    suspend fun file(event: MessageReceiveEvent) {
+    suspend fun file(event: MessageReceiveEvent) = coroutineScope {
         asyncQueue.map {
-            GlobalScope.async {
+            async {
                 event.it()
             }
         }.awaitAll()
