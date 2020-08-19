@@ -48,8 +48,11 @@ class Bot {
     @EventHandler
     suspend fun onMessageReceive(event: MessageReceiveEvent) {
         try {
-            val exit = dispatcher.execute(event.message.content, Cmd(event))
-            println("(executed with exit code $exit)")
+            val message = if (event.message.content[0] == ';') event.message.content.substring(1) else return
+            val cmd = Cmd(event)
+            val exit = dispatcher.execute(message, cmd)
+            cmd.file(event)
+            if (exit != 0) println("(executed with exit code $exit)")
         } catch (e: CommandSyntaxException) {
             println("You have a syntax error: ${e.message}")
         }
