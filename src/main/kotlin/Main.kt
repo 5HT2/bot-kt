@@ -47,15 +47,15 @@ class Bot {
     }
 
     @EventHandler
-    suspend fun onMessageReceive(event: MessageReceiveEvent) = coroutineScope {
+    suspend fun onMessageReceive(event: MessageReceiveEvent) {
+        val message = if (event.message.content[0] == ';') event.message.content.substring(1) else return
+        val cmd = Cmd(event)
         try {
-            val message = if (event.message.content[0] == ';') event.message.content.substring(1) else return@coroutineScope
-            val cmd = Cmd(event)
             val exit = dispatcher.execute(message, cmd)
             cmd.file(event)
             if (exit != 0) println("(executed with exit code $exit)")
         } catch (e: CommandSyntaxException) {
-            println("You have a syntax error: ${e.message}")
+//            cmd.event.message.channel.send("Syntax error:\n```\n${e.message}\n```")
         }
     }
 }
