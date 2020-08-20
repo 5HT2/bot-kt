@@ -1,5 +1,6 @@
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
+import commands.ArchiveCommand
 import commands.ExampleCommand
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
@@ -27,9 +28,9 @@ class Bot {
             token = config.botToken
 
             // Simple Event Handler
-            addHandler<UserJoinEvent> {
+/*            addHandler<UserJoinEvent> {
                 println(it.member.name + " has joined")
-            }
+            }*/
 
             // Annotation based Event Listener
             addListener(this@Bot)
@@ -44,6 +45,7 @@ class Bot {
      */
     fun registerCommands() {
         dispatcher.register(ExampleCommand)
+        dispatcher.register(ArchiveCommand)
     }
 
     @EventHandler
