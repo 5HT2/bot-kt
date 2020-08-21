@@ -36,7 +36,7 @@ class Bot {
     }
 
     /**
-     * Uses reflection to get a list of classes in the commands package which extend Command
+     * Uses reflection to get a list of classes in the commands package which extend [Command]
      * and register said classes's instances with Brigadier.
      */
     private fun registerCommands() {
@@ -69,19 +69,6 @@ class Bot {
 }
 
 object Main {
-/*    fun embed(embedTypes: EmbedTypes) {
-        return when (embedTypes) {
-            ERROR -> MessageBuilder().embed {
-                field("Error", "You don't have permission to use this command!", true)
-                color = Colors.ERROR.color
-            }
-        }
-    }
-
-    enum class EmbedTypes {
-        ERROR
-    }*/
-
     /**
      * Int colors, converted from here: https://www.shodor.org/stella2java/rgbint.html
      */
