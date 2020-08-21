@@ -45,7 +45,6 @@ class Bot {
     fun registerCommands() {
         dispatcher.register(ExampleCommand)
         dispatcher.register(ArchiveCommand)
-        dispatcher.register(IssueCommand)
     }
 
     @EventHandler
