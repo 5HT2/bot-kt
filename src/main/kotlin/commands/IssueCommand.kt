@@ -15,6 +15,7 @@ import java.net.URL
 
 @Suppress("BlockingMethodInNonBlockingContext")
 object IssueCommand : Command("issue") {
+    //TODO: Actually make the command work
     init {
         string("repo") {
             integer("issueNum") {
