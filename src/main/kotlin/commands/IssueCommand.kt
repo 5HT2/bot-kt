@@ -33,7 +33,6 @@ object IssueCommand : Command("issue") {
                     message.channel.send{
                         embed {
                             author("カミブルー！", "https://cdn.discordapp.com/avatars/638403216278683661/1e8bed04cb18e1cb1239e208a01893a1.png", "https://kamiblue.org")
-                            thumbnailUrl(parsedJson.user.avatar_url)
                             field("URL To Issue:",parsedJson.html_url)
                             field("User:", parsedJson.user.login)
                             field("Body:", parsedJson.body)
@@ -47,9 +46,5 @@ object IssueCommand : Command("issue") {
         }
 
     }
-}
-
-private operator fun String?.invoke(avatarUrl: String) {
-
 }
 
