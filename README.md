@@ -2,7 +2,7 @@
 
 The moderation bot for KAMI Blue's Discord, written in Kotlin for reliability. 
 
-Uses [Brigadier](https://github.com/Mojang/brigadier/) with a wrapper for the command system.
+Uses [Brigadier](https://github.com/Mojang/brigadier/) with a wrapper for the command system, and [reflections](https://github.com/ronmamo/reflections) for automatic command registering.
 
 ## Contributing
 
