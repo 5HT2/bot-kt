@@ -98,17 +98,6 @@ object DiscussCommand : Command("discuss") {
                         this.category = discussionCategory
                         this.name = "d-$topic"
                     }
-
-                    val separator = server!!.createTextChannel {
-                        this.category = discussionCategory
-                        this.name = "──────────"
-                    }
-
-                    separator.edit {
-                        this.rolePermissionOverwrites.add(RolePermissionOverwrite(upperCouncil, allow, deny))
-                        this.rolePermissionOverwrites.add(RolePermissionOverwrite(lowerCouncil, allow, deny))
-                    }
-
                 }
             }
         }
