@@ -2,6 +2,7 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import commands.ArchiveCommand
 import commands.ExampleCommand
+import commands.IssueCommand
 import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.event.EventHandler
@@ -44,6 +45,7 @@ class Bot {
     fun registerCommands() {
         dispatcher.register(ExampleCommand)
         dispatcher.register(ArchiveCommand)
+        dispatcher.register(IssueCommand)
     }
 
     @EventHandler
