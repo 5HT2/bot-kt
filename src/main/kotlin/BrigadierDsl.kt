@@ -16,7 +16,7 @@ annotation class BrigadierDsl
  * @param block the receiver function for further construction of the literal argument
  */
 fun <T> ArgumentBuilder<T, *>.literal(name: String, block: (@BrigadierDsl LiteralArgumentBuilder<T>).() -> Unit) =
-        then(LiteralArgumentBuilder.literal<T>(name).also(block))
+    then(LiteralArgumentBuilder.literal<T>(name).also(block))
 
 /**
  * Appends a new required argument to `this` [ArgumentBuilder].
@@ -26,67 +26,88 @@ fun <T> ArgumentBuilder<T, *>.literal(name: String, block: (@BrigadierDsl Litera
  * @param block the receiver function for further construction of the required argument
  */
 fun <S, T : ArgumentBuilder<S, T>, R> ArgumentBuilder<S, T>.argument(
-        name: String,
-        argument: ArgumentType<R>,
-        block: (@BrigadierDsl RequiredArgumentBuilder<S, R>).() -> Unit
+    name: String,
+    argument: ArgumentType<R>,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, R>).() -> Unit
 ) =
-        then(RequiredArgumentBuilder.argument<S, R>(name, argument).also(block))
+    then(RequiredArgumentBuilder.argument<S, R>(name, argument).also(block))
 
 /**
  * A shorthand for appending a boolean required argument to `this` [ArgumentBuilder]
  *
  * @see argument
  */
-fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.bool(name: String, block: (@BrigadierDsl RequiredArgumentBuilder<S, Boolean>).() -> Unit) =
-        argument(name, BoolArgumentType.bool(), block)
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.bool(
+    name: String,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Boolean>).() -> Unit
+) =
+    argument(name, BoolArgumentType.bool(), block)
 
 /**
  * A shorthand for appending a double required argument to `this` [ArgumentBuilder]
  *
  * @see argument
  */
-fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.double(name: String, block: RequiredArgumentBuilder<S, Double>.() -> Unit) =
-        argument(name, DoubleArgumentType.doubleArg(), block)
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.double(
+    name: String,
+    block: RequiredArgumentBuilder<S, Double>.() -> Unit
+) =
+    argument(name, DoubleArgumentType.doubleArg(), block)
 
 /**
  * A shorthand for appending a float required argument to `this` [ArgumentBuilder]
  *
  * @see argument
  */
-fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.float(name: String, block: (@BrigadierDsl RequiredArgumentBuilder<S, Float>).() -> Unit) =
-        argument(name, FloatArgumentType.floatArg(), block)
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.float(
+    name: String,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Float>).() -> Unit
+) =
+    argument(name, FloatArgumentType.floatArg(), block)
 
 /**
  * A shorthand for appending a integer required argument to `this` [ArgumentBuilder]
  *
  * @see argument
  */
-fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.integer(name: String, block: (@BrigadierDsl RequiredArgumentBuilder<S, Int>).() -> Unit) =
-        argument(name, IntegerArgumentType.integer(), block)
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.integer(
+    name: String,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Int>).() -> Unit
+) =
+    argument(name, IntegerArgumentType.integer(), block)
 
 /**
  * A shorthand for appending a `long` required argument to `this` [ArgumentBuilder]
  *
  * @see argument
  */
-fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.long(name: String, block: (@BrigadierDsl RequiredArgumentBuilder<S, Long>).() -> Unit) =
-        argument(name, LongArgumentType.longArg(), block)
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.long(
+    name: String,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Long>).() -> Unit
+) =
+    argument(name, LongArgumentType.longArg(), block)
 
 /**
  * A shorthand for appending a string required argument to `this` [ArgumentBuilder]
  *
  * @see argument
  */
-fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.string(name: String, block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit) =
-        argument(name, StringArgumentType.string(), block)
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.string(
+    name: String,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit
+) =
+    argument(name, StringArgumentType.string(), block)
 
 /**
  * A shorthand for appending a greedy string required argument to `this` [ArgumentBuilder]
  *
  * @see argument
  */
-fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.greedyString(name: String, block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit) =
-        argument(name, StringArgumentType.greedyString(), block)
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.greedyString(
+    name: String,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit
+) =
+    argument(name, StringArgumentType.greedyString(), block)
 
 /**
  * Sets the executes callback for `this` [ArgumentBuilder]
@@ -99,12 +120,12 @@ infix fun <S> ArgumentBuilder<S, *>.does(command: (@BrigadierDsl CommandContext<
  * Shorthand for [doesLater] with an empty [now] handler that always returns `0`.
  */
 infix fun ArgumentBuilder<Cmd, *>.doesLater(later: suspend MessageReceiveEvent.(CommandContext<Cmd>) -> Unit) =
-        does { context ->
-            context.source later {
-                later(this, context)
-            }
-            0
+    does { context ->
+        context.source later {
+            later(this, context)
         }
+        0
+    }
 
 /**
  * Gets the value of a (required) argument in the command hierarchy

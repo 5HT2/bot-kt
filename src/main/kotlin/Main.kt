@@ -2,12 +2,10 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import commands.ArchiveCommand
 import commands.ExampleCommand
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import net.ayataka.kordis.event.events.server.user.UserJoinEvent
 
 fun main() = runBlocking {
     Bot().start()

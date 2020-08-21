@@ -1,16 +1,10 @@
 package commands
 
-import Cmd
 import Command
 import arg
-import argument
-import com.mojang.brigadier.arguments.IntegerArgumentType
-import does
 import doesLater
 import greedyString
-import integer
 import literal
-import string
 
 /**
  * @author dominikaaaa

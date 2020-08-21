@@ -1,7 +1,6 @@
 package commands
 
 import Command
-import commands.ArchiveCommand.executes
 import doesLater
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.server.permission.PermissionSet
@@ -21,8 +20,10 @@ object ArchiveCommand : Command("archive") {
                 }
             } else {
                 val channel = server?.channels?.find(message.channel.id)
-                val userOverrides: Collection<UserPermissionOverwrite>? = server?.channels?.find(channel!!.id)?.userPermissionOverwrites
-                val roleOverrides: Collection<RolePermissionOverwrite>? = server?.channels?.find(channel!!.id)?.rolePermissionOverwrites
+                val userOverrides: Collection<UserPermissionOverwrite>? =
+                    server?.channels?.find(channel!!.id)?.userPermissionOverwrites
+                val roleOverrides: Collection<RolePermissionOverwrite>? =
+                    server?.channels?.find(channel!!.id)?.rolePermissionOverwrites
                 val allow = PermissionSet(0)
                 val deny = PermissionSet(3072) // read + send
                 val role = server?.roles?.filter { r -> r.isEveryone }!!

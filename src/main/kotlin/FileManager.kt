@@ -34,7 +34,7 @@ object FileManager {
 
     /**
      * Reads config file from disk. Use readConfig() instead, with reload set to true if you really need to refresh from disk.
-     * 
+     *
      * [configType] is the type of config you'd like to return
      * [T] is [configType].clazz
      */
