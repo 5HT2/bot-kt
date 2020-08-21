@@ -35,10 +35,17 @@ object DiscussCommand : Command("discuss") {
                     val discussionTopic = server!!.textChannels.findByName(name)!!
 
                     discussionTopic.send {
-                        embed {
-                            author(name = message.author!!.name)
-                            field("Added:", idea, false)
-                            color = Colors.BLUE.color
+                        if (!message.attachments.isEmpty()) {
+                            embed {
+                                imageUrl = message.attachments.stream().findFirst().get().url
+                                color = Colors.BLUE.color
+                            }
+                        } else { // needs to be else because you cannot embed images in the same message with content
+                            embed {
+                                author(name = message.author!!.name)
+                                field("Added:", idea, false)
+                                color = Colors.BLUE.color
+                            }
                         }
                     }
 
