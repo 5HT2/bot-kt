@@ -1,6 +1,8 @@
 package commands
 
 import Command
+import Main
+import Main.Colors
 import arg
 import doesLater
 import greedyString
@@ -21,8 +23,8 @@ object DiscussCommand : Command("discuss") {
                     if (!sender!!.roles.contains(upperCouncil) && !sender.roles.contains(lowerCouncil)) {
                         message.channel.send {
                             embed {
-                                author(name = server?.name)
                                 field("Error", "You don't have permission to use this command!", true)
+                                color = Colors.ERROR.color
                             }
                         }
                         return@doesLater
@@ -36,6 +38,7 @@ object DiscussCommand : Command("discuss") {
                         embed {
                             author(name = message.author!!.name)
                             field("Added:", idea, false)
+                            color = Colors.BLUE.color
                         }
                     }
 
@@ -52,8 +55,8 @@ object DiscussCommand : Command("discuss") {
                     if (!sender!!.roles.contains(upperCouncil) && !sender.roles.contains(lowerCouncil)) {
                         message.channel.send {
                             embed {
-                                author(name = server?.name)
                                 field("Error", "You don't have permission to use this command!", true)
+                                color = Colors.ERROR.color
                             }
                         }
                         return@doesLater
@@ -75,6 +78,7 @@ object DiscussCommand : Command("discuss") {
                         embed {
                             author(name = "${message.author!!.name} created $topic")
                             field("Topic", description, false)
+                            color = Colors.BLUE.color
                         }
                     }
 

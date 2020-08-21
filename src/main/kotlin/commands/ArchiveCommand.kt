@@ -14,8 +14,8 @@ object ArchiveCommand : Command("archive") {
             if (message.author?.id != 563138570953687061) {
                 message.channel.send {
                     embed {
-                        author(name = server?.name)
                         field("Error", "You don't have permission to use this command!", true)
+                        color = Main.Colors.WARN.color
                     }
                 }
             } else {
@@ -42,6 +42,7 @@ object ArchiveCommand : Command("archive") {
                         embed {
                             author(name = message.author?.name)
                             field("Success", "Changed name from `$oldName` to `archived-$archivedChannelsNum`", true)
+                            color = Main.Colors.SUCCESS.color
                         }
                     }
                 }
