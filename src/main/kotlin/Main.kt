@@ -1,13 +1,13 @@
 import com.mojang.brigadier.CommandDispatcher
+import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import commands.ArchiveCommand
-import commands.DiscussCommand
-import commands.ExampleCommand
 import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
+import org.reflections.Reflections
 import java.awt.Color
+
 
 fun main() = runBlocking {
     Bot().start()
@@ -27,11 +27,6 @@ class Bot {
         val client = Kordis.create {
             token = config.botToken
 
-            // Simple Event Handler
-/*            addHandler<UserJoinEvent> {
-                println(it.member.name + " has joined")
-            }*/
-
             // Annotation based Event Listener
             addListener(this@Bot)
         }
@@ -41,12 +36,22 @@ class Bot {
     }
 
     /**
-     * TODO: use annotations for Commands and automatically register
+     * Uses reflection to get a list of classes in the commands package which extend Command
+     * and register said classes's instances with Brigadier.
      */
     private fun registerCommands() {
-        dispatcher.register(ExampleCommand)
-        dispatcher.register(ArchiveCommand)
-        dispatcher.register(DiscussCommand)
+        val reflections = Reflections("commands")
+
+        val subTypes: Set<Class<out Command>> = reflections.getSubTypesOf(Command::class.java)
+
+        println("Registering commands...")
+        println(subTypes)
+
+        for (command in subTypes) {
+            dispatcher.register(command.getField("INSTANCE").get(null) as LiteralArgumentBuilder<Cmd>)
+        }
+
+        println("Registered commands!")
     }
 
     @EventHandler
