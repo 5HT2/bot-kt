@@ -25,6 +25,7 @@ dependencies {
     // used to get rid of NOP warning. http://www.slf4j.org/codes.html#StaticLoggerBinder
     compile "com.mojang:brigadier:$bot_brigadier_version"
     compile "org.slf4j:slf4j-nop:$bot_slf4j_version"
+    implementation "com.github.ronmamo:reflections:$bot_reflections_version"
 }
 
 compileKotlin {
