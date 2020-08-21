@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
+import java.awt.Color
 
 fun main() = runBlocking {
     Bot().start()
@@ -59,5 +60,30 @@ class Bot {
         } catch (e: CommandSyntaxException) {
 //            cmd.event.message.channel.send("Syntax error:\n```\n${e.message}\n```")
         }
+    }
+}
+
+object Main {
+/*    fun embed(embedTypes: EmbedTypes) {
+        return when (embedTypes) {
+            ERROR -> MessageBuilder().embed {
+                field("Error", "You don't have permission to use this command!", true)
+                color = Colors.ERROR.color
+            }
+        }
+    }
+
+    enum class EmbedTypes {
+        ERROR
+    }*/
+
+    /**
+     * Int colors, converted from here: https://www.shodor.org/stella2java/rgbint.html
+     */
+    enum class Colors(val color: Color) {
+        BLUE(Color(10195199)),
+        ERROR(Color(14565692)),
+        WARN(Color(14595644)),
+        SUCCESS(Color(3989082));
     }
 }
