@@ -65,7 +65,9 @@ class Bot {
         }
 
         if (versionConfig.version != currentVersion) {
-            println("Not up to date. \nCurrent version: $currentVersion\nLatest Version: ${versionConfig.version}")
+            println("Not up to date:\nCurrent version: $currentVersion\nLatest Version: ${versionConfig.version}\n")
+        } else {
+            println("Up to date! Running on $currentVersion")
         }
     }
 
@@ -79,13 +81,17 @@ class Bot {
         val subTypes: Set<Class<out Command>> = reflections.getSubTypesOf(Command::class.java)
 
         println("Registering commands...")
-        println(subTypes)
 
         for (command in subTypes) {
-            dispatcher.register(command.getField("INSTANCE").get(null) as LiteralArgumentBuilder<Cmd>)
+            val literalCommand = command.getField("INSTANCE").get(null) as LiteralArgumentBuilder<Cmd>
+            CommandManager.commands[literalCommand.literal] = literalCommand
+            dispatcher.register(literalCommand)
         }
 
-        println("Registered commands!")
+        var registeredCommands = ""
+        CommandManager.commands.forEach { entry -> registeredCommands += "\n> ;${entry.key}" }
+
+        println("Registered commands!$registeredCommands\n")
     }
 }
 

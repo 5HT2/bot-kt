@@ -27,3 +27,7 @@ class Cmd(val event: MessageReceiveEvent) {
         }.awaitAll()
     }
 }
+
+object CommandManager {
+    val commands = hashMapOf<String, LiteralArgumentBuilder<Cmd>>()
+}
