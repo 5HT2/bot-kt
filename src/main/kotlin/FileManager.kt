@@ -1,6 +1,8 @@
 import FileManager.authConfigData
 import FileManager.mutesConfigData
+import FileManager.versionConfigData
 import com.google.gson.Gson
+import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
 
@@ -12,6 +14,7 @@ object FileManager {
     val gson = Gson()
     var authConfigData: AuthConfig? = null
     var mutesConfigData: MuteConfig? = null
+    var versionConfigData: VersionConfig? = null
 
     fun writeConfig(configType: ConfigType) {
 
@@ -25,24 +28,41 @@ object FileManager {
      * [T] is [configType].clazz
      */
     inline fun <reified T> readConfig(configType: ConfigType, reload: Boolean): T? {
-        return if (configType.dataMap != null && !reload) {
-            configType.dataMap as T?
+        return if (configType.data != null && !reload) {
+            configType.data as T?
+        } else if (StringHelper.isUrl(configType.configPath)) {
+            readConfigFromUrl<T>(configType)
         } else {
             readConfigFromFile<T>(configType)
         }
     }
 
     /**
-     * Reads config file from disk. Use readConfig() instead, with reload set to true if you really need to refresh from disk.
+     * Reads config file from disk. Use readConfig() instead, with reload set to true if you need to refresh from disk.
      *
      * [configType] is the type of config you'd like to return
      * [T] is [configType].clazz
      */
     inline fun <reified T> readConfigFromFile(configType: ConfigType): T? {
         return try {
-            Files.newBufferedReader(Paths.get(configType.fileName)).use {
+            Files.newBufferedReader(Paths.get(configType.configPath)).use {
                 gson.fromJson(it, T::class.java)
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    /**
+     * Reads config file from a remote URL. Use readConfig() instead, with reload set to true if you need to refresh from the URL.
+     *
+     * [configType] is the type of config you'd like to return
+     * [T] is [configType].clazz
+     */
+    inline fun <reified T> readConfigFromUrl(configType: ConfigType): T? {
+        return try {
+            gson.fromJson(URL(configType.configPath).readText(Charsets.UTF_8), T::class.java)
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -51,16 +71,14 @@ object FileManager {
 }
 
 /**
- * [fileName] is the file name on disk
- * [dataMap] is a Map<*,*> in the format of <foo, bar> here:
- * {
- *     "foo": "bar"
- * }
- * [clazz] is the associated class with the [dataMap] format
+ * [configPath] is the file name on disk, OR a remote URL. If it is a URL, it must be a valid URL which includes http/https as a prefix
+ * [data] is the actual config data, read in the format of clazz
+ * [clazz] is the associated class with the [data] format
  */
-enum class ConfigType(val fileName: String, var dataMap: Any?, val clazz: Class<*>) {
+enum class ConfigType(val configPath: String, var data: Any?, val clazz: Class<*>) {
     AUTH("auth.json", authConfigData, AuthConfig::class.java),
-    MUTE("mutes.json", mutesConfigData, MuteConfig::class.java)
+    MUTE("mutes.json", mutesConfigData, MuteConfig::class.java),
+    VERSION("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json", versionConfigData, VersionConfig::class.java);
 }
 
 /**
@@ -75,3 +93,9 @@ data class AuthConfig(val botToken: String, val githubToken: String)
  * When adding a new [unixUnmute] time, it should be current UNIX time + mute time in seconds
  */
 data class MuteConfig(val id: Long, val unixUnmute: Long)
+
+/**
+ * [version] is a semver format version String
+ * Checked by comparing [Main.currentVersion] against https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json
+ */
+data class VersionConfig(val version: String)
