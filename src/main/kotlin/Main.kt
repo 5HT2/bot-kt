@@ -1,3 +1,4 @@
+import Main.currentVersion
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.exceptions.CommandSyntaxException
@@ -7,6 +8,7 @@ import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.reflections.Reflections
 import java.awt.Color
+import java.io.File
 
 
 fun main() = runBlocking {
@@ -15,8 +17,13 @@ fun main() = runBlocking {
 
 class Bot {
     private val dispatcher = CommandDispatcher<Cmd>()
+    private var hasUpdate = false
+
     suspend fun start() {
         println("Starting bot!")
+
+        updateCheck()
+
         val config = FileManager.readConfig<AuthConfig>(ConfigType.AUTH, false)
 
         if (config?.botToken == null) {
@@ -33,6 +40,33 @@ class Bot {
 
         registerCommands()
         println("Initialized bot!")
+    }
+
+    @EventHandler
+    suspend fun onMessageReceive(event: MessageReceiveEvent) {
+        val message = if (event.message.content[0] == ';') event.message.content.substring(1) else return
+        val cmd = Cmd(event)
+        try {
+            val exit = dispatcher.execute(message, cmd)
+            cmd.file(event)
+            if (exit != 0) println("(executed with exit code $exit)")
+        } catch (e: CommandSyntaxException) {
+//            cmd.event.message.channel.send("Syntax error:\n```\n${e.message}\n```")
+        }
+    }
+
+    private fun updateCheck() {
+        if (File("noUpdateCheck").exists()) return
+        val versionConfig = FileManager.readConfig<VersionConfig>(ConfigType.VERSION, false)
+
+        if (versionConfig?.version == null) {
+            println("Couldn't access remote version when checking for update")
+            return
+        }
+
+        if (versionConfig.version != currentVersion) {
+            println("Not up to date. \nCurrent version: $currentVersion\nLatest Version: ${versionConfig.version}")
+        }
     }
 
     /**
@@ -53,22 +87,10 @@ class Bot {
 
         println("Registered commands!")
     }
-
-    @EventHandler
-    suspend fun onMessageReceive(event: MessageReceiveEvent) {
-        val message = if (event.message.content[0] == ';') event.message.content.substring(1) else return
-        val cmd = Cmd(event)
-        try {
-            val exit = dispatcher.execute(message, cmd)
-            cmd.file(event)
-            if (exit != 0) println("(executed with exit code $exit)")
-        } catch (e: CommandSyntaxException) {
-//            cmd.event.message.channel.send("Syntax error:\n```\n${e.message}\n```")
-        }
-    }
 }
 
 object Main {
+    const val currentVersion = "1.0.0"
     /**
      * Int colors, converted from here: https://www.shodor.org/stella2java/rgbint.html
      */
