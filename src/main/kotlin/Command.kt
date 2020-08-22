@@ -29,5 +29,8 @@ class Cmd(val event: MessageReceiveEvent) {
 }
 
 object CommandManager {
+    /* Name, Literal Command */
     val commands = hashMapOf<String, LiteralArgumentBuilder<Cmd>>()
+
+    fun isCommand(name: String) = commands.containsKey(name)
 }

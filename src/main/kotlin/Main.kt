@@ -51,7 +51,15 @@ class Bot {
             cmd.file(event)
             if (exit != 0) println("(executed with exit code $exit)")
         } catch (e: CommandSyntaxException) {
-//            cmd.event.message.channel.send("Syntax error:\n```\n${e.message}\n```")
+            if (CommandManager.isCommand(message)) {
+                cmd.event.message.channel.send {
+                    embed {
+                        title = "Invalid Syntax!"
+                        description = e.message
+                        color = Main.Colors.ERROR.color
+                    }
+                }
+            }
         }
     }
 
