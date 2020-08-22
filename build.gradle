@@ -11,6 +11,7 @@ version "$bot_kt_version"
 
 repositories {
     mavenCentral()
+    jcenter()
     maven { url 'https://jitpack.io' }
     maven { url 'https://libraries.minecraft.net' }
 }
@@ -26,6 +27,7 @@ dependencies {
     compile "com.mojang:brigadier:$bot_brigadier_version"
     compile "org.slf4j:slf4j-nop:$bot_slf4j_version"
     implementation "com.github.ronmamo:reflections:$bot_reflections_version"
+    implementation "com.squareup.okhttp3:okhttp:4.8.1"
 }
 
 compileKotlin {
