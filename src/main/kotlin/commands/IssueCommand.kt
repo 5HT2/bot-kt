@@ -7,8 +7,10 @@ import classes.Issue
 import com.google.gson.Gson
 import doesLater
 import integer
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import string
 import java.net.URL
 
@@ -24,10 +26,12 @@ object IssueCommand : Command("issue") {
                     val repo: String = context arg "repo"
                     val issueNum: Int = context arg "issueNum"
                     val httpClient = OkHttpClient()
+                    val mediaType = "application/json; charset=utf-8".toMediaType()
+                    val POSTbody = "{headers: {Authorization: token ${FileManager.readConfig<AuthConfig>(ConfigType.AUTH, false)?.githubToken}}}"
                     val request = Request.Builder()
-                        .url(URL("https://api.github.com/repos/kami-blue/${repo}/issues/${issueNum}"))
-                        .addHeader("{headers: {Authorization: token ${FileManager.readConfig<AuthConfig>(ConfigType.AUTH, false)?.githubToken}}}", "application/json")
-                        .build()
+                            .url(URL("https://api.github.com/repos/kami-blue/${repo}/issues/${issueNum}"))
+                            .post(POSTbody.toRequestBody(mediaType))
+                            .build()
                     val response = httpClient.newCall(request).execute()
                     val responseBody = response.body!!.string()
                     val parsedJson = gson.fromJson(responseBody, Issue::class.java)
