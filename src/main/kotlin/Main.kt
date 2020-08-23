@@ -20,6 +20,7 @@ class Bot {
     private var hasUpdate = false
 
     suspend fun start() {
+        val started = System.currentTimeMillis()
         println("Starting bot!")
 
         updateCheck()
@@ -39,7 +40,8 @@ class Bot {
         }
 
         registerCommands()
-        println("Initialized bot!")
+        println("Initialized bot!\n" +
+                "Startup took ${System.currentTimeMillis() - started}ms")
     }
 
     @EventHandler
