@@ -40,7 +40,7 @@ If that still does not help, Hit `Add Configuration` in the upper right of your 
 #### Running prebuilt binaries
 
 ```bash
-java -jar bot-kt-${VER}-SNAPSHOT.jar
+java -jar bot-kt-${VER}.jar
 ```
 
 #### Running prebuilt binaries in pm2.
