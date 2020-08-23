@@ -1,4 +1,5 @@
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
+import com.mojang.brigadier.tree.LiteralCommandNode
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -30,7 +31,9 @@ class Cmd(val event: MessageReceiveEvent) {
 
 object CommandManager {
     /* Name, Literal Command */
-    val commands = hashMapOf<String, LiteralArgumentBuilder<Cmd>>()
+    val commands = hashMapOf<String, LiteralCommandNode<Cmd>>()
 
     fun isCommand(name: String) = commands.containsKey(name)
+
+    fun getCommand(name: String) = commands[name]
 }
