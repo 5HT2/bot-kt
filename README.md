@@ -31,7 +31,9 @@ If that still does not help, Hit `Add Configuration` in the upper right of your 
 
 ### Running prebuilt binaries
 
-// TODO: untested
+```bash
+java -jar bot-kt-${VER}-SNAPSHOT.jar
+```
 
 ### Disabling update checking
 
