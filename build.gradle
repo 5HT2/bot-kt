@@ -22,8 +22,8 @@ dependencies {
     compile "com.google.code.gson:gson:$bot_gson_version"
     compile "io.ktor:ktor-client-okhttp:$bot_ktor_version"
     compile "com.neovisionaries:nv-websocket-client:$bot_nv_websocket_version"
-    // used to get rid of NOP warning. http://www.slf4j.org/codes.html#StaticLoggerBinder
     compile "com.mojang:brigadier:$bot_brigadier_version"
+    // used to get rid of NOP warning. http://www.slf4j.org/codes.html#StaticLoggerBinder
     compile "org.slf4j:slf4j-nop:$bot_slf4j_version"
     compile "com.github.ronmamo:reflections:$bot_reflections_version"
 }
