@@ -54,10 +54,11 @@ class Bot {
             if (exit != 0) println("(executed with exit code $exit)")
         } catch (e: CommandSyntaxException) {
             if (CommandManager.isCommand(message)) {
+                val command = CommandManager.getCommandClass(message)!!
                 cmd.event.message.channel.send {
                     embed {
-                        title = "Invalid Syntax!"
-                        description = e.message
+                        title = "Invalid Syntax: $message"
+                        description = "**${e.message}**\n\n${command.getHelpUsage()}"
                         color = Main.Colors.ERROR.color
                     }
                 }
@@ -94,6 +95,8 @@ class Bot {
 
         for (command in subTypes) {
             val literalCommand = command.getField("INSTANCE").get(null) as LiteralArgumentBuilder<Cmd>
+            val commandAsInstanceOfCommand = command.getField("INSTANCE").get(null) as Command
+            CommandManager.commandClasses[literalCommand.literal] = commandAsInstanceOfCommand
             CommandManager.commands[literalCommand.literal] = dispatcher.register(literalCommand)
         }
 
