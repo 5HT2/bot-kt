@@ -10,7 +10,9 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * @author dominikaaaa
  * @since 2020/08/18 16:30
  */
-open class Command(val name: String) : LiteralArgumentBuilder<Cmd>(name)
+open class Command(val name: String) : LiteralArgumentBuilder<Cmd>(name) {
+    open fun getHelpUsage(): String = "`;$name`"
+}
 
 class Cmd(val event: MessageReceiveEvent) {
 
@@ -32,8 +34,11 @@ class Cmd(val event: MessageReceiveEvent) {
 object CommandManager {
     /* Name, Literal Command */
     val commands = hashMapOf<String, LiteralCommandNode<Cmd>>()
+    val commandClasses = hashMapOf<String, Command>()
 
     fun isCommand(name: String) = commands.containsKey(name)
 
     fun getCommand(name: String) = commands[name]
+
+    fun getCommandClass(name: String) = commandClasses[name]
 }

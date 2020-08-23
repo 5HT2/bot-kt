@@ -55,4 +55,8 @@ object ArchiveCommand : Command("archive") {
 
         }
     }
+
+    override fun getHelpUsage(): String {
+        return "Archives current channel.\n`;$name`"
+    }
 }
