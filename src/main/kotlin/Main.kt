@@ -94,8 +94,7 @@ class Bot {
 
         for (command in subTypes) {
             val literalCommand = command.getField("INSTANCE").get(null) as LiteralArgumentBuilder<Cmd>
-            CommandManager.commands[literalCommand.literal] = literalCommand.build()
-            dispatcher.register(literalCommand)
+            CommandManager.commands[literalCommand.literal] = dispatcher.register(literalCommand)
         }
 
         var registeredCommands = ""
