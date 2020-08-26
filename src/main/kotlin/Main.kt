@@ -1,20 +1,21 @@
-import Main.currentVersion
+import CommandManager.registerCommands
+import UpdateHelper.updateCheck
 import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.reflections.Reflections
 import java.awt.Color
-import java.io.File
-
 
 fun main() = runBlocking {
     Bot().start()
 }
 
+/**
+ * @author dominikaaaa
+ * @since 16/08/20 17:30
+ */
 class Bot {
     private val dispatcher = CommandDispatcher<Cmd>()
     private var hasUpdate = false
@@ -39,7 +40,7 @@ class Bot {
             addListener(this@Bot)
         }
 
-        registerCommands()
+        registerCommands(dispatcher)
         println("Initialized bot!\n" +
                 "Startup took ${System.currentTimeMillis() - started}ms")
     }
@@ -64,46 +65,6 @@ class Bot {
                 }
             }
         }
-    }
-
-    private fun updateCheck() {
-        if (File("noUpdateCheck").exists()) return
-        val versionConfig = FileManager.readConfig<VersionConfig>(ConfigType.VERSION, false)
-
-        if (versionConfig?.version == null) {
-            println("Couldn't access remote version when checking for update")
-            return
-        }
-
-        if (versionConfig.version != currentVersion) {
-            println("Not up to date:\nCurrent version: $currentVersion\nLatest Version: ${versionConfig.version}\n")
-        } else {
-            println("Up to date! Running on $currentVersion")
-        }
-    }
-
-    /**
-     * Uses reflection to get a list of classes in the commands package which extend [Command]
-     * and register said classes's instances with Brigadier.
-     */
-    private fun registerCommands() {
-        val reflections = Reflections("commands")
-
-        val subTypes: Set<Class<out Command>> = reflections.getSubTypesOf(Command::class.java)
-
-        println("Registering commands...")
-
-        for (command in subTypes) {
-            val literalCommand = command.getField("INSTANCE").get(null) as LiteralArgumentBuilder<Cmd>
-            val commandAsInstanceOfCommand = command.getField("INSTANCE").get(null) as Command
-            CommandManager.commandClasses[literalCommand.literal] = commandAsInstanceOfCommand
-            CommandManager.commands[literalCommand.literal] = dispatcher.register(literalCommand)
-        }
-
-        var registeredCommands = ""
-        CommandManager.commands.forEach { entry -> registeredCommands += "\n> ;${entry.key}" }
-
-        println("Registered commands!$registeredCommands\n")
     }
 }
 

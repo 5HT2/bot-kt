@@ -1,9 +1,11 @@
+import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.tree.LiteralCommandNode
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
+import org.reflections.Reflections
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
@@ -33,12 +35,36 @@ class Cmd(val event: MessageReceiveEvent) {
 
 object CommandManager {
     /* Name, Literal Command */
-    val commands = hashMapOf<String, LiteralCommandNode<Cmd>>()
-    val commandClasses = hashMapOf<String, Command>()
+    private val commands = hashMapOf<String, LiteralCommandNode<Cmd>>()
+    private val commandClasses = hashMapOf<String, Command>()
 
     fun isCommand(name: String) = commands.containsKey(name)
 
     fun getCommand(name: String) = commands[name]
 
     fun getCommandClass(name: String) = commandClasses[name]
+
+    /**
+     * Uses reflection to get a list of classes in the commands package which extend [Command]
+     * and register said classes's instances with Brigadier.
+     */
+    fun registerCommands(dispatcher: CommandDispatcher<Cmd>) {
+        val reflections = Reflections("commands")
+
+        val subTypes: Set<Class<out Command>> = reflections.getSubTypesOf(Command::class.java)
+
+        println("Registering commands...")
+
+        for (command in subTypes) {
+            val literalCommand = command.getField("INSTANCE").get(null) as LiteralArgumentBuilder<Cmd>
+            val commandAsInstanceOfCommand = command.getField("INSTANCE").get(null) as Command
+            commandClasses[literalCommand.literal] = commandAsInstanceOfCommand
+            commands[literalCommand.literal] = dispatcher.register(literalCommand)
+        }
+
+        var registeredCommands = ""
+        commands.forEach { entry -> registeredCommands += "\n> ;${entry.key}" }
+
+        println("Registered commands!$registeredCommands\n")
+    }
 }
