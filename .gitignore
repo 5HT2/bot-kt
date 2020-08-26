@@ -1,6 +1,5 @@
 # Bot configuration files
-auth.json
-mutes.json
+config/
 
 # Intellij IDEA configuration files
 .idea/

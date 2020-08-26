@@ -1,5 +1,6 @@
 import FileManager.authConfigData
 import FileManager.mutesConfigData
+import FileManager.userConfigData
 import FileManager.versionConfigData
 import com.google.gson.Gson
 import java.net.URL
@@ -15,6 +16,7 @@ object FileManager {
     var authConfigData: AuthConfig? = null
     var mutesConfigData: MuteConfig? = null
     var versionConfigData: VersionConfig? = null
+    var userConfigData: UserConfig? = null
 
     fun writeConfig(configType: ConfigType) {
 
@@ -76,9 +78,10 @@ object FileManager {
  * [clazz] is the associated class with the [data] format
  */
 enum class ConfigType(val configPath: String, var data: Any?, val clazz: Class<*>) {
-    AUTH("auth.json", authConfigData, AuthConfig::class.java),
-    MUTE("mutes.json", mutesConfigData, MuteConfig::class.java),
-    VERSION("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json", versionConfigData, VersionConfig::class.java);
+    AUTH("config/auth.json", authConfigData, AuthConfig::class.java),
+    MUTE("config/mutes.json", mutesConfigData, MuteConfig::class.java),
+    VERSION("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json", versionConfigData, VersionConfig::class.java),
+    USER("config/user.json", userConfigData, UserConfig::class.java)
 }
 
 /**
@@ -89,7 +92,7 @@ data class AuthConfig(val botToken: String, val githubToken: String)
 
 /**
  * [id] is the user snowflake ID
- * [unixUnmute] is the UNIX time of then they should be unmuted.
+ * [unixUnmute] is the UNIX time of when they should be unmuted.
  * When adding a new [unixUnmute] time, it should be current UNIX time + mute time in seconds
  */
 data class MuteConfig(val id: Long, val unixUnmute: Long)
@@ -99,3 +102,11 @@ data class MuteConfig(val id: Long, val unixUnmute: Long)
  * Checked by comparing [Main.currentVersion] against https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json
  */
 data class VersionConfig(val version: String)
+
+/**
+ * [autoUpdate] is whether the bot should automatically update after a successful update check. Will not do anything when set to true if update checking is disabled.
+ * [installPath] is the full file path of where your bot is, eg /home/mika/bot-kt
+ * I'm not sure why you would be running a server on Windows in the first place, as such, auto update is only tested on Linux
+ * [startUpChannel] is the channel ID of where to send bot startup messages. Omit from config to disable startup messages.
+ */
+data class UserConfig(val autoUpdate: Boolean, val installPath: String, val startUpChannel: Long)
