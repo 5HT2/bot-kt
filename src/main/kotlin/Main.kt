@@ -20,7 +20,6 @@ fun main() = runBlocking {
 class Bot {
     private val dispatcher = CommandDispatcher<Cmd>()
     private var hasUpdate = false
-    private var client: DiscordClient? = null
 
     suspend fun start() {
         val started = System.currentTimeMillis()
@@ -35,7 +34,7 @@ class Bot {
             return
         }
 
-        client = Kordis.create {
+        Main.client = Kordis.create {
             token = config.botToken
 
             // Annotation based Event Listener
@@ -71,6 +70,7 @@ class Bot {
 }
 
 object Main {
+    var client: DiscordClient? = null
     const val currentVersion = "1.0.1"
     /**
      * Int colors, converted from here: https://www.shodor.org/stella2java/rgbint.html
