@@ -53,6 +53,6 @@ object StringHelper {
             }
             rulesMap[ruleID] = ruleSplit[1]
         }
-        return rulesMap[rule]
+        return rulesMap[rule.trim().replace("\\*|\\.".toRegex(), "")]
     }
 }
