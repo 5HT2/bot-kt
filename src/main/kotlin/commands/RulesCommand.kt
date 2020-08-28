@@ -22,6 +22,6 @@ object RulesCommand : Command("r") {
 
     override fun getHelpUsage(): String {
         return "Rule command, gets rule from rules channel:\n" +
-                "`;$name [rule]`\n\n"
+                "`;$name [rule]`"
     }
 }
