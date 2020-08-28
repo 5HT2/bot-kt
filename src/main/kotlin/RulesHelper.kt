@@ -10,9 +10,18 @@ object RulesHelper {
         val rulesMap: HashMap<String, String> = HashMap()
         val noFormatRules = getRulesMessage(server) ?: return rulesMap
         val rulesByLine = noFormatRules.split("\n")
+        var lastNumber = ""
         for (ruleLine in rulesByLine) {
-            val ruleSplit = ruleLine.split(" ", limit = 2)
-            rulesMap[ruleSplit[0]] = ruleSplit[1]
+            val ruleSplit = ruleLine.trim().split(" ", limit = 2)
+            var ruleID = ruleSplit[0].replace("*", "").replace(".", "")
+            if (ruleID.isEmpty()) continue
+            try {
+                Integer.parseInt(ruleID)
+                lastNumber = ruleID
+            } catch (_: NumberFormatException) {
+                ruleID = "$lastNumber$ruleID"
+            }
+            rulesMap[ruleID] = ruleSplit[1]
         }
         return rulesMap
     }
