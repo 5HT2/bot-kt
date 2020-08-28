@@ -3,7 +3,7 @@ package commands
 import Command
 import arg
 import doesLater
-import greedyString
+import string
 
 /**
  * @author dominikaaaa
@@ -11,7 +11,7 @@ import greedyString
  */
 object RulesCommand : Command("r") {
     init {
-        greedyString("rule") {
+        string("rule") {
             doesLater { context ->
                 // Explicit types are necessary for type inference
                 val ruleName: String = context arg "rule"

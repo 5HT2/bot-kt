@@ -37,13 +37,13 @@ object StringHelper {
     }
 
     suspend fun getRule(server: Server, rule: String): String? {
-        val rulesMap: HashMap<String, String> = HashMap()
-        val noFormatRules = (server.textChannels.findByName("rules") ?: return null).getMessages().first().content
+        val rulesMap = HashMap<String, String>()
+        val noFormatRules = (server.textChannels.findByName("rules") ?: return null).getMessages().last().content
         val rulesByLine = noFormatRules.split("\n")
         var lastNumber = ""
         for (ruleLine in rulesByLine) {
             val ruleSplit = ruleLine.trim().split(" ", limit = 2)
-            var ruleID = ruleSplit[0].replace("*", "").replace(".", "")
+            var ruleID = ruleSplit[0].replace("\\*|\\.".toRegex(), "")
             if (ruleID.isEmpty()) continue
             try {
                 Integer.parseInt(ruleID)
