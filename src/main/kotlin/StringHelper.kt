@@ -1,6 +1,7 @@
 import net.ayataka.kordis.entity.channel.TextChannel
 import java.io.File
 import java.util.concurrent.TimeUnit
+import net.ayataka.kordis.entity.server.Server
 
 object StringHelper {
     fun String.isUrl(): Boolean {
@@ -33,5 +34,25 @@ object StringHelper {
 
     enum class MessageTypes {
         MISSING_PERMISSIONS
+    }
+
+    suspend fun getRule(server: Server, rule: String): String? {
+        val rulesMap: HashMap<String, String> = HashMap()
+        val noFormatRules = (server.textChannels.findByName("rules") ?: return null).getMessages().first().content
+        val rulesByLine = noFormatRules.split("\n")
+        var lastNumber = ""
+        for (ruleLine in rulesByLine) {
+            val ruleSplit = ruleLine.trim().split(" ", limit = 2)
+            var ruleID = ruleSplit[0].replace("*", "").replace(".", "")
+            if (ruleID.isEmpty()) continue
+            try {
+                Integer.parseInt(ruleID)
+                lastNumber = ruleID
+            } catch (_: NumberFormatException) {
+                ruleID = "$lastNumber$ruleID"
+            }
+            rulesMap[ruleID] = ruleSplit[1]
+        }
+        return rulesMap[rule]
     }
 }
