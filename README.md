@@ -15,7 +15,7 @@ Uses [Brigadier](https://github.com/Mojang/brigadier/) with a wrapper for the co
 
 ## Usage
 
-Create your `auth.json` like below. Generate `githubToken` with `repo:status` and `public_repo` access checked [here](https://github.com/settings/tokens) and you can get your bot token [here](https://discord.com/developers/applications/BOT_ID_HERE/bot).
+Create your `config/auth.json` like below. Generate `githubToken` with `repo:status` and `public_repo` access checked [here](https://github.com/settings/tokens) and you can get your bot token [here](https://discord.com/developers/applications/BOT_ID_HERE/bot).
 
 The `githubToken` is only required if you want to use any of the Github commands, such as `;issue`
 
