@@ -33,7 +33,7 @@ class Bot {
             return
         }
 
-        val client = Kordis.create {
+        @Suppress("UNUSED_VARIABLE") val client = Kordis.create {
             token = config.botToken
 
             // Annotation based Event Listener
@@ -69,7 +69,7 @@ class Bot {
 }
 
 object Main {
-    const val currentVersion = "1.0.0"
+    const val currentVersion = "1.0.1"
     /**
      * Int colors, converted from here: https://www.shodor.org/stella2java/rgbint.html
      */
