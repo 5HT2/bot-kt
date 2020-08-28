@@ -15,7 +15,7 @@ object RulesCommand : Command("r") {
             doesLater { context ->
                 // Explicit types are necessary for type inference
                 val ruleName: String = context arg "rule"
-                message.channel.send(RulesHelper.getRule(message, ruleName)?: "$ruleName does not exist.")
+                message.channel.send(RulesHelper.getRule(message.server!!, ruleName)?: "$ruleName does not exist.")
             }
         }
     }

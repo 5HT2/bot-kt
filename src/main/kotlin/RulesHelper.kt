@@ -1,13 +1,14 @@
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.server.Server
 
 object RulesHelper {
-    suspend fun getRulesMessage(message: Message): String? {
-        return (message.server!!.textChannels.findByName("rules") ?: return null).getMessages().first().content
+    suspend fun getRulesMessage(server: Server): String? {
+        return (server.textChannels.findByName("rules") ?: return null).getMessages().first().content
     }
 
-    suspend fun getRules(message: Message): HashMap<String, String> {
+    suspend fun getRules(server: Server): HashMap<String, String> {
         val rulesMap: HashMap<String, String> = HashMap()
-        val noFormatRules = getRulesMessage(message) ?: return rulesMap
+        val noFormatRules = getRulesMessage(server) ?: return rulesMap
         val rulesByLine = noFormatRules.split("\n")
         for (ruleLine in rulesByLine) {
             val ruleSplit = ruleLine.split(" ", limit = 2)
@@ -16,7 +17,7 @@ object RulesHelper {
         return rulesMap
     }
 
-    suspend fun getRule(message: Message, rule: String): String? {
-        return getRules(message)[rule]
+    suspend fun getRule(server: Server, rule: String): String? {
+        return getRules(server)[rule]
     }
 }
