@@ -3,6 +3,7 @@ import UpdateHelper.updateCheck
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import kotlinx.coroutines.runBlocking
+import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
@@ -19,6 +20,7 @@ fun main() = runBlocking {
 class Bot {
     private val dispatcher = CommandDispatcher<Cmd>()
     private var hasUpdate = false
+    private var client: DiscordClient? = null
 
     suspend fun start() {
         val started = System.currentTimeMillis()
@@ -33,7 +35,7 @@ class Bot {
             return
         }
 
-        @Suppress("UNUSED_VARIABLE") val client = Kordis.create {
+        client = Kordis.create {
             token = config.botToken
 
             // Annotation based Event Listener
