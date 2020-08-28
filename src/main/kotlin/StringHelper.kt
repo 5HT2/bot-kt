@@ -36,11 +36,17 @@ object StringHelper {
         MISSING_PERMISSIONS
     }
 
-    private val rulesMap = HashMap<String, String>()
+    private val rulesMap = HashMap<Long, HashMap<String, String>>()
+
+    fun removeServerRules(server: Server) {
+        rulesMap.remove(server.id)
+    }
 
     suspend fun getRule(server: Server, rule: String): String? {
-        if (rulesMap.isEmpty()) {
-            val noFormatRules = (server.textChannels.findByName("rules") ?: return null).getMessages().last().content
+        if (rulesMap[server.id] == null) rulesMap[server.id] = HashMap()
+        if (rulesMap[server.id]!!.isEmpty()) {
+            val noFormatRules =
+                (server.textChannels.findByName("rules") ?: return null).getMessages().last().content
             val rulesByLine = noFormatRules.split("\n")
             var lastNumber = ""
             for (ruleLine in rulesByLine) {
@@ -53,9 +59,9 @@ object StringHelper {
                 } catch (_: NumberFormatException) {
                     ruleID = "$lastNumber$ruleID"
                 }
-                rulesMap[ruleID] = ruleSplit[1]
+                rulesMap[server.id]!![ruleID] = ruleSplit[1]
             }
         }
-        return rulesMap[rule.trim().replace("\\*|\\.".toRegex(), "")]
+        return rulesMap[server.id]!![rule.trim().replace("\\*|\\.".toRegex(), "")]
     }
 }
