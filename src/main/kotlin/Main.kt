@@ -20,7 +20,6 @@ fun main() = runBlocking {
  */
 class Bot {
     private val dispatcher = CommandDispatcher<Cmd>()
-    private var hasUpdate = false
 
     suspend fun start() {
         val started = System.currentTimeMillis()
