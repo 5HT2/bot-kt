@@ -9,6 +9,7 @@ import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
+import net.ayataka.kordis.entity.channel.TextChannel
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import java.awt.Color
@@ -134,5 +135,14 @@ object Main {
         ERROR(Color(14565692)),
         WARN(Color(14595644)),
         SUCCESS(Color(3989082));
+    }
+
+    suspend fun missingPermissionEmbed(channel: TextChannel) {
+        channel.send {
+            embed {
+                field("Error", "You don't have permission to use this command!", true)
+                color = Colors.ERROR.color
+            }
+        }
     }
 }
