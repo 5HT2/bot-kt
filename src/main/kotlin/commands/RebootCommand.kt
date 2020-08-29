@@ -22,13 +22,13 @@ object RebootCommand : Command("reboot") {
             }
 
             try {
-                "pm2 reload bot-kt".runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
                 message.channel.send {
                     embed {
                         title = "Rebooting..."
                         color = Main.Colors.SUCCESS.color
                     }
                 }
+                "pm2 reload bot-kt".runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
             } catch (e: IOException) {
                 message.channel.send {
                     embed {
