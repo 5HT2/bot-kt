@@ -63,7 +63,7 @@ You obviously need [pm2](https://pm2.keymetrics.io/) installed first.
 
 You need a pm2 config the first time you run it. Run the bot with this command to create the config:
 ```bash
-java -jar -Dbot-kt.create-pm2-config=true bot-kt-1.0.2.jar
+java -jar -Dbot-kt.create-pm2-config=true bot-kt-1.0.3.jar
 ```
 
 Once you have a config, you can run `pm2 start process.json` and it will start the process. You can do `pm2 list` to list active processes and `pm2 reload bot-kt` to reload it.
@@ -75,7 +75,7 @@ It will also automatically reload when auto updating.
 #### Running prebuilt binaries
 
 ```bash
-java -jar bot-kt-1.0.2.jar
+java -jar bot-kt-1.0.3.jar
 ```
 
 #### Disabling update checking
