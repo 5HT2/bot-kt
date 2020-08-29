@@ -105,8 +105,6 @@ data class VersionConfig(val version: String)
 
 /**
  * [autoUpdate] is whether the bot should automatically update after a successful update check. Will not do anything when set to true if update checking is disabled.
- * [installPath] is the full file path of where your bot is, eg /home/mika/bot-kt
- * I'm not sure why you would be running a server on Windows in the first place, as such, auto update is only tested on Linux
  * [startUpChannel] is the channel ID of where to send bot startup messages. Omit from config to disable startup messages.
  */
-data class UserConfig(val autoUpdate: Boolean, val installPath: String, val startUpChannel: Long)
+data class UserConfig(val autoUpdate: Boolean, val startUpChannel: Long)
