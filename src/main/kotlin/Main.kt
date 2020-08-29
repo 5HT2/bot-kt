@@ -2,12 +2,14 @@ import CommandManager.registerCommands
 import UpdateHelper.updateCheck
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import java.awt.Color
+import java.io.File
 import kotlin.system.exitProcess
 
 fun main() = runBlocking {
@@ -49,7 +51,41 @@ class Bot {
         }
 
         registerCommands(dispatcher)
-        println("Initialized bot!\nStartup took ${System.currentTimeMillis() - started}ms")
+
+        val initialization = "Initialized bot!\nStartup took ${System.currentTimeMillis() - started}ms"
+        val userConfig = if (File(ConfigType.USER.configPath).exists()) {
+            FileManager.readConfig<UserConfig>(ConfigType.USER, false)
+        } else {
+            null
+        }
+
+        if (userConfig?.startUpChannel != null) {
+            delay(2000) // Discord API is really stupid and doesn't give you the information you need right away, hence delay needed
+            if (userConfig.primaryServerId == null) {
+                Main.client!!.servers.forEach {
+                    it.textChannels.findByName(userConfig.startUpChannel)?.send {
+                        embed {
+                            title = "Startup"
+                            description = initialization
+                            color = Main.Colors.SUCCESS.color
+                        }
+                    }
+                }
+            } else {
+                val channel = Main.client!!.servers.find(userConfig.primaryServerId)!!.textChannels.findByName(userConfig.startUpChannel)
+                channel?.send {
+                    embed {
+                        title = "Startup"
+                        description = initialization
+                        color = Main.Colors.SUCCESS.color
+                    }
+                }
+            }
+        } else {
+            println("Startup channel is null!")
+        }
+
+        println(initialization)
     }
 
     @EventHandler
