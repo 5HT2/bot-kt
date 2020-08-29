@@ -1,5 +1,8 @@
 # bot-kt
 
+![GitHub All Releases](https://img.shields.io/github/downloads/kami-blue/bot-kt/total)
+![Discord](https://img.shields.io/discord/573954110454366214)
+
 The moderation bot for KAMI Blue's Discord, written in Kotlin for reliability. 
 
 Why should you use this over other Kotlin bots:
