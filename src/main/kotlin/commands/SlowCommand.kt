@@ -13,6 +13,15 @@ object SlowCommand : Command("slow") {
         integer("wait") {
             integer("time") {
                 doesLater { context ->
+                    if (!server!!.members.find(message.author!!.id)!!.canManage(message.serverChannel!!)) {
+                        message.channel.send {
+                            embed {
+                                field("Error", "You don't have permission to use this command!", true)
+                                color = Main.Colors.ERROR.color
+                            }
+                        }
+                        return@doesLater
+                    }
                     val wait: Int = context arg "wait"
                     val time: Int = context arg "time"
                     val originalWait = message.serverChannel!!.rateLimitPerUser
