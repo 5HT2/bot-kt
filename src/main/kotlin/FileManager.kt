@@ -105,6 +105,7 @@ data class VersionConfig(val version: String)
 
 /**
  * [autoUpdate] is whether the bot should automatically update after a successful update check. Will not do anything when set to true if update checking is disabled.
- * [startUpChannel] is the channel ID of where to send bot startup messages. Omit from config to disable startup messages.
+ * [primaryServerId] is the main server where startup messages should be sent. Omit from config to send to all servers.
+ * [startUpChannel] is the channel name of where to send bot startup messages. Omit from config to disable startup messages.
  */
-data class UserConfig(val autoUpdate: Boolean, val startUpChannel: Long)
+data class UserConfig(val autoUpdate: Boolean, val primaryServerId: Long?, val startUpChannel: String?)

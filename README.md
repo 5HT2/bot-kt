@@ -34,6 +34,19 @@ The `githubToken` is only required if you want to use any of the Github commands
 }
 ```
 
+<details>
+    <summary>`user.json` example</summary>
+    
+```json
+{
+    "autoUpdate": "true",
+    "primaryServerId": "573954110454366214",
+    "startUpChannel": "dev-bot"
+}
+```
+
+</details>
+
 ## Running 
 
 #### Running in Intellij
