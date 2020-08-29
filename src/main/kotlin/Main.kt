@@ -8,6 +8,7 @@ import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import java.awt.Color
+import kotlin.system.exitProcess
 
 fun main() = runBlocking {
     Bot().start()
@@ -23,6 +24,13 @@ class Bot {
 
     suspend fun start() {
         val started = System.currentTimeMillis()
+
+        if (System.getProperty("bot-kt.create-pm2-config") == "true") {
+            Pm2.createJson(Main.currentVersion)
+            println("Created pm2 config!")
+            exitProcess(0)
+        }
+
         println("Starting bot!")
 
         updateCheck()
@@ -42,8 +50,7 @@ class Bot {
         }
 
         registerCommands(dispatcher)
-        println("Initialized bot!\n" +
-                "Startup took ${System.currentTimeMillis() - started}ms")
+        println("Initialized bot!\nStartup took ${System.currentTimeMillis() - started}ms")
     }
 
     @EventHandler
@@ -72,6 +79,7 @@ class Bot {
 object Main {
     var client: DiscordClient? = null
     const val currentVersion = "1.0.1"
+
     /**
      * Int colors, converted from here: https://www.shodor.org/stella2java/rgbint.html
      */

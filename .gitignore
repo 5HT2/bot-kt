@@ -1,5 +1,6 @@
 # Bot configuration files
 config/
+process.json
 
 # Intellij IDEA configuration files
 .idea/

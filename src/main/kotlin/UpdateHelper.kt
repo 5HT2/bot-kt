@@ -2,7 +2,6 @@ import Main.currentVersion
 import java.io.File
 import java.io.IOException
 import java.net.URL
-import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
@@ -36,36 +35,43 @@ object UpdateHelper {
             return
         }
 
-        val path = Paths.get(userConfig.installPath)
-        if (Files.isDirectory(path)) {
-            val deleted = arrayListOf<String>()
-            File(userConfig.installPath).walk().forEach {
-                if (it.name.matches(Regex("bot-kt.*.jar"))) {
-                    deleted.add(it.name)
-                    it.delete()
-                }
+        val path = Paths.get(System.getProperty("user.dir"))
+        val deleted = arrayListOf<String>()
+        File(path.toString()).walk().forEach {
+            if (it.name.matches(Regex("bot-kt.*.jar"))) {
+                deleted.add(it.name)
+                it.delete()
             }
+        }
 
-            if (deleted.isNotEmpty()) {
-                println("Auto Update - Deleted the following files:\n" + deleted.joinToString { it })
-            }
+        if (deleted.isNotEmpty()) {
+            println("Auto Update - Deleted the following files:\n" + deleted.joinToString { it })
+        }
 
-            val bytes = URL("https://github.com/kami-blue/bot-kt/releases/download/$version/bot-kt-$version.jar").readBytes()
+        val bytes =
+            URL("https://github.com/kami-blue/bot-kt/releases/download/$version/bot-kt-$version.jar").readBytes()
 
-            println("Auto Update - Downloaded bot-kt-$version.jar ${bytes.size / 1000000}MB")
-            val appendSlash = if (path.endsWith("/")) "" else "/"
-            val targetFile = path.toString() + appendSlash + "bot-kt-$version.jar"
-            File(targetFile).writeBytes(bytes)
-            println("Auto Update - Finished updating to $version")
+        println("Auto Update - Downloaded bot-kt-$version.jar ${bytes.size / 1000000}MB")
+        val appendSlash = if (path.endsWith("/")) "" else "/"
+        val targetFile = path.toString() + appendSlash + "bot-kt-$version.jar"
+        File(targetFile).writeBytes(bytes)
+        println("Auto Update - Finished updating to $version")
+
+        if (File("process.json").exists()) {
+
+            println("Auto Update - Creating pm2 config")
+
+            Pm2.createJson(version)
+
+            println("Auto Update - Created pm2 config, reloading bot-kt")
 
             try {
                 "pm2 reload bot-kt".runCommand(File(path.toString()))
             } catch (e: IOException) {
-                println("pm2 is not installed, failed to reload bot.\n" +
-                        "You can ignore this if you're not using pm2, but you will need to manually restart the bot to start using the latest version.")
+                println("pm2 is not installed, failed to reload bot.\nYou can ignore this if you're not using pm2, but you will need to manually restart the bot to start using the latest version.")
             }
         } else {
-            println("Auto Update - Couldn't find install path \"$path\"")
+            println("Auto Update - You may now restart the bot to start using the latest version")
         }
     }
 
