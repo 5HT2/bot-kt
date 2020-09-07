@@ -2,7 +2,9 @@ import FileManager.authConfigData
 import FileManager.mutesConfigData
 import FileManager.userConfigData
 import FileManager.versionConfigData
+import StringHelper.isUrl
 import com.google.gson.Gson
+import java.io.File
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -23,16 +25,37 @@ object FileManager {
     }
 
     /**
-     * Reads config from memory if it's already been read.
+     * Safely returns [readConfig] without worrying if the file exists.
      *
      * [reload] will reload the file in memory and return the new file dataMap
      * [configType] is the type of config you'd like to return
      * [T] is [configType].clazz
      */
+    inline fun <reified T> readConfigSafe(configType: ConfigType, reload: Boolean): T? {
+        return if (configType.configPath.isUrl()) {
+            readConfig<T>(configType, reload)
+        } else {
+            if (File(configType.configPath).exists()) {
+                readConfig<T>(configType, reload)
+            } else {
+                null
+            }
+        }
+    }
+
+    /**
+     * Reads config from memory if it's already been read.
+     *
+     * [reload] will reload the file in memory and return the new file dataMap
+     * [configType] is the type of config you'd like to return
+     * [T] is [configType].clazz
+     *
+     * @throws [NoSuchFileException]
+     */
     inline fun <reified T> readConfig(configType: ConfigType, reload: Boolean): T? {
         return if (configType.data != null && !reload) {
             configType.data as T?
-        } else if (StringHelper.isUrl(configType.configPath)) {
+        } else if (configType.configPath.isUrl()) {
             readConfigFromUrl<T>(configType)
         } else {
             readConfigFromFile<T>(configType)

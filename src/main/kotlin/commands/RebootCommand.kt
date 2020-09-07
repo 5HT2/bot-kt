@@ -2,11 +2,11 @@ package commands
 
 import Command
 import Main
+import StringHelper.runCommand
 import doesLater
 import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
-import java.util.concurrent.TimeUnit
 
 object RebootCommand : Command("reboot") {
     init {
@@ -39,14 +39,5 @@ object RebootCommand : Command("reboot") {
                 }
             }
         }
-    }
-
-    private fun String.runCommand(workingDir: File) {
-        ProcessBuilder(*split(" ").toTypedArray())
-            .directory(workingDir)
-            .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-            .redirectError(ProcessBuilder.Redirect.INHERIT)
-            .start()
-            .waitFor(1, TimeUnit.MINUTES)
     }
 }

@@ -6,10 +6,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
+import net.ayataka.kordis.entity.server.enums.ActivityType
+import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import java.awt.Color
-import java.io.File
 import kotlin.system.exitProcess
 
 fun main() = runBlocking {
@@ -45,19 +46,17 @@ class Bot {
 
         Main.client = Kordis.create {
             token = config.botToken
-
             // Annotation based Event Listener
             addListener(this@Bot)
         }
 
+        // TODO: Make user configurable
+        Main.client!!.updateStatus(UserStatus.ONLINE, ActivityType.WATCHING, "out for raids")
+
         registerCommands(dispatcher)
 
         val initialization = "Initialized bot!\nStartup took ${System.currentTimeMillis() - started}ms"
-        val userConfig = if (File(ConfigType.USER.configPath).exists()) {
-            FileManager.readConfig<UserConfig>(ConfigType.USER, false)
-        } else {
-            null
-        }
+        val userConfig = FileManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
 
         if (userConfig?.startUpChannel != null) {
             delay(2000) // Discord API is really stupid and doesn't give you the information you need right away, hence delay needed
