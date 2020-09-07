@@ -1,9 +1,9 @@
 import Main.currentVersion
+import StringHelper.runCommand
 import java.io.File
 import java.io.IOException
 import java.net.URL
 import java.nio.file.Paths
-import java.util.concurrent.TimeUnit
 
 /**
  * @author dominikaaaa
@@ -73,14 +73,5 @@ object UpdateHelper {
         } else {
             println("Auto Update - You may now restart the bot to start using the latest version")
         }
-    }
-
-    private fun String.runCommand(workingDir: File) {
-        ProcessBuilder(*split(" ").toTypedArray())
-            .directory(workingDir)
-            .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-            .redirectError(ProcessBuilder.Redirect.INHERIT)
-            .start()
-            .waitFor(1, TimeUnit.MINUTES)
     }
 }
