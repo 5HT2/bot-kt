@@ -124,7 +124,7 @@ class Bot {
 object Main {
     var client: DiscordClient? = null
     var ready = false
-    const val currentVersion = "1.0.3"
+    const val currentVersion = "1.0.4"
 
     /**
      * Int colors, converted from here: https://www.shodor.org/stella2java/rgbint.html
