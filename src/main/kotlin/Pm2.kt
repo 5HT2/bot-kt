@@ -24,15 +24,15 @@ object Pm2 {
     private fun createProcess(version: String): Pm2Process {
         val apps = Apps()
         val process = Pm2Process()
-        apps.script = getJavaHome()
+        apps.script = getJre()
         apps.args = listOf("-jar", "bot-kt-$version.jar")
         apps.watch = listOf("bot-kt-$version.jar")
         process.apps = listOf(apps)
         return process
     }
 
-    private fun getJavaHome(): String {
-        val home = System.getProperty("java.home")
+    private fun getJre(): String {
+        var home = System.getProperty("java.home")
         println("Auto Update - Found Java Home \"$home\"")
         if (home.isEmpty() || !Regex("[^ ]").containsMatchIn(home)) {
             throw IllegalStateException(
@@ -40,6 +40,11 @@ object Pm2 {
                         "This is required by pm2, please set your Java home properly."
             )
         }
+        if (home.endsWith('/')) home = home.substring(0, home.length - 1)
+        if (home.endsWith("jre")) home = home.substring(0, home.length - 3)
+        if (home.endsWith('/')) home = home.substring(0, home.length - 1)
+
+        home = "$home/bin/java"
         return home
     }
 }
