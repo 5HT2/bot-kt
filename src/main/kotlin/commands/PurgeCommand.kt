@@ -1,6 +1,7 @@
 package commands
 
 import Command
+import StringHelper.MessageTypes.MISSING_PERMISSIONS
 import arg
 import doesLater
 import greedyString
@@ -11,8 +12,8 @@ object PurgeCommand : Command("purge") {
     init {
         integer("number") {
             doesLater { context ->
-                if (!server!!.members.find(message.author!!.id)!!.canManage(message.serverChannel!!)) {
-                    //Main.missingPermissionEmbed(message.channel) assuming my other pr gets merged (#20) this can be used...
+                if (!Permissions.hasPermission(message, PermissionTypes.COUNCIL_MEMBER)) {
+                    StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
                     return@doesLater
                 }
                 val number: Int = context arg "number"
@@ -20,8 +21,8 @@ object PurgeCommand : Command("purge") {
             }
             greedyString("user") {
                 doesLater { context ->
-                    if (!server!!.members.find(message.author!!.id)!!.canManage(message.serverChannel!!)) {
-                        //Main.missingPermissionEmbed(message.channel) assuming my other pr gets merged (#20) this can be used...
+                    if (!Permissions.hasPermission(message, PermissionTypes.COUNCIL_MEMBER)) {
+                        StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
                         return@doesLater
                     }
                     val number: Int = context arg "number"
