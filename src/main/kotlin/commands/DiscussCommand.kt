@@ -2,6 +2,8 @@ package commands
 
 import Command
 import Main.Colors
+import StringHelper
+import StringHelper.MessageTypes.MISSING_PERMISSIONS
 import arg
 import doesLater
 import greedyString
@@ -10,6 +12,7 @@ import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
 import string
 
+// TODO: make this not hardcoded
 object DiscussCommand : Command("discuss") {
     init {
         literal("addon") {
@@ -20,12 +23,7 @@ object DiscussCommand : Command("discuss") {
 
                     val sender = server!!.members.find(message.author!!.id)
                     if (!sender!!.roles.contains(upperCouncil) && !sender.roles.contains(lowerCouncil)) {
-                        message.channel.send {
-                            embed {
-                                field("Error", "You don't have permission to use this command!", true)
-                                color = Colors.ERROR.color
-                            }
-                        }
+                        StringHelper.sendMessage(this.message.channel, MISSING_PERMISSIONS)
                         return@doesLater
                     }
 
@@ -59,12 +57,7 @@ object DiscussCommand : Command("discuss") {
 
                     val sender = server!!.members.find(message.author!!.id)
                     if (!sender!!.roles.contains(upperCouncil) && !sender.roles.contains(lowerCouncil)) {
-                        message.channel.send {
-                            embed {
-                                field("Error", "You don't have permission to use this command!", true)
-                                color = Colors.ERROR.color
-                            }
-                        }
+                        StringHelper.sendMessage(this.message.channel, MISSING_PERMISSIONS)
                         return@doesLater
                     }
 

@@ -2,33 +2,27 @@ package commands
 
 import Command
 import Main
+import StringHelper
+import StringHelper.MessageTypes.MISSING_PERMISSIONS
 import doesLater
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
 import net.ayataka.kordis.entity.server.permission.overwrite.UserPermissionOverwrite
 
-// TODO: make utils for permissions because this is all going to become very boilerplate
 object ArchiveCommand : Command("archive") {
     init {
-        doesLater { context ->
+        doesLater {
             if (message.author?.id != 563138570953687061) {
-                message.channel.send {
-                    embed {
-                        field("Error", "You don't have permission to use this command!", true)
-                        color = Main.Colors.WARN.color
-                    }
-                }
+                StringHelper.sendMessage(this.message.channel, MISSING_PERMISSIONS)
                 return@doesLater
             }
 
             val channel = server?.channels?.find(message.channel.id)
             val archivedChannelsNum = server?.channels?.filter { c -> c.name.contains(Regex("archived")) }?.size
 
-            val userOverrides: Collection<UserPermissionOverwrite>? =
-                server?.channels?.find(channel!!.id)?.userPermissionOverwrites
-            val roleOverrides: Collection<RolePermissionOverwrite>? =
-                server?.channels?.find(channel!!.id)?.rolePermissionOverwrites
+            val userOverrides: Collection<UserPermissionOverwrite>? = server?.channels?.find(channel!!.id)?.userPermissionOverwrites
+            val roleOverrides: Collection<RolePermissionOverwrite>? = server?.channels?.find(channel!!.id)?.rolePermissionOverwrites
 
             val allow = PermissionSet(0)
             val deny = PermissionSet(3072) // read + send
