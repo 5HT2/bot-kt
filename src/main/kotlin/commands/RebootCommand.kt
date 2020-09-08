@@ -27,7 +27,7 @@ object RebootCommand : Command("reboot") {
                         color = Main.Colors.SUCCESS.color
                     }
                 }
-                "pm2 reload bot-kt".runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
+                "pm2 stop bot-kt && pm2 start bot-kt".runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
             } catch (e: IOException) {
                 message.channel.send {
                     embed {
