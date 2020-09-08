@@ -13,8 +13,8 @@ import net.ayataka.kordis.entity.server.permission.overwrite.UserPermissionOverw
 object ArchiveCommand : Command("archive") {
     init {
         doesLater {
-            if (message.author?.id != 563138570953687061) {
-                StringHelper.sendMessage(this.message.channel, MISSING_PERMISSIONS)
+            if (!Permissions.hasPermission(message, PermissionTypes.ARCHIVE_CHANNEL)) {
+                StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
                 return@doesLater
             }
 
