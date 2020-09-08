@@ -130,5 +130,7 @@ data class VersionConfig(val version: String)
  * [autoUpdate] is whether the bot should automatically update after a successful update check. Will not do anything when set to true if update checking is disabled.
  * [primaryServerId] is the main server where startup messages should be sent. Omit from config to send to all servers.
  * [startUpChannel] is the channel name of where to send bot startup messages. Omit from config to disable startup messages.
+ * [statusMessage] is the bot status message on Discord
+ * [statusMessageType] is the type of status. Playing is 0, Streaming is 1, Listening is 2 and Watching is 3.
  */
-data class UserConfig(val autoUpdate: Boolean, val primaryServerId: Long?, val startUpChannel: String?)
+data class UserConfig(val autoUpdate: Boolean, val primaryServerId: Long?, val startUpChannel: String?, val statusMessage: String?, val statusMessageType: Int?)

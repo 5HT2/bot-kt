@@ -36,12 +36,16 @@ The `githubToken` is only required if you want to use any of the Github commands
 
 <details>
     <summary>`user.json` example</summary>
-    
+
+All elements are optional. `statusMessageType` defaults to "Playing".
+
 ```json
 {
     "autoUpdate": "true",
     "primaryServerId": "573954110454366214",
-    "startUpChannel": "dev-bot"
+    "startUpChannel": "dev-bot",
+    "statusMessage": "out for raids",
+    "statusMessageType": "3"
 }
 ```
 
@@ -127,13 +131,11 @@ Storing the value: (can be a remote file online or just a local file)
 Reading the value: 
 
 ```kotlin
-val config = FileManager.readConfig<ExampleConfig>(ConfigType.EXAMPLE, false) // setting reload to true instead of false will forcefully load it from the URL / memory instead of returning the cached version
+val config = FileManager.readConfigSafe<ExampleConfig>(ConfigType.EXAMPLE, false) // setting reload to true instead of false will forcefully load it from the URL / memory instead of returning the cached version
 
-if (config?.someValue == null) {
-    println("Your someValue is null, make sure your config is correctly formatted")
-    return
+config?.someValue?.let {
+    println("Value is '$it'")
 }
 
-println(config.someValue)
-// > This is a String vlaue for my ExampleConfig
+// > Value is 'This is a String value for my ExampleConfig'
 ```
