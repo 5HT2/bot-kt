@@ -2,6 +2,8 @@ package commands
 
 import Command
 import Main
+import PermissionTypes
+import Permissions
 import StringHelper
 import StringHelper.MessageTypes.MISSING_PERMISSIONS
 import StringHelper.runCommand
