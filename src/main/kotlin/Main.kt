@@ -1,4 +1,5 @@
 import CommandManager.registerCommands
+import Main.ready
 import UpdateHelper.updateCheck
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
@@ -50,19 +51,27 @@ class Bot {
             addListener(this@Bot)
         }
 
-        // TODO: Make user configurable
-        Main.client!!.updateStatus(UserStatus.ONLINE, ActivityType.WATCHING, "out for raids")
-
         registerCommands(dispatcher)
 
         val initialization = "Initialized bot!\nStartup took ${System.currentTimeMillis() - started}ms"
         val userConfig = FileManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
 
-        if (userConfig?.startUpChannel != null) {
-            delay(2000) // Discord API is really stupid and doesn't give you the information you need right away, hence delay needed
+        userConfig?.statusMessage?.let {
+            var type = ActivityType.UNKNOWN
+            userConfig.statusMessageType.let {
+                ActivityType.values().forEach { lType -> if (lType.id == it) type = lType }
+            }
+
+            Main.client!!.updateStatus(UserStatus.ONLINE, type, it)
+        }
+
+        delay(2000) // Discord API is really stupid and doesn't give you the information you need right away, hence delay needed
+
+        userConfig?.startUpChannel?.let {
             if (userConfig.primaryServerId == null) {
-                Main.client!!.servers.forEach {
-                    it.textChannels.findByName(userConfig.startUpChannel)?.send {
+                Main.client!!.servers.forEach { chit ->
+                    delay(100) // we don't want to hit the message rate limit, 10 messages a second should be fine
+                    chit.textChannels.findByName(it)?.send {
                         embed {
                             title = "Startup"
                             description = initialization
@@ -71,7 +80,7 @@ class Bot {
                     }
                 }
             } else {
-                val channel = Main.client!!.servers.find(userConfig.primaryServerId)!!.textChannels.findByName(userConfig.startUpChannel)
+                val channel = Main.client!!.servers.find(userConfig.primaryServerId)!!.textChannels.findByName(it)
                 channel?.send {
                     embed {
                         title = "Startup"
@@ -80,17 +89,19 @@ class Bot {
                     }
                 }
             }
-        } else {
-            println("Startup channel is null!")
         }
 
+        ready = true
         println(initialization)
     }
 
     @EventHandler
     suspend fun onMessageReceive(event: MessageReceiveEvent) {
+        if (!ready || event.message.content.isEmpty()) return // message can be empty on images, embeds and other attachments
+
         val message = if (event.message.content[0] == ';') event.message.content.substring(1) else return
         val cmd = Cmd(event)
+
         try {
             val exit = dispatcher.execute(message, cmd)
             cmd.file(event)
@@ -112,6 +123,7 @@ class Bot {
 
 object Main {
     var client: DiscordClient? = null
+    var ready = false
     const val currentVersion = "1.0.3"
 
     /**
