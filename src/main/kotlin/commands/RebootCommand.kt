@@ -2,6 +2,8 @@ package commands
 
 import Command
 import Main
+import StringHelper
+import StringHelper.MessageTypes.MISSING_PERMISSIONS
 import StringHelper.runCommand
 import doesLater
 import java.io.File
@@ -12,12 +14,7 @@ object RebootCommand : Command("reboot") {
     init {
         doesLater {
             if (message.author?.id != 563138570953687061) {
-                message.channel.send {
-                    embed {
-                        field("Error", "You don't have permission to use this command!", true)
-                        color = Main.Colors.WARN.color
-                    }
-                }
+                StringHelper.sendMessage(this.message.channel, MISSING_PERMISSIONS)
                 return@doesLater
             }
 
