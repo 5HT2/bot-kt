@@ -1,6 +1,7 @@
 package commands
 
 import Command
+import StringHelper.MessageTypes.MISSING_PERMISSIONS
 import arg
 import doesLater
 import integer
@@ -13,8 +14,8 @@ object SlowCommand : Command("slow") {
         integer("wait") {
             integer("time") {
                 doesLater { context ->
-                    if (!server!!.members.find(message.author!!.id)!!.canManage(message.serverChannel!!)) {
-                        Main.missingPermissionEmbed(message.channel)
+                    if (!Permissions.hasPermission(message, PermissionTypes.COUNCIL_MEMBER)) {
+                        StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
                         return@doesLater
                     }
                     val wait: Int = context arg "wait"

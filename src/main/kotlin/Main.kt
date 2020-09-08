@@ -136,13 +136,4 @@ object Main {
         WARN(Color(14595644)),
         SUCCESS(Color(3989082));
     }
-
-    suspend fun missingPermissionEmbed(channel: TextChannel) {
-        channel.send {
-            embed {
-                field("Error", "You don't have permission to use this command!", true)
-                color = Colors.ERROR.color
-            }
-        }
-    }
 }
