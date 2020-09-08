@@ -1,6 +1,7 @@
 import FileManager.authConfigData
 import FileManager.mutesConfigData
 import FileManager.permissionConfigData
+import FileManager.rulesConfigData
 import FileManager.userConfigData
 import FileManager.versionConfigData
 import StringHelper.isUrl
@@ -21,6 +22,7 @@ object FileManager {
     var versionConfigData: VersionConfig? = null
     var userConfigData: UserConfig? = null
     var permissionConfigData: PermissionConfig? = null
+    var rulesConfigData: RulesConfig? = null
 
     fun writeConfig(configType: ConfigType) {
 
@@ -104,6 +106,7 @@ object FileManager {
  */
 enum class ConfigType(val configPath: String, var data: Any?, val clazz: Class<*>) {
     AUTH("config/auth.json", authConfigData, AuthConfig::class.java),
+    RULES("config/rules.json", rulesConfigData, RulesConfig::class.java),
     MUTE("config/mutes.json", mutesConfigData, MuteConfig::class.java),
     VERSION("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json", versionConfigData, VersionConfig::class.java),
     USER("config/user.json", userConfigData, UserConfig::class.java),
@@ -122,6 +125,11 @@ data class AuthConfig(val botToken: String, val githubToken: String)
  * When adding a new [unixUnmute] time, it should be current UNIX time + mute time in seconds
  */
 data class MuteConfig(val id: Long, val unixUnmute: Long)
+
+/**
+ * [rules] is a HashMap with the rule name/number as the key and the rule as the value
+ */
+data class RulesConfig(val rules: HashMap<String, String>)
 
 /**
  * [version] is a semver format version String
