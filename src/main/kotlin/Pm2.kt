@@ -45,6 +45,7 @@ object Pm2 {
         if (home.endsWith('/')) home = home.substring(0, home.length - 1)
 
         home = "$home/bin/java"
+        println("Auto Update - Saved Java binary as \"$home\"")
         return home
     }
 }
