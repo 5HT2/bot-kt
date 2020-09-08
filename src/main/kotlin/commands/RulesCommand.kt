@@ -11,7 +11,8 @@ object RulesCommand : Command("r") {
         string("rule") {
             doesLater { context ->
                 val ruleName: String = context arg "rule"
-                message.channel.send(FileManager.readConfigSafe<RulesConfig>(ConfigType.RULES, false)!!.rules.getOrDefault(ruleName, "No such rule $ruleName."))
+                val rule = FileManager.readConfigSafe<RulesConfig>(ConfigType.RULES, false)?.rules?.getOrDefault(ruleName, "No such rule $ruleName.")?: "Could not load rules file."
+                message.channel.send(rule)
             }
         }
     }
