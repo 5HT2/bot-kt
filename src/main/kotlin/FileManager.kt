@@ -1,5 +1,6 @@
 import FileManager.authConfigData
 import FileManager.mutesConfigData
+import FileManager.permissionConfigData
 import FileManager.userConfigData
 import FileManager.versionConfigData
 import StringHelper.isUrl
@@ -19,6 +20,7 @@ object FileManager {
     var mutesConfigData: MuteConfig? = null
     var versionConfigData: VersionConfig? = null
     var userConfigData: UserConfig? = null
+    var permissionConfigData: PermissionConfig? = null
 
     fun writeConfig(configType: ConfigType) {
 
@@ -104,7 +106,8 @@ enum class ConfigType(val configPath: String, var data: Any?, val clazz: Class<*
     AUTH("config/auth.json", authConfigData, AuthConfig::class.java),
     MUTE("config/mutes.json", mutesConfigData, MuteConfig::class.java),
     VERSION("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json", versionConfigData, VersionConfig::class.java),
-    USER("config/user.json", userConfigData, UserConfig::class.java)
+    USER("config/user.json", userConfigData, UserConfig::class.java),
+    PERMISSION("config/permissions.json", permissionConfigData, PermissionConfig::class.java)
 }
 
 /**
@@ -134,3 +137,8 @@ data class VersionConfig(val version: String)
  * [statusMessageType] is the type of status. Playing is 0, Streaming is 1, Listening is 2 and Watching is 3.
  */
 data class UserConfig(val autoUpdate: Boolean, val primaryServerId: Long?, val startUpChannel: String?, val statusMessage: String?, val statusMessageType: Int?)
+
+/**
+ * [councilMembers] is a hashmap of all the council members
+ */
+data class PermissionConfig(val councilMembers: HashMap<Long, List<PermissionTypes>>)

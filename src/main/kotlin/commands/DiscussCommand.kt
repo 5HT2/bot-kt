@@ -2,6 +2,8 @@ package commands
 
 import Command
 import Main.Colors
+import PermissionTypes
+import Permissions
 import StringHelper
 import StringHelper.MessageTypes.MISSING_PERMISSIONS
 import arg
@@ -18,12 +20,8 @@ object DiscussCommand : Command("discuss") {
         literal("addon") {
             greedyString("idea") {
                 doesLater { context ->
-                    val upperCouncil = server!!.roles.findByName("upper council")!!
-                    val lowerCouncil = server!!.roles.findByName("lower council")!!
-
-                    val sender = server!!.members.find(message.author!!.id)
-                    if (!sender!!.roles.contains(upperCouncil) && !sender.roles.contains(lowerCouncil)) {
-                        StringHelper.sendMessage(this.message.channel, MISSING_PERMISSIONS)
+                    if (!Permissions.hasPermission(message, PermissionTypes.COUNCIL_MEMBER)) {
+                        StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
                         return@doesLater
                     }
 
@@ -52,14 +50,13 @@ object DiscussCommand : Command("discuss") {
         string("topic") {
             greedyString("description") {
                 doesLater { context ->
-                    val upperCouncil = server!!.roles.findByName("upper council")!!
-                    val lowerCouncil = server!!.roles.findByName("lower council")!!
-
-                    val sender = server!!.members.find(message.author!!.id)
-                    if (!sender!!.roles.contains(upperCouncil) && !sender.roles.contains(lowerCouncil)) {
-                        StringHelper.sendMessage(this.message.channel, MISSING_PERMISSIONS)
+                    if (!Permissions.hasPermission(message, PermissionTypes.COUNCIL_MEMBER)) {
+                        StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
                         return@doesLater
                     }
+
+                    val upperCouncil = server!!.roles.findByName("upper council")!!
+                    val lowerCouncil = server!!.roles.findByName("lower council")!!
 
                     val topic: String = context arg "topic"
                     val description: String = context arg "description"
@@ -86,7 +83,7 @@ object DiscussCommand : Command("discuss") {
                         this.rolePermissionOverwrites.add(RolePermissionOverwrite(lowerCouncil, allow, deny))
                     }
 
-                    val discussionChannel = server!!.createTextChannel {
+                    server!!.createTextChannel {
                         this.category = discussionCategory
                         this.name = "d-$topic"
                     }

@@ -13,8 +13,8 @@ import java.nio.file.Paths
 object RebootCommand : Command("reboot") {
     init {
         doesLater {
-            if (message.author?.id != 563138570953687061) {
-                StringHelper.sendMessage(this.message.channel, MISSING_PERMISSIONS)
+            if (!Permissions.hasPermission(message, PermissionTypes.REBOOT_BOT)) {
+                StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
                 return@doesLater
             }
 
