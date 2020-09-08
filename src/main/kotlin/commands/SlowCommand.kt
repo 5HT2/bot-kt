@@ -1,6 +1,9 @@
 package commands
 
 import Command
+import PermissionTypes
+import Permissions
+import StringHelper
 import StringHelper.MessageTypes.MISSING_PERMISSIONS
 import arg
 import doesLater
@@ -36,7 +39,8 @@ object SlowCommand : Command("slow") {
     }
 
     override fun getHelpUsage(): String {
-        return "Enables for this channel for an amount of time." +
-                "`;$name <wait> <time>`"
+        return "Enables slowmode for this channel, for a specified amount of time\n\n" +
+                "Usage:\n" +
+                "`;$name 10 60`"
     }
 }

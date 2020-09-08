@@ -1,6 +1,9 @@
 package commands
 
 import Command
+import PermissionTypes
+import Permissions
+import StringHelper
 import StringHelper.MessageTypes.MISSING_PERMISSIONS
 import doesLater
 
@@ -18,7 +21,8 @@ object UnSlowCommand : Command("unslow") {
     }
 
     override fun getHelpUsage(): String {
-        return "Remove slow mode from this channel." +
+        return "Removes slowmode from this channel\n\n" +
+                "Usage:\n" +
                 "`;$name`"
     }
 }
