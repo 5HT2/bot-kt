@@ -9,13 +9,12 @@ object LmgtfyCommand : Command("lmgtfy") {
     init {
         greedyString("search term") {
             doesLater { context ->
-                // Explicit types are necessary for type inference
                 val term: String = context arg "search term"
                 message.channel.send {
                     embed {
                         title = "Here you go!"
                         description = "[Solution](https://lmgtfy.com/?q=${term.replace(" ", "+")})"
-                        color = Main.Colors.SUCCESS.color
+                        color = Main.Colors.BLUE.color
                     }
                 }
             }
@@ -24,6 +23,6 @@ object LmgtfyCommand : Command("lmgtfy") {
 
     override fun getHelpUsage(): String {
         return "Creates a LMGTFY link with a search term:\n" +
-                "`;$name [search term]`"
+                "`;$name <search term>`"
     }
 }
