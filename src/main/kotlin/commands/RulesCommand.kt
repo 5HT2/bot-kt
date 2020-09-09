@@ -1,6 +1,10 @@
 package commands
 
 import Command
+import ConfigType
+import FileManager
+import Main.Colors.BLUE
+import Main.Colors.ERROR
 import RulesConfig
 import arg
 import doesLater
@@ -11,8 +15,26 @@ object RulesCommand : Command("r") {
         string("rule") {
             doesLater { context ->
                 val ruleName: String = context arg "rule"
-                val rule = FileManager.readConfigSafe<RulesConfig>(ConfigType.RULES, false)?.rules?.getOrDefault(ruleName, "Couldn't find rule $ruleName.")?: "Couldn't find rule config file!"
-                message.channel.send(rule)
+                val rule = FileManager.readConfigSafe<RulesConfig>(ConfigType.RULES, false)?.rules?.getOrDefault(
+                    ruleName,
+                    "Couldn't find rule $ruleName."
+                ) ?: "Couldn't find rule config file!"
+
+                message.channel.send {
+                    if (rule.contains("Couldn't find rule")) {
+                        embed {
+                            description = rule
+                            color = ERROR.color
+                        }
+                    } else {
+                        embed {
+                            title = "Rule $ruleName"
+                            description = rule
+                            color = BLUE.color
+                        }
+                    }
+                }
+
             }
         }
     }
