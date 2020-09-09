@@ -35,7 +35,7 @@ object IssueCommand : Command("issue") {
                                 message.channel.send {
                                     embed {
                                         title = "[$name]"
-                                        description = "Github Token not found/invalid!"
+                                        description = "Github Token not found!"
                                         color = Main.Colors.ERROR.color
                                     }
                                 }
