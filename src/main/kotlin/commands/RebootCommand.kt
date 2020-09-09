@@ -27,12 +27,13 @@ object RebootCommand : Command("reboot") {
                         color = Main.Colors.SUCCESS.color
                     }
                 }
-                "pm2 stop bot-kt && pm2 start bot-kt".runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
+                "java -jar bot-kt-${Main.currentVersion}.jar".runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
+                // TODO: KILL ORIGINAL BOT
             } catch (e: IOException) {
                 message.channel.send {
                     embed {
                         title = "Error"
-                        description = "pm2 is not installed, failed to reboot bot."
+                        description = e.message + "\n" + e.stackTrace.joinToString("\n")
                         color = Main.Colors.ERROR.color
                     }
                 }
