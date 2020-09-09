@@ -1,3 +1,5 @@
+package classes.issue
+
 data class Label(
     var color: String = "",
     var default: Boolean = false,

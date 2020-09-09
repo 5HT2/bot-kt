@@ -1,3 +1,5 @@
+package classes.issue
+
 data class Milestone(
     var closed_at: Any? = null,
     var closed_issues: Int = 0,

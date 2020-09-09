@@ -26,7 +26,6 @@ dependencies {
     compile "com.mojang:brigadier:$bot_brigadier_version"
     compile "org.slf4j:slf4j-simple:$bot_slf4j_version"
     compile "com.github.ronmamo:reflections:$bot_reflections_version"
-    implementation "com.beust:klaxon:$bot_claxon_version"
 }
 
 sourceSets {

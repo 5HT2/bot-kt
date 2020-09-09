@@ -4,9 +4,9 @@ package commands
 
 import AuthConfig
 import Command
-import IssueClass
+import classes.issue.Issue
 import arg
-import com.beust.klaxon.Klaxon
+import com.google.gson.Gson
 import doesLater
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -18,7 +18,6 @@ import string
  */
 object IssueCommand : Command("issue") {
     init {
-
         string("user") {
             string("repoName") {
                 string("issueNum") {
@@ -30,11 +29,19 @@ object IssueCommand : Command("issue") {
                         val request = Request.Builder().addHeader("Authorization", "token $githubToken").url("https://api.github.com/repos/$user/$repoName/issues/$issueNum").get().build()
                         val response = OkHttpClient().newCall(request).execute()
                         println(response.request())
-                        val result = Klaxon().parse<IssueClass>(response.body()!!.string())
+                        val result = Gson().fromJson(response.body()!!.string(), Issue::class.java)
                         message.channel.send(result!!.body)
                         }
                     }
                 }
             }
         }
+
+    override fun getHelpUsage(): String {
+        return "Getting information of an issue on github. \n\n" +
+                "Usage: \n" +
+                "`;$name <user/organization> <repository> <issue>`\n\n" +
+                "Example: \n" +
+                "`;$name kami-blue bot-kt 10`\n\n"
     }
+}

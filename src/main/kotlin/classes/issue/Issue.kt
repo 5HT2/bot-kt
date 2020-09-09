@@ -1,4 +1,6 @@
-data class IssueClass(
+package classes.issue
+
+data class Issue(
     var active_lock_reason: Any? = null,
     var assignee: Any? = null,
     var assignees: List<Any> = listOf(),

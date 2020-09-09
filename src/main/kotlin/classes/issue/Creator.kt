@@ -1,4 +1,6 @@
-data class User(
+package classes.issue
+
+data class Creator(
     var avatar_url: String = "",
     var events_url: String = "",
     var followers_url: String = "",
