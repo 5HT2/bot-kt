@@ -17,7 +17,7 @@ object PurgeCommand : Command("purge") {
                     return@doesLater
                 }
                 val number: Int = context arg "number"
-                message.channel.getMessages(number).deleteAll()
+                message.channel.getMessages(number + 1).deleteAll()
             }
             greedyString("user") {
                 doesLater { context ->
@@ -25,7 +25,8 @@ object PurgeCommand : Command("purge") {
                         StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
                         return@doesLater
                     }
-                    val number: Int = context arg "number"
+                    val contextNumber: Int = context arg "number"
+                    val number = contextNumber + 1 // include original message to delete
                     val user: String = context arg "user"
                     val search = if (number < 1000) number * 2 + 50 else number
                     message.channel.getMessages(search).filter { it.author!!.id.toString() == user || it.author!!.mention == user || it.author!!.tag == user }.take(number).deleteAll()
