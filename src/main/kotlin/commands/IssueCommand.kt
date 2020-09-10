@@ -21,7 +21,7 @@ import string
  */
 object IssueCommand : Command("issue") {
     init {
-        //TODO: Make a tree that defaults to kami-blue for user
+        /* TODO: Make a tree that defaults to kami-blue for user */
         string("user") {
             string("repoName") {
                 string("issueNum") {
@@ -49,7 +49,7 @@ object IssueCommand : Command("issue") {
                                 title = result!!.title
                                 thumbnailUrl = result.user.avatar_url
                                 color = if (result.state == "closed"){ Main.Colors.ERROR.color }else { Main.Colors.SUCCESS.color }
-                                field("Description", if (result.body.isEmpty()) { "No description specified." } else { result.body.replace(Regex("<!--.*-->"), "") }, false)
+                                field("Description", if (result.body.isEmpty()) { "No description provided." } else { result.body.replace(Regex("<!--.*-->"), "") }, false)
                                 field("Status", result.state, false)
                                 field("Milestone", result.milestone.title, false)
                                 author("カミブルー！", "https://kamiblue.org", "https://cdn.discordapp.com/avatars/743237292294013013/591c1daf9efcfdd7ea2db1592d818fa6.png")
