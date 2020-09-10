@@ -3,8 +3,11 @@ import Main.ready
 import UpdateHelper.updateCheck
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.time.delay
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
@@ -15,7 +18,9 @@ import java.awt.Color
 import kotlin.system.exitProcess
 
 fun main() = runBlocking {
-    Bot().start()
+    Main.process = launch {
+        Bot().start()
+    }
 }
 
 /**
@@ -122,6 +127,7 @@ class Bot {
 }
 
 object Main {
+    var process: Job? = null
     var client: DiscordClient? = null
     var ready = false
     const val currentVersion = "1.0.8"
