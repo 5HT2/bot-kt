@@ -2,7 +2,7 @@ package classes.issue
 
 data class Issue(
     var active_lock_reason: Any? = null,
-    var assignee: User? = null,
+    var assignee: User? = User(),
     var assignees: List<User> = listOf(),
     var author_association: String = "",
     var body: String = "",
