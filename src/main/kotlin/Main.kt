@@ -33,12 +33,6 @@ class Bot {
     suspend fun start() {
         val started = System.currentTimeMillis()
 
-        if (System.getProperty("bot-kt.create-pm2-config") == "true") {
-            Pm2.createJson(Main.currentVersion)
-            println("Created pm2 config!")
-            exitProcess(0)
-        }
-
         println("Starting bot!")
 
         updateCheck()
