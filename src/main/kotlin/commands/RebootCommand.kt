@@ -27,8 +27,8 @@ object RebootCommand : Command("reboot") {
                         color = Main.Colors.SUCCESS.color
                     }
                 }
-                "java -jar bot-kt-${Main.currentVersion}.jar".runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
-                // TODO: KILL ORIGINAL BOT
+//                "java -jar bot-kt-${Main.currentVersion}.jar".runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
+                Main.process?.cancel()
             } catch (e: IOException) {
                 message.channel.send {
                     embed {
