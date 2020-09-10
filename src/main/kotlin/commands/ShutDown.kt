@@ -19,7 +19,7 @@ object ShutDown : Command("shutdown") {
 
             message.channel.send {
                 embed {
-                    title = "Rebooting..."
+                    title = "Shutting down..."
                     color = Main.Colors.SUCCESS.color
                 }
             }
