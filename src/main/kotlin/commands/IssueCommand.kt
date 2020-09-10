@@ -21,7 +21,12 @@ import string
  */
 object IssueCommand : Command("issue") {
     init {
-        /* TODO: Make a tree that defaults to kami-blue for user */
+        /*
+        TODO:
+             Make a tree that defaults to kami-blue for user
+             Add Labels
+             Support Multiple Assignees
+         */
         string("user") {
             string("repoName") {
                 string("issueNum") {
@@ -52,6 +57,8 @@ object IssueCommand : Command("issue") {
                                 field("Description", if (result.body.isEmpty()) { "No description provided." } else { result.body.replace(Regex("<!--.*-->"), "") }, false)
                                 field("Status", result.state, false)
                                 field("Milestone", result.milestone.title, false)
+                                //field("Labels", result.labels.name, false)
+                                field("Assignees", result.assignee!!.login, false)
                                 author("カミブルー！", "https://kamiblue.org", "https://cdn.discordapp.com/avatars/743237292294013013/591c1daf9efcfdd7ea2db1592d818fa6.png")
                                 url = result.html_url
                             }
