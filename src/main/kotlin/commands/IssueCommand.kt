@@ -14,6 +14,7 @@ import doesLater
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import string
+import java.lang.IllegalArgumentException
 
 /**
  * @author sourTaste000
@@ -49,18 +50,42 @@ object IssueCommand : Command("issue") {
                         val response = OkHttpClient().newCall(request).execute()
                         println(response.request().toString() + " from user ${message.author?.name}(${message.author?.id})")
                         val result = Gson().fromJson(response.body()!!.string(), Issue::class.java)
-                        message.channel.send {
-                            embed {
-                                title = result!!.title
-                                thumbnailUrl = result.user.avatar_url
-                                color = if (result.state == "closed"){ Main.Colors.ERROR.color }else { Main.Colors.SUCCESS.color }
-                                field("Description", if (result.body.isEmpty()) { "No description provided." } else { result.body.replace(Regex("<!--.*-->"), "") }, false)
-                                field("Status", result.state, false)
-                                field("Milestone", result.milestone.title, false)
-                                //field("Labels", result.labels.name, false)
-                                //field("Assignees", if(result.assignee!!.login.isEmpty()){"No Assignees"}else{result.assignee!!.login}, false)
-                                author("カミブルー！", "https://kamiblue.org", "https://cdn.discordapp.com/avatars/743237292294013013/591c1daf9efcfdd7ea2db1592d818fa6.png")
-                                url = result.html_url
+                        try {
+                            message.channel.send {
+                                embed {
+                                    title = result!!.title
+                                    thumbnailUrl = result.user.avatar_url
+                                    color = if (result.state == "closed") {
+                                        Main.Colors.ERROR.color
+                                    } else {
+                                        Main.Colors.SUCCESS.color
+                                    }
+                                    field(
+                                        "Description", if (result.body.isEmpty()) {
+                                            "No description provided."
+                                        } else {
+                                            result.body.replace(Regex("<!--.*-->"), "")
+                                        }, false
+                                    )
+                                    field("Status", result.state, false)
+                                    field("Milestone", result.milestone.title, false)
+                                    //field("Labels", result.labels.name, false)
+                                    //field("Assignees", if(result.assignee!!.login.isEmpty()){"No Assignees"}else{result.assignee!!.login}, false)
+                                    author(
+                                        "カミブルー！",
+                                        "https://kamiblue.org",
+                                        "https://cdn.discordapp.com/avatars/743237292294013013/591c1daf9efcfdd7ea2db1592d818fa6.png"
+                                    )
+                                    url = result.html_url
+                                }
+                            }
+                        }catch(e: Exception){
+                            message.channel.send{
+                                embed{
+                                    title = "Error!"
+                                    description = "Something went wrong when trying to execute this command! Does the user/repo/issue exist?"
+                                    color = Main.Colors.ERROR.color
+                                }
                             }
                         }
                     }
