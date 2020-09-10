@@ -28,7 +28,7 @@ object RebootCommand : Command("reboot") {
                         color = Main.Colors.SUCCESS.color
                     }
                 }
-                "java -jar bot-kt-${Main.currentVersion}.jar".runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
+//                "java -jar bot-kt-${Main.currentVersion}.jar".runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
                 Main.process?.cancel()
                 exitProcess(0)
             } catch (e: IOException) {
