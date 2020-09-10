@@ -56,22 +56,5 @@ object UpdateHelper {
         val targetFile = path.toString() + appendSlash + "bot-kt-$version.jar"
         File(targetFile).writeBytes(bytes)
         println("Auto Update - Finished updating to $version")
-
-        if (File("process.json").exists()) {
-
-            println("Auto Update - Creating pm2 config")
-
-            Pm2.createJson(version)
-
-            println("Auto Update - Created pm2 config, reloading bot-kt")
-
-            try {
-                "pm2 reload bot-kt".runCommand(File(path.toString()))
-            } catch (e: IOException) {
-                println("pm2 is not installed, failed to reload bot.\nYou can ignore this if you're not using pm2, but you will need to manually restart the bot to start using the latest version.")
-            }
-        } else {
-            println("Auto Update - You may now restart the bot to start using the latest version")
-        }
     }
 }
