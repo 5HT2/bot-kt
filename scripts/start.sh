@@ -6,5 +6,5 @@ currentVersion="$(cat ~/bot-kt/currentVersion)"
 # Run if Java is not running
 if [[ -z "$process" ]]; then
   cd ~/bot-kt/
-  java -jar bot-kt-${currentVersion}.jar
+  exec /home/mika/jdk1.8.0_261/bin/java -jar bot-kt-${currentVersion}.jar
 fi
