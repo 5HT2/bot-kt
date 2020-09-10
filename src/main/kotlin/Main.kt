@@ -14,6 +14,9 @@ import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import java.awt.Color
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
 
 fun main() = runBlocking {
     Main.process = launch {
@@ -33,6 +36,7 @@ class Bot {
 
         println("Starting bot!")
 
+        writeCurrentVersion()
         updateCheck()
 
         val config = FileManager.readConfig<AuthConfig>(ConfigType.AUTH, false)
@@ -90,6 +94,17 @@ class Bot {
 
         ready = true
         println(initialization)
+    }
+
+    private fun writeCurrentVersion() {
+        val path = Paths.get(System.getProperty("user.dir"))
+        val file = Paths.get("$path/currentVersion")
+
+        if (!File(file.toString()).exists()) {
+            Files.newBufferedWriter(file).use {
+                it.write(Main.currentVersion)
+            }
+        }
     }
 
     @EventHandler
