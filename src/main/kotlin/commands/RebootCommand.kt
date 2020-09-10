@@ -11,6 +11,7 @@ import doesLater
 import java.io.File
 import java.io.IOException
 import java.nio.file.Paths
+import kotlin.system.exitProcess
 
 object RebootCommand : Command("reboot") {
     init {
@@ -27,8 +28,9 @@ object RebootCommand : Command("reboot") {
                         color = Main.Colors.SUCCESS.color
                     }
                 }
-//                "java -jar bot-kt-${Main.currentVersion}.jar".runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
+                "java -jar bot-kt-${Main.currentVersion}.jar".runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
                 Main.process?.cancel()
+                exitProcess(0)
             } catch (e: IOException) {
                 message.channel.send {
                     embed {
