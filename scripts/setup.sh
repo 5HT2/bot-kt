@@ -9,4 +9,5 @@ mkdir -p ~/.config/systemd/user
 cp bot-kt.timer ~/.config/systemd/user
 cp bot-kt.service ~/.config/systemd/user
 chmod +x start.sh
-systemctl enable --now ~/.config/systemd/user/bot-kt.timer
+sudo systemctl enable --now ~/.config/systemd/user/bot-kt.service
+sudo systemctl enable --now ~/.config/systemd/user/bot-kt.timer

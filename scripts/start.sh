@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-process="$(psgrep java)"
+process="$(pgrep java)"
 currentVersion="$(cat ~/bot-kt/currentVersion)"
 
 # Run if Java is not running
