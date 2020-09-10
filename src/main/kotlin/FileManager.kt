@@ -144,7 +144,7 @@ data class VersionConfig(val version: String)
  * [statusMessage] is the bot status message on Discord
  * [statusMessageType] is the type of status. Playing is 0, Streaming is 1, Listening is 2 and Watching is 3.
  */
-data class UserConfig(val autoUpdate: Boolean, val primaryServerId: Long?, val startUpChannel: String?, val statusMessage: String?, val statusMessageType: Int?)
+data class UserConfig(val autoUpdate: Boolean?, val autoUpdateRestart: Boolean?, val primaryServerId: Long?, val startUpChannel: String?, val statusMessage: String?, val statusMessageType: Int?)
 
 /**
  * [councilMembers] is a hashmap of all the council members
