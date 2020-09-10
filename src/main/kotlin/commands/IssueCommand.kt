@@ -40,38 +40,19 @@ object IssueCommand : Command("issue") {
                                 }
                                 return@doesLater
                             }
-                        val request = Request.Builder().addHeader("Authorization", "token $githubToken")
-                            .url("https://api.github.com/repos/$user/$repoName/issues/$issueNum").get().build()
+                        val request = Request.Builder().addHeader("Authorization", "token $githubToken").url("https://api.github.com/repos/$user/$repoName/issues/$issueNum").get().build()
                         val response = OkHttpClient().newCall(request).execute()
-                        println(
-                            response.request().toString() + " from user ${message.author?.name}(${message.author?.id})"
-                        )
+                        println(response.request().toString() + " from user ${message.author?.name}(${message.author?.id})")
                         val result = Gson().fromJson(response.body()!!.string(), Issue::class.java)
                         message.channel.send {
                             embed {
                                 title = result!!.title
                                 thumbnailUrl = result.user.avatar_url
-                                color =
-                                    if (result.state == "closed"){
-                                        Main.Colors.ERROR.color
-                                    }else {
-                                        Main.Colors.SUCCESS.color
-                                    }
-                                field(
-                                    "Description",
-                                    if (result.body.isEmpty()) {
-                                        "No description specified."
-                                    } else {
-                                        result.body.replace(Regex("<!--.*-->"), "")
-                                    }, false
-                                )
+                                color = if (result.state == "closed"){ Main.Colors.ERROR.color }else { Main.Colors.SUCCESS.color }
+                                field("Description", if (result.body.isEmpty()) { "No description specified." } else { result.body.replace(Regex("<!--.*-->"), "") }, false)
                                 field("Status", result.state, false)
                                 field("Milestone", result.milestone.title, false)
-                                author(
-                                    "カミブルー！",
-                                    "https://kamiblue.org",
-                                    "https://cdn.discordapp.com/avatars/743237292294013013/591c1daf9efcfdd7ea2db1592d818fa6.png"
-                                )
+                                author("カミブルー！", "https://kamiblue.org", "https://cdn.discordapp.com/avatars/743237292294013013/591c1daf9efcfdd7ea2db1592d818fa6.png")
                                 url = result.html_url
                             }
                         }
