@@ -8,7 +8,7 @@ data class Milestone(
     var description: String = "",
     var due_on: Any? = null,
     var html_url: String = "",
-    var id: Int = 0,
+    var id: Long = 0,
     var labels_url: String = "",
     var node_id: String = "",
     var number: Int = 0,

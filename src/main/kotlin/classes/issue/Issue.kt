@@ -13,7 +13,7 @@ data class Issue(
     var created_at: String = "",
     var events_url: String = "",
     var html_url: String = "",
-    var id: Int = 0,
+    var id: Long = 0,
     var labels: List<Label> = listOf(),
     var labels_url: String = "",
     var locked: Boolean = false,

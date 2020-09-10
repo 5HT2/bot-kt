@@ -8,7 +8,7 @@ data class User(
     var gists_url: String = "",
     var gravatar_id: String = "",
     var html_url: String = "",
-    var id: Int = 0,
+    var id: Long = 0,
     var login: String = "",
     var node_id: String = "",
     var organizations_url: String = "",
