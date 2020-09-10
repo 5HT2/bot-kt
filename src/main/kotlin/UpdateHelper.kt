@@ -1,6 +1,7 @@
 import Main.currentVersion
 import java.io.File
 import java.net.URL
+import java.nio.file.Files
 import java.nio.file.Paths
 
 /**
@@ -53,6 +54,13 @@ object UpdateHelper {
         val appendSlash = if (path.endsWith("/")) "" else "/"
         val targetFile = path.toString() + appendSlash + "bot-kt-$version.jar"
         File(targetFile).writeBytes(bytes)
+
+        val file = Paths.get("$path/currentVersion")
+        File(file.toString()).delete()
+        Files.newBufferedWriter(file).use {
+            it.write(version)
+        }
+
         println("Auto Update - Finished updating to $version")
     }
 }
