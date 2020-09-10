@@ -1,4 +1,4 @@
 [Unit]
-Description=Reboots bot-kt if not running
+Description=%hReboots bot-kt if not running
 [Service]
 ExecStart=/home/mika/bot-kt/start.sh

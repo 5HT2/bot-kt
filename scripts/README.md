@@ -8,3 +8,5 @@ cp bot-kt.timer ~/.config/systemd/user
 cp bot-kt.service ~/.config/systemd/user
 systemctl enable --now bot-kt.timer # enables and starts process
 ```
+
+If you have `bot-kt` in your home folder then you can just run `setup.sh`
