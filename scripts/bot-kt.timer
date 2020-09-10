@@ -1,0 +1,8 @@
+[Unit]
+Description=Reboots bot-kt if not running
+[Timer]
+OnBootSec=10
+OnUnitActiveSec=1
+AccuracySec=1ms
+[Install]
+WantedBy=timers.target
