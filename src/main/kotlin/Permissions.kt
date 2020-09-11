@@ -12,7 +12,7 @@ object Permissions {
 
     fun hasPermission(id: Long, reload: Boolean, permission: PermissionTypes): Boolean {
         var has = false
-        FileManager.readConfigSafe<PermissionConfig>(ConfigType.PERMISSION, reload)?.let {
+        ConfigManager.readConfigSafe<PermissionConfig>(ConfigType.PERMISSION, reload)?.let {
             it.councilMembers[id]?.forEach { peit ->
                 if (peit == permission) has = true
             }

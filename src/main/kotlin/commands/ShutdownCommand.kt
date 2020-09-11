@@ -9,7 +9,7 @@ import StringHelper.MessageTypes.MISSING_PERMISSIONS
 import doesLater
 import kotlin.system.exitProcess
 
-object ShutDown : Command("shutdown") {
+object ShutdownCommand : Command("shutdown") {
     init {
         doesLater {
             if (!Permissions.hasPermission(message, PermissionTypes.REBOOT_BOT)) {

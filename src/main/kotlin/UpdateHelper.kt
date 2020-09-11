@@ -12,7 +12,7 @@ import kotlin.system.exitProcess
 object UpdateHelper {
     fun updateCheck() {
         if (File("noUpdateCheck").exists()) return
-        val versionConfig = FileManager.readConfig<VersionConfig>(ConfigType.VERSION, false)
+        val versionConfig = ConfigManager.readConfigFromUrl<VersionConfig>("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json")
 
         if (versionConfig?.version == null) {
             println("Couldn't access remote version when checking for update")
@@ -29,7 +29,7 @@ object UpdateHelper {
     }
 
     private fun updateBot(version: String) {
-        val userConfig = FileManager.readConfig<UserConfig>(ConfigType.USER, false)
+        val userConfig = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
 
         if (userConfig?.autoUpdate == null || !userConfig.autoUpdate) {
             return
