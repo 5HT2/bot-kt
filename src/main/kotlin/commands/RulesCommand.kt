@@ -2,7 +2,7 @@ package commands
 
 import Command
 import ConfigType
-import FileManager
+import ConfigManager
 import Main.Colors.BLUE
 import Main.Colors.ERROR
 import RulesConfig
@@ -15,7 +15,7 @@ object RulesCommand : Command("r") {
         string("rule") {
             doesLater { context ->
                 val ruleName: String = context arg "rule"
-                val rule = FileManager.readConfigSafe<RulesConfig>(ConfigType.RULES, false)?.rules?.getOrDefault(
+                val rule = ConfigManager.readConfigSafe<RulesConfig>(ConfigType.RULES, false)?.rules?.getOrDefault(
                     ruleName,
                     "Couldn't find rule $ruleName."
                 ) ?: "Couldn't find rule config file!"

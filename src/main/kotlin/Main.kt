@@ -39,7 +39,7 @@ class Bot {
         writeCurrentVersion()
         updateCheck()
 
-        val config = FileManager.readConfig<AuthConfig>(ConfigType.AUTH, false)
+        val config = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)
 
         if (config?.botToken == null) {
             println("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
@@ -54,8 +54,8 @@ class Bot {
 
         registerCommands(dispatcher)
 
-        val initialization = "Initialized bot!\nStartup took ${System.currentTimeMillis() - started}ms"
-        val userConfig = FileManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
+        val initialization = "Initialized bot!\nRunning on ${Main.currentVersion}\nStartup took ${System.currentTimeMillis() - started}ms"
+        val userConfig = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
 
         userConfig?.statusMessage?.let {
             var type = ActivityType.UNKNOWN
