@@ -82,8 +82,10 @@ object IssueCommand : Command("issue") {
                         }catch(e: Exception){
                             message.channel.send{
                                 embed{
-                                    title = "Error!"
+                                    title = "Error"
                                     description = "Something went wrong when trying to execute this command! Does the user/repo/issue exist?"
+                                    field("Stacktrace", "```$e```", false)
+                                    e.printStackTrace()
                                     color = Main.Colors.ERROR.color
                                 }
                             }
