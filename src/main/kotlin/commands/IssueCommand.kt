@@ -69,7 +69,7 @@ object IssueCommand : Command("issue") {
                                         field("Labels", if((result.labels?.joinToString { it.name } ?: "No Labels").isEmpty()){"No Labels"} else {result.labels!!.joinToString { it.name }}, false)
                                         field("Assignees", if((result.assignees?.joinToString { it.login } ?: "No Assignees").isEmpty()){"No Assignees"} else {result.assignees!!.joinToString { it.login }}, false)
                                         author(
-                                            "カミブルー！",
+                                            "カミレッドー！",
                                             "https://kamiblue.org",
                                             "https://cdn.discordapp.com/avatars/743237292294013013/591c1daf9efcfdd7ea2db1592d818fa6.png"
                                         )
