@@ -26,5 +26,6 @@ data class Issue(
     var title: String = "",
     var updated_at: String = "",
     var url: String = "",
-    var user: User = User()
+    var user: User = User(),
+    var pull_request: PullRequest = PullRequest()
 )

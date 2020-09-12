@@ -9,6 +9,7 @@ import FileManager
 import Main
 import arg
 import classes.issue.Issue
+import classes.pull.Pull
 import com.google.gson.Gson
 import doesLater
 import okhttp3.OkHttpClient
@@ -44,51 +45,71 @@ object IssueCommand : Command("issue") {
                                 }
                                 return@doesLater
                             }
-                        val request = Request.Builder().addHeader("Authorization", "token $githubToken")
-                            .url("https://api.github.com/repos/$user/$repoName/issues/$issueNum").get().build()
+                        val request = Request.Builder().addHeader("Authorization", "token $githubToken").url("https://api.github.com/repos/$user/$repoName/issues/$issueNum").get().build()
                         val response = OkHttpClient().newCall(request).execute()
-                        println(
-                            response.request().toString() + " from user ${message.author?.name}(${message.author?.id})"
-                        )
+                        println(response.request().toString() + " from user ${message.author?.name}(${message.author?.id})")
                         val result = Gson().fromJson(response.body()!!.string(), Issue::class.java)
                         try {
-                            message.channel.send {
-                                embed {
-                                    title = result!!.title
-                                    thumbnailUrl = result.user.avatar_url
-                                    color = if (result.state == "closed") {
-                                        Main.Colors.ERROR.color
-                                    } else {
-                                        Main.Colors.SUCCESS.color
-                                    }
-                                    field(
-                                        "Description", if (result.body.isEmpty()) {
-                                            "No description provided."
-                                        } else {
-                                            result.body.replace(Regex("<!--.*-->"), "")
-                                        }, false
-                                    )
-                                    field("Status", result.state, false)
-                                    field("Milestone", result.milestone.title, false)
-                                    field("Labels", result.labels.joinToString { it.name }, false)
+                            if(result.html_url.contains("issue")) {
+                                message.channel.send {
+                                    embed {
+                                        title = result!!.title
+                                        thumbnailUrl = result.user.avatar_url
+                                        color = if (result.state == "closed") { Main.Colors.ERROR.color } else { Main.Colors.SUCCESS.color }
+                                        field(
+                                            "Description",
+                                            if (result.body.isEmpty()) {
+                                                "No description provided."
+                                            } else {
+                                                result.body.replace(Regex("<!--.*-->"), "")
+                                            }, false
+                                        )
+                                        field("Status", result.state, false)
+                                        field("Milestone", result.milestone.title, false)
+                                        field("Labels", result.labels.joinToString { it.name }, false)
 //                                    field(
 //                                        "Assignees",
 //                                        result.assignees?.joinToString { it.login } ?: "No Assignees",
 //                                        false)
-                                    author(
-                                        "カミブルー！",
-                                        "https://kamiblue.org",
-                                        "https://cdn.discordapp.com/avatars/743237292294013013/591c1daf9efcfdd7ea2db1592d818fa6.png"
-                                    )
-                                    url = result.html_url
+                                        author(
+                                            "カミブルー！",
+                                            "https://kamiblue.org",
+                                            "https://cdn.discordapp.com/avatars/743237292294013013/591c1daf9efcfdd7ea2db1592d818fa6.png"
+                                        )
+                                        url = result.html_url
+                                    }
+                                }
+                            } else if(result.html_url.contains("pull")){
+                                val requestPull = Request.Builder().addHeader("Authorization", "token $githubToken").url(result.pull_request.url).get().build()
+                                val responsePull = OkHttpClient().newCall(requestPull).execute()
+                                println(responsePull.request().toString() + " from user ${message.author?.name}(${message.author?.id})")
+                                val resultPull = Gson().fromJson(responsePull.body()!!.string(), Pull::class.java)
+                                message.channel.send {
+                                    embed{
+                                        title = resultPull.title
+                                        thumbnailUrl = resultPull.user.avatar_url
+                                        color = if (resultPull.state == "closed") { Main.Colors.ERROR.color } else { Main.Colors.SUCCESS.color }
+                                        field(
+                                            "Description",
+                                            if (resultPull.body.isEmpty()) {
+                                                "No description provided."
+                                            } else {
+                                                resultPull.body.replace(Regex("<!--.*-->"), "")
+                                            }, false
+                                        )
+                                        field("Additions", resultPull.additions, false)
+                                        field("Deletions", resultPull.deletions, false)
+                                        field("Commits", resultPull.commits, false)
+                                        field("Changed Files", resultPull.changed_files, false)
+                                        field("Comments", resultPull.comments, false)
+                                    }
                                 }
                             }
                         } catch (e: Exception) {
                             message.channel.send {
                                 embed {
                                     title = "Error"
-                                    description =
-                                        "Something went wrong when trying to execute this command! Does the user/repo/issue exist?"
+                                    description = "Something went wrong when trying to execute this command! Does the user/repo/issue exist?"
                                     field("Stacktrace", "```$e```", false)
                                     e.printStackTrace()
                                     color = Main.Colors.ERROR.color
@@ -102,7 +123,7 @@ object IssueCommand : Command("issue") {
     }
 
     override fun getHelpUsage(): String {
-        return "Getting information of an issue on github. \n\n" +
+        return "Getting information of an issue/pull on github. \n\n" +
                 "Usage: \n" +
                 "`;$name <user/organization> <repository> <issue>`\n\n" +
                 "Example: \n" +
