@@ -24,7 +24,6 @@ object IssueCommand : Command("issue") {
         /*
         TODO:
              Make a tree that defaults to kami-blue for user
-             Add Labels
              Support Multiple Assignees
          */
         string("user") {
@@ -45,9 +44,12 @@ object IssueCommand : Command("issue") {
                                 }
                                 return@doesLater
                             }
-                        val request = Request.Builder().addHeader("Authorization", "token $githubToken").url("https://api.github.com/repos/$user/$repoName/issues/$issueNum").get().build()
+                        val request = Request.Builder().addHeader("Authorization", "token $githubToken")
+                            .url("https://api.github.com/repos/$user/$repoName/issues/$issueNum").get().build()
                         val response = OkHttpClient().newCall(request).execute()
-                        println(response.request().toString() + " from user ${message.author?.name}(${message.author?.id})")
+                        println(
+                            response.request().toString() + " from user ${message.author?.name}(${message.author?.id})"
+                        )
                         val result = Gson().fromJson(response.body()!!.string(), Issue::class.java)
                         try {
                             message.channel.send {
@@ -68,8 +70,11 @@ object IssueCommand : Command("issue") {
                                     )
                                     field("Status", result.state, false)
                                     field("Milestone", result.milestone.title, false)
-                                    //field("Labels", result.labels.name, false)
-                                    //field("Assignees", if(result.assignee!!.login.isEmpty()){"No Assignees"}else{result.assignee!!.login}, false)
+                                    field("Labels", result.labels.joinToString { it.name }, false)
+//                                    field(
+//                                        "Assignees",
+//                                        result.assignees?.joinToString { it.login } ?: "No Assignees",
+//                                        false)
                                     author(
                                         "カミブルー！",
                                         "https://kamiblue.org",
@@ -78,11 +83,12 @@ object IssueCommand : Command("issue") {
                                     url = result.html_url
                                 }
                             }
-                        }catch(e: Exception){
-                            message.channel.send{
-                                embed{
+                        } catch (e: Exception) {
+                            message.channel.send {
+                                embed {
                                     title = "Error"
-                                    description = "Something went wrong when trying to execute this command! Does the user/repo/issue exist?"
+                                    description =
+                                        "Something went wrong when trying to execute this command! Does the user/repo/issue exist?"
                                     field("Stacktrace", "```$e```", false)
                                     e.printStackTrace()
                                     color = Main.Colors.ERROR.color
