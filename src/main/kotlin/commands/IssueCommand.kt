@@ -66,8 +66,8 @@ object IssueCommand : Command("issue") {
                                         )
                                         field("Status", result.state, false)
                                         field("Milestone", result.milestone?.title ?: "No Milestone Added", false)
-                                        field("Labels", result.labels?.joinToString { it.name } ?: "No Labels Added", false)
-                                        field("Assignees", result.assignees?.joinToString { it.login } ?: "No Assignees", false)
+                                        field("Labels", if((result.labels?.joinToString { it.name } ?: "No Labels").isEmpty()){"No Labels"} else {result.labels!!.joinToString { it.name }}, false)
+                                        field("Assignees", if((result.assignees?.joinToString { it.login } ?: "No Assignees").isEmpty()){"No Assignees"} else {result.assignees!!.joinToString { it.login }}, false)
                                         author(
                                             "カミブルー！",
                                             "https://kamiblue.org",
