@@ -65,12 +65,9 @@ object IssueCommand : Command("issue") {
                                             }, false
                                         )
                                         field("Status", result.state, false)
-                                        field("Milestone", result.milestone.title, false)
-                                        field("Labels", result.labels.joinToString { it.name }, false)
-//                                    field(
-//                                        "Assignees",
-//                                        result.assignees?.joinToString { it.login } ?: "No Assignees",
-//                                        false)
+                                        field("Milestone", result.milestone?.title ?: "No Milestone Added", false)
+                                        field("Labels", result.labels?.joinToString { it.name } ?: "No Labels Added", false)
+                                        field("Assignees", result.assignees?.joinToString { it.login } ?: "No Assignees", false)
                                         author(
                                             "カミブルー！",
                                             "https://kamiblue.org",
