@@ -1,5 +1,3 @@
-@file:Suppress("BlockingMethodInNonBlockingContext") //shut
-
 package commands
 
 import AuthConfig
