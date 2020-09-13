@@ -126,13 +126,10 @@ object Main {
     var ready = false
     const val currentVersion = "1.0.3"
 
-    /**
-     * Int colors, converted from here: https://www.shodor.org/stella2java/rgbint.html
-     */
     enum class Colors(val color: Color) {
-        BLUE(Color(10195199)),
-        ERROR(Color(14565692)),
-        WARN(Color(14595644)),
-        SUCCESS(Color(3989082));
+        BLUE(Color(155, 144, 255)),
+        ERROR(Color(222, 65, 60)),
+        WARN(Color(222, 182, 60)),
+        SUCCESS(Color(60,222,90));
     }
 }
