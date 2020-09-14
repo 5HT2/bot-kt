@@ -6,8 +6,8 @@ import ConfigType
 import FileManager
 import Main
 import arg
-import `github-discussion-api`.issue.Issue
-import `github-discussion-api`.pull.PullRequest
+import org.kamiblue.api.issue.Issue
+import org.kamiblue.api.pull.PullRequest
 import com.google.gson.Gson
 import doesLater
 import okhttp3.OkHttpClient
