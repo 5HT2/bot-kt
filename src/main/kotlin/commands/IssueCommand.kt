@@ -6,8 +6,8 @@ import ConfigType
 import FileManager
 import Main
 import arg
-import classes.issue.Issue
-import classes.pull.Pull
+import `github-discussion-api`.issue.Issue
+import `github-discussion-api`.pull.PullRequest
 import com.google.gson.Gson
 import doesLater
 import okhttp3.OkHttpClient
@@ -18,6 +18,7 @@ import string
  * @author sourTaste000
  * @since 2020/9/8
  */
+@Suppress("BlockingMethodInNonBlockingContext")
 object IssueCommand : Command("issue") {
     init {
         /*
@@ -56,10 +57,10 @@ object IssueCommand : Command("issue") {
                                         color = if (result.state == "closed") { Main.Colors.ERROR.color } else { Main.Colors.SUCCESS.color }
                                         field(
                                             "Description",
-                                            if (result.body.isEmpty()) {
+                                            if (result.body?.isEmpty() == true) {
                                                 "No description provided."
                                             } else {
-                                                result.body.replace(Regex("<!--.*-->"), "")
+                                                result.body!!.replace(Regex("<!--.*-->"), "")
                                             }, false
                                         )
                                         field("Status", result.state, false)
@@ -75,10 +76,10 @@ object IssueCommand : Command("issue") {
                                     }
                                 }
                             } else if(result.html_url.contains("pull")){
-                                val requestPull = Request.Builder().addHeader("Authorization", "token $githubToken").url(result.pull_request.url).get().build()
+                                val requestPull = Request.Builder().addHeader("Authorization", "token $githubToken").url(result.url).get().build()
                                 val responsePull = OkHttpClient().newCall(requestPull).execute()
                                 println(responsePull.request().toString() + " from user ${message.author?.name}(${message.author?.id})")
-                                val resultPull = Gson().fromJson(responsePull.body()!!.string(), Pull::class.java)
+                                val resultPull = Gson().fromJson(responsePull.body()!!.string(), PullRequest::class.java)
                                 message.channel.send {
                                     embed{
                                         title = resultPull.title
