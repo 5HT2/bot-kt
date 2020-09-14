@@ -130,6 +130,6 @@ object Main {
         BLUE(Color(155, 144, 255)),
         ERROR(Color(222, 65, 60)),
         WARN(Color(222, 182, 60)),
-        SUCCESS(Color(60,222,90));
+        SUCCESS(Color(60, 222, 90));
     }
 }
