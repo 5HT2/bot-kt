@@ -1,0 +1,3 @@
+[submodule "github-discussion-api"]
+	path = github-discussion-api
+	url = git@github.com:l1ving/github-discussion-api.git
