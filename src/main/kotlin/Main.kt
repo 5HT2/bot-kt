@@ -137,7 +137,7 @@ object Main {
     var process: Job? = null
     var client: DiscordClient? = null
     var ready = false
-    const val currentVersion = "1.0.9"
+    const val currentVersion = "1.1.0"
 
     /**
      * Int colors, converted from here: https://www.shodor.org/stella2java/rgbint.html
