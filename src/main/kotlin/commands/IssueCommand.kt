@@ -21,11 +21,7 @@ import string
 @Suppress("BlockingMethodInNonBlockingContext")
 object IssueCommand : Command("issue") {
     init {
-        /*
-        TODO:
-             Make a tree that defaults to kami-blue for user
-             Support Multiple Assignees
-         */
+        /* TODO: Make a tree that defaults to kami-blue for user */
         string("user") {
             string("repoName") {
                 string("issueNum") {
