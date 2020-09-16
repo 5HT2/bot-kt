@@ -1,9 +1,20 @@
 import PermissionTypes.COUNCIL_MEMBER
+import Send.error
 import net.ayataka.kordis.entity.message.Message
 
 object Permissions {
-    fun hasPermission(message: Message, permission: PermissionTypes): Boolean {
-        return hasPermission(message.author!!.id, false, permission)
+    suspend fun Message.hasPermission(permission: PermissionTypes): Boolean {
+        this.author?.let {
+            return if (!hasPermission(it.id, permission)) {
+                this.error("You don't have permission to use this command!")
+                false
+            } else {
+                true
+            }
+        } ?: run {
+            this.error("Message (`${this.id}`) author was null")
+            return false
+        }
     }
 
     fun hasPermission(id: Long, permission: PermissionTypes): Boolean {
@@ -25,8 +36,10 @@ object Permissions {
  * [COUNCIL_MEMBER] affects:
  *   - DiscussCommand
  */
+@Suppress("UNUSED")
 enum class PermissionTypes {
     ARCHIVE_CHANNEL,
     COUNCIL_MEMBER,
-    REBOOT_BOT
+    REBOOT_BOT,
+    MANAGE_CONFIG
 }

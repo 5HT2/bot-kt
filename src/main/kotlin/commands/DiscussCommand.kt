@@ -3,9 +3,7 @@ package commands
 import Command
 import Main.Colors
 import PermissionTypes
-import Permissions
-import StringHelper
-import StringHelper.MessageTypes.MISSING_PERMISSIONS
+import Permissions.hasPermission
 import arg
 import doesLater
 import greedyString
@@ -20,8 +18,7 @@ object DiscussCommand : Command("discuss") {
         literal("addon") {
             greedyString("idea") {
                 doesLater { context ->
-                    if (!Permissions.hasPermission(message, PermissionTypes.COUNCIL_MEMBER)) {
-                        StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
+                    if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
                         return@doesLater
                     }
 
@@ -50,8 +47,7 @@ object DiscussCommand : Command("discuss") {
         string("topic") {
             greedyString("description") {
                 doesLater { context ->
-                    if (!Permissions.hasPermission(message, PermissionTypes.COUNCIL_MEMBER)) {
-                        StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
+                    if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
                         return@doesLater
                     }
 
