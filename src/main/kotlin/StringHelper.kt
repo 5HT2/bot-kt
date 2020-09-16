@@ -18,7 +18,7 @@ object StringHelper {
     }
 
     fun String.trim(last: Int): String {
-        return this.substring(0, this.length - 4)
+        return this.substring(0, this.length - last)
     }
 
     fun String.downloadBytes(): ByteArray {
@@ -58,22 +58,5 @@ object StringHelper {
             .redirectError(ProcessBuilder.Redirect.INHERIT)
             .start()
             .waitFor(10, TimeUnit.MINUTES)
-    }
-
-    suspend fun sendMessage(channel: TextChannel, type: MessageTypes) {
-        when (type) {
-            MessageTypes.MISSING_PERMISSIONS -> {
-                channel.send {
-                    embed {
-                        field("Error", "You don't have permission to use this command!", true)
-                        color = ERROR.color
-                    }
-                }
-            }
-        }
-    }
-
-    enum class MessageTypes {
-        MISSING_PERMISSIONS
     }
 }

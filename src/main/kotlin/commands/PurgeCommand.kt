@@ -1,7 +1,8 @@
 package commands
 
 import Command
-import StringHelper.MessageTypes.MISSING_PERMISSIONS
+import PermissionTypes
+import Permissions.hasPermission
 import arg
 import doesLater
 import greedyString
@@ -12,8 +13,7 @@ object PurgeCommand : Command("purge") {
     init {
         integer("number") {
             doesLater { context ->
-                if (!Permissions.hasPermission(message, PermissionTypes.COUNCIL_MEMBER)) {
-                    StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
+                if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
                     return@doesLater
                 }
                 val number: Int = context arg "number"
@@ -21,8 +21,7 @@ object PurgeCommand : Command("purge") {
             }
             greedyString("user") {
                 doesLater { context ->
-                    if (!Permissions.hasPermission(message, PermissionTypes.COUNCIL_MEMBER)) {
-                        StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
+                    if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
                         return@doesLater
                     }
                     val contextNumber: Int = context arg "number"

@@ -2,16 +2,13 @@ package commands
 
 import Command
 import PermissionTypes
-import Permissions
-import StringHelper
-import StringHelper.MessageTypes.MISSING_PERMISSIONS
+import Permissions.hasPermission
 import doesLater
 
 object UnSlowCommand : Command("unslow") {
     init {
         doesLater {
-            if (!Permissions.hasPermission(message, PermissionTypes.COUNCIL_MEMBER)) {
-                StringHelper.sendMessage(message.channel, MISSING_PERMISSIONS)
+            if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
                 return@doesLater
             }
             message.serverChannel!!.edit {

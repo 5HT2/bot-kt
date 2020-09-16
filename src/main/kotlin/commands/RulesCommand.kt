@@ -1,8 +1,8 @@
 package commands
 
 import Command
-import ConfigType
 import ConfigManager
+import ConfigType
 import Main.Colors.BLUE
 import Main.Colors.ERROR
 import RulesConfig
