@@ -6,12 +6,12 @@ import ConfigType
 import FileManager
 import Main
 import arg
-import org.kamiblue.api.issue.Issue
-import org.kamiblue.api.pull.PullRequest
 import com.google.gson.Gson
 import doesLater
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.kamiblue.api.issue.Issue
+import org.kamiblue.api.pull.PullRequest
 import string
 
 /**
@@ -44,17 +44,24 @@ object IssueCommand : Command("issue") {
                                 }
                                 return@doesLater
                             }
-                        val request = Request.Builder().addHeader("Authorization", "token $githubToken").url("https://api.github.com/repos/$user/$repoName/issues/$issueNum").get().build()
+                        val request = Request.Builder().addHeader("Authorization", "token $githubToken")
+                            .url("https://api.github.com/repos/$user/$repoName/issues/$issueNum").get().build()
                         val response = OkHttpClient().newCall(request).execute()
-                        println(response.request().toString() + " from user ${message.author?.name}(${message.author?.id})")
+                        println(
+                            response.request().toString() + " from user ${message.author?.name}(${message.author?.id})"
+                        )
                         val result = Gson().fromJson(response.body()!!.string(), Issue::class.java)
                         try {
-                            if(result.html_url.contains("issue")) {
+                            if (result.html_url.contains("issue")) {
                                 message.channel.send {
                                     embed {
                                         title = result!!.title
                                         thumbnailUrl = result.user.avatar_url
-                                        color = if (result.state == "closed") { Main.Colors.ERROR.color } else { Main.Colors.SUCCESS.color }
+                                        color = if (result.state == "closed") {
+                                            Main.Colors.ERROR.color
+                                        } else {
+                                            Main.Colors.SUCCESS.color
+                                        }
                                         field(
                                             "Description",
                                             if (result.body?.isEmpty() == true) {
@@ -65,8 +72,25 @@ object IssueCommand : Command("issue") {
                                         )
                                         field("Status", result.state, false)
                                         field("Milestone", result.milestone?.title ?: "No Milestone Added", false)
-                                        field("Labels", if((result.labels?.joinToString { it.name } ?: "No Labels").isEmpty()){"No Labels"} else {result.labels!!.joinToString { it.name }}, false)
-                                        field("Assignees", if((result.assignees?.joinToString { it.login } ?: "No Assignees").isEmpty()){"No Assignees"} else {result.assignees!!.joinToString { it.login }}, false)
+                                        field(
+                                            "Labels",
+                                            if ((result.labels?.joinToString { it.name } ?: "No Labels").isEmpty()) {
+                                                "No Labels"
+                                            } else {
+                                                result.labels!!.joinToString { it.name }
+                                            },
+                                            false
+                                        )
+                                        field(
+                                            "Assignees",
+                                            if ((result.assignees?.joinToString { it.login }
+                                                    ?: "No Assignees").isEmpty()) {
+                                                "No Assignees"
+                                            } else {
+                                                result.assignees!!.joinToString { it.login }
+                                            },
+                                            false
+                                        )
                                         author(
                                             "カミレッドー！",
                                             "https://kamiblue.org",
@@ -75,16 +99,26 @@ object IssueCommand : Command("issue") {
                                         url = result.html_url
                                     }
                                 }
-                            } else if(result.html_url.contains("pull")){
-                                val requestPull = Request.Builder().addHeader("Authorization", "token $githubToken").url(result.url).get().build()
+                            } else if (result.html_url.contains("pull")) {
+                                val requestPull =
+                                    Request.Builder().addHeader("Authorization", "token $githubToken").url(result.url)
+                                        .get().build()
                                 val responsePull = OkHttpClient().newCall(requestPull).execute()
-                                println(responsePull.request().toString() + " from user ${message.author?.name}(${message.author?.id})")
-                                val resultPull = Gson().fromJson(responsePull.body()!!.string(), PullRequest::class.java)
+                                println(
+                                    responsePull.request()
+                                        .toString() + " from user ${message.author?.name}(${message.author?.id})"
+                                )
+                                val resultPull =
+                                    Gson().fromJson(responsePull.body()!!.string(), PullRequest::class.java)
                                 message.channel.send {
-                                    embed{
+                                    embed {
                                         title = resultPull.title
                                         thumbnailUrl = resultPull.user.avatar_url
-                                        color = if (resultPull.state == "closed") { Main.Colors.ERROR.color } else { Main.Colors.SUCCESS.color }
+                                        color = if (resultPull.state == "closed") {
+                                            Main.Colors.ERROR.color
+                                        } else {
+                                            Main.Colors.SUCCESS.color
+                                        }
                                         field(
                                             "Description",
                                             if (resultPull.body.isEmpty()) {
@@ -105,7 +139,8 @@ object IssueCommand : Command("issue") {
                             message.channel.send {
                                 embed {
                                     title = "Error"
-                                    description = "Something went wrong when trying to execute this command! Does the user/repo/issue exist?"
+                                    description =
+                                        "Something went wrong when trying to execute this command! Does the user/repo/issue exist?"
                                     field("Stacktrace", "```$e```", false)
                                     e.printStackTrace()
                                     color = Main.Colors.ERROR.color
