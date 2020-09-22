@@ -3,8 +3,8 @@ package commands
 import AuthConfig
 import Command
 import ConfigType
-import FileManager
 import Main
+import Send.error
 import arg
 import com.google.gson.Gson
 import doesLater
@@ -21,7 +21,6 @@ import string
 @Suppress("BlockingMethodInNonBlockingContext")
 object IssueCommand : Command("issue") {
     init {
-        /* TODO: Make a tree that defaults to kami-blue for user */
         string("user") {
             string("repoName") {
                 string("issueNum") {
@@ -30,14 +29,8 @@ object IssueCommand : Command("issue") {
                         val repoName: String = context arg "repoName"
                         val issueNum: String = context arg "issueNum"
                         val githubToken =
-                            FileManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, true)?.githubToken ?: run {
-                                message.channel.send {
-                                    embed {
-                                        title = "[$name]"
-                                        description = "Github Token not found!"
-                                        color = Main.Colors.ERROR.color
-                                    }
-                                }
+                            ConfigManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, true)?.githubToken ?: run {
+                                message.error("Github Token not found!")
                                 return@doesLater
                             }
                         val request = Request.Builder().addHeader("Authorization", "token $githubToken")
