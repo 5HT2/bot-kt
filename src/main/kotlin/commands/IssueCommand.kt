@@ -10,8 +10,8 @@ import com.google.gson.Gson
 import doesLater
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.kamiblue.api.issue.Issue
-import org.kamiblue.api.pull.PullRequest
+import org.l1ving.api.issue.Issue
+import org.l1ving.api.pull.PullRequest
 import string
 
 /**
