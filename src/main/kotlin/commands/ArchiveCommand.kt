@@ -2,8 +2,8 @@ package commands
 
 import Command
 import Main
-import StringHelper
-import StringHelper.MessageTypes.MISSING_PERMISSIONS
+import PermissionTypes
+import Permissions.hasPermission
 import doesLater
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.server.permission.PermissionSet
@@ -13,8 +13,7 @@ import net.ayataka.kordis.entity.server.permission.overwrite.UserPermissionOverw
 object ArchiveCommand : Command("archive") {
     init {
         doesLater {
-            if (message.author?.id != 563138570953687061) {
-                StringHelper.sendMessage(this.message.channel, MISSING_PERMISSIONS)
+            if (!message.hasPermission(PermissionTypes.ARCHIVE_CHANNEL)) {
                 return@doesLater
             }
 

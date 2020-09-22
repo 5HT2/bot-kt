@@ -1,9 +1,9 @@
 import Main.currentVersion
-import StringHelper.runCommand
 import java.io.File
-import java.io.IOException
 import java.net.URL
+import java.nio.file.Files
 import java.nio.file.Paths
+import kotlin.system.exitProcess
 
 /**
  * @author dominikaaaa
@@ -12,7 +12,7 @@ import java.nio.file.Paths
 object UpdateHelper {
     fun updateCheck() {
         if (File("noUpdateCheck").exists()) return
-        val versionConfig = FileManager.readConfig<VersionConfig>(ConfigType.VERSION, false)
+        val versionConfig = ConfigManager.readConfigFromUrl<VersionConfig>("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json")
 
         if (versionConfig?.version == null) {
             println("Couldn't access remote version when checking for update")
@@ -29,7 +29,7 @@ object UpdateHelper {
     }
 
     private fun updateBot(version: String) {
-        val userConfig = FileManager.readConfig<UserConfig>(ConfigType.USER, false)
+        val userConfig = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
 
         if (userConfig?.autoUpdate == null || !userConfig.autoUpdate) {
             return
@@ -55,23 +55,23 @@ object UpdateHelper {
         val appendSlash = if (path.endsWith("/")) "" else "/"
         val targetFile = path.toString() + appendSlash + "bot-kt-$version.jar"
         File(targetFile).writeBytes(bytes)
+
+        val file = Paths.get("$path/currentVersion")
+        File(file.toString()).delete()
+        Files.newBufferedWriter(file).use {
+            it.write(version)
+        }
+
         println("Auto Update - Finished updating to $version")
 
-        if (File("process.json").exists()) {
-
-            println("Auto Update - Creating pm2 config")
-
-            Pm2.createJson(version)
-
-            println("Auto Update - Created pm2 config, reloading bot-kt")
-
-            try {
-                "pm2 reload bot-kt".runCommand(File(path.toString()))
-            } catch (e: IOException) {
-                println("pm2 is not installed, failed to reload bot.\nYou can ignore this if you're not using pm2, but you will need to manually restart the bot to start using the latest version.")
+        userConfig.autoUpdateRestart?.let {
+            if (it) {
+                Main.process?.let { process ->
+                    println("Auto Update - Restarting bot")
+                    process.cancel()
+                    exitProcess(0)
+                }
             }
-        } else {
-            println("Auto Update - You may now restart the bot to start using the latest version")
         }
     }
 }

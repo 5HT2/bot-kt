@@ -46,7 +46,7 @@ object CommandManager {
 
     /**
      * Uses reflection to get a list of classes in the commands package which extend [Command]
-     * and register said classes's instances with Brigadier.
+     * and register said classes instances with Brigadier.
      */
     fun registerCommands(dispatcher: CommandDispatcher<Cmd>) {
         val reflections = Reflections("commands")

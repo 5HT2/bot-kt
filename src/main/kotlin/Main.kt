@@ -3,7 +3,9 @@ import Main.ready
 import UpdateHelper.updateCheck
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
@@ -12,10 +14,14 @@ import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import java.awt.Color
-import kotlin.system.exitProcess
+import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
 
 fun main() = runBlocking {
-    Bot().start()
+    Main.process = launch {
+        Bot().start()
+    }
 }
 
 /**
@@ -28,17 +34,12 @@ class Bot {
     suspend fun start() {
         val started = System.currentTimeMillis()
 
-        if (System.getProperty("bot-kt.create-pm2-config") == "true") {
-            Pm2.createJson(Main.currentVersion)
-            println("Created pm2 config!")
-            exitProcess(0)
-        }
-
         println("Starting bot!")
 
+        writeCurrentVersion()
         updateCheck()
 
-        val config = FileManager.readConfig<AuthConfig>(ConfigType.AUTH, false)
+        val config = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)
 
         if (config?.botToken == null) {
             println("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
@@ -53,8 +54,8 @@ class Bot {
 
         registerCommands(dispatcher)
 
-        val initialization = "Initialized bot!\nStartup took ${System.currentTimeMillis() - started}ms"
-        val userConfig = FileManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
+        val initialization = "Initialized bot!\nRunning on ${Main.currentVersion}\nStartup took ${System.currentTimeMillis() - started}ms"
+        val userConfig = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
 
         userConfig?.statusMessage?.let {
             var type = ActivityType.UNKNOWN
@@ -95,6 +96,17 @@ class Bot {
         println(initialization)
     }
 
+    private fun writeCurrentVersion() {
+        val path = Paths.get(System.getProperty("user.dir"))
+        val file = Paths.get("$path/currentVersion")
+
+        if (!File(file.toString()).exists()) {
+            Files.newBufferedWriter(file).use {
+                it.write(Main.currentVersion)
+            }
+        }
+    }
+
     @EventHandler
     suspend fun onMessageReceive(event: MessageReceiveEvent) {
         if (!ready || event.message.content.isEmpty()) return // message can be empty on images, embeds and other attachments
@@ -122,9 +134,10 @@ class Bot {
 }
 
 object Main {
+    var process: Job? = null
     var client: DiscordClient? = null
     var ready = false
-    const val currentVersion = "1.0.3"
+    const val currentVersion = "1.1.0"
 
     enum class Colors(val color: Color) {
         BLUE(Color(155, 144, 255)),

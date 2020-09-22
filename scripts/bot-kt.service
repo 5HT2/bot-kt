@@ -1,0 +1,6 @@
+[Unit]
+Description=Reboots bot-kt if not running
+[Service]
+WorkingDirectory=/home/mika/
+ExecStart=/home/mika/bot-kt/start.sh
+StartLimitBurst=0

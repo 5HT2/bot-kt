@@ -12,7 +12,7 @@ Why should you use this over other Kotlin bots:
 - Config types support providing a URL instead of a file name, allowing you to load configurations remotely
 - Command registration is automatic, just create an object which extends `Command("commandName")`
 - Uses Brigadier as a command system, making creating a command as easy as just writing a few lambdas 
-- Has (optional) automatic updating which is compatible with pm2
+- Has (optional) automatic updating
 
 ## Contributing
 
@@ -63,25 +63,10 @@ If the MainKt run configuration isn't imported automatically in Intellij, try `F
 
 If that still does not help, Hit `Add Configuration` in the upper right of your IDE, select the MainKt configuration on the left and hit Ok.
 
-#### Running prebuilt binaries in pm2.
- 
-You obviously need [pm2](https://pm2.keymetrics.io/) installed first. 
-
-You need a pm2 config the first time you run it. Run the bot with this command to create the config:
-```bash
-java -jar -Dbot-kt.create-pm2-config=true bot-kt-1.0.3.jar
-```
-
-Once you have a config, you can run `pm2 start process.json` and it will start the process. You can do `pm2 list` to list active processes and `pm2 reload bot-kt` to reload it.
-
-It will automatically start up again if it crashes, in the unlikely scenario that it does crash. Please report any bugs or crashes on the issues page
- 
-It will also automatically reload when auto updating.
-
 #### Running prebuilt binaries
 
 ```bash
-java -jar bot-kt-1.0.3.jar
+java -jar bot-kt-1.1.0.jar
 ```
 
 #### Disabling update checking

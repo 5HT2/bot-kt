@@ -1,6 +1,7 @@
 # Bot configuration files
 config/
 process.json
+currentVersion
 
 # Intellij IDEA configuration files
 .idea/

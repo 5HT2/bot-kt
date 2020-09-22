@@ -1,5 +1,9 @@
+import Main.Colors.ERROR
 import net.ayataka.kordis.entity.channel.TextChannel
 import java.io.File
+import java.io.IOException
+import java.net.URL
+import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 
 object StringHelper {
@@ -9,29 +13,50 @@ object StringHelper {
         )
     }
 
-    fun String.runCommand(workingDir: File) {
+    fun String.normalizeCase(): String {
+        return this.substring(0, 1) + this.substring(1).toLowerCase()
+    }
+
+    fun String.trim(last: Int): String {
+        return this.substring(0, this.length - last)
+    }
+
+    fun String.downloadBytes(): ByteArray {
+        return URL(this).readBytes()
+    }
+
+    fun String.writeBytes(url: String): Int {
+        val bytes = url.downloadBytes()
+        File(this).writeBytes(bytes)
+        return bytes.size
+    }
+
+    suspend fun String.runCommand(channel: TextChannel): Boolean {
+        return try {
+            this.runCommand()
+            true
+        } catch (e: IOException) {
+            channel.send {
+                embed {
+                    title = "Error"
+                    description = "```" + e.message + "```\n```" + e.stackTrace.joinToString("\n") + "```"
+                    color = ERROR.color
+                }
+            }
+            false
+        }
+    }
+
+    private fun String.runCommand() {
+        this.runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
+    }
+
+    private fun String.runCommand(workingDir: File) {
         ProcessBuilder(*split(" ").toTypedArray())
             .directory(workingDir)
             .redirectOutput(ProcessBuilder.Redirect.INHERIT)
             .redirectError(ProcessBuilder.Redirect.INHERIT)
             .start()
             .waitFor(10, TimeUnit.MINUTES)
-    }
-
-    suspend fun sendMessage(channel: TextChannel, type: MessageTypes) {
-        when (type) {
-            MessageTypes.MISSING_PERMISSIONS -> {
-                channel.send {
-                    embed {
-                        field("Error", "You don't have permission to use this command!", true)
-                        color = Main.Colors.ERROR.color
-                    }
-                }
-            }
-        }
-    }
-
-    enum class MessageTypes {
-        MISSING_PERMISSIONS
     }
 }
