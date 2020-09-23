@@ -1,6 +1,6 @@
 # bot-kt
 
-![GitHub All Releases](https://img.shields.io/github/downloads/kami-blue/bot-kt/total&style=flat-square)
+![GitHub All Releases](https://img.shields.io/github/downloads/kami-blue/bot-kt/total?style=flat-square)
 ![Discord](https://img.shields.io/discord/573954110454366214?style=flat-square)
 [![HitCount](http://hits.dwyl.com/kami-blue/bot-kt.svg)](http://hits.dwyl.com/kami-blue/bot-kt)
 [![Paypal](https://img.shields.io/badge/paypal-donate-red?color=169bd7&logo=paypal&style=flat-square)](https://paypal.me/mik4a/5USD)
