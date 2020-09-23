@@ -16,10 +16,12 @@ Why should you use this over other Kotlin bots:
 
 ## Contributing
 
-0. `git clone git@github.com:kami-blue/bot-kt.git`
+0. `git clone --recurse-submodules git@github.com:kami-blue/bot-kt.git`
 1. In Intellij IDEA select `File -> New -> Project from existing sources`
 3. Import the `build.gradle` file
 4. Wait for the Gradle import to finish
+
+Note: If you forget the `--recurse-submodules` flag or cloned in an IDE, you can do `git submodule update --init --recursive` after.
 
 ## Usage
 
