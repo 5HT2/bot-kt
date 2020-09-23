@@ -19,7 +19,6 @@ object ServerInfoCommand : Command("serverinfo") {
                         server?.voiceChannels?.size?.let { it3 -> field("Voice Channels:", it3, true) }
                         server?.textChannels?.size?.let { it4 -> field("Text Channels:", it4, true) }
                         server?.members?.size?.let { it5 -> field("Members:", it5, true) }
-                        server?.channelCategories?.size?.let { it6 -> field("Channel Categories:", it6, true) }
                         server?.roles?.size?.let { it7 -> field("Roles:", it7, true) }
                     }
                 }
