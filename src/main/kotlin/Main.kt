@@ -17,6 +17,12 @@ import java.awt.Color
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.*
+import java.util.concurrent.*
+import ConfigManager.readConfigSafe
+import Send.error
+import net.ayataka.kordis.entity.message.*
+import net.ayataka.kordis.entity.server.channel.voice.*
 
 fun main() = runBlocking {
     Main.process = launch {
@@ -129,6 +135,48 @@ class Bot {
                     }
                 }
             }
+        }
+    }
+    /**
+     * @author sourTaste000(IcyChungus)
+     * @module downloadCounter
+     * @since 9/22/2020
+     */
+    suspend fun updateChannel() {
+        val interval = TimeUnit.MINUTES.toMillis(readConfigSafe<UserConfig>(ConfigType.USER, false)?.updateInterval ?: 10)
+        val timer = Timer()
+        val task = object: TimerTask(){
+            override fun run() {
+                TODO("I have no idea how to fetch a voice channel from cache")
+            }
+        }
+        timer.schedule(task, interval) //default 10 minutes
+
+        suspend fun getReleaseChannel(message: Message): Long? {
+            val releaseChannel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.downloadChannel
+            if (releaseChannel == null){
+                message.error("Release channel not found in config! Using default channel...")
+                return 743150116516528159
+            }
+            return releaseChannel
+        }
+
+        suspend fun getUpdateInterval(message: Message): Long? {
+            val updateInterval = readConfigSafe<UserConfig>(ConfigType.USER, false)?.updateInterval
+            if (updateInterval == null){
+                message.error("Update interval not found in config! Using default interval...")
+                return 10
+            }
+            return updateInterval
+        }
+
+        suspend fun getSecondaryDownloadChannel(message: Message): Long? {
+            val secondaryUpdateInterval = readConfigSafe<UserConfig>(ConfigType.USER, false)?.secondaryDownloadChannel
+            if (secondaryUpdateInterval == null){
+                message.error("Secondary download channel not found in config! Using default channel...")
+                return 743150116516528159
+            }
+            return secondaryUpdateInterval
         }
     }
 }
