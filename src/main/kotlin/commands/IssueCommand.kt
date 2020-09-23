@@ -2,12 +2,16 @@ package commands
 
 import AuthConfig
 import Command
+import ConfigManager.readConfigSafe
 import ConfigType
-import Main
+import Main.Colors.ERROR
+import Main.Colors.SUCCESS
 import Send.error
+import UserConfig
 import arg
 import com.google.gson.Gson
 import doesLater
+import net.ayataka.kordis.entity.message.Message
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.l1ving.api.issue.Issue
@@ -18,128 +22,171 @@ import string
  * @author sourTaste000
  * @since 2020/9/8
  */
-@Suppress("BlockingMethodInNonBlockingContext")
 object IssueCommand : Command("issue") {
     init {
         string("user") {
             string("repoName") {
                 string("issueNum") {
                     doesLater { context ->
+                        val githubToken = getToken(message) ?: return@doesLater // Error message is handled already
                         val user: String = context arg "user"
                         val repoName: String = context arg "repoName"
                         val issueNum: String = context arg "issueNum"
-                        val githubToken =
-                            ConfigManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, true)?.githubToken ?: run {
-                                message.error("Github Token not found!")
-                                return@doesLater
-                            }
-                        val request = Request.Builder().addHeader("Authorization", "token $githubToken")
-                            .url("https://api.github.com/repos/$user/$repoName/issues/$issueNum").get().build()
-                        val response = OkHttpClient().newCall(request).execute()
-                        println(
-                            response.request().toString() + " from user ${message.author?.name}(${message.author?.id})"
-                        )
-                        val result = Gson().fromJson(response.body()!!.string(), Issue::class.java)
-                        try {
-                            if (result.html_url.contains("issue")) {
-                                message.channel.send {
-                                    embed {
-                                        title = result!!.title
-                                        thumbnailUrl = result.user.avatar_url
-                                        color = if (result.state == "closed") {
-                                            Main.Colors.ERROR.color
-                                        } else {
-                                            Main.Colors.SUCCESS.color
-                                        }
-                                        field(
-                                            "Description",
-                                            if (result.body?.isEmpty() == true) {
-                                                "No description provided."
-                                            } else {
-                                                result.body!!.replace(Regex("<!--.*-->"), "")
-                                            }, false
-                                        )
-                                        field("Status", result.state, false)
-                                        field("Milestone", result.milestone?.title ?: "No Milestone Added", false)
-                                        field(
-                                            "Labels",
-                                            if ((result.labels?.joinToString { it.name } ?: "No Labels").isEmpty()) {
-                                                "No Labels"
-                                            } else {
-                                                result.labels!!.joinToString { it.name }
-                                            },
-                                            false
-                                        )
-                                        field(
-                                            "Assignees",
-                                            if ((result.assignees?.joinToString { it.login }
-                                                    ?: "No Assignees").isEmpty()) {
-                                                "No Assignees"
-                                            } else {
-                                                result.assignees!!.joinToString { it.login }
-                                            },
-                                            false
-                                        )
-                                        author(
-                                            "カミレッドー！",
-                                            "https://kamiblue.org",
-                                            "https://cdn.discordapp.com/avatars/743237292294013013/591c1daf9efcfdd7ea2db1592d818fa6.png"
-                                        )
-                                        url = result.html_url
-                                    }
-                                }
-                            } else if (result.html_url.contains("pull")) {
-                                val requestPull =
-                                    Request.Builder().addHeader("Authorization", "token $githubToken").url(result.url)
-                                        .get().build()
-                                val responsePull = OkHttpClient().newCall(requestPull).execute()
-                                println(
-                                    responsePull.request()
-                                        .toString() + " from user ${message.author?.name}(${message.author?.id})"
-                                )
-                                val resultPull =
-                                    Gson().fromJson(responsePull.body()!!.string(), PullRequest::class.java)
-                                message.channel.send {
-                                    embed {
-                                        title = resultPull.title
-                                        thumbnailUrl = resultPull.user.avatar_url
-                                        color = if (resultPull.state == "closed") {
-                                            Main.Colors.ERROR.color
-                                        } else {
-                                            Main.Colors.SUCCESS.color
-                                        }
-                                        field(
-                                            "Description",
-                                            if (resultPull.body.isEmpty()) {
-                                                "No description provided."
-                                            } else {
-                                                resultPull.body.replace(Regex("<!--.*-->"), "")
-                                            }, false
-                                        )
-                                        field("Additions", resultPull.additions, false)
-                                        field("Deletions", resultPull.deletions, false)
-                                        field("Commits", resultPull.commits, false)
-                                        field("Changed Files", resultPull.changed_files, false)
-                                        field("Comments", resultPull.comments, false)
-                                    }
-                                }
-                            }
-                        } catch (e: Exception) {
-                            message.channel.send {
-                                embed {
-                                    title = "Error"
-                                    description =
-                                        "Something went wrong when trying to execute this command! Does the user/repo/issue exist?"
-                                    field("Stacktrace", "```$e```", false)
-                                    e.printStackTrace()
-                                    color = Main.Colors.ERROR.color
-                                }
-                            }
-                        }
+
+                        sendResponse(message, githubToken, user, repoName, issueNum)
                     }
                 }
             }
         }
+        string("repoName") {
+            string("issueNum") {
+                doesLater { context ->
+                    val user: String = getUser(message) ?: return@doesLater // Error message is handled already
+                    val githubToken = getToken(message) ?: return@doesLater
+                    val repoName: String = context arg "repoName"
+                    val issueNum: String = context arg "issueNum"
+
+                    sendResponse(message, githubToken, user, repoName, issueNum)
+                }
+            }
+        }
+    }
+
+
+    private suspend fun sendResponse(
+        message: Message,
+        token: String,
+        user: String,
+        repoName: String,
+        issueNum: String
+    ) {
+        val issue = request<Issue>(token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
+        try {
+            if (issue.html_url.contains("issue")) {
+                message.channel.send {
+                    embed {
+                        title = issue.title
+                        thumbnailUrl = issue.user.avatar_url
+                        color = if (issue.state == "closed") ERROR.color else SUCCESS.color
+
+                        field(
+                            "Description",
+                            if (issue.body?.isEmpty() == true) "No description" else issue.body!!.replace(
+                                Regex("<!--.*-->"),
+                                ""
+                            ),
+                            false
+                        )
+
+                        field("Milestone", issue.milestone?.title ?: "No Milestone", false)
+
+                        field(
+                            "Labels",
+                            if ((issue.labels?.joinToString { it.name } ?: "No Labels").isEmpty()) {
+                                "No Labels"
+                            } else {
+                                issue.labels!!.joinToString { it.name }
+                            },
+                            false
+                        )
+
+                        field(
+                            "Assignees",
+                            if ((issue.assignees?.joinToString { it.login } ?: "No Assignees").isEmpty()) {
+                                "No Assignees"
+                            } else {
+                                issue.assignees!!.joinToString { it.login }
+                            },
+                            false
+                        )
+
+                        url = issue.html_url
+                    }
+                }
+            } else if (issue.html_url.contains("pull")) {
+                val pullRequest = request<PullRequest>(token, issue.url)
+
+                message.channel.send {
+                    embed {
+                        title = pullRequest.title
+                        thumbnailUrl = pullRequest.user.avatar_url
+                        color = if (pullRequest.state == "closed") ERROR.color else SUCCESS.color
+
+                        field(
+                            "Description",
+                            if (issue.body?.isEmpty() == true) "No description" else issue.body!!.replace(
+                                Regex("<!--.*-->"),
+                                ""
+                            ),
+                            false
+                        )
+
+                        field("Milestone", issue.milestone?.title ?: "No Milestone", false)
+
+                        field(
+                            "Labels",
+                            if ((issue.labels?.joinToString { it.name } ?: "No Labels").isEmpty()) {
+                                "No Labels"
+                            } else {
+                                issue.labels!!.joinToString { it.name }
+                            },
+                            false
+                        )
+
+                        field(
+                            "Assignees",
+                            if ((issue.assignees?.joinToString { it.login } ?: "No Assignees").isEmpty()) {
+                                "No Assignees"
+                            } else {
+                                issue.assignees!!.joinToString { it.login }
+                            },
+                            false
+                        )
+
+                        field("Lines", "+${pullRequest.additions} / - ${pullRequest.deletions}", false)
+                        field("Commits", pullRequest.commits, false)
+                        field("Changed Files", pullRequest.changed_files, false)
+
+                        url = pullRequest.url
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            message.channel.send {
+                embed {
+                    title = "Error"
+                    description =
+                        "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
+                    field("Stacktrace", "```$e```", false)
+                    e.printStackTrace()
+                    color = ERROR.color
+                }
+            }
+        }
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private inline fun <reified T> request(token: String, url: String): T {
+        val request = Request.Builder().addHeader("Authorization", "token $token").url(url).get().build()
+        val response = OkHttpClient().newCall(request).execute()
+
+        return Gson().fromJson(response.body()!!.string(), T::class.java)
+    }
+
+    private suspend fun getToken(message: Message): String? {
+        val token = readConfigSafe<AuthConfig>(ConfigType.AUTH, false)?.githubToken
+        if (token == null) {
+            message.error("Github Token not found!")
+        }
+        return token
+    }
+
+    private suspend fun getUser(message: Message): String? {
+        val repo = readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
+        if (repo == null) {
+            message.error("Default user / org not set in `${ConfigType.USER.configPath.substring(7)}`!")
+        }
+        return repo
     }
 
     override fun getHelpUsage(): String {
