@@ -1,7 +1,7 @@
 package commands
 
+import Colors
 import Command
-import Main.Colors
 import PermissionTypes
 import Permissions.hasPermission
 import arg
@@ -30,13 +30,13 @@ object DiscussCommand : Command("discuss") {
                         if (!message.attachments.isEmpty()) {
                             embed {
                                 imageUrl = message.attachments.stream().findFirst().get().url
-                                color = Colors.BLUE.color
+                                color = Colors.primary
                             }
                         } else { // needs to be else because you cannot embed images in the same message with content
                             embed {
                                 author(name = message.author!!.name)
                                 field("Added:", idea, false)
-                                color = Colors.BLUE.color
+                                color = Colors.primary
                             }
                         }
                     }
@@ -70,7 +70,7 @@ object DiscussCommand : Command("discuss") {
                         embed {
                             author(name = "${message.author!!.name} created $topic")
                             field("Topic", description, false)
-                            color = Colors.BLUE.color
+                            color = Colors.primary
                         }
                     }
 

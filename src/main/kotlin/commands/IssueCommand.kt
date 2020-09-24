@@ -1,11 +1,10 @@
 package commands
 
 import AuthConfig
+import Colors
 import Command
 import ConfigManager.readConfigSafe
 import ConfigType
-import Main.Colors.ERROR
-import Main.Colors.SUCCESS
 import Send.error
 import UserConfig
 import arg
@@ -66,7 +65,7 @@ object IssueCommand : Command("issue") {
                     embed {
                         title = issue.title
                         thumbnailUrl = issue.user.avatar_url
-                        color = if (issue.state == "closed") ERROR.color else SUCCESS.color
+                        color = if (issue.state == "closed") Colors.error else Colors.success
 
                         field(
                             "Description",
@@ -110,7 +109,7 @@ object IssueCommand : Command("issue") {
                     embed {
                         title = pullRequest.title
                         thumbnailUrl = pullRequest.user.avatar_url
-                        color = if (pullRequest.state == "closed") ERROR.color else SUCCESS.color
+                        color = if (pullRequest.state == "closed") Colors.error else Colors.success
 
                         field(
                             "Description",
@@ -159,7 +158,7 @@ object IssueCommand : Command("issue") {
                         "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
                     field("Stacktrace", "```$e```", false)
                     e.printStackTrace()
-                    color = ERROR.color
+                    color = Colors.error
                 }
             }
         }

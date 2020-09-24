@@ -1,3 +1,4 @@
+import Send.log
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.tree.LiteralCommandNode
@@ -53,7 +54,7 @@ object CommandManager {
 
         val subTypes: Set<Class<out Command>> = reflections.getSubTypesOf(Command::class.java)
 
-        println("Registering commands...")
+        log("Registering commands...")
 
         for (command in subTypes) {
             val literalCommand = command.getField("INSTANCE").get(null) as LiteralArgumentBuilder<Cmd>
@@ -65,6 +66,6 @@ object CommandManager {
         var registeredCommands = ""
         commands.forEach { entry -> registeredCommands += "\n> ;${entry.key}" }
 
-        println("Registered commands!$registeredCommands\n")
+        log("Registered commands!$registeredCommands\n")
     }
 }

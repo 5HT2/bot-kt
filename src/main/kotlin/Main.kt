@@ -1,5 +1,6 @@
 import CommandManager.registerCommands
 import Main.ready
+import Send.log
 import UpdateHelper.updateCheck
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
@@ -36,7 +37,7 @@ class Bot {
     suspend fun start() {
         val started = System.currentTimeMillis()
 
-        println("Starting bot!")
+        log("Starting bot!")
 
         writeCurrentVersion()
         updateCheck()
@@ -44,7 +45,7 @@ class Bot {
         val config = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)
 
         if (config?.botToken == null) {
-            println("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
+            log("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
             return
         }
 
@@ -78,7 +79,7 @@ class Bot {
                         embed {
                             title = "Startup"
                             description = initialization
-                            color = Main.Colors.SUCCESS.color
+                            color = Colors.success
                         }
                     }
                 }
@@ -88,14 +89,14 @@ class Bot {
                     embed {
                         title = "Startup"
                         description = initialization
-                        color = Main.Colors.SUCCESS.color
+                        color = Colors.success
                     }
                 }
             }
         }
 
         ready = true
-        println(initialization)
+        log(initialization)
     }
 
     private fun writeCurrentVersion() {
@@ -119,7 +120,7 @@ class Bot {
         try {
             val exit = dispatcher.execute(message, cmd)
             cmd.file(event)
-            if (exit != 0) println("(executed with exit code $exit)")
+            if (exit != 0) log("(executed with exit code $exit)")
         } catch (e: CommandSyntaxException) {
             if (CommandManager.isCommand(message)) {
                 val command = CommandManager.getCommandClass(message)!!
@@ -127,7 +128,7 @@ class Bot {
                     embed {
                         title = "Invalid Syntax: $message"
                         description = "**${e.message}**\n\n${command.getHelpUsage()}"
-                        color = Main.Colors.ERROR.color
+                        color = Colors.error
                     }
                 }
             }
@@ -215,12 +216,17 @@ object Main {
     var process: Job? = null
     var client: DiscordClient? = null
     var ready = false
-    const val currentVersion = "1.1.0"
+    const val currentVersion = "1.1.1"
 
-    enum class Colors(val color: Color) {
-        BLUE(Color(155, 144, 255)),
-        ERROR(Color(222, 65, 60)),
-        WARN(Color(222, 182, 60)),
-        SUCCESS(Color(60, 222, 90));
+    fun exit() {
+        process!!.cancel()
+        exitProcess(0)
     }
+}
+
+object Colors {
+    val primary = Color(155, 144, 255)
+    val error = Color(222, 65, 60)
+    val warn = Color(222, 182, 60)
+    val success = Color(60, 222, 90)
 }

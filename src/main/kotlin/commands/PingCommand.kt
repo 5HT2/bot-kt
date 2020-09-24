@@ -1,8 +1,7 @@
 package commands
 
+import Colors
 import Command
-import Main.Colors.BLUE
-import Main.Colors.SUCCESS
 import doesLater
 
 object PingCommand : Command("ping") {
@@ -11,13 +10,13 @@ object PingCommand : Command("ping") {
             val m = message.channel.send {
                 embed {
                     description = "Ping?"
-                    color = BLUE.color
+                    color = Colors.primary
                 }
             }
 
             m.edit {
                 description = "Pong! ${System.currentTimeMillis() - m.timestamp.toEpochMilli()}ms."
-                color = SUCCESS.color
+                color = Colors.success
             }
 
         }
