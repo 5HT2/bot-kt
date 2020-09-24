@@ -1,4 +1,3 @@
-import Main.Colors.*
 import net.ayataka.kordis.entity.message.Message
 
 object Send {
@@ -7,7 +6,7 @@ object Send {
             embed {
                 this.title = title
                 this.description = description
-                this.color = BLUE.color
+                this.color = Colors.primary
             }
         }
     }
@@ -16,7 +15,7 @@ object Send {
         channel.send {
             embed {
                 this.description = description
-                this.color = BLUE.color
+                this.color = Colors.primary
             }
         }
     }
@@ -25,7 +24,7 @@ object Send {
         channel.send {
             embed {
                 this.description = description
-                color = SUCCESS.color
+                color = Colors.success
             }
         }
     }
@@ -35,7 +34,7 @@ object Send {
             embed {
                 this.title = "Error"
                 this.description = description
-                this.color = ERROR.color
+                this.color = Colors.error
             }
         }
     }

@@ -1,5 +1,6 @@
 package commands
 
+import Colors
 import Command
 import arg
 import doesLater
@@ -14,7 +15,7 @@ object LmgtfyCommand : Command("lmgtfy") {
                     embed {
                         title = "Here you go!"
                         description = "[Solution](https://lmgtfy.com/?q=${term.replace(" ", "+")})"
-                        color = Main.Colors.BLUE.color
+                        color = Colors.primary
                     }
                 }
             }

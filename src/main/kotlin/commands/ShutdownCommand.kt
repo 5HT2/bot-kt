@@ -1,5 +1,6 @@
 package commands
 
+import Colors
 import Command
 import Main
 import PermissionTypes
@@ -17,7 +18,7 @@ object ShutdownCommand : Command("shutdown") {
             message.channel.send {
                 embed {
                     title = "Shutting down..."
-                    color = Main.Colors.SUCCESS.color
+                    color = Colors.success
                 }
             }
             Main.process?.cancel()

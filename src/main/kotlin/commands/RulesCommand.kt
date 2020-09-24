@@ -1,10 +1,9 @@
 package commands
 
+import Colors
 import Command
 import ConfigManager
 import ConfigType
-import Main.Colors.BLUE
-import Main.Colors.ERROR
 import RulesConfig
 import arg
 import doesLater
@@ -24,13 +23,13 @@ object RulesCommand : Command("r") {
                     if (rule.contains("Couldn't find rule")) {
                         embed {
                             description = rule
-                            color = ERROR.color
+                            color = Colors.error
                         }
                     } else {
                         embed {
                             title = "Rule $ruleName"
                             description = rule
-                            color = BLUE.color
+                            color = Colors.primary
                         }
                     }
                 }
