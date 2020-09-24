@@ -9,14 +9,12 @@ import Main.Colors.SUCCESS
 import Send.error
 import UserConfig
 import arg
-import com.google.gson.Gson
 import doesLater
 import net.ayataka.kordis.entity.message.Message
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.pull.PullRequest
 import string
+import utils.*
 
 /**
  * @author sourTaste000
@@ -63,6 +61,7 @@ object IssueCommand : Command("issue") {
         val issue = request<Issue>(token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
             if (issue.html_url.contains("issue")) {
+                //TODO: Duplicated code fragment
                 message.channel.send {
                     embed {
                         title = issue.title
@@ -106,6 +105,7 @@ object IssueCommand : Command("issue") {
             } else if (issue.html_url.contains("pull")) {
                 val pullRequest = request<PullRequest>(token, issue.url)
 
+                //TODO: Duplicated code fragment
                 message.channel.send {
                     embed {
                         title = pullRequest.title
@@ -163,14 +163,6 @@ object IssueCommand : Command("issue") {
                 }
             }
         }
-    }
-
-    @Suppress("BlockingMethodInNonBlockingContext")
-    private inline fun <reified T> request(token: String, url: String): T {
-        val request = Request.Builder().addHeader("Authorization", "token $token").url(url).get().build()
-        val response = OkHttpClient().newCall(request).execute()
-
-        return Gson().fromJson(response.body()!!.string(), T::class.java)
     }
 
     private suspend fun getToken(message: Message): String? {

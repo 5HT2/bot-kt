@@ -3,10 +3,6 @@ import Main.ready
 import UpdateHelper.updateCheck
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
@@ -17,12 +13,12 @@ import java.awt.Color
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.*
 import java.util.concurrent.*
 import ConfigManager.readConfigSafe
-import Send.error
-import net.ayataka.kordis.entity.message.*
-import net.ayataka.kordis.entity.server.channel.voice.*
+import kotlinx.coroutines.*
+import net.ayataka.kordis.entity.message.Message
+import utils.request
+import org.l1ving.api.download.*
 
 fun main() = runBlocking {
     Main.process = launch {
@@ -143,41 +139,75 @@ class Bot {
      * @since 9/22/2020
      */
     suspend fun updateChannel() {
-        val interval = TimeUnit.MINUTES.toMillis(readConfigSafe<UserConfig>(ConfigType.USER, false)?.updateInterval ?: 10)
-        val timer = Timer()
-        val task = object: TimerTask(){
-            override fun run() {
-                TODO("I have no idea how to fetch a voice channel from cache")
+        // TODO: Shitty code please fix
+        val interval = TimeUnit.MINUTES.toMillis(getUpdateInterval())
+        withTimeout(interval) {
+            while (true){
+                val server = Main.client?.servers?.find(getServerId())
+                val releaseChannel = server?.voiceChannels?.find(getReleaseChannel())
+                val secondaryReleaseChannel = server?.voiceChannels?.find(getSecondaryReleaseChannel())
+                val releaseCount = request<Download>(getToken(), "https://api.github.com/repos/kami-blue/client/releases?per_page=200")
+                val nightlyCount = request<Download>(getToken(), "https://api.github.com/repos/kami-blue/nightly-releases/releases?per_page=200")
+                var totalCount: Long = 0
+                secondaryReleaseChannel?.edit { name = "${nightlyCount[0].assets[0].download_count} Nightly Downloads" }
+                for(i in nightlyCount){
+                    for(j in i.assets){
+                        totalCount += j.download_count
+                    }
+                }
+                for(i in releaseCount){
+                    for(j in i.assets){
+                        totalCount += j.download_count
+                    }
+                }
+                releaseChannel?.edit { name = "$totalCount Total Downloads" }
+                delay(interval)
             }
         }
-        timer.schedule(task, interval) //default 10 minutes
+    }
 
-        suspend fun getReleaseChannel(message: Message): Long? {
-            val releaseChannel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.downloadChannel
-            if (releaseChannel == null){
-                message.error("Release channel not found in config! Using default channel...")
-                return 743150116516528159
-            }
-            return releaseChannel
+    private fun getReleaseChannel(): Long {
+        val releaseChannel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.downloadChannel
+        if (releaseChannel == null){
+            println("ERROR! Release channel not found in config! Using default channel...")
+            return 743240299069046835
         }
+        return releaseChannel
+    }
 
-        suspend fun getUpdateInterval(message: Message): Long? {
-            val updateInterval = readConfigSafe<UserConfig>(ConfigType.USER, false)?.updateInterval
-            if (updateInterval == null){
-                message.error("Update interval not found in config! Using default interval...")
-                return 10
-            }
-            return updateInterval
+    private fun getUpdateInterval(): Long {
+        val updateInterval = readConfigSafe<UserConfig>(ConfigType.USER, false)?.updateInterval
+        if (updateInterval == null){
+            println("ERROR! Update interval not found in config! Using default interval...")
+            return 10
         }
+        return updateInterval
+    }
 
-        suspend fun getSecondaryDownloadChannel(message: Message): Long? {
-            val secondaryUpdateInterval = readConfigSafe<UserConfig>(ConfigType.USER, false)?.secondaryDownloadChannel
-            if (secondaryUpdateInterval == null){
-                message.error("Secondary download channel not found in config! Using default channel...")
-                return 743150116516528159
-            }
-            return secondaryUpdateInterval
+    private fun getSecondaryReleaseChannel(): Long {
+        val secondaryUpdateInterval = readConfigSafe<UserConfig>(ConfigType.USER, false)?.secondaryDownloadChannel
+        if (secondaryUpdateInterval == null){
+            println("ERROR! Secondary download channel not found in config! Using default channel...")
+            return 744072202869014571
         }
+        return secondaryUpdateInterval
+    }
+
+    private fun getServerId(): Long {
+        val serverId = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId
+        if (serverId == null){
+            println("ERROR! Primary server ID not found in config! Using default ID...")
+            return 573954110454366214
+        }
+        return serverId
+    }
+     private fun getToken(): String {
+        val token = readConfigSafe<AuthConfig>(ConfigType.AUTH, false)?.githubToken
+        if (token == null) {
+            println("ERROR! Github token not found in config! Stopping...")
+            throw IllegalAccessException("Please provide a github token in the token file.")
+        }
+        return token
     }
 }
 
