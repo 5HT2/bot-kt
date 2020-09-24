@@ -1,6 +1,8 @@
 import net.ayataka.kordis.entity.message.Message
 
 object Send {
+    fun log(message: String) = println("[bot-kt] $message")
+
     suspend fun Message.normal(description: String, title: String) {
         channel.send {
             embed {
