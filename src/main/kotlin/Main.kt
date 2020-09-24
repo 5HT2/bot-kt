@@ -13,12 +13,12 @@ import java.awt.Color
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
+import kotlin.system.exitProcess
 import java.util.concurrent.*
 import ConfigManager.readConfigSafe
 import kotlinx.coroutines.*
 import utils.request
 import org.l1ving.api.download.*
-import kotlin.system.exitProcess
 
 fun main() = runBlocking {
     Main.process = launch {
