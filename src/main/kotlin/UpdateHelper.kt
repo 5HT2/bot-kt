@@ -1,4 +1,5 @@
 import Main.currentVersion
+import Send.log
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -14,16 +15,16 @@ object UpdateHelper {
         val versionConfig = ConfigManager.readConfigFromUrl<VersionConfig>("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json")
 
         if (versionConfig?.version == null) {
-            println("Couldn't access remote version when checking for update")
+            log("Couldn't access remote version when checking for update")
             return
         }
 
         if (versionConfig.version != currentVersion) {
-            println("Not up to date:\nCurrent version: $currentVersion\nLatest Version: ${versionConfig.version}")
+            log("Not up to date:\nCurrent version: $currentVersion\nLatest Version: ${versionConfig.version}")
 
             updateBot(versionConfig.version)
         } else {
-            println("Up to date! Running on $currentVersion")
+            log("Up to date! Running on $currentVersion")
         }
     }
 
@@ -44,13 +45,13 @@ object UpdateHelper {
         }
 
         if (deleted.isNotEmpty()) {
-            println("Auto Update - Deleted the following files:\n" + deleted.joinToString { it })
+            log("Auto Update - Deleted the following files:\n" + deleted.joinToString { it })
         }
 
         val bytes =
             URL("https://github.com/kami-blue/bot-kt/releases/download/$version/bot-kt-$version.jar").readBytes()
 
-        println("Auto Update - Downloaded bot-kt-$version.jar ${bytes.size / 1000000}MB")
+        log("Auto Update - Downloaded bot-kt-$version.jar ${bytes.size / 1000000}MB")
         val appendSlash = if (path.endsWith("/")) "" else "/"
         val targetFile = path.toString() + appendSlash + "bot-kt-$version.jar"
         File(targetFile).writeBytes(bytes)
@@ -61,11 +62,11 @@ object UpdateHelper {
             it.write(version)
         }
 
-        println("Auto Update - Finished updating to $version")
+        log("Auto Update - Finished updating to $version")
 
         userConfig.autoUpdateRestart?.let {
             if (it) {
-                println("Auto Update - Restarting bot")
+                log("Auto Update - Restarting bot")
                 Main.exit()
             }
         }

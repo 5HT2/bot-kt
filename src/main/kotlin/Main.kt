@@ -1,5 +1,6 @@
 import CommandManager.registerCommands
 import Main.ready
+import Send.log
 import UpdateHelper.updateCheck
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
@@ -35,7 +36,7 @@ class Bot {
     suspend fun start() {
         val started = System.currentTimeMillis()
 
-        println("Starting bot!")
+        log("Starting bot!")
 
         writeCurrentVersion()
         updateCheck()
@@ -43,7 +44,7 @@ class Bot {
         val config = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)
 
         if (config?.botToken == null) {
-            println("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
+            log("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
             return
         }
 
@@ -94,7 +95,7 @@ class Bot {
         }
 
         ready = true
-        println(initialization)
+        log(initialization)
     }
 
     private fun writeCurrentVersion() {
@@ -118,7 +119,7 @@ class Bot {
         try {
             val exit = dispatcher.execute(message, cmd)
             cmd.file(event)
-            if (exit != 0) println("(executed with exit code $exit)")
+            if (exit != 0) log("(executed with exit code $exit)")
         } catch (e: CommandSyntaxException) {
             if (CommandManager.isCommand(message)) {
                 val command = CommandManager.getCommandClass(message)!!
