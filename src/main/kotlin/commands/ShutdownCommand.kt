@@ -6,7 +6,6 @@ import Main
 import PermissionTypes
 import Permissions.hasPermission
 import doesLater
-import kotlin.system.exitProcess
 
 object ShutdownCommand : Command("shutdown") {
     init {
@@ -21,8 +20,7 @@ object ShutdownCommand : Command("shutdown") {
                     color = Colors.success
                 }
             }
-            Main.process?.cancel()
-            exitProcess(0)
+            Main.exit()
         }
     }
 }
