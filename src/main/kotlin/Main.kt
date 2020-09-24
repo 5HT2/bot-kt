@@ -17,6 +17,7 @@ import java.awt.Color
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
+import kotlin.system.exitProcess
 
 fun main() = runBlocking {
     Main.process = launch {
@@ -138,6 +139,11 @@ object Main {
     var client: DiscordClient? = null
     var ready = false
     const val currentVersion = "1.1.0"
+
+    fun exit() {
+        process!!.cancel()
+        exitProcess(0)
+    }
 }
 
 object Colors {

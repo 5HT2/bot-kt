@@ -3,7 +3,6 @@ import java.io.File
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Paths
-import kotlin.system.exitProcess
 
 /**
  * @author dominikaaaa
@@ -66,11 +65,8 @@ object UpdateHelper {
 
         userConfig.autoUpdateRestart?.let {
             if (it) {
-                Main.process?.let { process ->
-                    println("Auto Update - Restarting bot")
-                    process.cancel()
-                    exitProcess(0)
-                }
+                println("Auto Update - Restarting bot")
+                Main.exit()
             }
         }
     }
