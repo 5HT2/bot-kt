@@ -1,9 +1,8 @@
 package commands
 
+import Colors
 import Command
 import CommandManager
-import Main.Colors.BLUE
-import Main.Colors.ERROR
 import arg
 import doesLater
 import string
@@ -19,7 +18,7 @@ object HelpCommand : Command("help-mod") {
                         embed {
                             title = userCommand.toLowerCase()
                             description = command.getHelpUsage()
-                            color = BLUE.color
+                            color = Colors.primary
                         }
                     }
                 } else {
@@ -27,7 +26,7 @@ object HelpCommand : Command("help-mod") {
                         embed {
                             title = "Error"
                             description = "Command `$userCommand` not found!"
-                            color = ERROR.color
+                            color = Colors.error
                         }
                     }
                 }

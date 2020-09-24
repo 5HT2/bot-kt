@@ -76,7 +76,7 @@ class Bot {
                         embed {
                             title = "Startup"
                             description = initialization
-                            color = Main.Colors.SUCCESS.color
+                            color = Colors.success
                         }
                     }
                 }
@@ -86,7 +86,7 @@ class Bot {
                     embed {
                         title = "Startup"
                         description = initialization
-                        color = Main.Colors.SUCCESS.color
+                        color = Colors.success
                     }
                 }
             }
@@ -125,7 +125,7 @@ class Bot {
                     embed {
                         title = "Invalid Syntax: $message"
                         description = "**${e.message}**\n\n${command.getHelpUsage()}"
-                        color = Main.Colors.ERROR.color
+                        color = Colors.error
                     }
                 }
             }
@@ -138,11 +138,11 @@ object Main {
     var client: DiscordClient? = null
     var ready = false
     const val currentVersion = "1.1.0"
+}
 
-    enum class Colors(val color: Color) {
-        BLUE(Color(155, 144, 255)),
-        ERROR(Color(222, 65, 60)),
-        WARN(Color(222, 182, 60)),
-        SUCCESS(Color(60, 222, 90));
-    }
+object Colors {
+    val primary = Color(155, 144, 255)
+    val error = Color(222, 65, 60)
+    val warn = Color(222, 182, 60)
+    val success = Color(60, 222, 90)
 }

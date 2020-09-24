@@ -1,9 +1,9 @@
 package commands
 
+import Colors
 import Command
 import ConfigManager
 import ConfigType
-import Main.Colors.BLUE
 import PermissionTypes
 import Permissions.hasPermission
 import Send.error
@@ -51,7 +51,7 @@ object ConfigCommand : Command("config") {
                         title = "Config Types"
                         description = ConfigType.values()
                             .joinToString { "`${it.configPath.substring(7)}`" } // trim config/ from name
-                        color = BLUE.color
+                        color = Colors.primary
                     }
                 }
             }

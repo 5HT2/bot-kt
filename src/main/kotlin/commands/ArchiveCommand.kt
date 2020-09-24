@@ -1,7 +1,7 @@
 package commands
 
+import Colors
 import Command
-import Main
 import PermissionTypes
 import Permissions.hasPermission
 import doesLater
@@ -41,7 +41,7 @@ object ArchiveCommand : Command("archive") {
                     embed {
                         author(name = message.author?.name)
                         field("Success", "Changed name from `$oldName` to `archived-$archivedChannelsNum`", true)
-                        color = Main.Colors.SUCCESS.color
+                        color = Colors.success
                     }
                 }
             }

@@ -1,7 +1,7 @@
 package commands
 
+import Colors
 import Command
-import Main.Colors.BLUE
 import doesLater
 
 object ServerInfoCommand : Command("serverinfo") {
@@ -9,7 +9,7 @@ object ServerInfoCommand : Command("serverinfo") {
         doesLater {
             message.channel.send {
                 embed {
-                    color = BLUE.color
+                    color = Colors.primary
                     server?.name?.let { title = it }
                     server?.icon?.url?.let { thumbnailUrl = it }
                     server?.owner?.id?.let { field("Owner ID:", it) }

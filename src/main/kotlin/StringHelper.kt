@@ -1,4 +1,3 @@
-import Main.Colors.ERROR
 import net.ayataka.kordis.entity.channel.TextChannel
 import java.io.File
 import java.io.IOException
@@ -40,7 +39,7 @@ object StringHelper {
                 embed {
                     title = "Error"
                     description = "```" + e.message + "```\n```" + e.stackTrace.joinToString("\n") + "```"
-                    color = ERROR.color
+                    color = Colors.error
                 }
             }
             false
