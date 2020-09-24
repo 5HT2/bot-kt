@@ -16,9 +16,9 @@ import java.nio.file.Paths
 import java.util.concurrent.*
 import ConfigManager.readConfigSafe
 import kotlinx.coroutines.*
-import net.ayataka.kordis.entity.message.Message
 import utils.request
 import org.l1ving.api.download.*
+import kotlin.system.exitProcess
 
 fun main() = runBlocking {
     Main.process = launch {
