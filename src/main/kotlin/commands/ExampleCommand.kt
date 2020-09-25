@@ -7,7 +7,7 @@ import greedyString
 import literal
 
 /**
- * @author dominikaaaa
+ * @author l1ving
  * @since 2020/08/18 16:30
  */
 object ExampleCommand : Command("ec") {

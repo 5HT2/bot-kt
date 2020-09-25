@@ -10,7 +10,7 @@ import org.reflections.Reflections
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
- * @author dominikaaaa
+ * @author l1ving
  * @since 2020/08/18 16:30
  */
 open class Command(val name: String) : LiteralArgumentBuilder<Cmd>(name) {
