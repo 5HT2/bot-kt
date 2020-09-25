@@ -141,12 +141,11 @@ class Bot {
         }
     }
     /**
-     * @author sourTaste000(IcyChungus)
+     * @author sourTaste000
      * @module downloadCounter
      * @since 9/22/2020
      */
     suspend fun updateChannel() {
-        // TODO: Shitty code please fix
         val interval = TimeUnit.MINUTES.toMillis(getUpdateInterval())
         val server = Main.client?.servers?.find(getServerId())
         val releaseChannel = server?.voiceChannels?.find(getReleaseChannel())
@@ -155,21 +154,13 @@ class Bot {
         val nightlyCount = request<Download>(getToken(), "https://api.github.com/repos/kami-blue/nightly-releases/releases?per_page=200")
         var totalCount: Long = 0
         secondaryReleaseChannel?.edit { name = "${nightlyCount[0].assets[0].download_count} Nightly Downloads" }
-        for(i in nightlyCount){
-            for(j in i.assets){
-                totalCount += j.download_count
-            }
-        }
-        for(i in releaseCount){
-            for(j in i.assets){
-                totalCount += j.download_count
-            }
-        }
+        for(i in nightlyCount){ for(j in i.assets){ totalCount += j.download_count } }
+        for(i in releaseCount){ for(j in i.assets){ totalCount += j.download_count } }
         releaseChannel?.edit { name = "$totalCount Total Downloads" }
         delay(interval)
     }
 
-    fun getReleaseChannel(): Long {
+    private fun getReleaseChannel(): Long {
         val releaseChannel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.downloadChannel
         if (releaseChannel == null){
             println("ERROR! Release channel not found in config! Using default channel...")
@@ -187,7 +178,7 @@ class Bot {
         return updateInterval
     }
 
-    fun getSecondaryReleaseChannel(): Long {
+    private fun getSecondaryReleaseChannel(): Long {
         val secondaryUpdateInterval = readConfigSafe<UserConfig>(ConfigType.USER, false)?.secondaryDownloadChannel
         if (secondaryUpdateInterval == null){
             println("ERROR! Secondary download channel not found in config! Using default channel...")
@@ -204,7 +195,8 @@ class Bot {
         }
         return serverId
     }
-    fun getToken(): String {
+
+    private fun getToken(): String {
         val token = readConfigSafe<AuthConfig>(ConfigType.AUTH, false)?.githubToken
         if (token == null) {
             println("ERROR! Github token not found in config! Stopping...")

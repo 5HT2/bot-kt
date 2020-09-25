@@ -4,11 +4,18 @@ import Bot
 import Command
 import doesLater
 
-object ForceUpdate : Command("forceupdate"){
+object ForceUpdateCommand : Command("forceupdate"){
     init{
         doesLater{
             try{
-                Bot().updateChannel()
+                // TODO: Check member permission
+                if( message.author!!.id != 563138570953687061){ return@doesLater }
+                message.channel.send {
+                    embed {
+                        color = Colors.success
+                        title = "Update success! Check the voice channel."
+                    }
+                }
             }catch(err: Exception){
                 message.channel.send{
                     embed{
