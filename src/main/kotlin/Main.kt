@@ -27,7 +27,7 @@ fun main() = runBlocking {
 }
 
 /**
- * @author dominikaaaa
+ * @author l1ving
  * @since 16/08/20 17:30
  */
 class Bot {
