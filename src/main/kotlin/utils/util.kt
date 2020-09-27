@@ -2,6 +2,7 @@ package utils
 
 import AuthConfig
 import ConfigManager.readConfigSafe
+import ConfigType
 import Send.error
 import UserConfig
 import com.google.gson.Gson
@@ -18,36 +19,23 @@ inline fun <reified T> tokenRequest(token: String, url: String): T {
     return Gson().fromJson(response.body()!!.string(), T::class.java)
 }
 
-fun getReleaseChannel(): Long {
-    val releaseChannel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.downloadChannel
-    if (releaseChannel == null){
-        println("ERROR! Release channel not found in config! Using default channel...")
-        return 743240299069046835
-    }
-    return releaseChannel
+fun getReleaseChannel(): Long? {
+    return readConfigSafe<UserConfig>(ConfigType.USER, false)?.downloadChannel
+}
+
+fun getSecondaryReleaseChannel(): Long? {
+    return readConfigSafe<UserConfig>(ConfigType.USER, false)?.secondaryDownloadChannel
 }
 
 fun getUpdateInterval(): Long {
     val updateInterval = readConfigSafe<UserConfig>(ConfigType.USER, false)?.updateInterval
-    if (updateInterval == null){
-        println("ERROR! Update interval not found in config! Using default interval...")
-        return TimeUnit.MINUTES.toMillis(10)
-    }
+        ?: return TimeUnit.MINUTES.toMillis(10)
     return TimeUnit.MINUTES.toMillis(updateInterval)
-}
-
-fun getSecondaryReleaseChannel(): Long {
-    val secondaryUpdateInterval = readConfigSafe<UserConfig>(ConfigType.USER, false)?.secondaryDownloadChannel
-    if (secondaryUpdateInterval == null){
-        println("ERROR! Secondary download channel not found in config! Using default channel...")
-        return 744072202869014571
-    }
-    return secondaryUpdateInterval
 }
 
 fun getServerId(): Long {
     val serverId = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId
-    if (serverId == null){
+    if (serverId == null) {
         println("ERROR! Primary server ID not found in config! Using default ID...")
         return 573954110454366214
     }

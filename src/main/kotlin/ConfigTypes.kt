@@ -63,9 +63,9 @@ data class VersionConfig(val version: String)
  * [statusMessage] is the bot status message on Discord.
  * [statusMessageType] is the type of status. Playing is 0, Streaming is 1, Listening is 2 and Watching is 3.
  * [defaultGithubUser] is the default user / org used in the [IssueCommand].
- * [downloadChannel] is the channel id for download counter.
- * [secondaryDownloadChannel] is the channel id for the secondary download counter. VOICE CHANNEL ONLY!
- * [updateInterval] is the update interval for the download counter. VOICE CHANNEL ONLY!
+ * [downloadChannel] is the voice channel ID for download counter.
+ * [secondaryDownloadChannel] is the voice channel ID for the secondary download counter.
+ * [updateInterval] is the update interval for the download counter. Omit from config to default to 10 minutes.
  * // TODO: refactor into module-specific settings
  */
 data class UserConfig(
