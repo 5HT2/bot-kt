@@ -3,14 +3,14 @@ package commands
 import Colors
 import Command
 import arg
+import authenticatedRequest
 import doesLater
-import getGithubToken
 import getDefaultGithubUser
+import getGithubToken
 import net.ayataka.kordis.entity.message.Message
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.pull.PullRequest
 import string
-import authenticatedRequest
 
 /**
  * @author sourTaste000
@@ -35,8 +35,8 @@ object IssueCommand : Command("issue") {
         string("repoName") {
             string("issueNum") {
                 doesLater { context ->
-                    val user: String = getDefaultGithubUser(message) ?: return@doesLater // Error message is handled already
-                    val githubToken = getGithubToken(message) ?: return@doesLater
+                    val githubToken = getGithubToken(message) ?: return@doesLater // Error message is handled already
+                    val user: String = getDefaultGithubUser(message) ?: return@doesLater
                     val repoName: String = context arg "repoName"
                     val issueNum: String = context arg "issueNum"
 
@@ -57,7 +57,6 @@ object IssueCommand : Command("issue") {
         val issue = authenticatedRequest<Issue>(token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
             if (issue.html_url.contains("issue")) {
-                //TODO: Duplicated code fragment
                 message.channel.send {
                     embed {
                         title = issue.title
@@ -100,8 +99,6 @@ object IssueCommand : Command("issue") {
                 }
             } else if (issue.html_url.contains("pull")) {
                 val pullRequest = authenticatedRequest<PullRequest>(token, issue.url)
-
-                //TODO: Duplicated code fragment
                 message.channel.send {
                     embed {
                         title = pullRequest.title
