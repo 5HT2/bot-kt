@@ -29,14 +29,20 @@ enum class ConfigType(val configPath: String, var data: Any?) {
  * [botToken] is the token given to you from https://discord.com/developers/applications/BOT_ID_HERE/bot
  * [githubToken] can be generated with the full "repo" access checked https://github.com/settings/tokens
  */
-data class AuthConfig(val botToken: String, val githubToken: String)
+data class AuthConfig(
+    val botToken: String,
+    val githubToken: String
+)
 
 /**
  * [id] is the user snowflake ID
  * [unixUnmute] is the UNIX time of when they should be unmuted.
  * When adding a new [unixUnmute] time, it should be current UNIX time + mute time in seconds
  */
-data class MuteConfig(val id: Long, val unixUnmute: Long)
+data class MuteConfig(
+    val id: Long,
+    val unixUnmute: Long
+)
 
 /**
  * [rules] is a HashMap with the rule name/number as the key and the rule as the value
@@ -51,17 +57,29 @@ data class VersionConfig(val version: String)
 
 /**
  * [autoUpdate] is whether the bot should automatically update after a successful update check. Will not do anything when set to true if update checking is disabled.
+ * [autoUpdateRestart] is whether the bot should restart after automatically updating.
  * [primaryServerId] is the main server where startup messages should be sent. Omit from config to send to all servers.
  * [startUpChannel] is the channel name of where to send bot startup messages. Omit from config to disable startup messages.
- * [statusMessage] is the bot status message on Discord
+ * [statusMessage] is the bot status message on Discord.
  * [statusMessageType] is the type of status. Playing is 0, Streaming is 1, Listening is 2 and Watching is 3.
- * [defaultGithubUser] is the default user / org used in the [IssueCommand]
+ * [defaultGithubUser] is the default user / org used in the [IssueCommand].
  * [downloadChannel] is the channel id for download counter.
  * [secondaryDownloadChannel] is the channel id for the secondary download counter. VOICE CHANNEL ONLY!
  * [updateInterval] is the update interval for the download counter. VOICE CHANNEL ONLY!
  * // TODO: refactor into module-specific settings
  */
-data class UserConfig(val autoUpdate: Boolean?, val autoUpdateRestart: Boolean?, val primaryServerId: Long?, val startUpChannel: String?, val statusMessage: String?, val statusMessageType: Int?, val defaultGithubUser: String?, val downloadChannel: Long?, val secondaryDownloadChannel: Long?, val updateInterval: Long?)
+data class UserConfig(
+    val autoUpdate: Boolean?,
+    val autoUpdateRestart: Boolean?,
+    val primaryServerId: Long?,
+    val startUpChannel: String?,
+    val statusMessage: String?,
+    val statusMessageType: Int?,
+    val defaultGithubUser: String?,
+    val downloadChannel: Long?,
+    val secondaryDownloadChannel: Long?,
+    val updateInterval: Long?
+)
 
 /**
  * [councilMembers] is a hashmap of all the council members

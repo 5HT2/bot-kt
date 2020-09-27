@@ -6,13 +6,14 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 /**
- * @author dominikaaaa
+ * @author l1ving
  * @since 2020/08/25 20:06
  */
 object UpdateHelper {
     fun updateCheck() {
         if (File("noUpdateCheck").exists()) return
-        val versionConfig = ConfigManager.readConfigFromUrl<VersionConfig>("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json")
+        val versionConfig =
+            ConfigManager.readConfigFromUrl<VersionConfig>("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json")
 
         if (versionConfig?.version == null) {
             log("Couldn't access remote version when checking for update")
@@ -68,6 +69,17 @@ object UpdateHelper {
             if (it) {
                 log("Auto Update - Restarting bot")
                 Main.exit()
+            }
+        }
+    }
+
+    fun writeCurrentVersion() {
+        val path = Paths.get(System.getProperty("user.dir"))
+        val file = Paths.get("$path/currentVersion")
+
+        if (!File(file.toString()).exists()) {
+            Files.newBufferedWriter(file).use {
+                it.write(Main.currentVersion)
             }
         }
     }
