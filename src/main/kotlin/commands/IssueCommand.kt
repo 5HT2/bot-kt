@@ -1,12 +1,7 @@
 package commands
 
-import AuthConfig
 import Colors
 import Command
-import ConfigManager.readConfigSafe
-import ConfigType
-import Send.error
-import UserConfig
 import arg
 import doesLater
 import net.ayataka.kordis.entity.message.Message
@@ -57,7 +52,7 @@ object IssueCommand : Command("issue") {
         repoName: String,
         issueNum: String
     ) {
-        val issue = request<Issue>(token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
+        val issue = tokenRequest<Issue>(token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
             if (issue.html_url.contains("issue")) {
                 //TODO: Duplicated code fragment
@@ -102,7 +97,7 @@ object IssueCommand : Command("issue") {
                     }
                 }
             } else if (issue.html_url.contains("pull")) {
-                val pullRequest = request<PullRequest>(token, issue.url)
+                val pullRequest = tokenRequest<PullRequest>(token, issue.url)
 
                 //TODO: Duplicated code fragment
                 message.channel.send {
@@ -162,22 +157,6 @@ object IssueCommand : Command("issue") {
                 }
             }
         }
-    }
-
-    private suspend fun getToken(message: Message): String? {
-        val token = readConfigSafe<AuthConfig>(ConfigType.AUTH, false)?.githubToken
-        if (token == null) {
-            message.error("Github Token not found!")
-        }
-        return token
-    }
-
-    private suspend fun getUser(message: Message): String? {
-        val repo = readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
-        if (repo == null) {
-            message.error("Default user / org not set in `${ConfigType.USER.configPath.substring(7)}`!")
-        }
-        return repo
     }
 
     override fun getHelpUsage(): String {
