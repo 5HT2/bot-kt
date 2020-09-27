@@ -17,8 +17,9 @@ inline fun <reified T> authenticatedRequest(token: String, url: String): T {
 }
 
 /**
- * @return update interval for member / download counters
  * Defaults to 10 minutes if null
+ * @return update interval for member / download counters in milliseconds
+ * // TODO: change to seconds
  */
 fun configUpdateInterval(): Long {
     val updateInterval = readConfigSafe<UserConfig>(ConfigType.USER, false)?.counterUpdateInterval
@@ -27,8 +28,8 @@ fun configUpdateInterval(): Long {
 }
 
 /**
- * @return the Github token, set in [AuthConfig]
  * Will send an error in the [message]?.channel if null.
+ * @return the Github token, set in [AuthConfig]
  */
 suspend fun getGithubToken(message: Message?): String? {
     val token = readConfigSafe<AuthConfig>(ConfigType.AUTH, false)?.githubToken
@@ -37,8 +38,8 @@ suspend fun getGithubToken(message: Message?): String? {
 }
 
 /**
- * @return the default Github user, set in [UserConfig]
  * Will send an error in the [message]?.channel if null.
+ * @return the default Github user, set in [UserConfig]
  */
 suspend fun getDefaultGithubUser(message: Message?): String? {
     val repo = readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
