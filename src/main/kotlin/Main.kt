@@ -128,7 +128,7 @@ object Main {
     var process: Job? = null
     var client: DiscordClient? = null
     var ready = false
-    const val currentVersion = "1.1.2"
+    const val currentVersion = "1.1.3"
 
     fun exit() {
         process!!.cancel()
