@@ -22,7 +22,8 @@ object IssueCommand : Command("issue") {
             string("repoName") {
                 string("issueNum") {
                     doesLater { context ->
-                        val githubToken = getGithubToken(message) ?: return@doesLater // Error message is handled already
+                        val githubToken =
+                            getGithubToken(message) ?: return@doesLater // Error message is handled already
                         val user: String = context arg "user"
                         val repoName: String = context arg "repoName"
                         val issueNum: String = context arg "issueNum"
