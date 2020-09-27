@@ -57,8 +57,8 @@ data class VersionConfig(val version: String)
  * [statusMessageType] is the type of status. Playing is 0, Streaming is 1, Listening is 2 and Watching is 3.
  * [defaultGithubUser] is the default user / org used in the [IssueCommand]
  * [downloadChannel] is the channel id for download counter.
- * [secondaryDownloadChannel] is the channel id for the secondary download counter.
- * [updateInterval] is the update interval for the download counter.
+ * [secondaryDownloadChannel] is the channel id for the secondary download counter. VOICE CHANNEL ONLY!
+ * [updateInterval] is the update interval for the download counter. VOICE CHANNEL ONLY!
  * // TODO: refactor into module-specific settings
  */
 data class UserConfig(val autoUpdate: Boolean?, val autoUpdateRestart: Boolean?, val primaryServerId: Long?, val startUpChannel: String?, val statusMessage: String?, val statusMessageType: Int?, val defaultGithubUser: String?, val downloadChannel: Long?, val secondaryDownloadChannel: Long?, val updateInterval: Long?)

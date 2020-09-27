@@ -41,5 +41,6 @@ enum class PermissionTypes {
     ARCHIVE_CHANNEL,
     COUNCIL_MEMBER,
     REBOOT_BOT,
-    MANAGE_CONFIG
+    MANAGE_CONFIG,
+    FORCE_UPDATE
 }
