@@ -2,9 +2,11 @@ package commands
 
 import Colors
 import Command
+import ConfigManager.readConfigSafe
 import Main
 import PermissionTypes
 import Permissions.hasPermission
+import UserConfig
 import doesLater
 import org.l1ving.api.download.Download
 import utils.*
@@ -42,9 +44,13 @@ object DownloadCountCommand : Command("downloadcount") {
      * @throws FileNotFoundException
      */
     suspend fun updateChannel() {
-        val server = Main.client?.servers?.find(getServerId())
-        val releaseChannel = getReleaseChannel()?.let { server?.voiceChannels?.find(it) }
-        val secondaryReleaseChannel = getSecondaryReleaseChannel()?.let { server?.voiceChannels?.find(it) }
+        val server = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {
+            Main.client?.servers?.find(it)
+        } ?: run {
+            return
+        }
+        val releaseChannel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.downloadChannel?.let { server.voiceChannels.find(it) }
+        val secondaryReleaseChannel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.secondaryDownloadChannel?.let { server.voiceChannels.find(it) }
         val releaseCount = tokenRequest<Download>(getToken(null)
             ?: throw FileNotFoundException("Github token not find in config! Stopping..."),
             "https://api.github.com/repos/kami-blue/client/releases?per_page=200")

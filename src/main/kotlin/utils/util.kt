@@ -19,27 +19,10 @@ inline fun <reified T> tokenRequest(token: String, url: String): T {
     return Gson().fromJson(response.body()!!.string(), T::class.java)
 }
 
-fun getReleaseChannel(): Long? {
-    return readConfigSafe<UserConfig>(ConfigType.USER, false)?.downloadChannel
-}
-
-fun getSecondaryReleaseChannel(): Long? {
-    return readConfigSafe<UserConfig>(ConfigType.USER, false)?.secondaryDownloadChannel
-}
-
-fun getUpdateInterval(): Long {
+fun configUpdateInterval(): Long {
     val updateInterval = readConfigSafe<UserConfig>(ConfigType.USER, false)?.updateInterval
         ?: return TimeUnit.MINUTES.toMillis(10)
     return TimeUnit.MINUTES.toMillis(updateInterval)
-}
-
-fun getServerId(): Long {
-    val serverId = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId
-    if (serverId == null) {
-        println("ERROR! Primary server ID not found in config! Using default ID...")
-        return 573954110454366214
-    }
-    return serverId
 }
 
 suspend fun getToken(message: Message?): String? {
