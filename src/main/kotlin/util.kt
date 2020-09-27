@@ -7,6 +7,16 @@ import okhttp3.Request
 import java.util.concurrent.TimeUnit
 
 /**
+ * @return [T] from [url]
+ */
+inline fun <reified T> request(url: String): T {
+    val request = Request.Builder().url(url).get().build()
+    val response = OkHttpClient().newCall(request).execute()
+
+    return Gson().fromJson(response.body()!!.string(), T::class.java)
+}
+
+/**
  * @return [T] from [url] with the [token] as the Authorization header
  */
 inline fun <reified T> authenticatedRequest(token: String, url: String): T {
@@ -19,10 +29,9 @@ inline fun <reified T> authenticatedRequest(token: String, url: String): T {
 /**
  * Defaults to 10 minutes if null
  * @return update interval for member / download counters in milliseconds
- * // TODO: change to seconds
  */
 fun configUpdateInterval(): Long {
-    val updateInterval = readConfigSafe<UserConfig>(ConfigType.USER, false)?.counterUpdateInterval
+    val updateInterval = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)?.updateInterval
         ?: return TimeUnit.MINUTES.toMillis(10)
     return TimeUnit.MINUTES.toMillis(updateInterval)
 }

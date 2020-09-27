@@ -6,7 +6,7 @@ import UpdateHelper.updateCheck
 import UpdateHelper.writeCurrentVersion
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import commands.DownloadCountCommand
+import commands.CounterCommand
 import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
@@ -21,7 +21,7 @@ fun main() = runBlocking {
     Main.process = launch {
         Bot().start()
         while (true) {
-            withTimeout(configUpdateInterval()) { DownloadCountCommand.updateChannel() }
+            withTimeout(configUpdateInterval()) { CounterCommand.updateChannel() }
         }
     }
 }

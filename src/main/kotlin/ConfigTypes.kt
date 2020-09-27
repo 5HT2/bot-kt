@@ -1,4 +1,5 @@
 import ConfigTypes.authConfigData
+import ConfigTypes.counterConfigData
 import ConfigTypes.mutesConfigData
 import ConfigTypes.permissionConfigData
 import ConfigTypes.rulesConfigData
@@ -8,9 +9,10 @@ import commands.IssueCommand
 object ConfigTypes {
     var authConfigData: AuthConfig? = null
     var mutesConfigData: MuteConfig? = null
+    var rulesConfigData: RulesConfig? = null
     var userConfigData: UserConfig? = null
     var permissionConfigData: PermissionConfig? = null
-    var rulesConfigData: RulesConfig? = null
+    var counterConfigData: CounterConfig? = null
 }
 
 /**
@@ -19,10 +21,11 @@ object ConfigTypes {
  */
 enum class ConfigType(val configPath: String, var data: Any?) {
     AUTH("config/auth.json", authConfigData),
-    RULES("config/rules.json", rulesConfigData),
     MUTE("config/mutes.json", mutesConfigData),
+    RULES("config/rules.json", rulesConfigData),
     USER("config/user.json", userConfigData),
-    PERMISSION("config/permissions.json", permissionConfigData)
+    PERMISSION("config/permissions.json", permissionConfigData),
+    COUNTER("config/counters.json", counterConfigData)
 }
 
 /**
@@ -63,9 +66,6 @@ data class VersionConfig(val version: String)
  * [statusMessage] is the bot status message on Discord.
  * [statusMessageType] is the type of status. Playing is 0, Streaming is 1, Listening is 2 and Watching is 3.
  * [defaultGithubUser] is the default user / org used in the [IssueCommand].
- * [downloadChannel] is the voice channel ID for download counter.
- * [secondaryDownloadChannel] is the voice channel ID for the secondary download counter.
- * [counterUpdateInterval] is the update interval for the member / download counters. Omit from config to default to 10 minutes.
  * // TODO: refactor into module-specific settings
  */
 data class UserConfig(
@@ -75,13 +75,33 @@ data class UserConfig(
     val startUpChannel: String?,
     val statusMessage: String?,
     val statusMessageType: Int?,
-    val defaultGithubUser: String?,
-    val downloadChannel: Long?,
-    val secondaryDownloadChannel: Long?,
-    val counterUpdateInterval: Long?
+    val defaultGithubUser: String?
 )
 
 /**
  * [councilMembers] is a hashmap of all the council members
  */
 data class PermissionConfig(val councilMembers: HashMap<Long, List<PermissionTypes>>)
+
+/**
+ * [memberEnabled] is if the member counter is enabled.
+ * [downloadEnabled] is if the download counter is enabled.
+ * [memberChannel] is the voice channel ID for the desired member counter.
+ * [downloadChannelTotal] is the voice channel ID for the desired total downloads counter.
+ * [downloadChannelLatest] is the voice channel ID for the desired latest release downloads counter.
+ * [downloadStableUrl] is the main / stable repository in the format of kami-blue/bot-kt
+ * [downloadNightlyUrl] is the alternate / nightly repository in the format of kami-blue/bot-kt
+ * [perPage] is the max releases per page when using the Github API. Defaults to 200
+ * [updateInterval] is the update interval in minutes, for the member / download counters. Omit from config to default to 10 minutes.
+ */
+data class CounterConfig(
+    val memberEnabled: Boolean?,
+    val downloadEnabled: Boolean?,
+    val memberChannel: Long?,
+    val downloadChannelTotal: Long?,
+    val downloadChannelLatest: Long?,
+    val downloadStableUrl: String?,
+    val downloadNightlyUrl: String?,
+    val perPage: Int?,
+    val updateInterval: Long?
+)

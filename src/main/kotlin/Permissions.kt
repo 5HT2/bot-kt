@@ -42,5 +42,5 @@ enum class PermissionTypes {
     COUNCIL_MEMBER,
     REBOOT_BOT,
     MANAGE_CONFIG,
-    UPDATE_DOWNLOAD_COUNT
+    UPDATE_COUNTERS
 }
