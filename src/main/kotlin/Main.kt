@@ -1,13 +1,13 @@
 import CommandManager.registerCommands
+import ConfigManager.readConfigSafe
 import Main.ready
 import Send.log
 import UpdateHelper.updateCheck
+import UpdateHelper.writeCurrentVersion
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import commands.CounterCommand
+import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
@@ -15,14 +15,14 @@ import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import java.awt.Color
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
 import kotlin.system.exitProcess
 
 fun main() = runBlocking {
     Main.process = launch {
         Bot().start()
+        while (true) {
+            withTimeout(configUpdateInterval()) { CounterCommand.updateChannel() }
+        }
     }
 }
 
@@ -41,7 +41,7 @@ class Bot {
         writeCurrentVersion()
         updateCheck()
 
-        val config = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)
+        val config = readConfigSafe<AuthConfig>(ConfigType.AUTH, false)
 
         if (config?.botToken == null) {
             log("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
@@ -57,7 +57,7 @@ class Bot {
         registerCommands(dispatcher)
 
         val initialization = "Initialized bot!\nRunning on ${Main.currentVersion}\nStartup took ${System.currentTimeMillis() - started}ms"
-        val userConfig = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
+        val userConfig = readConfigSafe<UserConfig>(ConfigType.USER, false)
 
         userConfig?.statusMessage?.let {
             var type = ActivityType.UNKNOWN
@@ -96,17 +96,6 @@ class Bot {
 
         ready = true
         log(initialization)
-    }
-
-    private fun writeCurrentVersion() {
-        val path = Paths.get(System.getProperty("user.dir"))
-        val file = Paths.get("$path/currentVersion")
-
-        if (!File(file.toString()).exists()) {
-            Files.newBufferedWriter(file).use {
-                it.write(Main.currentVersion)
-            }
-        }
     }
 
     @EventHandler

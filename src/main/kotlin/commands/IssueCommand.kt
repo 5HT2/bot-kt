@@ -1,18 +1,13 @@
 package commands
 
-import AuthConfig
 import Colors
 import Command
-import ConfigManager.readConfigSafe
-import ConfigType
-import Send.error
-import UserConfig
 import arg
-import com.google.gson.Gson
+import authenticatedRequest
 import doesLater
+import getDefaultGithubUser
+import getGithubToken
 import net.ayataka.kordis.entity.message.Message
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.pull.PullRequest
 import string
@@ -27,7 +22,8 @@ object IssueCommand : Command("issue") {
             string("repoName") {
                 string("issueNum") {
                     doesLater { context ->
-                        val githubToken = getToken(message) ?: return@doesLater // Error message is handled already
+                        val githubToken =
+                            getGithubToken(message) ?: return@doesLater // Error message is handled already
                         val user: String = context arg "user"
                         val repoName: String = context arg "repoName"
                         val issueNum: String = context arg "issueNum"
@@ -40,8 +36,8 @@ object IssueCommand : Command("issue") {
         string("repoName") {
             string("issueNum") {
                 doesLater { context ->
-                    val user: String = getUser(message) ?: return@doesLater // Error message is handled already
-                    val githubToken = getToken(message) ?: return@doesLater
+                    val githubToken = getGithubToken(message) ?: return@doesLater // Error message is handled already
+                    val user: String = getDefaultGithubUser(message) ?: return@doesLater
                     val repoName: String = context arg "repoName"
                     val issueNum: String = context arg "issueNum"
 
@@ -59,7 +55,7 @@ object IssueCommand : Command("issue") {
         repoName: String,
         issueNum: String
     ) {
-        val issue = request<Issue>(token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
+        val issue = authenticatedRequest<Issue>(token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
             if (issue.html_url.contains("issue")) {
                 message.channel.send {
@@ -103,8 +99,7 @@ object IssueCommand : Command("issue") {
                     }
                 }
             } else if (issue.html_url.contains("pull")) {
-                val pullRequest = request<PullRequest>(token, issue.url)
-
+                val pullRequest = authenticatedRequest<PullRequest>(token, issue.url)
                 message.channel.send {
                     embed {
                         title = pullRequest.title
@@ -162,30 +157,6 @@ object IssueCommand : Command("issue") {
                 }
             }
         }
-    }
-
-    @Suppress("BlockingMethodInNonBlockingContext")
-    private inline fun <reified T> request(token: String, url: String): T {
-        val request = Request.Builder().addHeader("Authorization", "token $token").url(url).get().build()
-        val response = OkHttpClient().newCall(request).execute()
-
-        return Gson().fromJson(response.body()!!.string(), T::class.java)
-    }
-
-    private suspend fun getToken(message: Message): String? {
-        val token = readConfigSafe<AuthConfig>(ConfigType.AUTH, false)?.githubToken
-        if (token == null) {
-            message.error("Github Token not found!")
-        }
-        return token
-    }
-
-    private suspend fun getUser(message: Message): String? {
-        val repo = readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
-        if (repo == null) {
-            message.error("Default user / org not set in `${ConfigType.USER.configPath.substring(7)}`!")
-        }
-        return repo
     }
 
     override fun getHelpUsage(): String {
