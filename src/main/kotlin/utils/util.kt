@@ -18,6 +18,15 @@ inline fun <reified T> tokenRequest(token: String, url: String): T {
     return Gson().fromJson(response.body()!!.string(), T::class.java)
 }
 
+@Suppress("BlockingMethodInNonBlockingContext")
+@Deprecated(message = "Please use tokenRequest if you don't want to be rate limited.")
+inline fun <reified T> noTokenRequest(url: String): T {
+    val request = Request.Builder().url(url).get().build()
+    val response = OkHttpClient().newCall(request).execute()
+
+    return Gson().fromJson(response.body()!!.string(), T::class.java)
+}
+
 fun getReleaseChannel(): Long {
     val releaseChannel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.downloadChannel
     if (releaseChannel == null){
