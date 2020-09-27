@@ -3,6 +3,7 @@ import ConfigManager.readConfigSafe
 import Main.ready
 import Send.log
 import UpdateHelper.updateCheck
+import UpdateHelper.writeCurrentVersion
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import kotlinx.coroutines.*
@@ -15,10 +16,7 @@ import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.l1ving.api.download.Download
 import utils.request
 import java.awt.Color
-import java.io.File
 import java.io.FileNotFoundException
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
 
@@ -104,17 +102,6 @@ class Bot {
 
         ready = true
         log(initialization)
-    }
-
-    private fun writeCurrentVersion() {
-        val path = Paths.get(System.getProperty("user.dir"))
-        val file = Paths.get("$path/currentVersion")
-
-        if (!File(file.toString()).exists()) {
-            Files.newBufferedWriter(file).use {
-                it.write(Main.currentVersion)
-            }
-        }
     }
 
     @EventHandler
