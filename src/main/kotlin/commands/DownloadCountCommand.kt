@@ -50,16 +50,28 @@ object DownloadCountCommand : Command("downloadcount") {
         } ?: run {
             return
         }
-        val releaseChannel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.downloadChannel?.let { server.voiceChannels.find(it) }
-        val secondaryReleaseChannel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.secondaryDownloadChannel?.let { server.voiceChannels.find(it) }
-        val releaseCount = authenticatedRequest<Download>(getGithubToken(null)
-            ?: throw FileNotFoundException("Github token not find in config! Stopping..."),
-            "https://api.github.com/repos/kami-blue/client/releases?per_page=200")
-        val nightlyCount = authenticatedRequest<Download>(getGithubToken(null)
-            ?: throw FileNotFoundException("Github token not find in config! Stopping..."),
-            "https://api.github.com/repos/kami-blue/nightly-releases/releases?per_page=200")
+        val releaseChannel =
+            readConfigSafe<UserConfig>(ConfigType.USER, false)?.downloadChannel?.let { server.voiceChannels.find(it) }
+        val secondaryReleaseChannel = readConfigSafe<UserConfig>(
+            ConfigType.USER,
+            false
+        )?.secondaryDownloadChannel?.let { server.voiceChannels.find(it) }
+        val releaseCount = authenticatedRequest<Download>(
+            getGithubToken(null)
+                ?: throw FileNotFoundException("Github token not find in config! Stopping..."),
+            "https://api.github.com/repos/kami-blue/client/releases?per_page=200"
+        )
+        val nightlyCount = authenticatedRequest<Download>(
+            getGithubToken(null)
+                ?: throw FileNotFoundException("Github token not find in config! Stopping..."),
+            "https://api.github.com/repos/kami-blue/nightly-releases/releases?per_page=200"
+        )
         var totalCount: Long = 0
-        secondaryReleaseChannel?.let { it.edit { name = "${nightlyCount[0].assets[0].download_count} Nightly Downloads" } }
+        secondaryReleaseChannel?.let {
+            it.edit {
+                name = "${nightlyCount[0].assets[0].download_count} Nightly Downloads"
+            }
+        }
         for (i in nightlyCount) {
             for (j in i.assets) {
                 totalCount += j.download_count
