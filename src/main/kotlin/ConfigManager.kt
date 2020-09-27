@@ -6,7 +6,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 /**
- * @author dominikaaaa
+ * @author l1ving
  * @since 2020/08/16 19:48
  */
 object ConfigManager {
