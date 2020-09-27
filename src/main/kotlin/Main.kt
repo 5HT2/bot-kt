@@ -6,6 +6,7 @@ import UpdateHelper.updateCheck
 import UpdateHelper.writeCurrentVersion
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
+import commands.DownloadCountCommand
 import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
@@ -13,27 +14,15 @@ import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.l1ving.api.download.Download
-import utils.request
+import utils.getUpdateInterval
 import java.awt.Color
-import java.io.FileNotFoundException
-import java.util.concurrent.TimeUnit
 import kotlin.system.exitProcess
-import java.awt.Color
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
-import kotlin.system.exitProcess
-import ConfigManager.readConfigSafe
-import kotlinx.coroutines.*
-import utils.*
-import commands.DownloadCountCommand
 
 fun main() = runBlocking {
     Main.process = launch {
         Bot().start()
-        while(true){
-            withTimeout(getUpdateInterval()){ DownloadCountCommand.updateChannel() }
+        while (true) {
+            withTimeout(getUpdateInterval()) { DownloadCountCommand.updateChannel() }
         }
     }
 }
@@ -53,7 +42,7 @@ class Bot {
         writeCurrentVersion()
         updateCheck()
 
-        val config = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)
+        val config = readConfigSafe<AuthConfig>(ConfigType.AUTH, false)
 
         if (config?.botToken == null) {
             log("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
