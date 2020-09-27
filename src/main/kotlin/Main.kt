@@ -14,7 +14,6 @@ import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import utils.configUpdateInterval
 import java.awt.Color
 import kotlin.system.exitProcess
 

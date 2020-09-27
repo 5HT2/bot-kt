@@ -8,8 +8,9 @@ import PermissionTypes
 import Permissions.hasPermission
 import UserConfig
 import doesLater
+import getGithubToken
 import org.l1ving.api.download.Download
-import utils.*
+import authenticatedRequest
 import java.io.FileNotFoundException
 
 object DownloadCountCommand : Command("downloadcount") {
@@ -51,10 +52,10 @@ object DownloadCountCommand : Command("downloadcount") {
         }
         val releaseChannel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.downloadChannel?.let { server.voiceChannels.find(it) }
         val secondaryReleaseChannel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.secondaryDownloadChannel?.let { server.voiceChannels.find(it) }
-        val releaseCount = tokenRequest<Download>(getToken(null)
+        val releaseCount = authenticatedRequest<Download>(getGithubToken(null)
             ?: throw FileNotFoundException("Github token not find in config! Stopping..."),
             "https://api.github.com/repos/kami-blue/client/releases?per_page=200")
-        val nightlyCount = tokenRequest<Download>(getToken(null)
+        val nightlyCount = authenticatedRequest<Download>(getGithubToken(null)
             ?: throw FileNotFoundException("Github token not find in config! Stopping..."),
             "https://api.github.com/repos/kami-blue/nightly-releases/releases?per_page=200")
         var totalCount: Long = 0

@@ -4,11 +4,13 @@ import Colors
 import Command
 import arg
 import doesLater
+import getGithubToken
+import getDefaultGithubUser
 import net.ayataka.kordis.entity.message.Message
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.pull.PullRequest
 import string
-import utils.*
+import authenticatedRequest
 
 /**
  * @author sourTaste000
@@ -20,7 +22,7 @@ object IssueCommand : Command("issue") {
             string("repoName") {
                 string("issueNum") {
                     doesLater { context ->
-                        val githubToken = getToken(message) ?: return@doesLater // Error message is handled already
+                        val githubToken = getGithubToken(message) ?: return@doesLater // Error message is handled already
                         val user: String = context arg "user"
                         val repoName: String = context arg "repoName"
                         val issueNum: String = context arg "issueNum"
@@ -33,8 +35,8 @@ object IssueCommand : Command("issue") {
         string("repoName") {
             string("issueNum") {
                 doesLater { context ->
-                    val user: String = getUser(message) ?: return@doesLater // Error message is handled already
-                    val githubToken = getToken(message) ?: return@doesLater
+                    val user: String = getDefaultGithubUser(message) ?: return@doesLater // Error message is handled already
+                    val githubToken = getGithubToken(message) ?: return@doesLater
                     val repoName: String = context arg "repoName"
                     val issueNum: String = context arg "issueNum"
 
@@ -52,7 +54,7 @@ object IssueCommand : Command("issue") {
         repoName: String,
         issueNum: String
     ) {
-        val issue = tokenRequest<Issue>(token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
+        val issue = authenticatedRequest<Issue>(token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
             if (issue.html_url.contains("issue")) {
                 //TODO: Duplicated code fragment
@@ -97,7 +99,7 @@ object IssueCommand : Command("issue") {
                     }
                 }
             } else if (issue.html_url.contains("pull")) {
-                val pullRequest = tokenRequest<PullRequest>(token, issue.url)
+                val pullRequest = authenticatedRequest<PullRequest>(token, issue.url)
 
                 //TODO: Duplicated code fragment
                 message.channel.send {

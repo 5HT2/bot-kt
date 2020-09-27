@@ -65,7 +65,7 @@ data class VersionConfig(val version: String)
  * [defaultGithubUser] is the default user / org used in the [IssueCommand].
  * [downloadChannel] is the voice channel ID for download counter.
  * [secondaryDownloadChannel] is the voice channel ID for the secondary download counter.
- * [updateInterval] is the update interval for the download counter. Omit from config to default to 10 minutes.
+ * [counterUpdateInterval] is the update interval for the member / download counters. Omit from config to default to 10 minutes.
  * // TODO: refactor into module-specific settings
  */
 data class UserConfig(
@@ -78,7 +78,7 @@ data class UserConfig(
     val defaultGithubUser: String?,
     val downloadChannel: Long?,
     val secondaryDownloadChannel: Long?,
-    val updateInterval: Long?
+    val counterUpdateInterval: Long?
 )
 
 /**
