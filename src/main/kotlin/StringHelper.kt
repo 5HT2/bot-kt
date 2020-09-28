@@ -20,6 +20,10 @@ object StringHelper {
         return this.substring(0, this.length - last)
     }
 
+    fun String.flat(max: Int): String {
+        return this.substring(0, this.length.coerceAtMost(max))
+    }
+
     fun String.downloadBytes(): ByteArray {
         return URL(this).readBytes()
     }
