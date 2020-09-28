@@ -2,6 +2,7 @@ package commands
 
 import Colors
 import Command
+import StringHelper.flat
 import arg
 import authenticatedRequest
 import doesLater
@@ -64,14 +65,10 @@ object IssueCommand : Command("issue") {
                         thumbnailUrl = issue.user.avatar_url
                         color = if (issue.state == "closed") Colors.error else Colors.success
 
-                        field(
-                            "Description",
-                            if (issue.body?.isEmpty() == true) "No description" else issue.body!!.replace(
-                                Regex("<!--.*-->"),
-                                ""
-                            ),
-                            false
-                        )
+                        description = if (issue.body?.isEmpty() == true) "No description" else issue.body!!.replace(
+                            Regex("<!--.*-->"),
+                            ""
+                        ).flat(2048)
 
                         field("Milestone", issue.milestone?.title ?: "No Milestone", false)
 
@@ -106,14 +103,10 @@ object IssueCommand : Command("issue") {
                         thumbnailUrl = pullRequest.user.avatar_url
                         color = if (pullRequest.state == "closed") Colors.error else Colors.success
 
-                        field(
-                            "Description",
-                            if (issue.body?.isEmpty() == true) "No description" else issue.body!!.replace(
-                                Regex("<!--.*-->"),
-                                ""
-                            ),
-                            false
-                        )
+                        description = if (issue.body?.isEmpty() == true) "No description" else issue.body!!.replace(
+                            Regex("<!--.*-->"),
+                            ""
+                        ).flat(2048)
 
                         field("Milestone", issue.milestone?.title ?: "No Milestone", false)
 
