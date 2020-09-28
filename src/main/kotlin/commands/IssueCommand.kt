@@ -134,7 +134,7 @@ object IssueCommand : Command("issue") {
                         field("Commits", pullRequest.commits, false)
                         field("Changed Files", pullRequest.changed_files, false)
 
-                        url = pullRequest.url
+                        url = pullRequest.html_url
                     }
                 }
             }
