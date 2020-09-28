@@ -24,6 +24,6 @@ object LmgtfyCommand : Command("lmgtfy") {
 
     override fun getHelpUsage(): String {
         return "Creates a LMGTFY link with a search term:\n" +
-                "`;$name <search term>`"
+                "`$fullName <search term>`"
     }
 }

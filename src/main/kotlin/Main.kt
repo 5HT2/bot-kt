@@ -102,7 +102,7 @@ class Bot {
     suspend fun onMessageReceive(event: MessageReceiveEvent) {
         if (!ready || event.message.content.isEmpty()) return // message can be empty on images, embeds and other attachments
 
-        val message = if (event.message.content[0] == ';') event.message.content.substring(1) else return
+        val message = if (event.message.content[0] == Main.prefix()) event.message.content.substring(1) else return
         val cmd = Cmd(event)
 
         try {
@@ -130,6 +130,14 @@ object Main {
     var ready = false
     const val currentVersion = "1.1.3"
 
+    private var defaultPrefix: Char? = null
+
+    fun prefix(): Char {
+        if (defaultPrefix == null) {
+            defaultPrefix = readConfigSafe<UserConfig>(ConfigType.USER, false)?.prefix ?: ';'
+        }
+        return defaultPrefix!! // cannot be null, as it was just assigned
+    }
     fun exit() {
         process!!.cancel()
         exitProcess(0)
