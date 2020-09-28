@@ -36,7 +36,7 @@ object PurgeCommand : Command("purge") {
 
     override fun getHelpUsage(): String {
         return "Purges a number of messages in a channel based on parameters.\n" +
-                "`;$name <number>`\n" +
-                "`;$name <number> <userid>`"
+                "`$fullName <number>`\n" +
+                "`$fullName <number> <userid>`"
     }
 }

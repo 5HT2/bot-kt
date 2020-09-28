@@ -26,6 +26,6 @@ object SlowCommand : Command("slow") {
     override fun getHelpUsage(): String {
         return "Enables slowmode for this channel, specifying the wait in seconds.\n\n" +
                 "Usage:\n" +
-                "`;$name 10`"
+                "`$fullName 10`"
     }
 }

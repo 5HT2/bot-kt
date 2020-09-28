@@ -14,7 +14,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * @since 2020/08/18 16:30
  */
 open class Command(val name: String) : LiteralArgumentBuilder<Cmd>(name) {
-    open fun getHelpUsage(): String = "`;$name`"
+    val fullName = "${Main.prefix()}$name"
+    open fun getHelpUsage(): String = "`$fullName`"
 }
 
 class Cmd(val event: MessageReceiveEvent) {
@@ -64,7 +65,7 @@ object CommandManager {
         }
 
         var registeredCommands = ""
-        commands.forEach { entry -> registeredCommands += "\n> ;${entry.key}" }
+        commands.forEach { entry -> registeredCommands += "\n> ${Main.prefix()}${entry.key}" }
 
         log("Registered commands!$registeredCommands\n")
     }

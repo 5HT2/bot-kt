@@ -66,6 +66,7 @@ data class VersionConfig(val version: String)
  * [statusMessage] is the bot status message on Discord.
  * [statusMessageType] is the type of status. Playing is 0, Streaming is 1, Listening is 2 and Watching is 3.
  * [defaultGithubUser] is the default user / org used in the [IssueCommand].
+ * [prefix] is the single character command prefix. Defaults to ;
  * // TODO: refactor into module-specific settings
  */
 data class UserConfig(
@@ -75,7 +76,8 @@ data class UserConfig(
     val startUpChannel: String?,
     val statusMessage: String?,
     val statusMessageType: Int?,
-    val defaultGithubUser: String?
+    val defaultGithubUser: String?,
+    val prefix: Char?
 )
 
 /**

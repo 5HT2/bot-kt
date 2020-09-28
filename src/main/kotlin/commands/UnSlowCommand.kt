@@ -20,6 +20,6 @@ object UnSlowCommand : Command("unslow") {
     override fun getHelpUsage(): String {
         return "Removes slowmode from this channel\n\n" +
                 "Usage:\n" +
-                "`;$name`"
+                "`$fullName`"
     }
 }
