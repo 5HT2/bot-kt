@@ -25,6 +25,7 @@ object BanCommand : Command("ban") {
                         val messageDays: Int = context arg "deleteMessageDays"
                         val fixedDays = if (messageDays >= 7) 7 else messageDays
                         val reason: String = context arg "reason"
+                        val fixedReason = if (reason.isEmpty()) "No reason specified." else reason
                         val user = Main.client!!.servers.find(
                             readConfigSafe<UserConfig>(
                                 ConfigType.USER,
@@ -40,7 +41,7 @@ object BanCommand : Command("ban") {
                                     ConfigType.USER,
                                     false
                                 )?.primaryServerId ?: 735248256073990165
-                            ) ?: throw IllegalArgumentException("This is impossible to be thrown"), fixedDays, reason
+                            ) ?: throw IllegalArgumentException("This is impossible to be thrown"), fixedDays, fixedReason
                         )
                     }
 
