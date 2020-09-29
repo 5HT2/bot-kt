@@ -21,7 +21,8 @@ fun main() = runBlocking {
     Main.process = launch {
         Bot().start()
         while (true) {
-            withTimeout(configUpdateInterval()) { CounterCommand.updateChannel() }
+            delay(configUpdateInterval())
+            CounterCommand.updateChannel()
         }
     }
 }
