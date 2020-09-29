@@ -11,7 +11,6 @@ import arg
 import doesLater
 import greedyString
 import integer
-import net.ayataka.kordis.entity.findByTag
 import net.ayataka.kordis.entity.user.User
 import net.ayataka.kordis.exception.MissingPermissionsException
 import string
@@ -22,16 +21,14 @@ object BanCommand : Command("ban") {
             integer("deleteMessageDays") {
                 greedyString("reason") {
                     doesLater { context ->
-//                        if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
-//                            return@doesLater
-//                        }
+                        if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
+                            return@doesLater
+                        }
                         val username: String = context arg "user"
                         val serverId = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId
-                        val user: User = Main.client?.servers?.find(serverId ?: 735248256073990165)?.members?.findByName(username) ?: //username
-                        Main.client?.servers?.find(serverId ?: 735248256073990165)?.members?.find { it.nickname == username } ?: //nick
-                        Main.client?.servers?.find(serverId ?: 735248256073990165)?.members?.find { it.name + '#' + it.tag == username } ?: //tag
-                        Main.client?.servers?.find(serverId ?: 735248256073990165)?.members?.find(username.toLong()) ?: //id
-                        Main.client?.servers?.find(serverId ?: 735248256073990165)?.members?.find(username.filter { it.isDigit() }.toLong()) ?: //mention
+                        val user: User = Main.client?.servers?.find(serverId ?: 573954110454366214)?.members?.findByName(username) ?: //username
+                        Main.client?.servers?.find(serverId ?: 573954110454366214)?.members?.find { it.nickname == username } ?: //nick
+                        Main.client?.servers?.find(serverId ?: 573954110454366214)?.members?.find(username.toLong()) ?: //id
                         run {
                             message.error("User not found!")
                             return@doesLater
@@ -52,7 +49,7 @@ object BanCommand : Command("ban") {
                                     readConfigSafe<UserConfig>(
                                         ConfigType.USER,
                                         false
-                                    )?.primaryServerId ?: 735248256073990165
+                                    )?.primaryServerId ?: 573954110454366214
                                 ) ?: throw IllegalArgumentException("This is impossible to be thrown"),
                                 fixedDays,
                                 fixedReason
