@@ -77,7 +77,8 @@ data class UserConfig(
     val statusMessage: String?,
     val statusMessageType: Int?,
     val defaultGithubUser: String?,
-    val prefix: Char?
+    val prefix: Char?,
+    val defaultReason: String?
 )
 
 /**
@@ -95,6 +96,7 @@ data class PermissionConfig(val councilMembers: HashMap<Long, List<PermissionTyp
  * [downloadNightlyUrl] is the alternate / nightly repository in the format of kami-blue/bot-kt
  * [perPage] is the max releases per page when using the Github API. Defaults to 200
  * [updateInterval] is the update interval in minutes, for the member / download counters. Omit from config to default to 10 minutes.
+ * [defaultReason] is the default Reason for ban.
  */
 data class CounterConfig(
     val memberEnabled: Boolean?,
