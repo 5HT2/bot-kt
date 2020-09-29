@@ -45,6 +45,7 @@ class Bot {
 
         if (config?.botToken == null) {
             log("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
+            Main.exit()
             return
         }
 
