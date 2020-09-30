@@ -53,6 +53,9 @@ object BanCommand : Command("ban") {
                         if (user.id == message.author?.id) {
                             message.error("You can't ban yourself!")
                             return@doesLater
+                        } else if (hasPermission(user.id, PermissionTypes.COUNCIL_MEMBER)) {
+                            message.error("That user is protected, I can't do that.")
+                            return@doesLater
                         }
                         try {
                             user.ban(
@@ -63,10 +66,10 @@ object BanCommand : Command("ban") {
                                 fixedDays,
                                 fixedReason
                             )
-                        } catch (e: MissingPermissionsException) {
+                        } catch (e: Exception) {
                             message.channel.send {
                                 embed {
-                                    title = "That user is protected, I can't do that."
+                                    title = "Failed to ban the user!"
                                     field("Stacktrace:", "```$e```")
                                     color = Colors.error
                                     e.printStackTrace()
