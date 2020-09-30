@@ -67,6 +67,7 @@ data class VersionConfig(val version: String)
  * [statusMessageType] is the type of status. Playing is 0, Streaming is 1, Listening is 2 and Watching is 3.
  * [defaultGithubUser] is the default user / org used in the [IssueCommand].
  * [prefix] is the single character command prefix. Defaults to ;
+ * [defaultBanReason] is the default Reason for ban.
  * // TODO: refactor into module-specific settings
  */
 data class UserConfig(
@@ -78,7 +79,7 @@ data class UserConfig(
     val statusMessageType: Int?,
     val defaultGithubUser: String?,
     val prefix: Char?,
-    val defaultReason: String?
+    val defaultBanReason: String?
 )
 
 /**
@@ -96,7 +97,6 @@ data class PermissionConfig(val councilMembers: HashMap<Long, List<PermissionTyp
  * [downloadNightlyUrl] is the alternate / nightly repository in the format of kami-blue/bot-kt
  * [perPage] is the max releases per page when using the Github API. Defaults to 200
  * [updateInterval] is the update interval in minutes, for the member / download counters. Omit from config to default to 10 minutes.
- * [defaultReason] is the default Reason for ban.
  */
 data class CounterConfig(
     val memberEnabled: Boolean?,
