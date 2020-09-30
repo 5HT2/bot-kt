@@ -1,3 +1,5 @@
+package helpers
+
 import Send.stackTrace
 import net.ayataka.kordis.entity.message.Message
 import java.io.BufferedReader

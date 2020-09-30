@@ -8,7 +8,7 @@ import PermissionTypes
 import Permissions.hasPermission
 import Send.error
 import Send.success
-import StringHelper.writeBytes
+import helpers.StringHelper.writeBytes
 import arg
 import com.google.gson.GsonBuilder
 import doesLater

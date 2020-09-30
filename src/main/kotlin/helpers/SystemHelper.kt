@@ -1,5 +1,7 @@
-import MathHelper.round
-import ShellHelper.runCommandOutput
+package helpers
+
+import helpers.MathHelper.round
+import helpers.ShellHelper.runCommandOutput
 import java.io.File
 
 object SystemHelper {
