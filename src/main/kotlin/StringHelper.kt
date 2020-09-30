@@ -1,9 +1,5 @@
-import net.ayataka.kordis.entity.channel.TextChannel
 import java.io.File
-import java.io.IOException
 import java.net.URL
-import java.nio.file.Paths
-import java.util.concurrent.TimeUnit
 
 object StringHelper {
     fun String.isUrl(): Boolean {
@@ -32,34 +28,5 @@ object StringHelper {
         val bytes = url.downloadBytes()
         File(this).writeBytes(bytes)
         return bytes.size
-    }
-
-    suspend fun String.runCommand(channel: TextChannel): Boolean {
-        return try {
-            this.runCommand()
-            true
-        } catch (e: IOException) {
-            channel.send {
-                embed {
-                    title = "Error"
-                    description = "```" + e.message + "```\n```" + e.stackTrace.joinToString("\n") + "```"
-                    color = Colors.error
-                }
-            }
-            false
-        }
-    }
-
-    private fun String.runCommand() {
-        this.runCommand(File(Paths.get(System.getProperty("user.dir")).toString()))
-    }
-
-    private fun String.runCommand(workingDir: File) {
-        ProcessBuilder(*split(" ").toTypedArray())
-            .directory(workingDir)
-            .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-            .redirectError(ProcessBuilder.Redirect.INHERIT)
-            .start()
-            .waitFor(10, TimeUnit.MINUTES)
     }
 }
