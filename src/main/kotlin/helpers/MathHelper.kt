@@ -1,3 +1,5 @@
+package helpers
+
 import kotlin.math.pow
 
 object MathHelper {

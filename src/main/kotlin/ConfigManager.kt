@@ -1,4 +1,4 @@
-import StringHelper.isUrl
+import helpers.StringHelper.isUrl
 import com.google.gson.Gson
 import java.io.File
 import java.net.URL

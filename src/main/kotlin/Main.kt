@@ -2,8 +2,8 @@ import CommandManager.registerCommands
 import ConfigManager.readConfigSafe
 import Main.ready
 import Send.log
-import UpdateHelper.updateCheck
-import UpdateHelper.writeCurrentVersion
+import helpers.UpdateHelper.updateCheck
+import helpers.UpdateHelper.writeCurrentVersion
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import commands.CounterCommand

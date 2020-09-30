@@ -2,7 +2,7 @@ package commands
 
 import Colors
 import Command
-import StringHelper.flat
+import helpers.StringHelper.flat
 import arg
 import authenticatedRequest
 import doesLater
