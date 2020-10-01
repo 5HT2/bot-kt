@@ -2,6 +2,7 @@ package commands
 
 import Command
 import ConfigManager.readConfigSafe
+import Permissions.hasPermission
 import Send.error
 import UserConfig
 import greedyString
@@ -16,12 +17,12 @@ object AnnounceCommand : Command("announce") {
                 if (content.isNullOrEmpty()) {
                     message.error("You need to put announcement here.")
                     return@doesLater
-                }
-                Main.client?.servers?.find(message.server?.id ?: run {
-                    message.error("Run this command inside a server!")
+                } else if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)){
+                    message.error("You don't have the permission to do that!")
                     return@doesLater
-                })?.textChannels?.find(readConfigSafe<UserConfig>(ConfigType.USER, false)?.announceChannel ?: run {
-                    message.error("No annouce channel defined in config!")
+                }
+                message.server?.textChannels?.find(readConfigSafe<UserConfig>(ConfigType.USER, false)?.announceChannel ?: run {
+                    message.error("Bad announcement channel found in config!")
                     return@doesLater
                 })?.send(content)
             }
