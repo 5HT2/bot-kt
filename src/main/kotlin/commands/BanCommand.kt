@@ -69,7 +69,7 @@ object BanCommand : Command("ban") {
                         } catch (e: Exception) {
                             message.channel.send {
                                 embed {
-                                    title = "Failed to ban the user!"
+                                    title = "That user's role is higher then mine, I can't ban them!"
                                     field("Stacktrace:", "```$e```")
                                     color = Colors.error
                                     e.printStackTrace()
