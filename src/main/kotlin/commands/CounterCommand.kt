@@ -28,6 +28,7 @@ object CounterCommand : Command("counter") {
                     }
 
                     val path = ConfigType.COUNTER.configPath.substring(7)
+                    val userPath = ConfigType.USER.configPath.substring(7)
                     val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)
 
                     if (config?.downloadEnabled != true) {
@@ -37,7 +38,7 @@ object CounterCommand : Command("counter") {
                     if (updateChannel()) {
                         message.success("Successfully updated download counters!")
                     } else {
-                        message.error("Both total and latest counts failed to update. Make sure `$path` is configured correctly!")
+                        message.error("Both total and latest counts failed to update. Make sure `$path` is configured correctly, and `primaryServerId` is set in `$userPath`!")
                     }
                 }
             }
