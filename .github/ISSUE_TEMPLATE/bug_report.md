@@ -1,10 +1,7 @@
 ---
-name: ''
-about: ''
-title: ''
+name: 'Bug report'
+about: 'Submit a bug report'
 labels: 'bug'
-assignees: ''
-
 ---
 
 **Describe the bug**
