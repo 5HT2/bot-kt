@@ -15,10 +15,7 @@ object AnnounceCommand : Command("announce") {
         greedyString("content"){
             doesLater{context ->
                 val content: String = context arg "content"
-                if (!message.hasPermission(PermissionTypes.ANNOUNCE)){
-                    message.error("You don't have the permission to do that!")
-                    return@doesLater
-                }
+                if (!message.hasPermission(PermissionTypes.ANNOUNCE)){ return@doesLater }
                 message.server?.textChannels?.find(readConfigSafe<UserConfig>(ConfigType.USER, false)?.announceChannel ?: run {
                     message.error("Please configure the `announcementChannel` in the `${ConfigType.USER.configPath.substring(7)}` config!")
                     return@doesLater
@@ -27,7 +24,7 @@ object AnnounceCommand : Command("announce") {
                         description = content
                         color = Colors.primary
                     }
-                }
+                } ?: run { message.error("Error sending message! Channel couldn't be found") }
             }
         }
     }
