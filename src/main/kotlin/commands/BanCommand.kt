@@ -98,12 +98,42 @@ object BanCommand : Command("ban") {
             return
         }
 
+        user.getPrivateChannel().send {
+            embed {
+                field(
+                    "You were banned by:",
+                    message.author!!.mention,
+                    false
+                )
+                field(
+                    "Ban Reason:",
+                    fixedReason,
+                    false
+                )
+                color = Colors.error
+            }
+        }
         try {
             user.ban(
                 server,
                 deleteMessageDays,
                 fixedReason
             )
+            message.channel.send {
+                embed {
+                    field(
+                        "${user.name}#${user.discriminator} was banned by:",
+                        message.author!!.mention,
+                        false
+                    )
+                    field(
+                        "Ban Reason:",
+                        fixedReason,
+                        false
+                    )
+                    color = Colors.error
+                }
+            }
         } catch (e: Exception) {
             message.channel.send {
                 embed {
