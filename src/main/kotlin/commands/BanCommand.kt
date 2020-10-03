@@ -9,67 +9,63 @@ import Permissions.hasPermission
 import Send.error
 import UserConfig
 import arg
-import bool
 import doesLater
 import greedyString
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.user.User
-import string
 
 object BanCommand : Command("ban") {
     init {
-        string("username") {
-            doesLater { context ->
+        greedyString("userAndReason") {
+            doesLater { context -> // we unfortunately have to do really icky manual string parsing here, due to brigadier not knowing <@!id> is a string
                 if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
                     return@doesLater
                 }
-                val serverL = server ?: run { message.error(serverError); return@doesLater }
-                val username: String = context arg "username"
+                val username: String = context arg "userAndReason"
 
-                ban(username, serverL, false, "", message)
-            }
+                if (!username.contains(" ")) {
+                    ban(username, false, null, server, message)
+                    return@doesLater
+                } else {
+                    // split message in the format of [username, false/true, reason]
+                    val splitWithDeleteMsgs = username.split(" ".toRegex(), 3)
+                    var deleteMsgsReason: String? = null
 
-            greedyString("reason") {
-                doesLater { context ->
-                    if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
+                    try {
+                        deleteMsgsReason = splitWithDeleteMsgs[2]
+                    } catch (e: IndexOutOfBoundsException) {
+                        // this is fine, it just means we just won't have a reason while deleting messages
+                    }
+
+                    if (splitWithDeleteMsgs[1] == "true") { // [username, *true*, reason]
+                        ban(splitWithDeleteMsgs[0], true, deleteMsgsReason, server, message)
+                        return@doesLater
+                    } else if (splitWithDeleteMsgs[1] == "false") { // [username, *false*, reason]
+                        ban(splitWithDeleteMsgs[0], false, deleteMsgsReason, server, message)
                         return@doesLater
                     }
-                    val serverL = server ?: run { message.error(serverError); return@doesLater }
-                    val username: String = context arg "username"
-                    val reason: String = context arg "reason"
 
-                    ban(username, serverL, false, reason, message)
-                }
-            }
-
-            bool("deleteMsgs") {
-                greedyString("reason") {
-                    doesLater { context ->
-                        if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
-                            return@doesLater
-                        }
-                        val serverL = server ?: run { message.error(serverError); return@doesLater }
-                        val username: String = context arg "username"
-                        val deleteMsgs: Boolean = context arg "deleteMsgs"
-                        val reason: String = context arg "reason"
-
-                        ban(username, serverL, deleteMsgs, reason, message)
+                    // split message in the format of [username, reason], provided username does not contain spaces (it shouldn't!!)
+                    val split = username.split(" ".toRegex(), 2)
+                    if (split.size != 2) {
+                        message.error("Failed to ban $username, this should not be possible. Size: `${split.size}`")
+                        return@doesLater
                     }
+                    ban(split[0], false, split[1], server, message)
                 }
             }
         }
     }
 
-    private const val serverError = "Server is null, make sure you aren't running this from a DM!"
-
     private suspend fun ban(
         unfilteredUsername: String, // this can be an @mention (<@id>), an ID (id), or a username (username#discrim)
-        server: Server,
         deleteMsgs: Boolean, // if we should delete the past day of their messages or not
-        reason: String, // reason why they were banned. dmed before banning
+        reason: String?, // reason why they were banned. dmed before banning
+        nullableServer: Server?,
         message: Message
     ) {
+        val server = nullableServer ?: run { message.error("Server is null, make sure you aren't running this from a DM!"); return }
 
         var username = unfilteredUsername
         try {
@@ -88,7 +84,7 @@ object BanCommand : Command("ban") {
 
         val deleteMessageDays = if (deleteMsgs) 1 else 0
 
-        val fixedReason = if (reason.isNotEmpty()) reason else readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultBanReason ?: "No Reason Specified"
+        val fixedReason = if (reason != null && reason.isNotEmpty()) reason else readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultBanReason ?: "No Reason Specified"
 
         if (user.id == message.author?.id) {
             message.error("You can't ban yourself!")
