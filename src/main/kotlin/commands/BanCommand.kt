@@ -127,6 +127,7 @@ object BanCommand : Command("ban") {
                         fixedReason,
                         false
                     )
+                    footer("ID: ${user.id}", user.avatar.url)
                     color = Colors.error
                 }
             }
