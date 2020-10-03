@@ -1,7 +1,7 @@
 package helpers
 
 import helpers.MathHelper.round
-import helpers.ShellHelper.runCommandOutput
+import helpers.ShellHelper.bash
 import java.io.File
 
 object SystemHelper {
@@ -24,7 +24,7 @@ object SystemHelper {
      * @return CPU model information in an ArrayList
      */
     fun getCpus(): ArrayList<String> {
-        val cpuInfo = "cat /proc/cpuinfo".runCommandOutput().split("\n")
+        val cpuInfo = "cat /proc/cpuinfo".bash().split("\n")
 
         val filtered = arrayListOf<String>()
 
