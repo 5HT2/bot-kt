@@ -12,7 +12,7 @@ object Permissions {
                 true
             }
         } ?: run {
-            this.error("Message (`${this.id}`) author was null")
+            this.error("Message `${this.id}` author was null")
             return false
         }
     }

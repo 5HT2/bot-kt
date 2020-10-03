@@ -4,7 +4,6 @@ import Colors
 import Command
 import ConfigManager.readConfigSafe
 import ConfigType
-import Main
 import PermissionTypes
 import Permissions.hasPermission
 import Send.error
@@ -13,76 +12,112 @@ import arg
 import bool
 import doesLater
 import greedyString
+import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.user.User
-import net.ayataka.kordis.exception.MissingPermissionsException
 import string
 
-/**
- * @throws IllegalArgumentException
- */
 object BanCommand : Command("ban") {
     init {
-        string("user") {
-            bool("deleteMessageDays") {
+        string("username") {
+            doesLater { context ->
+                if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
+                    return@doesLater
+                }
+                val serverL = server ?: run { message.error(serverError); return@doesLater }
+                val username: String = context arg "username"
+
+                ban(username, serverL, false, "", message)
+            }
+
+            greedyString("reason") {
+                doesLater { context ->
+                    if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
+                        return@doesLater
+                    }
+                    val serverL = server ?: run { message.error(serverError); return@doesLater }
+                    val username: String = context arg "username"
+                    val reason: String = context arg "reason"
+
+                    ban(username, serverL, false, reason, message)
+                }
+            }
+
+            bool("deleteMsgs") {
                 greedyString("reason") {
                     doesLater { context ->
                         if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
                             return@doesLater
                         }
-                        val username: String = context arg "user"
-                        val serverId = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId
-                        val user: User =
-                            Main.client?.servers?.find(serverId ?: message.server!!.id)?.members?.findByName(username)
-                                ?: //username
-                                Main.client?.servers?.find(
-                                    serverId ?: message.server!!.id
-                                )?.members?.find { it.nickname == username } ?: //nick
-                                Main.client?.servers?.find(
-                                    serverId ?: message.server!!.id
-                                )?.members?.find(username.toLong()) ?: //id
-                                run {
-                                    message.error("User $username not found!")
-                                    return@doesLater
-                                }
-                        val messageDays: Boolean = context arg "deleteMessageDays"
-                        val fixedDays = if (messageDays) 1 else 0
+                        val serverL = server ?: run { message.error(serverError); return@doesLater }
+                        val username: String = context arg "username"
+                        val deleteMsgs: Boolean = context arg "deleteMsgs"
                         val reason: String = context arg "reason"
-                        val fixedReason =
-                            if (reason.isEmpty()) readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultBanReason
-                                ?: "No Reason Specified" else reason
-                        if (user.id == message.author?.id) {
-                            message.error("You can't ban yourself!")
-                            return@doesLater
-                        } else if (hasPermission(user.id, PermissionTypes.COUNCIL_MEMBER)) {
-                            message.error("That user is protected, I can't do that.")
-                            return@doesLater
-                        }
-                        try {
-                            user.ban(
-                                Main.client?.servers?.find(serverId ?: message.server!!.id) ?: run {
-                                    message.error("Bad server defined in config!")
-                                    return@doesLater
-                                },
-                                fixedDays,
-                                fixedReason
-                            )
-                        } catch (e: Exception) {
-                            message.channel.send {
-                                embed {
-                                    title = "That user's role is higher then mine, I can't ban them!"
-                                    field("Stacktrace:", "```$e```")
-                                    color = Colors.error
-                                    e.printStackTrace()
-                                }
-                            }
-                        }
+
+                        ban(username, serverL, deleteMsgs, reason, message)
                     }
                 }
             }
         }
     }
 
+    private const val serverError = "Server is null, make sure you aren't running this from a DM!"
+
+    private suspend fun ban(
+        unfilteredUsername: String, // this can be an @mention (<@id>), an ID (id), or a username (username#discrim)
+        server: Server,
+        deleteMsgs: Boolean, // if we should delete the past day of their messages or not
+        reason: String, // reason why they were banned. dmed before banning
+        message: Message
+    ) {
+
+        var username = unfilteredUsername
+        try {
+            val filtered = username.replace("[<@!>]".toRegex(), "").toLong()
+            username = filtered.toString()
+        } catch (ignored: NumberFormatException) {
+            // this is fine, we're parsing user input and don't know if it's an ID or not
+        }
+
+        val user: User = server.members.findByName(username) ?: server.members.find(username.toLong()) ?: // ID, or ping with the regex [<@!>] removed
+        run {
+            val nor: String = if (username != unfilteredUsername) "$unfilteredUsername nor $username" else unfilteredUsername
+            message.error("User $nor not found!")
+            return
+        }
+
+        val deleteMessageDays = if (deleteMsgs) 1 else 0
+
+        val fixedReason = if (reason.isNotEmpty()) reason else readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultBanReason ?: "No Reason Specified"
+
+        if (user.id == message.author?.id) {
+            message.error("You can't ban yourself!")
+            return
+        } else if (hasPermission(user.id, PermissionTypes.COUNCIL_MEMBER)) {
+            message.error("That user is protected, I can't do that.")
+            return
+        }
+
+        try {
+            user.ban(
+                server,
+                deleteMessageDays,
+                fixedReason
+            )
+        } catch (e: Exception) {
+            message.channel.send {
+                embed {
+                    title = "That user's role is higher then mine, I can't ban them!"
+                    field("Stacktrace:", "```$e```")
+                    color = Colors.error
+                }
+            }
+        }
+    }
+
     override fun getHelpUsage(): String {
-        return "$fullName <user(id, username, nick)> <delete message days (boolean)> <reason>"
+        return "$fullName <user(id, username, ping)>\n" +
+                "$fullName <user(id, username, ping)> <reason>\n" +
+                "$fullName <user(id, username, ping)> <delete messages (boolean)> <reason>"
     }
 }
