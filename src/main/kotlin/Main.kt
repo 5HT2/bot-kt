@@ -2,8 +2,8 @@ import CommandManager.registerCommands
 import ConfigManager.readConfigSafe
 import Main.ready
 import Send.log
-import UpdateHelper.updateCheck
-import UpdateHelper.writeCurrentVersion
+import helpers.UpdateHelper.updateCheck
+import helpers.UpdateHelper.writeCurrentVersion
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import commands.CounterCommand
@@ -46,6 +46,7 @@ class Bot {
 
         if (config?.botToken == null) {
             log("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
+            Main.exit()
             return
         }
 
@@ -129,7 +130,7 @@ object Main {
     var process: Job? = null
     var client: DiscordClient? = null
     var ready = false
-    const val currentVersion = "1.1.3"
+    const val currentVersion = "1.1.4"
 
     private var defaultPrefix: Char? = null
 
