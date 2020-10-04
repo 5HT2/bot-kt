@@ -1,6 +1,7 @@
 import ConfigManager.readConfigSafe
 import Send.error
 import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import net.ayataka.kordis.entity.message.Message
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -17,10 +18,11 @@ inline fun <reified T> request(url: String): T {
 }
 
 /**
+ * [authType] is the type of header to be used. "Bot" is for Discord's API, while Github uses "token".
  * @return [T] from [url] with the [token] as the Authorization header
  */
-inline fun <reified T> authenticatedRequest(token: String, url: String): T {
-    val request = Request.Builder().addHeader("Authorization", "token $token").url(url).get().build()
+inline fun <reified T> authenticatedRequest(authType: String, token: String, url: String): T {
+    val request = Request.Builder().addHeader("Authorization", "$authType $token").url(url).get().build()
     val response = OkHttpClient().newCall(request).execute()
 
     return Gson().fromJson(response.body()!!.string(), T::class.java)
@@ -34,6 +36,13 @@ fun configUpdateInterval(): Long {
     val updateInterval = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)?.updateInterval
         ?: return TimeUnit.MINUTES.toMillis(10)
     return TimeUnit.MINUTES.toMillis(updateInterval)
+}
+
+/**
+ * @return non-null bot authentication token
+ */
+fun getAuthToken(): String {
+    return readConfigSafe<AuthConfig>(ConfigType.AUTH, false)!!.botToken
 }
 
 /**
@@ -55,3 +64,12 @@ suspend fun getDefaultGithubUser(message: Message?): String? {
     if (repo == null) message?.error("Default user / org not set in `${ConfigType.USER.configPath.substring(7)}`!")
     return repo
 }
+
+data class FakeUser(
+    val id: Long,
+    val username: String,
+    val avatar: String,
+    val discriminator: Int,
+    @SerializedName("public_flags")
+    val publicFlags: Int
+)
