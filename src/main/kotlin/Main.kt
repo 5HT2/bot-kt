@@ -2,12 +2,15 @@ import CommandManager.registerCommands
 import ConfigManager.readConfigSafe
 import Main.ready
 import Send.log
-import helpers.UpdateHelper.updateCheck
-import helpers.UpdateHelper.writeCurrentVersion
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import commands.CounterCommand
-import kotlinx.coroutines.*
+import helpers.UpdateHelper.updateCheck
+import helpers.UpdateHelper.writeCurrentVersion
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
@@ -140,6 +143,7 @@ object Main {
         }
         return defaultPrefix!! // cannot be null, as it was just assigned
     }
+
     fun exit() {
         process!!.cancel()
         exitProcess(0)

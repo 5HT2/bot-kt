@@ -56,7 +56,7 @@ object IssueCommand : Command("issue") {
         repoName: String,
         issueNum: String
     ) {
-        val issue = authenticatedRequest<Issue>(token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
+        val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
             if (issue.html_url.contains("issue")) {
                 message.channel.send {
@@ -96,7 +96,7 @@ object IssueCommand : Command("issue") {
                     }
                 }
             } else if (issue.html_url.contains("pull")) {
-                val pullRequest = authenticatedRequest<PullRequest>(token, issue.url)
+                val pullRequest = authenticatedRequest<PullRequest>("token", token, issue.url)
                 message.channel.send {
                     embed {
                         title = pullRequest.title

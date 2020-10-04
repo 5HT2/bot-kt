@@ -78,8 +78,8 @@ object CounterCommand : Command("counter") {
         val perPage = config.perPage ?: 200
 
         getGithubToken(null)?.let {
-            downloadStable = config.downloadStableUrl?.let { it1 -> authenticatedRequest<Download>(it, formatApiUrl(it1, perPage)) }
-            downloadNightly = config.downloadNightlyUrl?.let { it1 -> authenticatedRequest<Download>(it, formatApiUrl(it1, perPage)) }
+            downloadStable = config.downloadStableUrl?.let { it1 -> authenticatedRequest<Download>("token", it, formatApiUrl(it1, perPage)) }
+            downloadNightly = config.downloadNightlyUrl?.let { it1 -> authenticatedRequest<Download>("token", it, formatApiUrl(it1, perPage)) }
         } ?: run {
             downloadStable = config.downloadStableUrl?.let { request<Download>(formatApiUrl(it, perPage)) }
             downloadNightly = config.downloadNightlyUrl?.let { request<Download>(formatApiUrl(it, perPage)) }
