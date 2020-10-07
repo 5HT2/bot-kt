@@ -58,8 +58,7 @@ object IssueCommand : Command("issue") {
         repoName: String,
         issueNum: String
     ) {
-        val issue =
-            authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
+        val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
             if (issue.html_url.contains("issue")) {
                 message.channel.send {
@@ -154,13 +153,12 @@ object IssueCommand : Command("issue") {
                 "`$fullName kami-blue bot-kt 10`\n\n"
     }
 
-    private fun getPullRequestColor(pullRequest: PullRequest): Color {
-        if (pullRequest.state == "closed" && !pullRequest.merged) {
-            return Colors.error
-        } else if (pullRequest.merged) {
-            return Colors.error
-        } else if (pullRequest.state == "open") {
-            return Colors.primary
+    private fun getPullRequestColor( pullRequest: PullRequest): Color {
+        return when {
+            pullRequest.state == "closed" && !pullRequest.merged -> { Colors.error }
+            pullRequest.merged -> { Colors.primary }
+            pullRequest.state == "open" -> { Colors.success }
+            else -> { Colors.warn }
         }
     }
 }
