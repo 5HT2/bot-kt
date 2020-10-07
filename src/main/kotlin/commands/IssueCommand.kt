@@ -2,6 +2,7 @@ package commands
 
 import Colors
 import Command
+import Send.stackTrace
 import helpers.StringHelper.flat
 import arg
 import authenticatedRequest
@@ -12,6 +13,7 @@ import net.ayataka.kordis.entity.message.Message
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.pull.PullRequest
 import string
+import java.awt.Color
 
 /**
  * @author sourTaste000
@@ -56,7 +58,8 @@ object IssueCommand : Command("issue") {
         repoName: String,
         issueNum: String
     ) {
-        val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
+        val issue =
+            authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
             if (issue.html_url.contains("issue")) {
                 message.channel.send {
@@ -101,7 +104,7 @@ object IssueCommand : Command("issue") {
                     embed {
                         title = pullRequest.title
                         thumbnailUrl = pullRequest.user.avatar_url
-                        color = if (pullRequest.state == "closed") Colors.error else Colors.success
+                        color = getPullRequestColor(pullRequest)
 
                         description = if (issue.body?.isEmpty() == true) "No description" else issue.body!!.replace(
                             Regex("<!--.*-->"),
@@ -134,21 +137,12 @@ object IssueCommand : Command("issue") {
                         field("Commits", pullRequest.commits, false)
                         field("Changed Files", pullRequest.changed_files, false)
 
-                        url = pullRequest.url
+                        url = pullRequest.html_url
                     }
                 }
             }
         } catch (e: Exception) {
-            message.channel.send {
-                embed {
-                    title = "Error"
-                    description =
-                        "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
-                    field("Stacktrace", "```$e```", false)
-                    e.printStackTrace()
-                    color = Colors.error
-                }
-            }
+            message.stackTrace(e)
         }
     }
 
@@ -158,5 +152,15 @@ object IssueCommand : Command("issue") {
                 "`$fullName <user/organization> <repository> <issue>`\n\n" +
                 "Example: \n" +
                 "`$fullName kami-blue bot-kt 10`\n\n"
+    }
+
+    private fun getPullRequestColor(pullRequest: PullRequest): Color {
+        if (pullRequest.state == "closed" && !pullRequest.merged) {
+            return Colors.error
+        } else if (pullRequest.merged) {
+            return Colors.error
+        } else if (pullRequest.state == "open") {
+            return Colors.primary
+        }
     }
 }
