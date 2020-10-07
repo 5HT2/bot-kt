@@ -8,6 +8,7 @@ import FakeUser
 import PermissionTypes
 import Permissions.hasPermission
 import Send.error
+import Send.stackTrace
 import UserConfig
 import arg
 import authenticatedRequest
@@ -147,13 +148,7 @@ object BanCommand : Command("ban") {
                     }
                 }
             } catch (e: Exception) {
-                message.channel.send {
-                    embed {
-                        title = "That user's role is higher then mine, I can't ban them!"
-                        field("Stacktrace:", "```$e```")
-                        color = Colors.error
-                    }
-                }
+                message.stackTrace(e)
             }
             return // required
         }
@@ -166,21 +161,32 @@ object BanCommand : Command("ban") {
             return
         }
 
-        user.getPrivateChannel().send {
-            embed {
-                field(
-                    "You were banned by:",
-                    message.author!!.mention,
-                    false
-                )
-                field(
-                    "Ban Reason:",
-                    fixedReason,
-                    false
-                )
-                color = Colors.error
+        try {
+            user.getPrivateChannel().send {
+                embed {
+                    field(
+                        "You were banned by:",
+                        message.author!!.mention,
+                        false
+                    )
+                    field(
+                        "Ban Reason:",
+                        fixedReason,
+                        false
+                    )
+                    color = Colors.error
+                }
+            }
+        } catch(e: Exception){
+            message.channel.send {
+                embed {
+                    title = "Error"
+                    description = "That person blocked me, I could not dm them."
+                    timestamp
+                }
             }
         }
+
         try {
             user.ban(
                 server,
@@ -204,13 +210,7 @@ object BanCommand : Command("ban") {
                 }
             }
         } catch (e: Exception) {
-            message.channel.send {
-                embed {
-                    title = "That user's role is higher then mine, I can't ban them!"
-                    field("Stacktrace:", "```$e```")
-                    color = Colors.error
-                }
-            }
+            message.stackTrace(e)
         }
     }
 
