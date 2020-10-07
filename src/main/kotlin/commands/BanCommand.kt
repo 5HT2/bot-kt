@@ -8,7 +8,6 @@ import FakeUser
 import PermissionTypes
 import Permissions.hasPermission
 import Send.error
-import Send.stackTrace
 import UserConfig
 import arg
 import authenticatedRequest
@@ -148,7 +147,13 @@ object BanCommand : Command("ban") {
                     }
                 }
             } catch (e: Exception) {
-                message.stackTrace(e)
+                message.channel.send {
+                    embed {
+                        title = "That user's role is higher then mine, I can't ban them!"
+                        field("Stacktrace:", "```$e```")
+                        color = Colors.error
+                    }
+                }
             }
             return // required
         }
@@ -181,7 +186,7 @@ object BanCommand : Command("ban") {
             message.channel.send {
                 embed {
                     title = "Error"
-                    description = "That person blocked me, I could not dm them."
+                    description = "I couldn't DM that user the ban reason, they might have had DMs disabled."
                     timestamp
                 }
             }
@@ -210,7 +215,13 @@ object BanCommand : Command("ban") {
                 }
             }
         } catch (e: Exception) {
-            message.stackTrace(e)
+            message.channel.send {
+                embed {
+                    title = "That user's role is higher then mine, I can't ban them!"
+                    field("Stacktrace:", "```$e```")
+                    color = Colors.error
+                }
+            }
         }
     }
 

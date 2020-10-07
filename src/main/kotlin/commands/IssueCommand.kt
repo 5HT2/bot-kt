@@ -141,7 +141,16 @@ object IssueCommand : Command("issue") {
                 }
             }
         } catch (e: Exception) {
-            message.stackTrace(e)
+            message.channel.send {
+                embed {
+                    title = "Error"
+                    description =
+                        "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
+                    field("Stacktrace", "```$e```", false)
+                    e.printStackTrace()
+                    color = Colors.error
+                }
+            }
         }
     }
 
@@ -156,7 +165,7 @@ object IssueCommand : Command("issue") {
     private fun getPullRequestColor( pullRequest: PullRequest): Color {
         return when {
             pullRequest.state == "closed" && !pullRequest.merged -> { Colors.error }
-            pullRequest.merged -> { Colors.primary }
+            pullRequest.merged -> { Colors.merged }
             pullRequest.state == "open" -> { Colors.success }
             else -> { Colors.warn }
         }
