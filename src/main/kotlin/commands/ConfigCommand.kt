@@ -4,15 +4,14 @@ import Colors
 import Command
 import ConfigManager
 import ConfigType
-import PermissionTypes
-import Permissions.hasPermission
+import PermissionTypes.MANAGE_CONFIG
 import Send.error
 import Send.success
-import helpers.StringHelper.writeBytes
 import arg
 import com.google.gson.GsonBuilder
-import doesLater
+import doesLaterIfHas
 import greedyString
+import helpers.StringHelper.writeBytes
 import literal
 import string
 
@@ -20,11 +19,7 @@ object ConfigCommand : Command("config") {
     init {
         literal("print") {
             string("name") {
-                doesLater { context ->
-                    if (!message.hasPermission(PermissionTypes.MANAGE_CONFIG)) {
-                        return@doesLater
-                    }
-
+                doesLaterIfHas(MANAGE_CONFIG) { context ->
                     val name: String = context arg "name"
                     val gson = GsonBuilder().setPrettyPrinting().create()
 
@@ -34,18 +29,14 @@ object ConfigCommand : Command("config") {
                                 message.channel.send("```json\n" + gson.toJson(it) + "\n```")
                             } ?: message.error("Couldn't find config file, or config is in invalid format")
 
-                            return@doesLater
+                            return@doesLaterIfHas
                         }
                     }
                 }
             }
         }
         literal("list") {
-            doesLater {
-                if (!message.hasPermission(PermissionTypes.MANAGE_CONFIG)) {
-                    return@doesLater
-                }
-
+            doesLaterIfHas(MANAGE_CONFIG) {
                 message.channel.send {
                     embed {
                         title = "Config Types"
@@ -58,11 +49,7 @@ object ConfigCommand : Command("config") {
         }
         literal("reload") {
             string("name") {
-                doesLater { context ->
-                    if (!message.hasPermission(PermissionTypes.MANAGE_CONFIG)) {
-                        return@doesLater
-                    }
-
+            doesLaterIfHas(MANAGE_CONFIG) { context ->
                     val name: String = context arg "name"
 
                     var found = false
@@ -75,7 +62,7 @@ object ConfigCommand : Command("config") {
                             ConfigManager.readConfig<Any>(config, true)?.let {
                                 message.success("Successfully reloaded the `${config.configPath.substring(7)}` config!")
                             } ?: message.error("Couldn't find config file, or config is in invalid format")
-                            return@doesLater
+                            return@doesLaterIfHas
                         }
                     }
 
@@ -88,11 +75,7 @@ object ConfigCommand : Command("config") {
         literal("download") {
             string("name") {
                 greedyString("url") {
-                    doesLater { context ->
-                        if (!message.hasPermission(PermissionTypes.MANAGE_CONFIG)) {
-                            return@doesLater
-                        }
-
+                    doesLaterIfHas(MANAGE_CONFIG) { context ->
                         val name: String = context arg "name"
                         val url: String = context arg "url"
                         val size: Int
@@ -103,7 +86,7 @@ object ConfigCommand : Command("config") {
                             message.error("Failed to download `$name`\n```${e.stackTrace.joinToString { it.toString() }}```".substring(
                                 0,
                                 512) + "```")
-                            return@doesLater
+                            return@doesLaterIfHas
                         }
                         message.success("Successfully downloaded `$name` (${size / 1000.0}KB)!")
 

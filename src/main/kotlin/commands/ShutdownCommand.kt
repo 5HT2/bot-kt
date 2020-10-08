@@ -3,17 +3,12 @@ package commands
 import Colors
 import Command
 import Main
-import PermissionTypes
-import Permissions.hasPermission
-import doesLater
+import PermissionTypes.REBOOT_BOT
+import doesLaterIfHas
 
 object ShutdownCommand : Command("shutdown") {
     init {
-        doesLater {
-            if (!message.hasPermission(PermissionTypes.REBOOT_BOT)) {
-                return@doesLater
-            }
-
+        doesLaterIfHas(REBOOT_BOT) {
             message.channel.send {
                 embed {
                     title = "Shutting down..."

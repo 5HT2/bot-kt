@@ -6,12 +6,11 @@ import ConfigType
 import CounterConfig
 import Main
 import PermissionTypes.UPDATE_COUNTERS
-import Permissions.hasPermission
 import Send.error
 import Send.success
 import UserConfig
 import authenticatedRequest
-import doesLater
+import doesLaterIfHas
 import getGithubToken
 import literal
 import org.l1ving.api.download.Asset
@@ -22,11 +21,7 @@ object CounterCommand : Command("counter") {
     init {
         literal("update") {
             literal("downloads") {
-                doesLater {
-                    if (!message.hasPermission(UPDATE_COUNTERS)) {
-                        return@doesLater
-                    }
-
+                doesLaterIfHas(UPDATE_COUNTERS) {
                     val path = ConfigType.COUNTER.configPath.substring(7)
                     val userPath = ConfigType.USER.configPath.substring(7)
                     val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)
@@ -43,10 +38,7 @@ object CounterCommand : Command("counter") {
                 }
             }
             literal("members") {
-                doesLater {
-                    if (!message.hasPermission(UPDATE_COUNTERS)) {
-                        return@doesLater
-                    }
+                doesLaterIfHas(UPDATE_COUNTERS) {
                     // TODO: Add members counter
                     message.error("Member counter is not supported yet!")
                 }

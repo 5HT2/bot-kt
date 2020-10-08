@@ -2,9 +2,8 @@ package commands
 
 import Colors
 import Command
-import PermissionTypes
-import Permissions.hasPermission
-import doesLater
+import PermissionTypes.ARCHIVE_CHANNEL
+import doesLaterIfHas
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
@@ -12,11 +11,7 @@ import net.ayataka.kordis.entity.server.permission.overwrite.UserPermissionOverw
 
 object ArchiveCommand : Command("archive") {
     init {
-        doesLater {
-            if (!message.hasPermission(PermissionTypes.ARCHIVE_CHANNEL)) {
-                return@doesLater
-            }
-
+        doesLaterIfHas(ARCHIVE_CHANNEL) {
             val channel = server?.channels?.find(message.channel.id)
             val archivedChannelsNum = server?.channels?.filter { c -> c.name.contains(Regex("archived")) }?.size
 

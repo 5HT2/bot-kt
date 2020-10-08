@@ -2,10 +2,9 @@ package commands
 
 import Colors
 import Command
-import PermissionTypes
-import Permissions.hasPermission
+import PermissionTypes.COUNCIL_MEMBER
 import arg
-import doesLater
+import doesLaterIfHas
 import greedyString
 import literal
 import net.ayataka.kordis.entity.server.permission.PermissionSet
@@ -17,11 +16,7 @@ object DiscussCommand : Command("discuss") {
     init {
         literal("addon") {
             greedyString("idea") {
-                doesLater { context ->
-                    if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
-                        return@doesLater
-                    }
-
+                doesLaterIfHas(COUNCIL_MEMBER) { context ->
                     val idea: String = context arg "idea"
                     val name = "t-" + server!!.channels.find(message.channel.id)!!.name.substring(2)
                     val discussionTopic = server!!.textChannels.findByName(name)!!
@@ -46,11 +41,7 @@ object DiscussCommand : Command("discuss") {
         }
         string("topic") {
             greedyString("description") {
-                doesLater { context ->
-                    if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
-                        return@doesLater
-                    }
-
+                doesLaterIfHas(COUNCIL_MEMBER) { context ->
                     val upperCouncil = server!!.roles.findByName("upper council")!!
                     val lowerCouncil = server!!.roles.findByName("lower council")!!
 
