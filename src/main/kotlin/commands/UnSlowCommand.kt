@@ -1,16 +1,12 @@
 package commands
 
 import Command
-import PermissionTypes
-import Permissions.hasPermission
-import doesLater
+import PermissionTypes.COUNCIL_MEMBER
+import doesLaterIfHas
 
 object UnSlowCommand : Command("unslow") {
     init {
-        doesLater {
-            if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
-                return@doesLater
-            }
+        doesLaterIfHas(COUNCIL_MEMBER) {
             message.serverChannel!!.edit {
                 rateLimitPerUser = 0
             }

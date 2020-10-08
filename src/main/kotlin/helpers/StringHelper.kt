@@ -10,6 +10,8 @@ object StringHelper {
         )
     }
 
+    fun String.toHumanReadable() = this.toLowerCase().replace("[_-]".toRegex(), " ").capitalize()
+
     fun String.normalizeCase(): String {
         return this.substring(0, 1) + this.substring(1).toLowerCase()
     }
