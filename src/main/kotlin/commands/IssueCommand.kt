@@ -2,16 +2,17 @@ package commands
 
 import Colors
 import Command
-import helpers.StringHelper.flat
 import arg
 import authenticatedRequest
 import doesLater
 import getDefaultGithubUser
 import getGithubToken
+import helpers.StringHelper.flat
 import net.ayataka.kordis.entity.message.Message
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.pull.PullRequest
 import string
+import java.awt.Color
 
 /**
  * @author sourTaste000
@@ -101,7 +102,7 @@ object IssueCommand : Command("issue") {
                     embed {
                         title = pullRequest.title
                         thumbnailUrl = pullRequest.user.avatar_url
-                        color = if (pullRequest.state == "closed") Colors.error else Colors.success
+                        color = getPullRequestColor(pullRequest)
 
                         description = if (issue.body?.isEmpty() == true) "No description" else issue.body!!.replace(
                             Regex("<!--.*-->"),
@@ -134,7 +135,7 @@ object IssueCommand : Command("issue") {
                         field("Commits", pullRequest.commits, false)
                         field("Changed Files", pullRequest.changed_files, false)
 
-                        url = pullRequest.url
+                        url = pullRequest.html_url
                     }
                 }
             }
@@ -158,5 +159,22 @@ object IssueCommand : Command("issue") {
                 "`$fullName <user/organization> <repository> <issue>`\n\n" +
                 "Example: \n" +
                 "`$fullName kami-blue bot-kt 10`\n\n"
+    }
+
+    private fun getPullRequestColor(pullRequest: PullRequest): Color {
+        return when {
+            pullRequest.merged -> {
+                Colors.mergedPullRequest
+            }
+            pullRequest.state == "closed" && !pullRequest.merged -> {
+                Colors.error
+            }
+            pullRequest.state == "open" -> {
+                Colors.success
+            }
+            else -> {
+                Colors.warn
+            }
+        }
     }
 }
