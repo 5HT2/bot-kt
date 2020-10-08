@@ -155,5 +155,5 @@ object Colors {
     val error = Color(222, 65, 60)
     val warn = Color(222, 182, 60)
     val success = Color(60, 222, 90)
-    val merged = Color(100, 29, 188)
+    val mergedPullRequest = Color(100, 29, 188)
 }

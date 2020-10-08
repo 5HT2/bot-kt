@@ -187,7 +187,6 @@ object BanCommand : Command("ban") {
                 embed {
                     title = "Error"
                     description = "I couldn't DM that user the ban reason, they might have had DMs disabled."
-                    timestamp
                 }
             }
         }

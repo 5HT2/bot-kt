@@ -2,7 +2,6 @@ package commands
 
 import Colors
 import Command
-import Send.stackTrace
 import helpers.StringHelper.flat
 import arg
 import authenticatedRequest
@@ -164,8 +163,8 @@ object IssueCommand : Command("issue") {
 
     private fun getPullRequestColor( pullRequest: PullRequest): Color {
         return when {
+            pullRequest.merged -> { Colors.mergedPullRequest }
             pullRequest.state == "closed" && !pullRequest.merged -> { Colors.error }
-            pullRequest.merged -> { Colors.merged }
             pullRequest.state == "open" -> { Colors.success }
             else -> { Colors.warn }
         }
