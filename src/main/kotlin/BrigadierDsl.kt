@@ -4,6 +4,7 @@ import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
+import helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 
 @DslMarker
@@ -134,8 +135,6 @@ infix fun ArgumentBuilder<Cmd, *>.doesLater(later: suspend MessageReceiveEvent.(
 fun ArgumentBuilder<Cmd, *>.doesLaterIfHas(permission: PermissionTypes, later: suspend MessageReceiveEvent.(CommandContext<Cmd>) -> Unit) =
         does { context ->
             context.source later {
-                fun String.toHumanReadable() = this.toLowerCase().replace('_', ' ').capitalize()
-
                 if (this.message.hasPermission(permission))
                     later(this, context)
                 else
