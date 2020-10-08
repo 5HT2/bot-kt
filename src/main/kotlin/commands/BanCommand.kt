@@ -182,7 +182,7 @@ object BanCommand : Command("ban") {
                     color = Colors.error
                 }
             }
-        } catch(e: Exception){
+        } catch (e: Exception) {
             message.channel.send {
                 embed {
                     title = "Error"

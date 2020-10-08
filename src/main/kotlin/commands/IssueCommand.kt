@@ -2,12 +2,12 @@ package commands
 
 import Colors
 import Command
-import helpers.StringHelper.flat
 import arg
 import authenticatedRequest
 import doesLater
 import getDefaultGithubUser
 import getGithubToken
+import helpers.StringHelper.flat
 import net.ayataka.kordis.entity.message.Message
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.pull.PullRequest
@@ -161,12 +161,20 @@ object IssueCommand : Command("issue") {
                 "`$fullName kami-blue bot-kt 10`\n\n"
     }
 
-    private fun getPullRequestColor( pullRequest: PullRequest): Color {
+    private fun getPullRequestColor(pullRequest: PullRequest): Color {
         return when {
-            pullRequest.merged -> { Colors.mergedPullRequest }
-            pullRequest.state == "closed" && !pullRequest.merged -> { Colors.error }
-            pullRequest.state == "open" -> { Colors.success }
-            else -> { Colors.warn }
+            pullRequest.merged -> {
+                Colors.mergedPullRequest
+            }
+            pullRequest.state == "closed" && !pullRequest.merged -> {
+                Colors.error
+            }
+            pullRequest.state == "open" -> {
+                Colors.success
+            }
+            else -> {
+                Colors.warn
+            }
         }
     }
 }
