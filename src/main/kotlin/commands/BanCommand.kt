@@ -5,14 +5,14 @@ import Command
 import ConfigManager.readConfigSafe
 import ConfigType
 import FakeUser
-import PermissionTypes
+import PermissionTypes.COUNCIL_MEMBER
 import Permissions.hasPermission
 import Send.error
 import UserConfig
 import arg
 import authenticatedRequest
 import com.google.gson.GsonBuilder
-import doesLater
+import doesLaterIfHas
 import getAuthToken
 import greedyString
 import net.ayataka.kordis.entity.message.Message
@@ -26,15 +26,12 @@ import okhttp3.RequestBody
 object BanCommand : Command("ban") {
     init {
         greedyString("userAndReason") {
-            doesLater { context -> // we unfortunately have to do really icky manual string parsing here, due to brigadier not knowing <@!id> is a string
-                if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
-                    return@doesLater
-                }
+            doesLaterIfHas(COUNCIL_MEMBER) { context -> // we unfortunately have to do really icky manual string parsing here, due to brigadier not knowing <@!id> is a string
                 val username: String = context arg "userAndReason"
 
                 if (!username.contains(" ")) {
                     ban(username, false, null, server, message)
-                    return@doesLater
+                    return@doesLaterIfHas
                 } else {
                     // split message in the format of [username, false/true, reason]
                     val splitWithDeleteMsgs = username.split(" ".toRegex(), 3)
@@ -48,17 +45,17 @@ object BanCommand : Command("ban") {
 
                     if (splitWithDeleteMsgs[1] == "true") { // [username, *true*, reason]
                         ban(splitWithDeleteMsgs[0], true, deleteMsgsReason, server, message)
-                        return@doesLater
+                        return@doesLaterIfHas
                     } else if (splitWithDeleteMsgs[1] == "false") { // [username, *false*, reason]
                         ban(splitWithDeleteMsgs[0], false, deleteMsgsReason, server, message)
-                        return@doesLater
+                        return@doesLaterIfHas
                     }
 
                     // split message in the format of [username, reason], provided username does not contain spaces (it shouldn't!!)
                     val split = username.split(" ".toRegex(), 2)
                     if (split.size != 2) {
                         message.error("Failed to ban $username, this should not be possible. Size: `${split.size}`")
-                        return@doesLater
+                        return@doesLaterIfHas
                     }
                     ban(split[0], false, split[1], server, message)
                 }
@@ -101,7 +98,7 @@ object BanCommand : Command("ban") {
                 if (username.toLong() == message.author?.id) {
                     message.error("You can't ban yourself!")
                     return
-                } else if (hasPermission(username.toLong(), PermissionTypes.COUNCIL_MEMBER)) {
+                } else if (hasPermission(username.toLong(), COUNCIL_MEMBER)) {
                     message.error("That user is protected, I can't do that.")
                     return
                 }
@@ -161,7 +158,7 @@ object BanCommand : Command("ban") {
         if (user.id == message.author?.id) {
             message.error("You can't ban yourself!")
             return
-        } else if (hasPermission(user.id, PermissionTypes.COUNCIL_MEMBER)) {
+        } else if (hasPermission(user.id, COUNCIL_MEMBER)) {
             message.error("That user is protected, I can't do that.")
             return
         }

@@ -1,10 +1,9 @@
 package commands
 
 import Command
-import PermissionTypes
-import Permissions.hasPermission
+import PermissionTypes.COUNCIL_MEMBER
 import arg
-import doesLater
+import doesLaterIfHas
 import greedyString
 import integer
 import net.ayataka.kordis.entity.deleteAll
@@ -12,18 +11,12 @@ import net.ayataka.kordis.entity.deleteAll
 object PurgeCommand : Command("purge") {
     init {
         integer("number") {
-            doesLater { context ->
-                if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
-                    return@doesLater
-                }
+            doesLaterIfHas(COUNCIL_MEMBER) { context ->
                 val number: Int = context arg "number"
                 message.channel.getMessages(number + 1).deleteAll()
             }
             greedyString("user") {
-                doesLater { context ->
-                    if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
-                        return@doesLater
-                    }
+                doesLaterIfHas(COUNCIL_MEMBER) { context ->
                     val contextNumber: Int = context arg "number"
                     val number = contextNumber + 1 // include original message to delete
                     val user: String = context arg "user"
