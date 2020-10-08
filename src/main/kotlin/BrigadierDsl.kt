@@ -1,3 +1,4 @@
+import Permissions.hasPermission
 import com.mojang.brigadier.arguments.*
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
@@ -126,6 +127,18 @@ infix fun ArgumentBuilder<Cmd, *>.doesLater(later: suspend MessageReceiveEvent.(
         }
         0
     }
+
+/**
+ * The same as [doesLater], but with a permission check.
+ */
+fun ArgumentBuilder<Cmd, *>.doesLaterIfHas(permission: PermissionTypes, later: suspend MessageReceiveEvent.(CommandContext<Cmd>) -> Unit) =
+        does { context ->
+            context.source later {
+                if (this.message.hasPermission(permission))
+                    later(this, context)
+            }
+            0
+        }
 
 /**
  * Gets the value of a (required) argument in the command hierarchy

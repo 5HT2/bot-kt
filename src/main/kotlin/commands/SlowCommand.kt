@@ -1,19 +1,15 @@
 package commands
 
 import Command
-import PermissionTypes
-import Permissions.hasPermission
+import PermissionTypes.COUNCIL_MEMBER
 import arg
-import doesLater
+import doesLaterIfHas
 import integer
 
 object SlowCommand : Command("slow") {
     init {
         integer("wait") {
-            doesLater { context ->
-                if (!message.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
-                    return@doesLater
-                }
+            doesLaterIfHas(COUNCIL_MEMBER) { context ->
                 val wait: Int = context arg "wait"
                 message.serverChannel!!.edit {
                     rateLimitPerUser = wait

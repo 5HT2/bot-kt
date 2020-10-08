@@ -4,26 +4,22 @@ import Colors
 import Command
 import ConfigManager.readConfigSafe
 import ConfigType
-import PermissionTypes
-import Permissions.hasPermission
+import PermissionTypes.ANNOUNCE
 import Send.error
 import UserConfig
 import arg
-import doesLater
+import doesLaterIfHas
 import greedyString
 
 object AnnounceCommand : Command("announce") {
     init {
         greedyString("content") {
-            doesLater { context ->
+            doesLaterIfHas(ANNOUNCE) { context ->
                 val content: String = context arg "content"
-                if (!message.hasPermission(PermissionTypes.ANNOUNCE)) {
-                    return@doesLater
-                }
 
                 val channel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.announceChannel ?: run {
                     message.error("Please configure the `announcementChannel` in the `${ConfigType.USER.configPath.substring(7)}` config!")
-                    return@doesLater
+                    return@doesLaterIfHas
                 }
 
                 server?.textChannels?.find(channel)?.send {
