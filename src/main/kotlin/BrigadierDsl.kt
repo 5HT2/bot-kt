@@ -133,21 +133,21 @@ infix fun ArgumentBuilder<Cmd, *>.doesLater(later: suspend MessageReceiveEvent.(
  * The same as [doesLater], but with a permission check.
  */
 fun ArgumentBuilder<Cmd, *>.doesLaterIfHas(permission: PermissionTypes, later: suspend MessageReceiveEvent.(CommandContext<Cmd>) -> Unit) =
-        does { context ->
-            context.source later {
-                if (this.message.hasPermission(permission))
-                    later(this, context)
-                else
-                    this.message.channel.send {
-                        embed {
-                            title = "Missing permission"
-                            description = "Sorry, but you're missing the '${permission.name.toHumanReadable()}' permission, which is required to run this command."
-                            color = Colors.error
-                        }
+    does { context ->
+        context.source later {
+            if (this.message.author!!.id.hasPermission(permission))
+                later(this, context)
+            else
+                this.message.channel.send {
+                    embed {
+                        title = "Missing permission"
+                        description = "Sorry, but you're missing the '${permission.name.toHumanReadable()}' permission, which is required to run this command."
+                        color = Colors.error
                     }
-            }
-            0
+                }
         }
+        0
+    }
 
 /**
  * Gets the value of a (required) argument in the command hierarchy

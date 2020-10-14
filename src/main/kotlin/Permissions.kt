@@ -5,7 +5,7 @@ import net.ayataka.kordis.entity.message.Message
 object Permissions {
     suspend fun Message.hasPermission(permission: PermissionTypes): Boolean {
         this.author?.let {
-            return if (!hasPermission(it.id, permission)) {
+            return if (!it.id.hasPermission(permission)) {
                 this.error("You don't have permission to use this command!")
                 false
             } else {
@@ -17,14 +17,10 @@ object Permissions {
         }
     }
 
-    fun hasPermission(id: Long, permission: PermissionTypes): Boolean {
-        return hasPermission(id, false, permission)
-    }
-
-    fun hasPermission(id: Long, reload: Boolean, permission: PermissionTypes): Boolean {
+    fun Long.hasPermission(permission: PermissionTypes): Boolean {
         var has = false
-        ConfigManager.readConfigSafe<PermissionConfig>(ConfigType.PERMISSION, reload)?.let {
-            it.councilMembers[id]?.forEach { peit ->
+        ConfigManager.readConfigSafe<PermissionConfig>(ConfigType.PERMISSION, false)?.let {
+            it.councilMembers[this]?.forEach { peit ->
                 if (peit == permission) has = true
             }
         }

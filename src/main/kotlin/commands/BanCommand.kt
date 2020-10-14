@@ -98,7 +98,7 @@ object BanCommand : Command("ban") {
                 if (username.toLong() == message.author?.id) {
                     message.error("You can't ban yourself!")
                     return
-                } else if (hasPermission(username.toLong(), COUNCIL_MEMBER)) {
+                } else if (username.toLong().hasPermission(COUNCIL_MEMBER)) {
                     message.error("That user is protected, I can't do that.")
                     return
                 }
@@ -158,7 +158,7 @@ object BanCommand : Command("ban") {
         if (user.id == message.author?.id) {
             message.error("You can't ban yourself!")
             return
-        } else if (hasPermission(user.id, COUNCIL_MEMBER)) {
+        } else if (user.id.hasPermission(COUNCIL_MEMBER)) {
             message.error("That user is protected, I can't do that.")
             return
         }
