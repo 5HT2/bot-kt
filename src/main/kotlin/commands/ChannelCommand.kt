@@ -1,12 +1,14 @@
 package commands
 
+import Colors
 import Command
 import PermissionTypes.MANAGE_CHANNELS
 import Send.error
 import Send.normal
 import Send.success
 import arg
-import commands.ChannelCommand.ChangeType.*
+import commands.ChannelCommand.ChangeType.LOAD
+import commands.ChannelCommand.ChangeType.SAVE
 import doesLaterIfHas
 import helpers.StringHelper.formattedRole
 import helpers.StringHelper.toHumanReadable
@@ -22,7 +24,7 @@ object ChannelCommand : Command("channel") {
     init {
         literal("save") {
             doesLaterIfHas(MANAGE_CHANNELS) {
-                val serverChannel = getServerChannel(message) ?: run { return@doesLaterIfHas }
+                val serverChannel = message.serverChannel(message) ?: run { return@doesLaterIfHas }
                 val name = serverChannel.name
 
                 save(name, serverChannel, message)
@@ -30,7 +32,7 @@ object ChannelCommand : Command("channel") {
 
             string("name") {
                 doesLaterIfHas(MANAGE_CHANNELS) { context ->
-                    val serverChannel = getServerChannel(message) ?: run { return@doesLaterIfHas }
+                    val serverChannel = message.serverChannel(message) ?: run { return@doesLaterIfHas }
                     val name: String = context arg "name"
 
                     save(name, serverChannel, message)
@@ -40,7 +42,7 @@ object ChannelCommand : Command("channel") {
 
         literal("print") {
             doesLaterIfHas(MANAGE_CHANNELS) {
-                val c = getServerChannel(message) ?: run { return@doesLaterIfHas }
+                val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
                 val name = c.name
 
                 print(name, message)
@@ -72,6 +74,22 @@ object ChannelCommand : Command("channel") {
                 return@doesLaterIfHas
 
                 undo(message)
+            }
+        }
+
+        literal("sync") {
+            literal("reverse") {
+                doesLaterIfHas(MANAGE_CHANNELS) {
+                    val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+
+                    sync(true, message, c)
+                }
+            }
+
+            doesLaterIfHas(MANAGE_CHANNELS) {
+                val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+
+                sync(false, message, c)
             }
         }
     }
@@ -117,7 +135,7 @@ object ChannelCommand : Command("channel") {
             return
         }
 
-        val serverChannel = getServerChannel(message) ?: run { return }
+        val serverChannel = message.serverChannel(message) ?: run { return }
         previousChange = Triple(Pair(LOAD, name), serverChannel, serverChannel.rolePermissionOverwrites)
 
         serverChannel.setPermissions(selectedChannel)
@@ -168,6 +186,22 @@ object ChannelCommand : Command("channel") {
         }
     }
 
+    private suspend fun sync(reverse: Boolean, message: Message, serverChannel: ServerChannel) {
+        val category = message.serverChannel?.category
+        val perms = category?.rolePermissionOverwrites ?: run {
+            message.error("Channel category is null! Are you running this from a DM?")
+            return
+        }
+
+        if (reverse) {
+            category.setPermissions(perms.toHashSet())
+            message.success("Synchronized category permissions to the `${serverChannel.name.toHumanReadable()}` channel!")
+        } else {
+            serverChannel.setPermissions(perms.toHashSet())
+            message.success("Synchronized channel permissions to the `${category.name.toHumanReadable()}` category!")
+        }
+    }
+
     private suspend fun ServerChannel.setPermissions(permissions: HashSet<RolePermissionOverwrite>) {
         this.edit {
             this.rolePermissionOverwrites.removeAll(this.rolePermissionOverwrites)
@@ -183,8 +217,8 @@ object ChannelCommand : Command("channel") {
         return if (prettified.isEmpty()) "None" else prettified
     }
 
-    private suspend fun getServerChannel(message: Message): ServerChannel? {
-        val sc = message.server?.channels?.find(message.channel.id)
+    private suspend fun Message.serverChannel(message: Message): ServerChannel? {
+        val sc = this.server?.channels?.find(this.channel.id)
 
         if (sc == null) {
             message.error("Channel is null! Are you running this from a DM?")
