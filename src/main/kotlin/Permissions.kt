@@ -50,5 +50,6 @@ enum class PermissionTypes {
     REBOOT_BOT,
     MANAGE_CONFIG,
     UPDATE_COUNTERS,
-    ANNOUNCE
+    ANNOUNCE,
+    MANAGE_CHANNELS
 }
