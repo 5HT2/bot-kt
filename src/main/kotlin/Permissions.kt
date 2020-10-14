@@ -1,12 +1,13 @@
 import PermissionTypes.COUNCIL_MEMBER
 import Send.error
+import helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.entity.message.Message
 
 object Permissions {
     suspend fun Message.hasPermission(permission: PermissionTypes): Boolean {
         this.author?.let {
             return if (!it.id.hasPermission(permission)) {
-                this.error("You don't have permission to use this command!")
+                this.missingPermissions(permission)
                 false
             } else {
                 true
@@ -25,6 +26,16 @@ object Permissions {
             }
         }
         return has
+    }
+
+    suspend fun Message.missingPermissions(permission: PermissionTypes) {
+        this.channel.send {
+            embed {
+                title = "Missing permission"
+                description = "Sorry, but you're missing the '${permission.name.toHumanReadable()}' permission, which is required to run this command."
+                color = Colors.error
+            }
+        }
     }
 }
 

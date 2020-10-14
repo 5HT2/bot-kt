@@ -1,10 +1,10 @@
 import Permissions.hasPermission
+import Permissions.missingPermissions
 import com.mojang.brigadier.arguments.*
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 
 @DslMarker
@@ -138,13 +138,7 @@ fun ArgumentBuilder<Cmd, *>.doesLaterIfHas(permission: PermissionTypes, later: s
             if (this.message.author!!.id.hasPermission(permission))
                 later(this, context)
             else
-                this.message.channel.send {
-                    embed {
-                        title = "Missing permission"
-                        description = "Sorry, but you're missing the '${permission.name.toHumanReadable()}' permission, which is required to run this command."
-                        color = Colors.error
-                    }
-                }
+                this.message.missingPermissions(permission)
         }
         0
     }
