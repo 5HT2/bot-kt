@@ -6,12 +6,11 @@ import ConfigType
 import CounterConfig
 import Main
 import PermissionTypes.UPDATE_COUNTERS
-import Permissions.hasPermission
 import Send.error
 import Send.success
 import UserConfig
 import authenticatedRequest
-import doesLater
+import doesLaterIfHas
 import getGithubToken
 import literal
 import org.l1ving.api.download.Asset
@@ -22,12 +21,9 @@ object CounterCommand : Command("counter") {
     init {
         literal("update") {
             literal("downloads") {
-                doesLater {
-                    if (!message.hasPermission(UPDATE_COUNTERS)) {
-                        return@doesLater
-                    }
-
+                doesLaterIfHas(UPDATE_COUNTERS) {
                     val path = ConfigType.COUNTER.configPath.substring(7)
+                    val userPath = ConfigType.USER.configPath.substring(7)
                     val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)
 
                     if (config?.downloadEnabled != true) {
@@ -37,15 +33,12 @@ object CounterCommand : Command("counter") {
                     if (updateChannel()) {
                         message.success("Successfully updated download counters!")
                     } else {
-                        message.error("Both total and latest counts failed to update. Make sure `$path` is configured correctly!")
+                        message.error("Both total and latest counts failed to update. Make sure `$path` is configured correctly, and `primaryServerId` is set in `$userPath`!")
                     }
                 }
             }
             literal("members") {
-                doesLater {
-                    if (!message.hasPermission(UPDATE_COUNTERS)) {
-                        return@doesLater
-                    }
+                doesLaterIfHas(UPDATE_COUNTERS) {
                     // TODO: Add members counter
                     message.error("Member counter is not supported yet!")
                 }
@@ -77,8 +70,8 @@ object CounterCommand : Command("counter") {
         val perPage = config.perPage ?: 200
 
         getGithubToken(null)?.let {
-            downloadStable = config.downloadStableUrl?.let { it1 -> authenticatedRequest<Download>(it, formatApiUrl(it1, perPage)) }
-            downloadNightly = config.downloadNightlyUrl?.let { it1 -> authenticatedRequest<Download>(it, formatApiUrl(it1, perPage)) }
+            downloadStable = config.downloadStableUrl?.let { it1 -> authenticatedRequest<Download>("token", it, formatApiUrl(it1, perPage)) }
+            downloadNightly = config.downloadNightlyUrl?.let { it1 -> authenticatedRequest<Download>("token", it, formatApiUrl(it1, perPage)) }
         } ?: run {
             downloadStable = config.downloadStableUrl?.let { request<Download>(formatApiUrl(it, perPage)) }
             downloadNightly = config.downloadNightlyUrl?.let { request<Download>(formatApiUrl(it, perPage)) }

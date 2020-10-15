@@ -1,34 +1,41 @@
 import PermissionTypes.COUNCIL_MEMBER
 import Send.error
+import helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.entity.message.Message
 
 object Permissions {
     suspend fun Message.hasPermission(permission: PermissionTypes): Boolean {
         this.author?.let {
-            return if (!hasPermission(it.id, permission)) {
-                this.error("You don't have permission to use this command!")
+            return if (!it.id.hasPermission(permission)) {
+                this.missingPermissions(permission)
                 false
             } else {
                 true
             }
         } ?: run {
-            this.error("Message (`${this.id}`) author was null")
+            this.error("Message `${this.id}` author was null")
             return false
         }
     }
 
-    fun hasPermission(id: Long, permission: PermissionTypes): Boolean {
-        return hasPermission(id, false, permission)
-    }
-
-    fun hasPermission(id: Long, reload: Boolean, permission: PermissionTypes): Boolean {
+    fun Long.hasPermission(permission: PermissionTypes): Boolean {
         var has = false
-        ConfigManager.readConfigSafe<PermissionConfig>(ConfigType.PERMISSION, reload)?.let {
-            it.councilMembers[id]?.forEach { peit ->
+        ConfigManager.readConfigSafe<PermissionConfig>(ConfigType.PERMISSION, false)?.let {
+            it.councilMembers[this]?.forEach { peit ->
                 if (peit == permission) has = true
             }
         }
         return has
+    }
+
+    suspend fun Message.missingPermissions(permission: PermissionTypes) {
+        this.channel.send {
+            embed {
+                title = "Missing permission"
+                description = "Sorry, but you're missing the '${permission.name.toHumanReadable()}' permission, which is required to run this command."
+                color = Colors.error
+            }
+        }
     }
 }
 
@@ -42,5 +49,7 @@ enum class PermissionTypes {
     COUNCIL_MEMBER,
     REBOOT_BOT,
     MANAGE_CONFIG,
-    UPDATE_COUNTERS
+    UPDATE_COUNTERS,
+    ANNOUNCE,
+    MANAGE_CHANNELS
 }

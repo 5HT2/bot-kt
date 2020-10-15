@@ -1,5 +1,12 @@
+package helpers
+
+import ConfigManager
+import ConfigType
+import Main
 import Main.currentVersion
 import Send.log
+import UserConfig
+import VersionConfig
 import java.io.File
 import java.net.URL
 import java.nio.file.Files

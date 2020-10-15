@@ -1,3 +1,5 @@
+import Permissions.hasPermission
+import Permissions.missingPermissions
 import com.mojang.brigadier.arguments.*
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
@@ -123,6 +125,20 @@ infix fun ArgumentBuilder<Cmd, *>.doesLater(later: suspend MessageReceiveEvent.(
     does { context ->
         context.source later {
             later(this, context)
+        }
+        0
+    }
+
+/**
+ * The same as [doesLater], but with a permission check.
+ */
+fun ArgumentBuilder<Cmd, *>.doesLaterIfHas(permission: PermissionTypes, later: suspend MessageReceiveEvent.(CommandContext<Cmd>) -> Unit) =
+    does { context ->
+        context.source later {
+            if (this.message.author!!.id.hasPermission(permission))
+                later(this, context)
+            else
+                this.message.missingPermissions(permission)
         }
         0
     }
