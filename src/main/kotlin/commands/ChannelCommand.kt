@@ -212,7 +212,7 @@ object ChannelCommand : Command("channel") {
         }
     }
 
-    private fun PermissionSet.pretty(): String {
+    fun PermissionSet.pretty(): String {
         val prettified = this.joinToString { it.name.toHumanReadable() }
         return if (prettified.isEmpty()) "None" else prettified
     }
