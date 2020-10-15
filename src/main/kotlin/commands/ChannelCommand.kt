@@ -2,7 +2,7 @@ package commands
 
 import Colors
 import Command
-import PermissionTypes.MANAGE_CHANNELS
+import PermissionTypes.*
 import Send.error
 import Send.normal
 import Send.success
@@ -12,6 +12,7 @@ import commands.ChannelCommand.ChangeType.SAVE
 import doesLaterIfHas
 import helpers.StringHelper.formattedRole
 import helpers.StringHelper.toHumanReadable
+import integer
 import literal
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.message.Message
@@ -19,6 +20,8 @@ import net.ayataka.kordis.entity.server.channel.ServerChannel
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
 import string
+import kotlin.collections.set
+
 
 object ChannelCommand : Command("channel") {
     init {
@@ -78,7 +81,7 @@ object ChannelCommand : Command("channel") {
         }
 
         literal("sync") {
-            literal("reverse") {
+            literal("category") {
                 doesLaterIfHas(MANAGE_CHANNELS) {
                     val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
 
@@ -90,6 +93,59 @@ object ChannelCommand : Command("channel") {
                 val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
 
                 sync(false, message, c)
+            }
+        }
+
+        literal("slow") {
+            doesLaterIfHas(COUNCIL_MEMBER) {
+                message.serverChannel?.let {
+                    it.edit {
+                        rateLimitPerUser = 0
+                    }
+
+                    message.success("Removed slowmode")
+                } ?: run {
+                    message.error("Server channel is null, are you running this from a DM?")
+                }
+            }
+
+            integer("wait") {
+                doesLaterIfHas(COUNCIL_MEMBER) { context ->
+                    val wait: Int = context arg "wait"
+
+                    message.serverChannel?.let {
+                        it.edit {
+                            rateLimitPerUser = wait
+                        }
+
+                        message.success(if (wait != 0) "Set slowmode to ${wait}s" else "Removed slowmode")
+                    } ?: run {
+                        message.error("Server channel is null, are you running this from a DM?")
+                    }
+                }
+
+            }
+        }
+
+        literal("archive") {
+            doesLaterIfHas(ARCHIVE_CHANNEL) {
+                val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+                val s = server ?: run { message.error("Server is null, are you running this from a DM?"); return@doesLaterIfHas }
+                val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
+                val oldName = c.name
+
+                val archivedChannels = s.channels.filter { n -> n.name.contains(Regex("archived-[0-9]+")) }
+                val totalArchived = archivedChannels.size
+
+                c.edit {
+                    userPermissionOverwrites.removeAll(userPermissionOverwrites)
+                    rolePermissionOverwrites.removeAll(rolePermissionOverwrites)
+                    rolePermissionOverwrites.add(RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(1024))) // disallow read for everyone
+                    name = "archived-$totalArchived"
+                }
+
+                message.success("Changed name from `$oldName` to `archived-$totalArchived`")
+
             }
         }
     }
