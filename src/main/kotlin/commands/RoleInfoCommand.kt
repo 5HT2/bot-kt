@@ -24,7 +24,7 @@ object RoleInfoCommand : Command("roleinfo") {
                 sendRoleMsg(foundRole, message)
             }
         }
-        long("roleId") {
+        long("roleID") {
             doesLaterIfHas(PermissionTypes.COUNCIL_MEMBER) { context ->
                 val roleID: Long = context arg "roleID"
                 val foundRole = message.server?.roles?.find(roleID) ?: run {
