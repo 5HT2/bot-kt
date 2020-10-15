@@ -43,4 +43,14 @@ object Send {
             color = Colors.error
         }
     }
+
+    suspend fun Message.warn(description: String) {
+        channel.send {
+            embed {
+                this.title = "Warning"
+                this.description = description
+                this.color = Colors.warn
+            }
+        }
+    }
 }
