@@ -16,6 +16,7 @@ import integer
 import literal
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.channel.ServerChannel
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
@@ -148,6 +149,30 @@ object ChannelCommand : Command("channel") {
 
             }
         }
+
+        literal("lock") {
+            literal("category") {
+                doesLaterIfHas(COUNCIL_MEMBER) {
+                    lockOrUnlock(category = true, lock = true, message = message, server = server)
+                }
+            }
+
+            doesLaterIfHas(COUNCIL_MEMBER) {
+                lockOrUnlock(category = false, lock = true, message = message, server = server)
+            }
+        }
+
+        literal("unlock") {
+            literal("category") {
+                doesLaterIfHas(COUNCIL_MEMBER) {
+                    lockOrUnlock(category = true, lock = false, message = message, server = server)
+                }
+            }
+
+            doesLaterIfHas(COUNCIL_MEMBER) {
+                lockOrUnlock(category = false, lock = false, message = message, server = server)
+            }
+        }
     }
 
     private suspend fun save(name: String, serverChannel: ServerChannel, message: Message) {
@@ -256,6 +281,29 @@ object ChannelCommand : Command("channel") {
             serverChannel.setPermissions(perms.toHashSet())
             message.success("Synchronized channel permissions to the `${category.name.toHumanReadable()}` category!")
         }
+    }
+
+    private suspend fun lockOrUnlock(category: Boolean, lock: Boolean, message: Message, server: Server?) {
+        val s = server ?: run { message.error("Server is null, are you running this from a DM?"); return }
+        val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
+
+        val serverChannel = (if (category) message.serverChannel?.category else message.serverChannel)
+            ?: run { message.error("${if (category) "Category" else "Server channel"} was null, was you running this from a DM?"); return }
+
+        val perms: RolePermissionOverwrite?
+
+        perms = if (lock) {
+            message.success("Locked ${if (category) "category" else "channel"}!")
+            RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(2048))
+        } else {
+            message.success("Unlocked ${if (category) "category" else "channel"}!")
+            RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(0))
+        }
+
+        serverChannel.edit {
+            rolePermissionOverwrites.add(perms)
+        }
+
     }
 
     private suspend fun ServerChannel.setPermissions(permissions: HashSet<RolePermissionOverwrite>) {
