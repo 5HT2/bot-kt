@@ -1,12 +1,13 @@
 # bot-kt
 
 [![CodeFactor](https://www.codefactor.io/repository/github/kami-blue/bot-kt/badge)](https://www.codefactor.io/repository/github/kami-blue/bot-kt)
-[![GitHub All Releases](https://img.shields.io/github/downloads/kami-blue/bot-kt/total?style=flat-square)](https://github.com/kami-blue/bot-kt/releases)
-[![Build Status](https://travis-ci.com/kami-blue/bot-kt.svg?branch=master)](https://travis-ci.com/kami-blue/bot-kt) 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/kami-blue/bot-kt/Docker?logo=docker&style=flat-square)](https://github.com/kami-blue/bot-kt/packages?package_type=Docker)
-[![Discord](https://img.shields.io/discord/573954110454366214?style=flat-square)](https://kamiblue.org/discord)
-[![Paypal](https://img.shields.io/badge/paypal-donate-red?color=169bd7&logo=paypal&style=flat-square)](https://paypal.me/mik4a/5USD)
-[![BTC](https://img.shields.io/badge/btc-donate-red?color=f08b16&logo=bitcoin&style=flat-square)](https://www.blockchain.com/btc/address/19pH4aNZZMPJkqQ2826BauRokyBs1NYon7)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/kami-blue/bot-kt/Gradle?logo=github)
+![Travis (.com)](https://img.shields.io/travis/com/kami-blue/bot-kt?logo=travis)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/kami-blue/bot-kt/Docker?logo=docker&)](https://github.com/kami-blue/bot-kt/packages?package_type=Docker)
+
+[![Discord](https://img.shields.io/discord/573954110454366214?logo=discord&logoColor=white)](https://kamiblue.org/discord)
+[![Paypal](https://img.shields.io/badge/paypal-donate-red?color=169bd7&logo=paypal)](https://paypal.me/mik4a/5USD)
+[![BTC](https://img.shields.io/badge/btc-donate-red?color=f08b16&logo=bitcoin)](https://www.blockchain.com/btc/address/19pH4aNZZMPJkqQ2826BauRokyBs1NYon7)
 
 
 The moderation bot for KAMI Blue's Discord, written in Kotlin for reliability. 
