@@ -1,8 +1,8 @@
 # bot-kt
 
 [![CodeFactor](https://www.codefactor.io/repository/github/kami-blue/bot-kt/badge)](https://www.codefactor.io/repository/github/kami-blue/bot-kt)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/kami-blue/bot-kt/Gradle?logo=github)
-![Travis (.com)](https://img.shields.io/travis/com/kami-blue/bot-kt?logo=travis)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/kami-blue/bot-kt/Gradle?logo=github)](https://github.com/kami-blue/bot-kt/actions)
+[![Travis (.com)](https://img.shields.io/travis/com/kami-blue/bot-kt?logo=travis)](https://travis-ci.com/github/kami-blue/bot-kt)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/kami-blue/bot-kt/Docker?logo=docker&)](https://github.com/kami-blue/bot-kt/packages?package_type=Docker)
 
 [![Discord](https://img.shields.io/discord/573954110454366214?logo=discord&logoColor=white)](https://kamiblue.org/discord)
