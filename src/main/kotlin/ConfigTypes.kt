@@ -67,6 +67,8 @@ data class VersionConfig(val version: String)
  * [statusMessageType] is the type of status. Playing is 0, Streaming is 1, Listening is 2 and Watching is 3.
  * [defaultGithubUser] is the default user / org used in the [IssueCommand].
  * [prefix] is the single character command prefix. Defaults to ;
+ * [defaultBanReason] is the default Reason for ban.
+ * [announceChannel] is the main announcement channel for your discord server
  * // TODO: refactor into module-specific settings
  */
 data class UserConfig(
@@ -77,7 +79,9 @@ data class UserConfig(
     val statusMessage: String?,
     val statusMessageType: Int?,
     val defaultGithubUser: String?,
-    val prefix: Char?
+    val prefix: Char?,
+    val defaultBanReason: String?,
+    val announceChannel: Long?
 )
 
 /**

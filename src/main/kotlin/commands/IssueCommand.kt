@@ -2,16 +2,17 @@ package commands
 
 import Colors
 import Command
-import StringHelper.flat
 import arg
 import authenticatedRequest
 import doesLater
 import getDefaultGithubUser
 import getGithubToken
+import helpers.StringHelper.flat
 import net.ayataka.kordis.entity.message.Message
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.pull.PullRequest
 import string
+import java.awt.Color
 
 /**
  * @author sourTaste000
@@ -56,7 +57,7 @@ object IssueCommand : Command("issue") {
         repoName: String,
         issueNum: String
     ) {
-        val issue = authenticatedRequest<Issue>(token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
+        val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
             if (issue.html_url.contains("issue")) {
                 message.channel.send {
@@ -96,12 +97,12 @@ object IssueCommand : Command("issue") {
                     }
                 }
             } else if (issue.html_url.contains("pull")) {
-                val pullRequest = authenticatedRequest<PullRequest>(token, issue.url)
+                val pullRequest = authenticatedRequest<PullRequest>("token", token, issue.url)
                 message.channel.send {
                     embed {
                         title = pullRequest.title
                         thumbnailUrl = pullRequest.user.avatar_url
-                        color = if (pullRequest.state == "closed") Colors.error else Colors.success
+                        color = getPullRequestColor(pullRequest)
 
                         description = if (issue.body?.isEmpty() == true) "No description" else issue.body!!.replace(
                             Regex("<!--.*-->"),
@@ -158,5 +159,22 @@ object IssueCommand : Command("issue") {
                 "`$fullName <user/organization> <repository> <issue>`\n\n" +
                 "Example: \n" +
                 "`$fullName kami-blue bot-kt 10`\n\n"
+    }
+
+    private fun getPullRequestColor(pullRequest: PullRequest): Color {
+        return when {
+            pullRequest.merged -> {
+                Colors.mergedPullRequest
+            }
+            pullRequest.state == "closed" && !pullRequest.merged -> {
+                Colors.error
+            }
+            pullRequest.state == "open" -> {
+                Colors.success
+            }
+            else -> {
+                Colors.warn
+            }
+        }
     }
 }

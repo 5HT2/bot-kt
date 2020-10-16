@@ -2,12 +2,15 @@ import CommandManager.registerCommands
 import ConfigManager.readConfigSafe
 import Main.ready
 import Send.log
-import UpdateHelper.updateCheck
-import UpdateHelper.writeCurrentVersion
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import commands.CounterCommand
-import kotlinx.coroutines.*
+import helpers.UpdateHelper.updateCheck
+import helpers.UpdateHelper.writeCurrentVersion
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
@@ -21,7 +24,8 @@ fun main() = runBlocking {
     Main.process = launch {
         Bot().start()
         while (true) {
-            withTimeout(configUpdateInterval()) { CounterCommand.updateChannel() }
+            delay(configUpdateInterval())
+            CounterCommand.updateChannel()
         }
     }
 }
@@ -45,6 +49,7 @@ class Bot {
 
         if (config?.botToken == null) {
             log("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
+            Main.exit()
             return
         }
 
@@ -128,7 +133,7 @@ object Main {
     var process: Job? = null
     var client: DiscordClient? = null
     var ready = false
-    const val currentVersion = "1.1.3"
+    const val currentVersion = "v1.1.8"
 
     private var defaultPrefix: Char? = null
 
@@ -138,6 +143,7 @@ object Main {
         }
         return defaultPrefix!! // cannot be null, as it was just assigned
     }
+
     fun exit() {
         process!!.cancel()
         exitProcess(0)
@@ -149,4 +155,5 @@ object Colors {
     val error = Color(222, 65, 60)
     val warn = Color(222, 182, 60)
     val success = Color(60, 222, 90)
+    val mergedPullRequest = Color(100, 29, 188)
 }
