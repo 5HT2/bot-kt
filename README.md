@@ -1,9 +1,9 @@
 # bot-kt
 
 [![CodeFactor](https://www.codefactor.io/repository/github/kami-blue/bot-kt/badge)](https://www.codefactor.io/repository/github/kami-blue/bot-kt)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/kami-blue/bot-kt/Gradle?logo=github)](https://github.com/kami-blue/bot-kt/actions)
-[![Travis (.com)](https://img.shields.io/travis/com/kami-blue/bot-kt?logo=travis)](https://travis-ci.com/github/kami-blue/bot-kt)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/kami-blue/bot-kt/Docker?logo=docker&)](https://github.com/kami-blue/bot-kt/packages?package_type=Docker)
+[![Docker Action](https://img.shields.io/github/workflow/status/kami-blue/bot-kt/Docker?logo=docker)](https://github.com/orgs/kami-blue/packages/container/package/bot-kt)
+[![Gradle Action](https://img.shields.io/github/workflow/status/kami-blue/bot-kt/Gradle?logo=github)](https://github.com/kami-blue/bot-kt/actions)
+[![Travis Action](https://img.shields.io/travis/com/kami-blue/bot-kt?logo=travis)](https://travis-ci.com/github/kami-blue/bot-kt)
 
 [![Discord](https://img.shields.io/discord/573954110454366214?logo=discord&logoColor=white)](https://kamiblue.org/discord)
 [![Paypal](https://img.shields.io/badge/paypal-donate-red?color=169bd7&logo=paypal)](https://paypal.me/mik4a/5USD)
