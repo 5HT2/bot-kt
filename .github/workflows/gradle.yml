@@ -21,10 +21,6 @@ jobs:
       run: git submodule update --init --recursive
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v2.2.0
-      with:
-       # Artifact name
-        name: bot-kt
-       # A file, directory or wildcard pattern that describes what to upload
-        path: ./build/libs/*.jar
+    - name: Build with Gradle
+      run: ./gradlew build
+
