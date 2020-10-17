@@ -17,6 +17,7 @@ import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.channel.ServerChannel
+import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
 import pretty
 import string
