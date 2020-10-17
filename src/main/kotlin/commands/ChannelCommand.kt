@@ -10,7 +10,6 @@ import arg
 import commands.ChannelCommand.ChangeType.LOAD
 import commands.ChannelCommand.ChangeType.SAVE
 import doesLaterIfHas
-import mentionedRole
 import helpers.StringHelper.toHumanReadable
 import literal
 import net.ayataka.kordis.entity.edit
@@ -117,7 +116,7 @@ object ChannelCommand : Command("channel") {
         }
 
         selectedChannel.forEach {
-            s.append("${mentionedRole(it.role.id, message.server)}\n" +
+            s.append("${it.role.mention}\n" +
                     "Allow: ${it.allow.pretty()}\n" +
                     "Deny: ${it.deny.pretty()}\n\n")
         }

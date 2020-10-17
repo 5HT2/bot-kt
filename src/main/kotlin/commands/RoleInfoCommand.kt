@@ -3,47 +3,54 @@ package commands
 import Command
 import Send.error
 import arg
-import commands.ChannelCommand.pretty
-import doesLaterIfHas
+import doesLater
 import greedyString
 import long
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.role.Role
+import pretty
+import java.awt.Color
 
 object RoleInfoCommand : Command("roleinfo") {
     init {
-        greedyString("roleName") {
-            doesLaterIfHas(PermissionTypes.COUNCIL_MEMBER) { context ->
-                val roleName: String = context arg "roleName"
-                val foundRole = message.server?.roles?.findByName(roleName) ?: run {
-                    message.error("Role name not found! Try using the role ID.")
-                    return@doesLaterIfHas
+        long("id") {
+            doesLater { context ->
+                val id: Long = context arg "id"
+
+                val foundRole = message.server?.roles?.find(id) ?: run {
+                    message.error("Role ID not found! Does this role exist?")
+                    return@doesLater
                 }
+
                 sendRoleMsg(foundRole, message)
             }
         }
-        long("roleID") {
-            doesLaterIfHas(PermissionTypes.COUNCIL_MEMBER) { context ->
-                val roleID: Long = context arg "roleID"
-                val foundRole = message.server?.roles?.find(roleID) ?: run {
-                    message.error("Role name not found! Does this role exist?")
-                    return@doesLaterIfHas
+
+        greedyString("name") {
+            doesLater { context ->
+                val name: String = context arg "name"
+
+                val foundRole = message.server?.roles?.findByName(name) ?: run {
+                    message.error("Role name not found! Try using the role ID.")
+                    return@doesLater
                 }
+
                 sendRoleMsg(foundRole, message)
             }
         }
     }
 
-    private suspend fun sendRoleMsg(foundRole: Role, message: Message) {
-        val filteredPermission: String = foundRole.permissions.pretty()
+    private suspend fun sendRoleMsg(role: Role, message: Message) {
+        val prettyPermissions: String = role.permissions.pretty()
 
         message.channel.send {
             embed {
-                title = foundRole.name
-                color = foundRole.color
-                field("Mention", foundRole.mention)
-                field("Permissions", "$filteredPermission ${if (foundRole.hoist) ", Separate From Online Members" else ""}")
-                field("Position", foundRole.position.toString())
+                title = role.name
+                color = if (role.isEveryone) Colors.primary else role.color
+                description = role.mention
+                field("Permissions", prettyPermissions)
+                field("Position", role.position.toString())
+                field("Hoisted", role.hoist.toString())
             }
         }
     }
