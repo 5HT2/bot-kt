@@ -2,10 +2,20 @@ import ConfigManager.readConfigSafe
 import Send.error
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.server.Server
+import net.ayataka.kordis.entity.server.permission.PermissionSet
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.TimeUnit
+
+/**
+ * @return a pretty formatted set of permissions, "None" if empty
+ */
+fun PermissionSet.pretty() =
+    if (this.isEmpty()) "None"
+    else this.joinToString { it.name.toHumanReadable() }
 
 /**
  * @return [T] from [url]
