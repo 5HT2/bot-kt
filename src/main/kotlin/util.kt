@@ -2,10 +2,28 @@ import ConfigManager.readConfigSafe
 import Send.error
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.server.Server
+import net.ayataka.kordis.entity.server.permission.PermissionSet
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.TimeUnit
+
+/**
+ * This will mention @everyone outside of embed messages. Use with care.
+ * @return mentioned role in [server] from [id].
+ */
+fun mentionedRole(id: Long?, server: Server?) =
+    if (id == server?.id) "@everyone"
+    else id?.let { "<@&${server?.roles?.find(it)?.id}>" } ?: "$id"
+
+/**
+ * @return a pretty formatted set of permissions, "None" if empty
+ */
+fun PermissionSet.pretty() =
+    if (this.isEmpty()) "None"
+    else this.joinToString { it.name.toHumanReadable() }
 
 /**
  * @return [T] from [url]
