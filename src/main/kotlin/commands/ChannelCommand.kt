@@ -10,7 +10,6 @@ import arg
 import commands.ChannelCommand.ChangeType.LOAD
 import commands.ChannelCommand.ChangeType.SAVE
 import doesLaterIfHas
-import helpers.StringHelper.formattedRole
 import helpers.StringHelper.toHumanReadable
 import integer
 import literal
@@ -18,8 +17,8 @@ import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.channel.ServerChannel
-import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
+import pretty
 import string
 import kotlin.collections.set
 
@@ -198,7 +197,7 @@ object ChannelCommand : Command("channel") {
         }
 
         selectedChannel.forEach {
-            s.append("${formattedRole(it.role.id, message.server)}\n" +
+            s.append("${it.role.mention}\n" +
                     "Allow: ${it.allow.pretty()}\n" +
                     "Deny: ${it.deny.pretty()}\n\n")
         }
@@ -314,11 +313,6 @@ object ChannelCommand : Command("channel") {
                 this.rolePermissionOverwrites.add(it)
             }
         }
-    }
-
-    private fun PermissionSet.pretty(): String {
-        val prettified = this.joinToString { it.name.toHumanReadable() }
-        return if (prettified.isEmpty()) "None" else prettified
     }
 
     private suspend fun Message.serverChannel(message: Message): ServerChannel? {
