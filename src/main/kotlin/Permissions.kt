@@ -39,10 +39,6 @@ object Permissions {
     }
 }
 
-/**
- * [COUNCIL_MEMBER] affects:
- *   - DiscussCommand
- */
 @Suppress("UNUSED")
 enum class PermissionTypes {
     ARCHIVE_CHANNEL,
@@ -51,5 +47,6 @@ enum class PermissionTypes {
     MANAGE_CONFIG,
     UPDATE_COUNTERS,
     ANNOUNCE,
-    MANAGE_CHANNELS
+    MANAGE_CHANNELS,
+    MASS_BAN
 }
