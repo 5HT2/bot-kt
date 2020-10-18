@@ -6,8 +6,10 @@ import ConfigManager.readConfigSafe
 import ConfigType
 import FakeUser
 import PermissionTypes.COUNCIL_MEMBER
+import PermissionTypes.MASS_BAN
 import Permissions.hasPermission
 import Send.error
+import Send.normal
 import UserConfig
 import arg
 import authenticatedRequest
@@ -15,6 +17,9 @@ import com.google.gson.GsonBuilder
 import doesLaterIfHas
 import getAuthToken
 import greedyString
+import helpers.StringHelper.flat
+import kotlinx.coroutines.delay
+import literal
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.user.User
@@ -25,6 +30,74 @@ import okhttp3.RequestBody
 
 object BanCommand : Command("ban") {
     init {
+        literal("regex") {
+            literal("confirm") {
+                greedyString("userRegex") {
+                    doesLaterIfHas(MASS_BAN) { context ->
+                        val regex: String = context arg "userRegex"
+
+                        val server = server ?: run { message.error("Server members are null, are you running this from a DM?"); return@doesLaterIfHas }
+
+                        val m = message.error("Banning [calculating] members...")
+
+                        var banned = 0
+                        val reason = "Mass ban by ${message.author?.name}#${message.author?.discriminator}"
+                        val filtered = server.members.filter { it.name.contains(regex.toRegex()) }
+
+                        if (filtered.isEmpty()) {
+                            m.edit {
+                                description = "Not banning anybody! 0 members found."
+                                color = Colors.error
+                            }
+                            return@doesLaterIfHas
+                        } else {
+                            m.edit {
+                                description = "Banning ${filtered.size} members..."
+                                color = Colors.error
+                            }
+                        }
+
+                        filtered.forEach {
+                            banned++
+                            ban(it, 1, false, reason, server, message)
+                            delay(200)
+                        }
+
+                        m.edit {
+                            field(
+                                "$banned members were banned by:",
+                                message.author?.mention.toString(),
+                                false
+                            )
+                            field(
+                                "Ban Reason:",
+                                reason,
+                                false
+                            )
+                            footer("ID: ${message.author?.id}", "https://cdn.discordapp.com/avatars/${message.author?.id}/${message.author?.avatar}.png")
+                            color = Colors.error
+                        }
+                    }
+                }
+            }
+
+            greedyString("userRegex") {
+                doesLaterIfHas(MASS_BAN) { context ->
+                    val regex: String = context arg "userRegex"
+
+                    val members = server?.members ?: run { message.error("Server members are null, are you running this from a DM?"); return@doesLaterIfHas }
+                    val filtered = members.filter { it.name.contains(regex.toRegex()) }.joinToString { it.mention }.replace(", ", "\n")
+                    val final = if (filtered.length > 2048) filtered.flat(1998) + "\nNot all users are shown, due to size limitations." else filtered
+
+                    if (members.isEmpty()) {
+                        message.error("Couldn't find any members that match the regex `$regex`!")
+                    } else {
+                        message.normal(final)
+                    }
+                }
+            }
+        }
+
         greedyString("userAndReason") {
             doesLaterIfHas(COUNCIL_MEMBER) { context -> // we unfortunately have to do really icky manual string parsing here, due to brigadier not knowing <@!id> is a string
                 val username: String = context arg "userAndReason"
@@ -155,6 +228,18 @@ object BanCommand : Command("ban") {
             return // required
         }
 
+        ban(user, deleteMessageDays, true, reason, server, message)
+
+    }
+
+    private suspend fun ban(
+        user: User,
+        deleteMessageDays: Int,
+        sendReasonFeedback: Boolean, // if false, will not send feedback in channel. will not dm user
+        reason: String?,
+        server: Server,
+        message: Message
+    ) {
         if (user.id == message.author?.id) {
             message.error("You can't ban yourself!")
             return
@@ -163,27 +248,29 @@ object BanCommand : Command("ban") {
             return
         }
 
-        try {
-            user.getPrivateChannel().send {
-                embed {
-                    field(
-                        "You were banned by:",
-                        message.author!!.mention,
-                        false
-                    )
-                    field(
-                        "Ban Reason:",
-                        fixedReason,
-                        false
-                    )
-                    color = Colors.error
+        if (sendReasonFeedback) {
+            try {
+                user.getPrivateChannel().send {
+                    embed {
+                        field(
+                            "You were banned by:",
+                            message.author!!.mention,
+                            false
+                        )
+                        field(
+                            "Ban Reason:",
+                            reason ?: "None Provided",
+                            false
+                        )
+                        color = Colors.error
+                    }
                 }
-            }
-        } catch (e: Exception) {
-            message.channel.send {
-                embed {
-                    title = "Error"
-                    description = "I couldn't DM that user the ban reason, they might have had DMs disabled."
+            } catch (e: Exception) {
+                message.channel.send {
+                    embed {
+                        title = "Error"
+                        description = "I couldn't DM that user the ban reason, they might have had DMs disabled."
+                    }
                 }
             }
         }
@@ -192,22 +279,24 @@ object BanCommand : Command("ban") {
             user.ban(
                 server,
                 deleteMessageDays,
-                fixedReason
+                reason
             )
-            message.channel.send {
-                embed {
-                    field(
-                        "${user.name}#${user.discriminator} was banned by:",
-                        message.author!!.mention,
-                        false
-                    )
-                    field(
-                        "Ban Reason:",
-                        fixedReason,
-                        false
-                    )
-                    footer("ID: ${user.id}", user.avatar.url)
-                    color = Colors.error
+            if (sendReasonFeedback) {
+                message.channel.send {
+                    embed {
+                        field(
+                            "${user.name}#${user.discriminator} was banned by:",
+                            message.author!!.mention,
+                            false
+                        )
+                        field(
+                            "Ban Reason:",
+                            reason ?: "None Provided",
+                            false
+                        )
+                        footer("ID: ${user.id}", user.avatar.url)
+                        color = Colors.error
+                    }
                 }
             }
         } catch (e: Exception) {
