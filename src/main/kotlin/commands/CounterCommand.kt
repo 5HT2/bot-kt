@@ -53,7 +53,9 @@ object CounterCommand : Command("counter") {
      */
     suspend fun updateChannel(): Boolean {
         val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false) ?: return false
-        if (config.downloadEnabled != true) return false
+
+        if (config.downloadEnabled != true && config.memberEnabled != true) return false
+
         val server = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {
             Main.client?.servers?.find(it)
         } ?: run {
@@ -62,6 +64,7 @@ object CounterCommand : Command("counter") {
 
         val totalChannel = config.downloadChannelTotal?.let { server.voiceChannels.find(it) }
         val latestChannel = config.downloadChannelLatest?.let { server.voiceChannels.find(it) }
+        val memberChannel = config.memberChannel?.let { server.voiceChannels.find(it) }
 
         var downloadStable: Download? = null
         var downloadNightly: Download? = null
@@ -79,6 +82,7 @@ object CounterCommand : Command("counter") {
 
         var totalCount = 0
         var latestCount = 0
+        val memberCount = server.members.size
 
         downloadStable?.let {
             totalCount += countedDownloads(it)
@@ -91,11 +95,15 @@ object CounterCommand : Command("counter") {
         }
 
 
-        if (totalCount != 0 || latestCount != 0) {
+
+
+        if (totalCount != 0 || latestCount != 0 || memberCount != 0) {
             totalChannel?.let { it.edit { name = "$totalCount Downloads" } }
             latestChannel?.let { it.edit { name = "$latestCount Nightly DLs" } }
+            memberChannel?.let { it.edit { name = "$memberCount Members" } }
             updated = true
         }
+
         return updated
     }
 
