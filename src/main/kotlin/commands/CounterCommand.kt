@@ -12,39 +12,31 @@ import UserConfig
 import authenticatedRequest
 import doesLaterIfHas
 import getGithubToken
-import literal
 import org.l1ving.api.download.Asset
 import org.l1ving.api.download.Download
 import request
 
 object CounterCommand : Command("counter") {
     init {
-        literal("update") {
-            literal("downloads") {
-                doesLaterIfHas(UPDATE_COUNTERS) {
-                    val path = ConfigType.COUNTER.configPath.substring(7)
-                    val userPath = ConfigType.USER.configPath.substring(7)
-                    val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)
+        doesLaterIfHas(UPDATE_COUNTERS) {
+            val path = ConfigType.COUNTER.configPath.substring(7)
+            val userPath = ConfigType.USER.configPath.substring(7)
+            val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)
 
-                    if (config?.downloadEnabled != true) {
-                        message.error("Download counter is not enabled in the `$path` config!")
-                    }
-
-                    if (updateChannel()) {
-                        message.success("Successfully updated download counters!")
-                    } else {
-                        message.error("Both total and latest counts failed to update. Make sure `$path` is configured correctly, and `primaryServerId` is set in `$userPath`!")
-                    }
-                }
+            if (config?.downloadEnabled != true && config?.memberEnabled != true) {
+                message.error("Counters are not configured / enabled!")
+            } else if (config.downloadEnabled != true) {
+                message.error("Download counter is not enabled in the `$path` config!")
+            } else if (config.memberEnabled != true) {
+                message.error("Member counter is not enabled in the `$path` config!")
             }
-            literal("members") {
-                doesLaterIfHas(UPDATE_COUNTERS) {
-                    // TODO: Add members counter
-                    message.error("Member counter is not supported yet!")
-                }
+
+            if (updateChannel()) {
+                message.success("Successfully updated counters!")
+            } else {
+                message.error("Failed to update counters. Make sure `$path` is configured correctly, and `primaryServerId` is set in `$userPath`!")
             }
         }
-
     }
 
     /**
@@ -53,8 +45,6 @@ object CounterCommand : Command("counter") {
      */
     suspend fun updateChannel(): Boolean {
         val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false) ?: return false
-
-        if (config.downloadEnabled != true && config.memberEnabled != true) return false
 
         val server = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {
             Main.client?.servers?.find(it)
