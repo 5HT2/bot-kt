@@ -266,12 +266,7 @@ object BanCommand : Command("ban") {
                     }
                 }
             } catch (e: Exception) {
-                message.channel.send {
-                    embed {
-                        title = "Error"
-                        description = "I couldn't DM that user the ban reason, they might have had DMs disabled."
-                    }
-                }
+                message.error("I couldn't DM that user the ban reason, they might have had DMs disabled.")
             }
         }
 
