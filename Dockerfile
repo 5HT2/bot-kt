@@ -1,4 +1,4 @@
-FROM gradle:6.1.1 as build
+FROM gradle:6.6 as build
 
 WORKDIR /build
 
