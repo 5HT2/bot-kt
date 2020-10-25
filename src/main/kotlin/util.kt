@@ -75,13 +75,35 @@ suspend fun getDefaultGithubUser(message: Message?): String? {
     return repo
 }
 
-// https://discord.com/developers/docs/resources/user
+/**
+ * Fake User class used when getting from Discord's API here: "https://discord.com/api/v6/users/[id]"
+ * Documented here: https://discord.com/developers/docs/resources/user
+ * Values are only every null if the ID doesn't exist
+ */
 data class FakeUser(
-    val id: Long,
-    val username: String,
-    val discriminator: Int,
+    val id: Long?,
+    val username: String?,
     val avatar: String?,
-    val bot: Boolean,
-    val premium_type: Int,
-    val public_flags: Int
+    val discriminator: Int?,
+    @SerializedName("public_flags")
+    val publicFlags: Int?
 )
+
+/**
+ * @return a Long. Only null if user does not exist.
+ */
+fun String.toUserID(server: Server): Long? {
+    try {
+        return this.replace("[<@!>]".toRegex(), "").toLong()
+    } catch (ignored: NumberFormatException) {
+        server.members.findByName(this, true)?.let {
+            return it.id
+        } ?: run {
+            return authenticatedRequest<FakeUser>(
+                "Bot",
+                getAuthToken(),
+                "https://discord.com/api/v6/users/$this"
+            ).id
+        }
+    }
+}
