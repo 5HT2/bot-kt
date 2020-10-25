@@ -25,7 +25,6 @@ object WhoisCommand : Command("whois") {
                         message.server?.members?.findByTag(username)
                     }
                 }
-
                 if (member == null) {
                     val fetchUser = authenticatedRequest<FakeUser>(
                         "Bot",
@@ -62,5 +61,9 @@ object WhoisCommand : Command("whois") {
                 }
             }
         }
+    }
+
+    override fun getHelpUsage(): String {
+        return "$fullName + <user id/user tag/user name>"
     }
 }
