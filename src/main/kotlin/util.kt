@@ -75,11 +75,13 @@ suspend fun getDefaultGithubUser(message: Message?): String? {
     return repo
 }
 
+// https://discord.com/developers/docs/resources/user
 data class FakeUser(
     val id: Long,
     val username: String,
-    val avatar: String,
     val discriminator: Int,
-    @SerializedName("public_flags")
-    val publicFlags: Int
+    val avatar: String?,
+    val bot: Boolean,
+    val premium_type: Int,
+    val public_flags: Int
 )
