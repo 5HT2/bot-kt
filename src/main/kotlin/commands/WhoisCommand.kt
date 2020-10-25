@@ -11,7 +11,6 @@ import greedyString
 import helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.entity.findByTag
 
-// 69 lines *nice*
 object WhoisCommand : Command("whois") {
     init {
         greedyString("name") {
@@ -44,8 +43,6 @@ object WhoisCommand : Command("whois") {
                             title = "${fetchUser.username}#$discriminator"
                             color = Colors.primary
                             thumbnailUrl = "https://cdn.discordapp.com/avatars/${fetchUser.id}/${fetchUser.avatar}.png"
-                            field("Premium Type: ", fetchUser.premium_type)
-                            field("Bot?", fetchUser.bot.toString())
                         }
                     }
                 } else {
