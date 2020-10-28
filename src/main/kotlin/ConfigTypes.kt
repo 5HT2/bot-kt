@@ -69,6 +69,7 @@ data class VersionConfig(val version: String)
  * [prefix] is the single character command prefix. Defaults to ;
  * [defaultBanReason] is the default Reason for ban.
  * [announceChannel] is the main announcement channel for your discord server
+ * [issueCreationChannel] is the channel where issue creation is allowed. Leave null to allow in any channel
  * // TODO: refactor into module-specific settings
  */
 data class UserConfig(
@@ -81,7 +82,8 @@ data class UserConfig(
     val defaultGithubUser: String?,
     val prefix: Char?,
     val defaultBanReason: String?,
-    val announceChannel: Long?
+    val announceChannel: Long?,
+    val issueCreationChannel: Long?
 )
 
 /**
