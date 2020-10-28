@@ -29,6 +29,7 @@ Why should you use this over other Kotlin bots:
 4. Wait for the Gradle import to finish
 
 Note: If you forget the `--recurse-submodules` flag or cloned in an IDE, you can do `git submodule update --init --recursive` after.
+
 Note: To upgrade submodules, execute this command: `git submodule foreach git pull origin master`
 
 ## Usage
