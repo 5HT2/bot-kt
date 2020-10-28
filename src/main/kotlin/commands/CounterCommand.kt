@@ -76,12 +76,12 @@ object CounterCommand : Command("counter") {
 
         downloadStable?.let {
             totalCount += countedDownloads(it)
-            latestCount = it[0].assets.count()
+            latestCount = it[0].assets?.count() ?: 0
         }
 
         downloadNightly?.let {
             totalCount += countedDownloads(it)
-            latestCount = it[0].assets.count() // nightly will be newer, so we assign it again if nightly isn't null
+            latestCount = it[0].assets?.count() ?: latestCount // nightly will be newer, so we assign it again if nightly isn't null
         }
 
 
@@ -109,7 +109,7 @@ object CounterCommand : Command("counter") {
 
     private fun List<Asset>.count(): Int {
         var total = 0
-        this.forEach { total += it.download_count }
+        this.forEach { total += it.download_count ?: 0 }
         return total
     }
 }

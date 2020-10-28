@@ -1,15 +1,34 @@
 package commands
 
+import AuthConfig
 import Colors
 import Command
+import ConfigManager
+import ConfigType
+import Main
+import PermissionTypes
+import Permissions.hasPermission
+import Send.error
+import Send.success
+import UserConfig
+import addReaction
 import arg
 import authenticatedRequest
+import createGithubIssue
 import doesLater
 import getDefaultGithubUser
 import getGithubToken
+import greedyString
 import helpers.StringHelper.flat
+import helpers.StringHelper.toHumanReadable
+import kotlinx.coroutines.delay
+import literal
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.event.EventHandler
+import net.ayataka.kordis.event.events.message.ReactionAddEvent
 import org.l1ving.api.issue.Issue
+import org.l1ving.api.issue.Label
+import org.l1ving.api.issue.User
 import org.l1ving.api.pull.PullRequest
 import string
 import java.awt.Color
@@ -19,7 +38,11 @@ import java.awt.Color
  * @since 2020/9/8
  */
 object IssueCommand : Command("issue") {
+    private val queuedIssues = HashMap<Long, Triple<Message, Issue, String>>()
+
     init {
+        Main.client?.addListener(this)
+
         string("user") {
             string("repoName") {
                 string("issueNum") {
@@ -35,6 +58,7 @@ object IssueCommand : Command("issue") {
                 }
             }
         }
+
         string("repoName") {
             string("issueNum") {
                 doesLater { context ->
@@ -47,8 +71,103 @@ object IssueCommand : Command("issue") {
                 }
             }
         }
+
+        literal("create") {
+            string("repo") {
+                string("title") {
+                    greedyString("body") {
+                        doesLater { context ->
+                            val repo: String = context arg "repo"
+                            val title: String = context arg "title"
+                            val body: String = context arg "body"
+
+                            val issue = Issue()
+                            val formattedIssue = "Created by: ${message.author?.name?.toHumanReadable()} `(${message.author?.id})`\n\n$body"
+
+                            issue.title = title
+                            issue.body = formattedIssue
+
+                            val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
+                            issueChannel?.issueCreationChannel?.let {
+                                if (it != message.channel.id) {
+                                    message.error("You're only allowed to create issues in <#$it>!")
+                                    return@doesLater
+                                }
+                            }
+
+                            val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
+                                message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                                return@doesLater
+                            }
+
+                            val form = message.channel.send {
+                                embed {
+                                    this.title = title
+                                    this.description = "Created by: ${message.author?.mention}\n\n$body"
+
+                                    field("Repository", "`$user/$repo`")
+                                    color = Colors.primary
+                                }
+                            }
+
+                            try {
+                                message.delete()
+                            } catch (e: IllegalStateException) {
+                                // this is fine. it just means the member list isn't cached and we can't delete it
+                            }
+
+                            delay(1000)
+                            form.addReaction('✅')
+
+                            queuedIssues[form.id] = Triple(form, issue, repo)
+                        }
+                    }
+                }
+            }
+        }
     }
 
+    @EventHandler
+    suspend fun onReact(event: ReactionAddEvent) {
+        if (!Main.ready) return
+
+        val form = queuedIssues[event.reaction.messageId] ?: return
+
+        if (event.reaction.emoji.name != "✅") return
+
+        if (!event.reaction.userId.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return
+
+        var message = form.first
+
+        val token = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)?.githubToken ?: run {
+            message.error("Github Token is not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
+            return
+        }
+
+        val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
+            message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+            return
+        }
+
+        createGithubIssue(form.second, user, form.third, token)
+
+        try {
+            form.first.delete()
+        } catch (e: IllegalStateException) {
+            // this is fine. it just means the member list isn't cached and we can't delete it
+        }
+
+        message = message.success("Successfully created issue `${form.second.title}`!")
+
+        delay(10000)
+
+        try {
+            message.delete()
+        } catch (e: IllegalStateException) {
+            // this is fine. it just means the member list isn't cached and we can't delete it
+        }
+
+    }
 
     private suspend fun sendResponse(
         message: Message,
@@ -59,81 +178,60 @@ object IssueCommand : Command("issue") {
     ) {
         val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
-            if (issue.html_url.contains("issue")) {
+            if (issue.html_url != null && issue.html_url!!.contains("issue")) {
                 message.channel.send {
                     embed {
                         title = issue.title
-                        thumbnailUrl = issue.user.avatar_url
+                        thumbnailUrl = issue.user?.avatar_url
                         color = if (issue.state == "closed") Colors.error else Colors.success
 
-                        description = if (issue.body?.isEmpty() == true) "No description" else issue.body!!.replace(
-                            Regex("<!--.*-->"),
-                            ""
-                        ).flat(2048)
+                        description = issue.body.defaultFromNull("No Description").flat(2048)
 
                         field("Milestone", issue.milestone?.title ?: "No Milestone", false)
 
                         field(
                             "Labels",
-                            if ((issue.labels?.joinToString { it.name } ?: "No Labels").isEmpty()) {
-                                "No Labels"
-                            } else {
-                                issue.labels!!.joinToString { it.name }
-                            },
+                            issue.labels.joinWhenNullOrEmpty(),
                             false
                         )
 
                         field(
                             "Assignees",
-                            if ((issue.assignees?.joinToString { it.login } ?: "No Assignees").isEmpty()) {
-                                "No Assignees"
-                            } else {
-                                issue.assignees!!.joinToString { it.login }
-                            },
+                            issue.assignees.joinWhenNullOrEmpty(),
                             false
                         )
 
                         url = issue.html_url
                     }
                 }
-            } else if (issue.html_url.contains("pull")) {
-                val pullRequest = authenticatedRequest<PullRequest>("token", token, issue.url)
+            } else if (issue.html_url != null && issue.html_url!!.contains("pull")) {
+                val pullRequest = authenticatedRequest<PullRequest>("token", token, issue.url!!)
+
                 message.channel.send {
                     embed {
                         title = pullRequest.title
-                        thumbnailUrl = pullRequest.user.avatar_url
+                        thumbnailUrl = pullRequest.user?.avatar_url
                         color = getPullRequestColor(pullRequest)
 
-                        description = if (issue.body?.isEmpty() == true) "No description" else issue.body!!.replace(
-                            Regex("<!--.*-->"),
-                            ""
-                        ).flat(2048)
+                        description = issue.body.defaultFromNull("No Description").flat(2048)
 
                         field("Milestone", issue.milestone?.title ?: "No Milestone", false)
 
                         field(
                             "Labels",
-                            if ((issue.labels?.joinToString { it.name } ?: "No Labels").isEmpty()) {
-                                "No Labels"
-                            } else {
-                                issue.labels!!.joinToString { it.name }
-                            },
+                            issue.labels.joinWhenNullOrEmpty(),
                             false
                         )
 
                         field(
                             "Assignees",
-                            if ((issue.assignees?.joinToString { it.login } ?: "No Assignees").isEmpty()) {
-                                "No Assignees"
-                            } else {
-                                issue.assignees!!.joinToString { it.login }
-                            },
+                            issue.assignees.joinWhenNullOrEmpty(),
                             false
                         )
 
                         field("Lines", "+${pullRequest.additions} / - ${pullRequest.deletions}", false)
-                        field("Commits", pullRequest.commits, false)
-                        field("Changed Files", pullRequest.changed_files, false)
+                        field("Commits", pullRequest.commits ?: -1, false)
+                        field("Changed Files", pullRequest.changed_files ?: -1, false)
 
                         url = pullRequest.html_url
                     }
@@ -163,10 +261,10 @@ object IssueCommand : Command("issue") {
 
     private fun getPullRequestColor(pullRequest: PullRequest): Color {
         return when {
-            pullRequest.merged -> {
+            pullRequest.merged!! -> {
                 Colors.mergedPullRequest
             }
-            pullRequest.state == "closed" && !pullRequest.merged -> {
+            pullRequest.state == "closed" && !pullRequest.merged!! -> {
                 Colors.error
             }
             pullRequest.state == "open" -> {
@@ -177,4 +275,40 @@ object IssueCommand : Command("issue") {
             }
         }
     }
+
+    private fun Any?.joinWhenNullOrEmpty(): String {
+        val labels = this.maybeCast<List<Label>?>()
+        val users = this.maybeCast<List<User>?>()
+
+        val list = StringBuilder()
+
+        labels?.forEach {
+            it.name?.let { name ->
+                list.append(name)
+            }
+        }
+
+        users?.forEach {
+            it.login?.let { login ->
+                list.append(login)
+            }
+        }
+
+        return if (list.isEmpty()) {
+            "None"
+        } else {
+            list.toString()
+        }
+    }
+
+    private fun String?.defaultFromNull(default: String): String {
+        return if (this?.isEmpty() != false) {
+            default
+        } else {
+            this.replace(Regex("<!--.*-->"), "")
+        }
+    }
+
+    private inline fun <reified T> Any?.maybeCast(): T? = this as? T
+
 }

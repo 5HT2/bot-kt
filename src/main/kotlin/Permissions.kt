@@ -48,5 +48,6 @@ enum class PermissionTypes {
     UPDATE_COUNTERS,
     ANNOUNCE,
     MANAGE_CHANNELS,
-    MASS_BAN
+    MASS_BAN,
+    APPROVE_ISSUE_CREATION
 }

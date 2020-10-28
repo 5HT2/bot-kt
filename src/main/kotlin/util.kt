@@ -4,10 +4,13 @@ import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.entity.message.Message
-import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.permission.PermissionSet
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
+import org.l1ving.api.issue.Issue
+import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
 
 /**
@@ -73,6 +76,41 @@ suspend fun getDefaultGithubUser(message: Message?): String? {
     val repo = readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
     if (repo == null) message?.error("Default user / org not set in `${ConfigType.USER.configPath.substring(7)}`!")
     return repo
+}
+
+/**
+ * [emoji] is the single unicode Char you want to react with
+ * [encode] is if you want to URI encode your [emoji]
+ */
+fun Message.addReaction(emoji: Char, encode: Boolean = true) {
+    val encodedEmoji = URLEncoder.encode(emoji.toString(), "utf-8")
+    val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}/reactions/${if (encode) encodedEmoji else emoji.toString()}/@me"
+    val body = RequestBody.create(MediaType.parse(""), "")
+
+    val request = Request.Builder()
+        .addHeader("Content-Length", "0")
+        .addHeader("Authorization", "Bot ${getAuthToken()}")
+        .url(url).put(body).build()
+
+    OkHttpClient().newCall(request).execute()
+}
+
+/**
+ * [user] and [repo] is the user/repo you want to create the issue in.
+ * [token] is a Github Token with repo:public_repo checked
+ */
+fun createGithubIssue(issue: Issue, user: String, repo: String, token: String) {
+    val url = "https://api.github.com/repos/$user/$repo/issues"
+    val body = RequestBody.create(MediaType.parse(""), Gson().toJson(issue))
+
+    val request = Request.Builder()
+        .addHeader("Accept", "application/vnd.github.v3+json")
+        .addHeader("Authorization", "token $token")
+        .url(url).post(body).build()
+
+    val response = OkHttpClient().newCall(request).execute()
+
+    println(response.body()?.string())
 }
 
 data class FakeUser(
