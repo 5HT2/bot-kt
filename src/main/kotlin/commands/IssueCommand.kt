@@ -25,6 +25,7 @@ import kotlinx.coroutines.delay
 import literal
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.event.EventHandler
+import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import net.ayataka.kordis.event.events.message.ReactionAddEvent
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.issue.Label
@@ -167,6 +168,33 @@ object IssueCommand : Command("issue") {
             // this is fine. it just means the member list isn't cached and we can't delete it
         }
 
+    }
+
+    @EventHandler
+    suspend fun onMessageReceive(event: MessageReceiveEvent) {
+        if (!Main.ready || event.message.author?.bot == true) return
+
+        if (event.message.author?.id?.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION) == true) return
+
+        val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
+        issueChannel?.issueCreationChannel?.let {
+            if (it != event.message.channel.id) return // only run the following code on messages in the issue channel
+        } ?: run {
+            return // issues are allowed inside any channel
+        }
+
+        if (event.message.content.isEmpty() || !event.message.content.startsWith("$fullName create")) {
+            val reply = event.message.error("You need to use the `$fullName create` command to create an issue!")
+
+            try {
+                event.message.delete()
+                delay(5000)
+                reply.delete()
+                return
+            } catch (e: IllegalStateException) {
+                return
+            }
+        }
     }
 
     private suspend fun sendResponse(
