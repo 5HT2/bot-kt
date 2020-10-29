@@ -1,6 +1,7 @@
 import CommandManager.registerCommands
 import ConfigManager.readConfigSafe
 import Main.ready
+import Send.error
 import Send.log
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
@@ -111,20 +112,24 @@ class Bot {
         val cmd = Cmd(event)
 
         try {
-            val exit = dispatcher.execute(message, cmd)
-            cmd.file(event)
-            if (exit != 0) log("(executed with exit code $exit)")
-        } catch (e: CommandSyntaxException) {
-            if (CommandManager.isCommand(message)) {
-                val command = CommandManager.getCommandClass(message)!!
-                cmd.event.message.channel.send {
-                    embed {
-                        title = "Invalid Syntax: $message"
-                        description = "**${e.message}**\n\n${command.getHelpUsage()}"
-                        color = Colors.error
+            try {
+                val exit = dispatcher.execute(message, cmd)
+                cmd.file(event)
+                if (exit != 0) log("(executed with exit code $exit)")
+            } catch (e: CommandSyntaxException) {
+                if (CommandManager.isCommand(message)) {
+                    val command = CommandManager.getCommandClass(message)!!
+                    cmd.event.message.channel.send {
+                        embed {
+                            title = "Invalid Syntax: $message"
+                            description = "**${e.message}**\n\n${command.getHelpUsage()}"
+                            color = Colors.error
+                        }
                     }
                 }
             }
+        } catch (e: Exception) {
+            event.message.error("```\n${e.getStackTraceAsString()}\n```")
         }
     }
 }

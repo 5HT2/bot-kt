@@ -10,6 +10,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import org.l1ving.api.issue.Issue
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
 
@@ -111,6 +113,13 @@ fun createGithubIssue(issue: Issue, user: String, repo: String, token: String) {
     val response = OkHttpClient().newCall(request).execute()
 
     println(response.body()?.string())
+}
+
+fun Exception.getStackTraceAsString(): String {
+    val sw = StringWriter()
+    val pw = PrintWriter(sw)
+    this.printStackTrace(pw)
+    return sw.toString()
 }
 
 data class FakeUser(
