@@ -117,7 +117,7 @@ class Bot {
                 cmd.file(event)
                 if (exit != 0) log("(executed with exit code $exit)")
             } catch (e: CommandSyntaxException) {
-                if (CommandManager.isCommand(message.split(" ")[0])) {
+                if (CommandManager.isCommand(message)) {
                     val command = CommandManager.getCommandClass(message)!!
                     cmd.event.message.channel.send {
                         embed {
@@ -129,6 +129,7 @@ class Bot {
                 }
             }
         } catch (e: Exception) {
+            if (e is NullPointerException) return // will be thrown for invalid syntax
             event.message.error("```\n${e.getStackTraceAsString()}\n```")
         }
     }
