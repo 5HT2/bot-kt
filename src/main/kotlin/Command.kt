@@ -40,7 +40,7 @@ object CommandManager {
     private val commands = hashMapOf<String, LiteralCommandNode<Cmd>>()
     private val commandClasses = hashMapOf<String, Command>()
 
-    fun isCommand(name: String) = commands.containsKey(name)
+    fun isCommand(name: String) = commands.containsKey(name.split(" ")[0])
 
     fun getCommand(name: String) = commands[name]
 
