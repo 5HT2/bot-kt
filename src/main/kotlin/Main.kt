@@ -138,7 +138,7 @@ object Main {
     var process: Job? = null
     var client: DiscordClient? = null
     var ready = false
-    const val currentVersion = "v1.2.1"
+    const val currentVersion = "v1.2.2"
 
     private var defaultPrefix: Char? = null
 
