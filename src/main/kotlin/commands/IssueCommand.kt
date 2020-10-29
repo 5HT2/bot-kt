@@ -18,6 +18,7 @@ import createGithubIssue
 import doesLater
 import getDefaultGithubUser
 import getGithubToken
+import getStackTraceAsString
 import greedyString
 import helpers.StringHelper.flat
 import helpers.StringHelper.toHumanReadable
@@ -219,13 +220,13 @@ object IssueCommand : Command("issue") {
 
                         field(
                             "Labels",
-                            issue.labels.joinWhenNullOrEmpty(),
+                            issue.labels.joinToLabels(),
                             false
                         )
 
                         field(
                             "Assignees",
-                            issue.assignees.joinWhenNullOrEmpty(),
+                            issue.assignees.joinToUsers(),
                             false
                         )
 
@@ -247,13 +248,13 @@ object IssueCommand : Command("issue") {
 
                         field(
                             "Labels",
-                            issue.labels.joinWhenNullOrEmpty(),
+                            issue.labels.joinToLabels(),
                             false
                         )
 
                         field(
                             "Assignees",
-                            issue.assignees.joinWhenNullOrEmpty(),
+                            issue.assignees.joinToUsers(),
                             false
                         )
 
@@ -271,7 +272,7 @@ object IssueCommand : Command("issue") {
                     title = "Error"
                     description =
                         "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
-                    field("Stacktrace", "```$e```", false)
+                    field("Stacktrace", "```${e.getStackTraceAsString()}```", false)
                     e.printStackTrace()
                     color = Colors.error
                 }
@@ -289,10 +290,10 @@ object IssueCommand : Command("issue") {
 
     private fun getPullRequestColor(pullRequest: PullRequest): Color {
         return when {
-            pullRequest.merged!! -> {
+            pullRequest.merged -> {
                 Colors.mergedPullRequest
             }
-            pullRequest.state == "closed" && !pullRequest.merged!! -> {
+            pullRequest.state == "closed" && !pullRequest.merged -> {
                 Colors.error
             }
             pullRequest.state == "open" -> {
@@ -304,19 +305,26 @@ object IssueCommand : Command("issue") {
         }
     }
 
-    private fun Any?.joinWhenNullOrEmpty(): String {
-        val labels = this.maybeCast<List<Label>?>()
-        val users = this.maybeCast<List<User>?>()
-
+    private fun List<Label>?.joinToLabels(): String {
         val list = StringBuilder()
 
-        labels?.forEach {
+        this?.forEach {
             it.name?.let { name ->
                 list.append(name)
             }
         }
 
-        users?.forEach {
+        return if (list.isEmpty()) {
+            "None"
+        } else {
+            list.toString()
+        }
+    }
+
+    private fun List<User>?.joinToUsers(): String {
+        val list = StringBuilder()
+
+        this?.forEach {
             it.login?.let { login ->
                 list.append(login)
             }
