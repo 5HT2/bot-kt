@@ -117,7 +117,7 @@ class Bot {
                 cmd.file(event)
                 if (exit != 0) log("(executed with exit code $exit)")
             } catch (e: CommandSyntaxException) {
-                if (CommandManager.isCommand(message)) {
+                if (CommandManager.isCommand(message.split(" ")[0])) {
                     val command = CommandManager.getCommandClass(message)!!
                     cmd.event.message.channel.send {
                         embed {
