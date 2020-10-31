@@ -2,9 +2,12 @@ import ConfigManager.readConfigSafe
 import Send.error
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import com.google.gson.reflect.TypeToken
 import helpers.StringHelper.toHumanReadable
+import helpers.StringHelper.uriEncode
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.permission.PermissionSet
+import net.ayataka.kordis.entity.user.User
 import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -12,7 +15,6 @@ import okhttp3.RequestBody
 import org.l1ving.api.issue.Issue
 import java.io.PrintWriter
 import java.io.StringWriter
-import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
 
 /**
@@ -85,16 +87,66 @@ suspend fun getDefaultGithubUser(message: Message?): String? {
  * [encode] is if you want to URI encode your [emoji]
  */
 fun Message.addReaction(emoji: Char, encode: Boolean = true) {
-    val encodedEmoji = URLEncoder.encode(emoji.toString(), "utf-8")
-    val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}/reactions/${if (encode) encodedEmoji else emoji.toString()}/@me"
+    val finalEmoji = if (encode) emoji.toString().uriEncode() else emoji.toString()
+
+    val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}/reactions/$finalEmoji/@me"
     val body = RequestBody.create(MediaType.parse(""), "")
 
     val request = Request.Builder()
-        .addHeader("Content-Length", "0")
+        .addHeader(contentLength, "0")
         .addHeader("Authorization", "Bot ${getAuthToken()}")
         .url(url).put(body).build()
 
     OkHttpClient().newCall(request).execute()
+}
+
+/**
+ * [allReactions] will remove all reactions on a message
+ * [userID] will remove only reactions for a specific user when used with [emoji]
+ * [emoji] will specify which emoji to remove for a user, or if [allReactions] is true, all reactions with that emoji.
+ * If [userID] is null and [emoji] is not null, this will remove the bots own reaction with that emoji.
+ * [encode] is if you want to URI encode your [emoji]
+ */
+fun Message.removeReactions(allReactions: Boolean = true, userID: Long? = null, emoji: Char? = null, encode: Boolean = true) {
+    val finalEmoji = if (emoji == null) null else if (encode) emoji.toString().uriEncode() else emoji.toString()
+
+    val reaction = if (allReactions && finalEmoji == null) "" // delete all reactions
+    else if (allReactions && finalEmoji != null) "/$finalEmoji" // delete all reactions for a specific emoji
+    else if (userID == null && finalEmoji != null) "/$finalEmoji/@me" // delete own reaction for an emoji
+    else if (userID != null && finalEmoji != null) "/$finalEmoji/$userID" // delete user reaction for an emoji
+    else "" // this should be equivalent to all reactions. this should only happen with user error
+
+    val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}/reactions$reaction"
+
+    val request = Request.Builder()
+        .addHeader(contentLength, "0")
+        .addHeader("Authorization", "Bot ${getAuthToken()}")
+        .url(url).delete().build()
+
+    OkHttpClient().newCall(request).execute()
+}
+
+/**
+ * [emoji] is the emoji you want to return the reactions for
+ * [encode] is if you want to URI encode your [emoji]
+ */
+fun Message.getReactions(emoji: Char, encode: Boolean = true): List<User>? {
+    val finalEmoji = if (encode) emoji.toString().uriEncode() else emoji.toString()
+
+    val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}/reactions/$finalEmoji"
+
+    val request = Request.Builder()
+        .addHeader(contentLength, "0")
+        .addHeader("Authorization", "Bot ${getAuthToken()}")
+        .url(url).get().build()
+
+    val response = OkHttpClient().newCall(request).execute()
+
+    return try {
+        Gson().fromJson(response.body()?.string(), object : TypeToken<List<FakeUser>>() {}.type)
+    } catch (e: Exception) {
+        null
+    }
 }
 
 /**
@@ -128,5 +180,8 @@ data class FakeUser(
     val avatar: String,
     val discriminator: Int,
     @SerializedName("public_flags")
-    val publicFlags: Int
+    val publicFlags: Int,
+    val bot: Boolean
 )
+
+private const val contentLength = "Content-Length"
