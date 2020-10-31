@@ -2,6 +2,7 @@ import ConfigManager.readConfigSafe
 import Send.error
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import com.google.gson.internal.LinkedTreeMap
 import com.google.gson.reflect.TypeToken
 import helpers.StringHelper.toHumanReadable
 import helpers.StringHelper.uriEncode
@@ -149,6 +150,27 @@ fun Message.getReactions(emoji: Char, encode: Boolean = true): List<User>? {
     }
 }
 
+fun Message.getReactions(): List<FakeReaction>? {
+    val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}"
+
+    val request = Request.Builder()
+        .addHeader(contentLength, "0")
+        .addHeader("Authorization", "Bot ${getAuthToken()}")
+        .url(url).get().build()
+
+    val response = OkHttpClient().newCall(request).execute()
+
+    val jsonObject = Gson().fromJson(response.body()?.string(), Any::class.java) as LinkedTreeMap<*, *>
+    val reactions = jsonObject["reactions"]
+
+    return try {
+        Gson().fromJson(reactions.toString(), object : TypeToken<List<FakeReaction>>() {}.type)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
 /**
  * [user] and [repo] is the user/repo you want to create the issue in.
  * [token] is a Github Token with repo:public_repo checked
@@ -182,6 +204,18 @@ data class FakeUser(
     @SerializedName("public_flags")
     val publicFlags: Int,
     val bot: Boolean
+)
+
+data class FakeReaction(
+    val emoji: Emoji,
+    val count: Int,
+    @SerializedName("me")
+    val selfReacted: Boolean
+)
+
+data class Emoji(
+    val id: Long,
+    val name: String
 )
 
 private const val contentLength = "Content-Length"
