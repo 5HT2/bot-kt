@@ -1,5 +1,5 @@
-import helpers.StringHelper.isUrl
 import com.google.gson.Gson
+import helpers.StringHelper.isUrl
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -11,9 +11,9 @@ import java.nio.file.Paths
  */
 object ConfigManager {
 
-    fun writeConfig(configType: ConfigType) {
-
-    }
+/*    fun writeConfig(configType: ConfigType) {
+        TODO: implement lol
+    }*/
 
     /**
      * Safely returns [readConfig] without worrying if the file exists.

@@ -39,6 +39,7 @@ object DiscussCommand : Command("discuss") {
                 }
             }
         }
+
         string("topic") {
             greedyString("description") {
                 doesLaterIfHas(COUNCIL_MEMBER) { context ->

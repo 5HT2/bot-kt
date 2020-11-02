@@ -70,7 +70,7 @@ object BanCommand : Command("ban") {
                                 false
                             )
                             field(
-                                "Ban Reason:",
+                                banReason,
                                 reason,
                                 false
                             )
@@ -161,75 +161,80 @@ object BanCommand : Command("ban") {
 
         val user: User = server.members.findByName(username) ?: server.members.find(username.toLong()) ?: // ID, or ping with the regex [<@!>] removed
         run {
-            if (!usernameIsId) {
-                val nor: String = if (username != unfilteredUsername) "$unfilteredUsername nor $username" else unfilteredUsername
-                message.error("User $nor not found!")
-                return
-            }
-
-            try { // attempt to ban user even if they aren't in the guild
-                if (username.toLong() == message.author?.id) {
-                    message.error("You can't ban yourself!")
-                    return
-                } else if (username.toLong().hasPermission(COUNCIL_MEMBER)) {
-                    message.error("That user is protected, I can't do that.")
-                    return
-                }
-
-                val req = "{\"delete_message_days\":\"$deleteMessageDays\", \"reason\":\"$reason\"}"
-
-                val json: MediaType? = MediaType.parse("application/json; charset=utf-8")
-                val body: RequestBody = RequestBody.create(json, req)
-                val request = Request.Builder()
-                    .addHeader("Authorization", "Bot ${getAuthToken()}")
-                    .put(body)
-                    .url("https://discord.com/api/v6/guilds/${server.id}/bans/$username")
-                    .build()
-
-                val response = OkHttpClient().newCall(request).execute()
-
-                if (response.body()!!.string().count() == 0) {
-                    val user = authenticatedRequest<FakeUser>("Bot", getAuthToken(), "https://discord.com/api/v8/users/$username")
-                    message.channel.send {
-                        embed {
-                            field(
-                                "${user.username}#${user.discriminator} was banned by:",
-                                message.author!!.mention,
-                                false
-                            )
-                            field(
-                                "Ban Reason:",
-                                fixedReason,
-                                false
-                            )
-                            footer("ID: ${user.id}", "https://cdn.discordapp.com/avatars/$username/${user.avatar}.png")
-                            color = Colors.error
-                        }
-                    }
-                } else {
-                    val prettyResponse = GsonBuilder().setPrettyPrinting().create().toJson(response.body()!!.string())
-                    message.channel.send {
-                        embed {
-                            title = "Failed to ban user!"
-                            field("Response:", "```json$prettyResponse```")
-                            color = Colors.error
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                message.channel.send {
-                    embed {
-                        title = "That user's role is higher then mine, I can't ban them!"
-                        field("Stacktrace:", "```$e```")
-                        color = Colors.error
-                    }
-                }
-            }
+            banIfNotFound(usernameIsId, username, unfilteredUsername, deleteMessageDays, fixedReason, server, message)
             return // required
         }
 
         ban(user, deleteMessageDays, true, reason, server, message)
 
+    }
+
+    @Suppress("BlockingMethodInNonBlockingContext")
+    suspend fun banIfNotFound(usernameIsId: Boolean, username: String, unfilteredUsername: String, deleteMessageDays: Int, fixedReason: String, server: Server, message: Message) {
+        if (!usernameIsId) {
+            val nor: String = if (username != unfilteredUsername) "$unfilteredUsername nor $username" else unfilteredUsername
+            message.error("User $nor not found!")
+            return
+        }
+
+        try { // attempt to ban user even if they aren't in the guild
+            if (username.toLong() == message.author?.id) {
+                message.error("You can't ban yourself!")
+                return
+            } else if (username.toLong().hasPermission(COUNCIL_MEMBER)) {
+                message.error("That user is protected, I can't do that.")
+                return
+            }
+
+            val req = "{\"delete_message_days\":\"$deleteMessageDays\", \"reason\":\"$fixedReason\"}"
+
+            val json: MediaType? = MediaType.parse("application/json; charset=utf-8")
+            val body: RequestBody = RequestBody.create(json, req)
+            val request = Request.Builder()
+                .addHeader("Authorization", "Bot ${getAuthToken()}")
+                .put(body)
+                .url("https://discord.com/api/v6/guilds/${server.id}/bans/$username")
+                .build()
+
+            val response = OkHttpClient().newCall(request).execute()
+
+            if (response.body()!!.string().count() == 0) {
+                val user = authenticatedRequest<FakeUser>("Bot", getAuthToken(), "https://discord.com/api/v8/users/$username")
+                message.channel.send {
+                    embed {
+                        field(
+                            "${user.username}#${user.discriminator} was banned by:",
+                            message.author!!.mention,
+                            false
+                        )
+                        field(
+                            banReason,
+                            fixedReason,
+                            false
+                        )
+                        footer("ID: ${user.id}", "https://cdn.discordapp.com/avatars/$username/${user.avatar}.png")
+                        color = Colors.error
+                    }
+                }
+            } else {
+                val prettyResponse = GsonBuilder().setPrettyPrinting().create().toJson(response.body()!!.string())
+                message.channel.send {
+                    embed {
+                        title = "Failed to ban user!"
+                        field("Response:", "```json$prettyResponse```")
+                        color = Colors.error
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            message.channel.send {
+                embed {
+                    title = "That user's role is higher then mine, I can't ban them!"
+                    field("Stacktrace:", "```$e```")
+                    color = Colors.error
+                }
+            }
+        }
     }
 
     private suspend fun ban(
@@ -258,7 +263,7 @@ object BanCommand : Command("ban") {
                             false
                         )
                         field(
-                            "Ban Reason:",
+                            banReason,
                             reason ?: "None Provided",
                             false
                         )
@@ -285,7 +290,7 @@ object BanCommand : Command("ban") {
                             false
                         )
                         field(
-                            "Ban Reason:",
+                            banReason,
                             reason ?: "None Provided",
                             false
                         )
@@ -304,6 +309,8 @@ object BanCommand : Command("ban") {
             }
         }
     }
+
+    private const val banReason = "Ban Reason:"
 
     override fun getHelpUsage(): String {
         return "$fullName <user(id, username, ping)>\n" +
