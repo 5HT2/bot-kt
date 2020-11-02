@@ -1,5 +1,6 @@
 package commands
 
+import Colors
 import Command
 import Send.error
 import arg
@@ -9,7 +10,6 @@ import long
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.role.Role
 import pretty
-import java.awt.Color
 
 object RoleInfoCommand : Command("roleinfo") {
     init {

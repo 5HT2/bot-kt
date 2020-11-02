@@ -1,4 +1,3 @@
-import PermissionTypes.COUNCIL_MEMBER
 import Send.error
 import helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.entity.message.Message

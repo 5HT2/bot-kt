@@ -35,6 +35,7 @@ object ConfigCommand : Command("config") {
                 }
             }
         }
+
         literal("list") {
             doesLaterIfHas(MANAGE_CONFIG) {
                 message.channel.send {
@@ -47,9 +48,10 @@ object ConfigCommand : Command("config") {
                 }
             }
         }
+
         literal("reload") {
             string("name") {
-            doesLaterIfHas(MANAGE_CONFIG) { context ->
+                doesLaterIfHas(MANAGE_CONFIG) { context ->
                     val name: String = context arg "name"
 
                     var found = false
@@ -72,6 +74,7 @@ object ConfigCommand : Command("config") {
                 }
             }
         }
+
         literal("download") {
             string("name") {
                 greedyString("url") {
@@ -79,7 +82,9 @@ object ConfigCommand : Command("config") {
                         val name: String = context arg "name"
                         val url: String = context arg "url"
                         val size: Int
+
                         message.success("Downloading `$name`...")
+
                         try {
                             size = "config/$name".writeBytes(url)
                         } catch (e: Exception) {
@@ -88,8 +93,8 @@ object ConfigCommand : Command("config") {
                                 512) + "```")
                             return@doesLaterIfHas
                         }
-                        message.success("Successfully downloaded `$name` (${size / 1000.0}KB)!")
 
+                        message.success("Successfully downloaded `$name` (${size / 1000.0}KB)!")
                     }
                 }
             }

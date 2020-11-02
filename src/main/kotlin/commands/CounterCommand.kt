@@ -12,6 +12,7 @@ import UserConfig
 import authenticatedRequest
 import doesLaterIfHas
 import getGithubToken
+import net.ayataka.kordis.entity.server.Server
 import org.l1ving.api.download.Asset
 import org.l1ving.api.download.Download
 import request
@@ -52,10 +53,6 @@ object CounterCommand : Command("counter") {
             return false
         }
 
-        val totalChannel = config.downloadChannelTotal?.let { server.voiceChannels.find(it) }
-        val latestChannel = config.downloadChannelLatest?.let { server.voiceChannels.find(it) }
-        val memberChannel = config.memberChannel?.let { server.voiceChannels.find(it) }
-
         var downloadStable: Download? = null
         var downloadNightly: Download? = null
 
@@ -84,17 +81,22 @@ object CounterCommand : Command("counter") {
             latestCount = it[0].assets.count() // nightly will be newer, so we assign it again if nightly isn't null
         }
 
-
-
-
         if (totalCount != 0 || latestCount != 0 || memberCount != 0) {
-            totalChannel?.let { it.edit { name = "$totalCount Downloads" } }
-            latestChannel?.let { it.edit { name = "$latestCount Nightly DLs" } }
-            memberChannel?.let { it.edit { name = "$memberCount Members" } }
+            edit(config, server, totalCount, latestCount, memberCount)
             updated = true
         }
 
         return updated
+    }
+
+    private suspend fun edit(config: CounterConfig, server: Server, totalCount: Int, latestCount: Int, memberCount: Int) {
+        val totalChannel = config.downloadChannelTotal?.let { server.voiceChannels.find(it) }
+        val latestChannel = config.downloadChannelLatest?.let { server.voiceChannels.find(it) }
+        val memberChannel = config.memberChannel?.let { server.voiceChannels.find(it) }
+
+        totalChannel?.let { it.edit { name = "$totalCount Downloads" } }
+        latestChannel?.let { it.edit { name = "$latestCount Nightly DLs" } }
+        memberChannel?.let { it.edit { name = "$memberCount Members" } }
     }
 
     private fun formatApiUrl(repo: String, perPage: Int) = "https://api.github.com/repos/$repo/releases?per_page=$perPage"
