@@ -310,7 +310,7 @@ object IssueCommand : Command("issue") {
 
         this?.forEach {
             it.name?.let { name ->
-                list.append(name)
+                list.append("$name, ")
             }
         }
 
@@ -326,7 +326,7 @@ object IssueCommand : Command("issue") {
 
         this?.forEach {
             it.login?.let { login ->
-                list.append(login)
+                list.append("$login, ")
             }
         }
 
@@ -344,7 +344,4 @@ object IssueCommand : Command("issue") {
             this.replace(Regex("<!--.*-->"), "")
         }
     }
-
-    private inline fun <reified T> Any?.maybeCast(): T? = this as? T
-
 }
