@@ -18,6 +18,7 @@ import doesLaterIfHas
 import getAuthToken
 import greedyString
 import helpers.StringHelper.flat
+import helpers.StringHelper.toUserID
 import kotlinx.coroutines.delay
 import literal
 import net.ayataka.kordis.entity.message.Message
@@ -152,7 +153,7 @@ object BanCommand : Command("ban") {
         val fixedReason = if (reason != null && reason.isNotEmpty()) reason else readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultBanReason ?: "No Reason Specified"
 
         try {
-            val filtered = username.replace("[<@!>]".toRegex(), "").toLong()
+            val filtered = username.toUserID()
             username = filtered.toString()
             usernameIsId = true
         } catch (ignored: NumberFormatException) {
