@@ -306,34 +306,34 @@ object IssueCommand : Command("issue") {
     }
 
     private fun List<Label>?.joinToLabels(): String {
-        val list = StringBuilder()
+        val list = ArrayList<String>()
 
         this?.forEach {
             it.name?.let { name ->
-                list.append(name)
+                list.add(name)
             }
         }
 
         return if (list.isEmpty()) {
             "None"
         } else {
-            list.toString()
+            list.joinToString()
         }
     }
 
     private fun List<User>?.joinToUsers(): String {
-        val list = StringBuilder()
+        val list = ArrayList<String>()
 
         this?.forEach {
             it.login?.let { login ->
-                list.append(login)
+                list.add(login)
             }
         }
 
         return if (list.isEmpty()) {
             "None"
         } else {
-            list.toString()
+            list.joinToString()
         }
     }
 
@@ -344,7 +344,4 @@ object IssueCommand : Command("issue") {
             this.replace(Regex("<!--.*-->"), "")
         }
     }
-
-    private inline fun <reified T> Any?.maybeCast(): T? = this as? T
-
 }

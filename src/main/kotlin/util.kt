@@ -219,3 +219,5 @@ data class Emoji(
 )
 
 private const val contentLength = "Content-Length"
+
+inline fun <reified T> Any?.maybeCast(): T? = this as? T
