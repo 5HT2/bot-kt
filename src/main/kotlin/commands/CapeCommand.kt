@@ -1,26 +1,33 @@
 package commands
 
+import Cape
+import CapeUser
 import Colors
 import Command
-import MojangName
-import MojangUtils
-import MojangUtils.cachedName
+import ConfigManager.readConfigSafe
+import ConfigType
 import PermissionTypes.AUTHORIZE_CAPES
 import Send.error
 import Send.normal
 import Send.success
 import User
+import UserConfig
 import arg
+import cachedName
 import com.google.gson.GsonBuilder
-import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 import doesLater
 import doesLaterIfHas
+import fixedUUID
+import getFromName
+import getFromUUID
 import greedyString
 import helpers.MathHelper.round
-import helpers.StringHelper.fixedUUID
+import helpers.ShellHelper.bash
+import helpers.ShellHelper.systemBash
 import helpers.StringHelper.toHumanReadable
 import helpers.StringHelper.toUserID
+import kotlinx.coroutines.delay
 import literal
 import net.ayataka.kordis.entity.message.Message
 import string
@@ -28,10 +35,11 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
-import kotlin.collections.ArrayList
 
-// TODO: this is pretty server specific. Will be removed in the future and changed to a command
+// TODO: this is pretty server specific. Will be removed in the future and changed to a plugin
 object CapeCommand : Command("cape") {
+    private val gson = GsonBuilder().setPrettyPrinting().create()
+
     init {
         literal("create") {
             greedyString("id") {
@@ -39,32 +47,32 @@ object CapeCommand : Command("cape") {
                     val id: String = context arg "id"
 
                     val args = id.split(" ") // we have to do this because it's a greedy string, and <> aren't parsed as a single string
-                    val finalID: String
+                    val finalID: Long
 
-                    if (args.size != 3) {
+                    if (args.size != 2) {
                         message.error(findError) // TODO TEMPORARY
                         return@doesLaterIfHas
                     }
 
                     try {
-                        finalID = args[0].toUserID().toString()
+                        finalID = args[0].toUserID()
                     } catch (e: NumberFormatException) {
                         message.error(findError)
                         return@doesLaterIfHas
                     }
 
-                    /** find [CapeType] from user's args */
+                    /** find CapeType from user's args */
                     val type = CapeType.values().find { capeType ->
-                        capeType.realName.equals(args[2], ignoreCase = true)
+                        capeType.realName.equals(args[1], ignoreCase = true)
                     }
 
                     if (type == null) {
-                        message.error("Couldn't find Cape type \"${args[2].toHumanReadable()}\"!")
+                        message.error("Couldn't find Cape type \"${args[1].toHumanReadable()}\"!")
                         return@doesLaterIfHas
                     }
 
                     // make sure the user actually exists, so they can activate their cape
-                    val user = (if (finalID.isEmpty()) null else server?.members?.find(finalID.toLong())) ?: run {
+                    val user = server?.members?.find(finalID) ?: run {
                         message.error(findError)
                         return@doesLaterIfHas
                     }
@@ -84,6 +92,40 @@ object CapeCommand : Command("cape") {
                             field("Cape UUID", newCape.capeUUID)
                             color = Colors.success
                         }
+                    }
+                }
+            }
+        }
+
+        literal("delete") {
+            string("uuid") {
+                greedyString("user") {
+                    doesLaterIfHas(AUTHORIZE_CAPES) { context ->
+                        val capeUUID: String = context arg "uuid"
+                        val userID: String = context arg "user"
+                        val finalID: Long
+
+                        try {
+                            finalID = userID.toUserID()
+                        } catch (e: NumberFormatException) {
+                            message.error(findError)
+                            return@doesLaterIfHas
+                        }
+
+                        val user = capeUsers?.find { it.id == finalID } ?: run {
+                            message.error("Couldn't find a Cape User with the ID `$finalID`!")
+                            return@doesLaterIfHas
+                        }
+
+                        val cape = user.capes.find { it.capeUUID.equals(capeUUID, true) } ?: run {
+                            message.error(capeError(capeUUID))
+                            return@doesLaterIfHas
+                        }
+
+                        val editedUser = user.deleteCape(cape.capeUUID)
+                        updateCapeUser(editedUser, editedUser)
+
+                        message.success("Removed Cape `$capeUUID` from Cape User `$finalID`!")
                     }
                 }
             }
@@ -124,7 +166,7 @@ object CapeCommand : Command("cape") {
                         val capes = message.getCapes() ?: return@doesLater
 
                         val cape = capes.find { it.capeUUID == capeUUID } ?: run {
-                            message.error("Couldn't find a Cape with a UUID of `$capeUUID`. Make sure you're entering the short UUID as the Cape UUID, not your player UUID")
+                            message.error(capeError(capeUUID))
                             return@doesLater
                         }
 
@@ -134,7 +176,7 @@ object CapeCommand : Command("cape") {
                         username.fixedUUID()?.let {
                             msg = message.normal("Found UUID to attach to Cape `$capeUUID` - verifying")
 
-                            user = MojangUtils.getFromUUID(it) ?: run {
+                            user = getFromUUID(it) ?: run {
                                 msg?.edit {
                                     title = "Error"
                                     description = "Couldn't find an account with the UUID `$capeUUID`!\n" +
@@ -147,7 +189,7 @@ object CapeCommand : Command("cape") {
                         } ?: run {
                             msg = message.normal("Found name to attach to Cape `$capeUUID` - looking up UUID!")
 
-                            user = MojangUtils.getFromName(username) ?: run {
+                            user = getFromName(username) ?: run {
                                 msg?.edit {
                                     title = "Error"
                                     description = "Couldn't find an account with the name `$username`!\n" +
@@ -162,7 +204,7 @@ object CapeCommand : Command("cape") {
                         user ?: run { return@doesLater }
 
                         val alreadyAttached = capes.find { it.playerUUID == user!!.uuid }
-                        if (alreadyAttached != null) { // TODO: weird bug with this. If someone tries attaching to an already used name and then changing to unused, it will skip timeout
+                        if (alreadyAttached != null) {
                             msg?.edit {
                                 description = "You already have ${user!!.currentMojangName.name} attached to Cape `${alreadyAttached.capeUUID}`!"
                                 color = Colors.error
@@ -238,10 +280,10 @@ object CapeCommand : Command("cape") {
     }
 
 
-    fun load() {
-        if (!File("config/capes.json").exists()) return
+    private fun load() {
+        if (!File(capesFile).exists()) return
         try {
-            Files.newBufferedReader(Paths.get("config/capes.json")).use {
+            Files.newBufferedReader(Paths.get(capesFile)).use {
                 val readCapeUsers = GsonBuilder().setPrettyPrinting().create().fromJson<ArrayList<CapeUser>?>(it, object : TypeToken<List<CapeUser>>() {}.type)
                 readCapeUsers?.let { read ->
                     capeUsers = read
@@ -251,19 +293,37 @@ object CapeCommand : Command("cape") {
                     println("=".repeat(20))
                 }
             }
-        } catch(e: Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     fun save() {
         capeUsers?.let { capes ->
-            Files.newBufferedWriter(Paths.get("config/capes.json")).use {
-                val json = gson.toJson(capeUsers, object : TypeToken<List<CapeUser>>() {}.type)
-                println("==========\n$json\n===========")
-                it.write(json)
+            Files.newBufferedWriter(Paths.get(capesFile)).use {
+                it.write(gson.toJson(capes, object : TypeToken<List<CapeUser>>() {}.type))
             }
         }
+    }
+
+    suspend fun commit() { // TODO: hardcoded and a hack. I'm embarrassed to push this, but this is waiting for me to add plugin support
+        readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {
+            if (it != 573954110454366214) return
+        } ?: run { return }
+
+        val assets = "/home/mika/projects/cape-api"
+        val time = "date".bash()
+
+        "git reset --hard origin/assets".systemBash(assets)
+        "git pull".systemBash(assets)
+        delay(1000) // yea bash commands don't wait to finish so you get an error with the lockfile
+        "cp config/capes.json $assets/test.json".systemBash()
+        delay(50)
+        "git add test.json".systemBash(assets)
+        delay(100)
+        "git commit -am \"Updated capes $time\"".systemBash(assets)
+        delay(1000)
+        "git push".systemBash(assets)
     }
 
     private fun updateCapeUser(oldUser: CapeUser?, newUser: CapeUser) {
@@ -273,6 +333,12 @@ object CapeCommand : Command("cape") {
         capeUsers?.add(newUser) ?: run {
             capeUsers = arrayListOf(newUser)
         }
+    }
+
+    private fun CapeUser.deleteCape(capeUUID: String): CapeUser {
+        val user = this
+        user.capes.removeIf { it.capeUUID == capeUUID }
+        return user
     }
 
     private fun CapeUser.editCapes(capes: ArrayList<Cape>): CapeUser {
@@ -320,47 +386,24 @@ object CapeCommand : Command("cape") {
     }
 
     private fun changeTimeOut(capeUUID: String): Double? {
-        val time = changeTimes[capeUUID] ?: run {
-            changeTimes[capeUUID] = System.currentTimeMillis()
+        val time = changedTimeouts[capeUUID] ?: run {
+            changedTimeouts[capeUUID] = System.currentTimeMillis()
             return null
         }
 
         val difference = System.currentTimeMillis() - time
 
         if (difference > 900000) { // waited more than 15 minutes, reset the timer
-            changeTimes[capeUUID] = System.currentTimeMillis()
+            changedTimeouts[capeUUID] = System.currentTimeMillis()
             return null
         }
 
         return round((900000 - difference) / 60000.0, 2) // / convert ms to minutes, with 2 decimal places
     }
 
-    private val gson = GsonBuilder().setPrettyPrinting().create()
-    private val resetTime get() = System.currentTimeMillis() - 910000
-    private val changeTimes = hashMapOf<String, Long>()
+    private val changedTimeouts = hashMapOf<String, Long>()
     private var capeUsers: ArrayList<CapeUser>? = null
+    private fun capeError(capeUUID: String) = "Couldn't find a Cape with a UUID of `$capeUUID`. Make sure you're entering the short UUID as the Cape UUID, not your player UUID"
+    private const val capesFile = "config/capes.json"
     private const val findError = "Username is improperly formatted, try pinging or using the users ID, and make sure the user exists in this server!"
-}
-
-data class CapeUser(
-    val id: Long,
-    var capes: ArrayList<Cape>,
-    @SerializedName("is_premium")
-    var isPremium: Boolean = false
-)
-
-data class Cape(
-    @SerializedName("player_uuid")
-    var playerUUID: String?,
-    @SerializedName("cape_uuid")
-    val capeUUID: String = UUID.randomUUID().toString().substring(0, 5),
-    val type: CapeType
-)
-
-enum class CapeType(val realName: String, val imageKey: String) {
-    BOOSTER("Booster", "booster"),
-    CONTEST("Contest", "contest"),
-    CONTRIBUTOR("Contributor", "github1"),
-    DONOR("Donor", "donator2"),
-    INVITER("Inviter", "inviter")
 }

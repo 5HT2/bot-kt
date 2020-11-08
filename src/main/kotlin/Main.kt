@@ -5,13 +5,11 @@ import Send.error
 import Send.log
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
+import commands.CapeCommand
 import commands.CounterCommand
 import helpers.UpdateHelper.updateCheck
 import helpers.UpdateHelper.writeCurrentVersion
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
@@ -24,9 +22,26 @@ import kotlin.system.exitProcess
 fun main() = runBlocking {
     Main.process = launch {
         Bot().start()
-        while (true) {
+    }
+
+    Main.counterProcess = launch {
+        while (isActive) {
             delay(configUpdateInterval())
             CounterCommand.updateChannel()
+        }
+    }
+
+    Main.capeSaveProcess = launch {
+        while (isActive) {
+            delay(60000) // 60000
+            CapeCommand.save()
+        }
+    }
+
+    Main.capeCommitProcess = launch {
+        while (isActive) {
+            delay(300000) // 300000
+            CapeCommand.commit()
         }
     }
 }
@@ -137,6 +152,9 @@ class Bot {
 
 object Main {
     var process: Job? = null
+    var counterProcess: Job? = null
+    var capeSaveProcess: Job? = null
+    var capeCommitProcess: Job? = null
     var client: DiscordClient? = null
     var ready = false
     const val currentVersion = "v1.2.5"
