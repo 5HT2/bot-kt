@@ -33,14 +33,14 @@ fun main() = runBlocking {
 
     Main.capeSaveProcess = launch {
         while (isActive) {
-            delay(60000) // 60000
+            delay(60000) // 1 minute
             CapeCommand.save()
         }
     }
 
     Main.capeCommitProcess = launch {
         while (isActive) {
-            delay(300000) // 300000
+            delay(300000) // 5 minutes
             CapeCommand.commit()
         }
     }

@@ -1,6 +1,7 @@
 package commands
 
 import Cape
+import CapeColor
 import CapeUser
 import Colors
 import Command
@@ -82,7 +83,7 @@ object CapeCommand : Command("cape") {
                     val existingCapeUser = user.id.getUser(null)
                     val updatedCapeUser = existingCapeUser?.editCapes(newCapes) ?: CapeUser(user.id, newCapes, type == CapeType.DONOR)
 
-                    updateCapeUser(existingCapeUser, updatedCapeUser)
+                    updateCapeUser(updatedCapeUser, existingCapeUser?.id)
 
                     message.channel.send {
                         embed {
@@ -123,7 +124,7 @@ object CapeCommand : Command("cape") {
                         }
 
                         val editedUser = user.deleteCape(cape.capeUUID)
-                        updateCapeUser(editedUser, editedUser)
+                        updateCapeUser(editedUser)
 
                         message.success("Removed Cape `$capeUUID` from Cape User `$finalID`!")
                     }
@@ -147,15 +148,7 @@ object CapeCommand : Command("cape") {
         }
 
         literal("attach") {
-            doesLater {
-                message.error("You must provide a Cape UUID to attach to a player!")
-            }
-
             string("uuid") {
-                doesLater {
-                    message.error("You must provide a player name to attach to!")
-                }
-
                 greedyString("username") {
                     doesLater { context ->
                         val username: String = context arg "username"
@@ -215,7 +208,7 @@ object CapeCommand : Command("cape") {
                         // this is after everything because we don't care about Mojang requests that much, but we don't want to commit every 5 minutes or whatever
                         changeTimeOut(capeUUID)?.let {
                             msg?.edit {
-                                description = "Cape `${capeUUID}` was changed recently, you must wait $it more minutes before you can change it again!"
+                                description = changeError(capeUUID, it)
                                 color = Colors.error
                             }
                             return@doesLater
@@ -223,7 +216,7 @@ object CapeCommand : Command("cape") {
 
                         cape.playerUUID = user!!.uuid
                         capeUser = capeUser.editCapes(arrayListOf(cape))
-                        updateCapeUser(capeUser, capeUser)
+                        updateCapeUser(capeUser)
 
                         msg?.edit {
                             description = "Successfully attached Cape `${cape.capeUUID}` to user `${user!!.currentMojangName.name}`"
@@ -235,7 +228,7 @@ object CapeCommand : Command("cape") {
         }
 
         literal("detach") {
-            greedyString("uuid") {
+            string("uuid") {
                 doesLater { context ->
                     val capeUUID: String = context arg "uuid"
 
@@ -243,21 +236,64 @@ object CapeCommand : Command("cape") {
                     val capes = message.getCapes() ?: return@doesLater
 
                     val cape = capes.find { it.capeUUID == capeUUID } ?: run {
-                        message.error("Couldn't find a Cape with a UUID of `$capeUUID`. Make sure you're entering the short UUID as the Cape UUID, not your player UUID")
+                        message.error(capeError(capeUUID))
                         return@doesLater
                     }
 
                     changeTimeOut(capeUUID)?.let {
-                        message.error("Cape `${capeUUID}` was changed recently, you must wait $it more minutes before you can change it again!")
+                        message.error(changeError(capeUUID, it))
                         return@doesLater
                     }
 
                     val playerUUID = cape.playerUUID
                     cape.playerUUID = null
                     capeUser = capeUser.editCapes(arrayListOf(cape))
-                    updateCapeUser(capeUser, capeUser)
+                    updateCapeUser(capeUser)
 
                     message.success("Successfully removed ${cachedName(playerUUID)} from Cape `${cape.capeUUID}`!")
+                }
+            }
+        }
+
+        literal("color") {
+            string("uuid") {
+                string("colorPrimary") {
+                    string("colorBorder") {
+                        doesLater { context ->
+                            val capeUUID: String = context arg "uuid"
+                            val colorPrimary: String = context arg "colorPrimary"
+                            val colorBorder: String = context arg "colorBorder"
+
+                            var capeUser = message.author?.id.getUser(message) ?: return@doesLater
+                            val capes = message.getCapes() ?: return@doesLater
+
+                            val cape = capes.find { it.capeUUID == capeUUID } ?: run {
+                                message.error(capeError(capeUUID))
+                                return@doesLater
+                            }
+
+                            changeTimeOut(capeUUID)?.let {
+                                message.error(changeError(capeUUID, it))
+                                return@doesLater
+                            }
+
+                            if (cape.type != CapeType.CONTEST) {
+                                message.error("You're only able to change the colors of Contest Capes, `${capeUUID} is a `${cape.type.realName} Cape!")
+                            }
+
+                            if (!hexRegex.matches(colorPrimary) || !hexRegex.matches(colorBorder)) {
+                                message.error("You must enter both colors in 6-long hex format, eg `9b90ff` or `8778ff`.")
+                                return@doesLater
+                            }
+
+                            val oldColor = cape.color
+                            cape.color = CapeColor(colorPrimary.toLowerCase(), colorBorder.toLowerCase())
+                            capeUser = capeUser.editCapes(arrayListOf(cape))
+                            updateCapeUser(capeUser)
+
+                            message.success("Successfully changed Cape `${cape.capeUUID}` colors from $oldColor to ${cape.color}!")
+                        }
+                    }
                 }
             }
         }
@@ -314,7 +350,10 @@ object CapeCommand : Command("cape") {
         val assets = "/home/mika/projects/cape-api"
         val time = "date".bash()
 
-        "git reset --hard origin/assets".systemBash(assets)
+        "git checkout capes".systemBash(assets)
+        delay(50)
+        "git reset --hard origin/capes".systemBash(assets)
+        delay(200)
         "git pull".systemBash(assets)
         delay(1000) // yea bash commands don't wait to finish so you get an error with the lockfile
         "cp config/capes.json $assets/test.json".systemBash()
@@ -326,8 +365,8 @@ object CapeCommand : Command("cape") {
         "git push".systemBash(assets)
     }
 
-    private fun updateCapeUser(oldUser: CapeUser?, newUser: CapeUser) {
-        capeUsers?.removeAll { it.id == oldUser?.id }
+    private fun updateCapeUser(newUser: CapeUser, oldUser: Long? = newUser.id) {
+        capeUsers?.removeAll { it.id == oldUser }
 
         // add if capeUsers isn't null, otherwise make a new list
         capeUsers?.add(newUser) ?: run {
@@ -401,9 +440,13 @@ object CapeCommand : Command("cape") {
         return round((900000 - difference) / 60000.0, 2) // / convert ms to minutes, with 2 decimal places
     }
 
+    private val hexRegex = Regex("^[A-Fa-f0-9]{6}\$")
     private val changedTimeouts = hashMapOf<String, Long>()
     private var capeUsers: ArrayList<CapeUser>? = null
+
     private fun capeError(capeUUID: String) = "Couldn't find a Cape with a UUID of `$capeUUID`. Make sure you're entering the short UUID as the Cape UUID, not your player UUID"
+    private fun changeError(capeUUID: String, time: Double) = "Cape `$capeUUID` was changed recently, you must wait $time more minutes before you can change it again!"
+
     private const val capesFile = "config/capes.json"
     private const val findError = "Username is improperly formatted, try pinging or using the users ID, and make sure the user exists in this server!"
 }
