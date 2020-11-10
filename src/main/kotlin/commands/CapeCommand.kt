@@ -17,6 +17,7 @@ import User
 import UserConfig
 import arg
 import cachedName
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import doesLater
@@ -352,7 +353,7 @@ object CapeCommand : Command("cape") {
         if (!File(capesFile).exists()) return
         try {
             Files.newBufferedReader(Paths.get(capesFile)).use {
-                val readCapeUsers = GsonBuilder().setPrettyPrinting().create().fromJson<ArrayList<CapeUser>?>(it, object : TypeToken<List<CapeUser>>() {}.type)
+                val readCapeUsers = Gson().fromJson<ArrayList<CapeUser>?>(it, object : TypeToken<List<CapeUser>>() {}.type)
                 readCapeUsers?.let { read ->
                     capeUsers = read
                 } ?: run {
