@@ -1,5 +1,6 @@
 import ConfigManager.readConfigSafe
 import Send.error
+import Send.log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.google.gson.internal.LinkedTreeMap
@@ -7,6 +8,7 @@ import com.google.gson.reflect.TypeToken
 import helpers.StringHelper.toHumanReadable
 import helpers.StringHelper.uriEncode
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.user.User
 import okhttp3.MediaType
@@ -188,6 +190,36 @@ fun createGithubIssue(issue: Issue, user: String, repo: String, token: String) {
 
     println(response.body()?.string())
 }
+
+fun Server?.maxEmojiSlots(): Int {
+    val server = this ?: return 50
+    val url = "https://discord.com/api/v6/guilds/${server.id}"
+    val request = Request.Builder()
+        .addHeader("Authorization", "Bot ${getAuthToken()}")
+        .url(url).get().build()
+
+    val response = OkHttpClient().newCall(request).execute()
+    val guildObject = Gson().fromJson(response.body()?.string(), Any::class.java) as LinkedTreeMap<*, *>
+
+    val premiumTierObject = guildObject["premium_tier"] ?: run {
+        log("Error getting premium tier")
+        return 50
+    }
+
+    val premiumTier = try {
+        (premiumTierObject as Double).toInt()
+    } catch (e: NumberFormatException) {
+        0
+    }
+
+    return when (premiumTier) {
+        1 -> 100
+        2 -> 150
+        3 -> 250
+        else -> 50
+    }
+}
+
 
 fun Exception.getStackTraceAsString(): String {
     val sw = StringWriter()
