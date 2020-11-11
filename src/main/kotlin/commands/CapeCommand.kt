@@ -29,6 +29,7 @@ import greedyString
 import helpers.MathHelper.round
 import helpers.ShellHelper.bash
 import helpers.ShellHelper.systemBash
+import helpers.StringHelper.prepend
 import helpers.StringHelper.toHumanReadable
 import helpers.StringHelper.toUserID
 import kotlinx.coroutines.delay
@@ -464,8 +465,19 @@ object CapeCommand : Command("cape") {
         var primaryEmoji = "Primary (#${this.primary})"
         var borderEmoji = "Border (#${this.border})"
 
-        primary?.let { primaryEmoji = "<:${it.name}:${it.id}> " + primaryEmoji }
-        border?.let { borderEmoji = "<:${it.name}:${it.id}> " + borderEmoji }
+        primary?.let {
+            primaryEmoji = primaryEmoji.prepend("<:${it.name}:${it.id}> ")
+        } ?: run {
+            primaryEmoji = primaryEmoji.prepend("<:cssource:775893099527929926> ") // TODO hardcoded
+        }
+
+        border?.let {
+            borderEmoji = borderEmoji.prepend("<:${it.name}:${it.id}> ")
+        } ?: run {
+            borderEmoji = borderEmoji.prepend("<:cssource:775893099527929926> ")
+        }
+
+
 
         return "$primaryEmoji\n$borderEmoji"
     }

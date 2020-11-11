@@ -25,6 +25,8 @@ object StringHelper {
         return bytes.size
     }
 
+    fun String.prepend(string: String) = "$string$this"
+
     /** @throws NumberFormatException */
     fun String.toUserID() = this.replace("[<@!>]".toRegex(), "").toLong()
 }
