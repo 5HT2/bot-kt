@@ -81,10 +81,10 @@ object IssueCommand : Command("issue") {
                         doesLater { context ->
                             val repo: String = context arg "repo"
                             val title: String = context arg "title"
-                            val body: String = context arg "body"
+                            val body: String? = context arg "body"
 
                             val issue = Issue()
-                            val formattedIssue = "Created by: ${message.author?.name?.toHumanReadable()} `(${message.author?.id})`\n\n$body"
+                            val formattedIssue = "Created by: ${message.author?.name?.toHumanReadable()} `(${message.author?.id})`\n\n${body ?: "No description provided."}"
 
                             issue.title = title
                             issue.body = formattedIssue
@@ -120,6 +120,7 @@ object IssueCommand : Command("issue") {
 
                             delay(1000)
                             form.addReaction('✅')
+                            form.addReaction('❎')
 
                             queuedIssues[form.id] = Triple(form, issue, repo)
                         }
@@ -151,19 +152,29 @@ object IssueCommand : Command("issue") {
             return
         }
 
+        if (event.reaction.emoji.name == "❎") {
+            try {
+                message = message.error("Rejected")
+
+                form.first.delete()
+
+                delay(10000)
+
+                message.delete()
+            } catch (e: IllegalStateException) {
+                // ignored
+            }
+        }
+
         createGithubIssue(form.second, user, form.third, token)
 
         try {
             form.first.delete()
-        } catch (e: IllegalStateException) {
-            // this is fine. it just means the member list isn't cached and we can't delete it
-        }
 
-        message = message.success("Successfully created issue `${form.second.title}`!")
+            message = message.success("Successfully created issue `${form.second.title}`!")
 
-        delay(10000)
+            delay(10000)
 
-        try {
             message.delete()
         } catch (e: IllegalStateException) {
             // this is fine. it just means the member list isn't cached and we can't delete it
