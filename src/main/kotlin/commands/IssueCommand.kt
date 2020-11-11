@@ -112,15 +112,11 @@ object IssueCommand : Command("issue") {
                                 }
                             }
 
-                            try {
-                                message.delete()
-                            } catch (e: IllegalStateException) {
-                                // this is fine. it just means the member list isn't cached and we can't delete it
-                            }
+                            message.delete()
 
                             delay(1000)
                             form.addReaction('✅')
-                            form.addReaction('❎')
+                            form.addReaction('❌')
 
                             queuedIssues[form.id] = Triple(form, issue, repo)
                         }
@@ -152,33 +148,19 @@ object IssueCommand : Command("issue") {
             return
         }
 
-        if (event.reaction.emoji.name == "❎") {
-            try {
-                message = message.error("Rejected")
-
-                form.first.delete()
-
-                delay(10000)
-
-                message.delete()
-            } catch (e: IllegalStateException) {
-                // ignored
-            }
+        if (event.reaction.emoji.name == "❌") {
+            message = message.error("Rejected issue ${form.second.title}!")
+            form.first.delete()
+            delay(5000)
+            message.delete()
         }
 
         createGithubIssue(form.second, user, form.third, token)
 
-        try {
-            form.first.delete()
-
-            message = message.success("Successfully created issue `${form.second.title}`!")
-
-            delay(10000)
-
-            message.delete()
-        } catch (e: IllegalStateException) {
-            // this is fine. it just means the member list isn't cached and we can't delete it
-        }
+        form.first.delete()
+        message = message.success("Successfully created issue `${form.second.title}`!")
+        delay(10000)
+        message.delete()
 
     }
 
@@ -198,14 +180,10 @@ object IssueCommand : Command("issue") {
         if (event.message.content.isEmpty() || !event.message.content.startsWith("$fullName create")) {
             val reply = event.message.error("You need to use the `$fullName create` command to create an issue!")
 
-            try {
-                event.message.delete()
-                delay(5000)
-                reply.delete()
-                return
-            } catch (e: IllegalStateException) {
-                return
-            }
+            event.message.delete()
+            delay(5000)
+            reply.delete()
+            return
         }
     }
 
