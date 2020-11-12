@@ -116,7 +116,7 @@ object IssueCommand : Command("issue") {
 
                             delay(1000)
                             form.addReaction('✅')
-                            form.addReaction('❌')
+                            form.addReaction('⛔')
 
                             queuedIssues[form.id] = Triple(form, issue, repo)
                         }
@@ -148,7 +148,7 @@ object IssueCommand : Command("issue") {
             return
         }
 
-        if (event.reaction.emoji.name == "❌") {
+        if (event.reaction.emoji.name == "⛔") {
             message = message.error("Rejected issue ${form.second.title}!")
             form.first.delete()
             delay(5000)
