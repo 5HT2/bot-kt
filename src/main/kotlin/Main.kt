@@ -19,6 +19,7 @@ import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.log
 import org.kamiblue.botkt.commands.CounterCommand
+import org.kamiblue.botkt.helpers.StringHelper.firstInSentence
 import java.awt.Color
 import kotlin.system.exitProcess
 
@@ -121,7 +122,7 @@ class Bot {
                 if (!CommandManager.isCommand(message)) {
                     cmd.event.message.channel.send {
                         embed {
-                            title = "Unknown Command: ${prefix()}${message.firstInSentence()}"
+                            title = "Unknown Command: ${Main.prefix()}${message.firstInSentence()}"
                             color = Colors.error
                         }
                     }
@@ -129,7 +130,7 @@ class Bot {
                     val usage = CommandManager.getCommandClass(message)?.getHelpUsage()
                     cmd.event.message.channel.send {
                         embed {
-                            title = "Invalid Syntax: ${prefix()}$message"
+                            title = "Invalid Syntax: ${Main.prefix()}$message"
                             description = "${e.message}${
                                 usage?.let {
                                     "\n\n$it"
