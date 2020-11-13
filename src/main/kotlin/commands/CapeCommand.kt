@@ -443,7 +443,7 @@ object CapeCommand : Command("cape") {
         trimAndSyncEmojis()
 
         return try {
-            cachedEmojis.getOrPut(hex, {
+            cachedEmojis.getOrPut(hex) {
                 val b = ByteArrayOutputStream()
                 val bufferedImage = BufferedImage(64, 64, BufferedImage.TYPE_INT_RGB)
 
@@ -457,7 +457,7 @@ object CapeCommand : Command("cape") {
                     name = hex
                     image = b.toByteArray()
                 }
-            })
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             null
