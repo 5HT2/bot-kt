@@ -1,11 +1,13 @@
 import CommandManager.registerCommands
 import ConfigManager.readConfigSafe
+import Main.prefix
 import Main.ready
 import Send.error
 import Send.log
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import commands.CounterCommand
+import helpers.StringHelper.firstInSentence
 import helpers.UpdateHelper.updateCheck
 import helpers.UpdateHelper.writeCurrentVersion
 import kotlinx.coroutines.Job
@@ -108,7 +110,7 @@ class Bot {
     suspend fun onMessageReceive(event: MessageReceiveEvent) {
         if (!ready || event.message.content.isEmpty()) return // message can be empty on images, embeds and other attachments
 
-        val message = if (event.message.content[0] == Main.prefix()) event.message.content.substring(1) else return
+        val message = if (event.message.content[0] == prefix()) event.message.content.substring(1) else return
         val cmd = Cmd(event)
 
         try {
@@ -117,20 +119,30 @@ class Bot {
                 cmd.file(event)
                 if (exit != 0) log("(executed with exit code $exit)")
             } catch (e: CommandSyntaxException) {
-                if (CommandManager.isCommand(message)) {
-                    val command = CommandManager.getCommandClass(message)!!
+                if (!CommandManager.isCommand(message)) {
                     cmd.event.message.channel.send {
                         embed {
-                            title = "Invalid Syntax: $message"
-                            description = "**${e.message}**\n\n${command.getHelpUsage()}"
+                            title = "Unknown Command: ${prefix()}${message.firstInSentence()}"
+                            color = Colors.error
+                        }
+                    }
+                } else {
+                    val usage = CommandManager.getCommandClass(message)?.getHelpUsage()
+                    cmd.event.message.channel.send {
+                        embed {
+                            title = "Invalid Syntax: ${prefix()}$message"
+                            description = "${e.message}${
+                                usage?.let {
+                                    "\n\n$it"
+                                } ?: ""
+                            }"
                             color = Colors.error
                         }
                     }
                 }
             }
         } catch (e: Exception) {
-            if (e is NullPointerException) return // will be thrown for invalid syntax
-            event.message.error("```\n${e.getStackTraceAsString()}\n```")
+            event.message.error("```\n${e.getStackTraceAsString()}\n```") // TODO: proper command to view stacktraces
         }
     }
 }
