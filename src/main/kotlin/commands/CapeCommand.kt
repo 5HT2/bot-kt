@@ -465,19 +465,15 @@ object CapeCommand : Command("cape") {
         var primaryEmoji = "Primary (#${this.primary})"
         var borderEmoji = "Border (#${this.border})"
 
-        primary?.let {
-            primaryEmoji = primaryEmoji.prepend("<:${it.name}:${it.id}> ")
-        } ?: run {
-            primaryEmoji = primaryEmoji.prepend("<:cssource:775893099527929926> ") // TODO hardcoded
+        primaryEmoji = primary?.let {
+            primaryEmoji.prepend("<:${it.name}:${it.id}> ") } ?: run {
+            primaryEmoji.prepend("<:cssource:775893099527929926> ")
         }
 
-        border?.let {
-            borderEmoji = borderEmoji.prepend("<:${it.name}:${it.id}> ")
-        } ?: run {
-            borderEmoji = borderEmoji.prepend("<:cssource:775893099527929926> ")
+        borderEmoji = border?.let {
+            borderEmoji.prepend("<:${it.name}:${it.id}> ") } ?: run {
+            borderEmoji.prepend("<:cssource:775893099527929926> ")
         }
-
-
 
         return "$primaryEmoji\n$borderEmoji"
     }
