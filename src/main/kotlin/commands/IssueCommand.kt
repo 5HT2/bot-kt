@@ -81,10 +81,10 @@ object IssueCommand : Command("issue") {
                         doesLater { context ->
                             val repo: String = context arg "repo"
                             val title: String = context arg "title"
-                            val body: String? = context arg "body"
+                            val body: String = context arg "body"
 
                             val issue = Issue()
-                            val formattedIssue = "Created by: ${message.author?.name?.toHumanReadable()} `(${message.author?.id})`\n\n${body ?: "No description provided."}"
+                            val formattedIssue = "Created by: ${message.author?.name?.toHumanReadable()} `(${message.author?.id})`\n\n$body"
 
                             issue.title = title
                             issue.body = formattedIssue
@@ -132,11 +132,19 @@ object IssueCommand : Command("issue") {
 
         val form = queuedIssues[event.reaction.messageId] ?: return
 
-        if (event.reaction.emoji.name != "✅") return
+        var message = form.first
+
+        if (event.reaction.emoji.name != "✅") {
+            return
+        } else if (event.reaction.emoji.name == "⛔") {
+            message = message.error("Rejected issue ${form.second.title}!")
+            form.first.delete()
+            delay(5000)
+            message.delete()
+            return
+        }
 
         if (!event.reaction.userId.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return
-
-        var message = form.first
 
         val token = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)?.githubToken ?: run {
             message.error("Github Token is not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
@@ -146,13 +154,6 @@ object IssueCommand : Command("issue") {
         val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
             message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
             return
-        }
-
-        if (event.reaction.emoji.name == "⛔") {
-            message = message.error("Rejected issue ${form.second.title}!")
-            form.first.delete()
-            delay(5000)
-            message.delete()
         }
 
         createGithubIssue(form.second, user, form.third, token)
