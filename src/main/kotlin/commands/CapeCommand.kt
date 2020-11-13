@@ -330,14 +330,14 @@ object CapeCommand : Command("cape") {
         }
 
         literal("save") {
-            doesLater {
+            doesLaterIfHas(AUTHORIZE_CAPES) {
                 save()
                 message.success("Saved!")
             }
         }
 
         literal("load") {
-            doesLater {
+            doesLaterIfHas(AUTHORIZE_CAPES) {
                 load()
                 message.success("Loaded!")
             }
