@@ -6,8 +6,8 @@ import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import helpers.DiscordUserArgumentType
-import helpers.UserPromise
+import org.kamiblue.botkt.helpers.DiscordUserArgumentType
+import org.kamiblue.botkt.helpers.UserPromise
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.Permissions.missingPermissions
