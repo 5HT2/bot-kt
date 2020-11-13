@@ -46,11 +46,20 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
 import javax.imageio.ImageIO
+import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
 
 // TODO: this is pretty server specific. Will be removed in the future and changed to a plugin
 object CapeCommand : Command("cape") {
     private val gson = GsonBuilder().setPrettyPrinting().create()
+    private val hexRegex = Regex("^[A-Fa-f0-9]{6}\$")
+    private val changedTimeouts = hashMapOf<String, Long>()
+    private val capeUserMap = HashMap<Long, CapeUser>()
+    private val cachedEmojis = LinkedHashMap<String, Emoji?>()
+    private var cachedServer: Server? = null
+
+    private const val capesFile = "config/capes.json"
+    private const val findError = "Username is improperly formatted, try pinging or using the users ID, and make sure the user exists in this server!"
 
     init {
         literal("create") {
@@ -90,11 +99,9 @@ object CapeCommand : Command("cape") {
                     }
 
                     val newCape = Cape(null, type = type)
-                    val newCapes = arrayListOf(newCape)
                     val existingCapeUser = user.id.getUser(null)
-                    val updatedCapeUser = existingCapeUser?.editCapes(newCapes) ?: CapeUser(user.id, newCapes, type == CapeType.DONOR)
-
-                    updateCapeUser(updatedCapeUser, existingCapeUser?.id)
+                    val updatedCapeUser = existingCapeUser?.editCapes(newCape) ?: CapeUser(user.id, arrayListOf(newCape), type == CapeType.DONOR)
+                    capeUserMap[updatedCapeUser.id] = updatedCapeUser
 
                     message.channel.send {
                         embed {
@@ -124,7 +131,7 @@ object CapeCommand : Command("cape") {
                             return@doesLaterIfHas
                         }
 
-                        val user = capeUsers?.find { it.id == finalID } ?: run {
+                        val user = capeUserMap[finalID] ?: run {
                             message.error("Couldn't find a Cape User with the ID `$finalID`!")
                             return@doesLaterIfHas
                         }
@@ -134,8 +141,7 @@ object CapeCommand : Command("cape") {
                             return@doesLaterIfHas
                         }
 
-                        val editedUser = user.deleteCape(cape.capeUUID)
-                        updateCapeUser(editedUser)
+                        user.deleteCape(cape.capeUUID)
 
                         message.success("Removed Cape `$capeUUID` from Cape User `$finalID`!")
                     }
@@ -165,8 +171,6 @@ object CapeCommand : Command("cape") {
                         val username: String = context arg "username"
                         val capeUUID: String = context arg "uuid"
 
-
-                        var capeUser = message.author?.id.getUser(message) ?: return@doesLater
                         val capes = message.getCapes() ?: return@doesLater
 
                         val cape = capes.find { it.capeUUID == capeUUID } ?: run {
@@ -205,7 +209,7 @@ object CapeCommand : Command("cape") {
 
                         }
 
-                        user ?: run { return@doesLater }
+                        user ?: return@doesLater
 
                         val alreadyAttached = capes.find { it.playerUUID == user!!.uuid }
                         if (alreadyAttached != null) {
@@ -226,8 +230,6 @@ object CapeCommand : Command("cape") {
                         }
 
                         cape.playerUUID = user!!.uuid
-                        capeUser = capeUser.editCapes(arrayListOf(cape))
-                        updateCapeUser(capeUser)
 
                         msg?.edit {
                             description = "Successfully attached Cape `${cape.capeUUID}` to user `${user!!.currentMojangName.name}`"
@@ -243,7 +245,6 @@ object CapeCommand : Command("cape") {
                 doesLater { context ->
                     val capeUUID: String = context arg "uuid"
 
-                    var capeUser = message.author?.id.getUser(message) ?: return@doesLater
                     val capes = message.getCapes() ?: return@doesLater
 
                     val cape = capes.find { it.capeUUID == capeUUID } ?: run {
@@ -258,8 +259,6 @@ object CapeCommand : Command("cape") {
 
                     val playerUUID = cape.playerUUID
                     cape.playerUUID = null
-                    capeUser = capeUser.editCapes(arrayListOf(cape))
-                    updateCapeUser(capeUser)
 
                     message.success("Successfully removed ${cachedName(playerUUID)} from Cape `${cape.capeUUID}`!")
                 }
@@ -275,7 +274,6 @@ object CapeCommand : Command("cape") {
                             val colorPrimary: String = context arg "colorPrimary"
                             val colorBorder: String = context arg "colorBorder"
 
-                            var capeUser = message.author?.id.getUser(message) ?: return@doesLater
                             val capes = message.getCapes() ?: return@doesLater
 
                             val cape = capes.find { it.capeUUID == capeUUID } ?: run {
@@ -300,8 +298,6 @@ object CapeCommand : Command("cape") {
 
                             val oldCapeColor = cape.color
                             cape.color = CapeColor(colorPrimary.toLowerCase(), colorBorder.toLowerCase())
-                            capeUser = capeUser.editCapes(arrayListOf(cape))
-                            updateCapeUser(capeUser)
 
                             // TODO() properly generate
                             //val dir = "/home/mika/projects/assets-kamiblue/assets/capes/templates"
@@ -353,10 +349,11 @@ object CapeCommand : Command("cape") {
     private fun load() {
         if (!File(capesFile).exists()) return
         try {
-            Files.newBufferedReader(Paths.get(capesFile)).use {
-                val readCapeUsers = Gson().fromJson<ArrayList<CapeUser>?>(it, object : TypeToken<List<CapeUser>>() {}.type)
-                readCapeUsers?.let { read ->
-                    capeUsers = read
+            Files.newBufferedReader(Paths.get(capesFile)).use { bufferedReader ->
+                val readCapeUsers = Gson().fromJson<ArrayList<CapeUser>?>(bufferedReader, object : TypeToken<List<CapeUser>>() {}.type)
+                readCapeUsers?.let {
+                    capeUserMap.clear()
+                    capeUserMap.putAll(readCapeUsers.associateBy { it.id })
                 } ?: run {
                     println("=".repeat(20))
                     println("Error reading capes!!")
@@ -369,10 +366,9 @@ object CapeCommand : Command("cape") {
     }
 
     fun save() {
-        capeUsers?.let { capes ->
-            Files.newBufferedWriter(Paths.get(capesFile)).use {
-                it.write(gson.toJson(capes, object : TypeToken<List<CapeUser>>() {}.type))
-            }
+        val capeUsers = capeUserMap.values
+        Files.newBufferedWriter(Paths.get(capesFile)).use {
+            it.write(gson.toJson(capeUsers, object : TypeToken<List<CapeUser>>() {}.type))
         }
     }
 
@@ -399,42 +395,19 @@ object CapeCommand : Command("cape") {
         "git push".systemBash(assets)
     }
 
-    private fun updateCapeUser(newUser: CapeUser, oldUser: Long? = newUser.id) {
-        capeUsers?.removeAll { it.id == oldUser }
-
-        // add if capeUsers isn't null, otherwise make a new list
-        capeUsers?.add(newUser) ?: run {
-            capeUsers = arrayListOf(newUser)
-        }
+    private fun CapeUser.deleteCape(capeUUID: String) {
+        this.capes.removeIf { it.capeUUID == capeUUID }
     }
 
-    private fun CapeUser.deleteCape(capeUUID: String): CapeUser {
-        val user = this
-        user.capes.removeIf { it.capeUUID == capeUUID }
-        return user
-    }
-
-    private fun CapeUser.editCapes(capes: ArrayList<Cape>): CapeUser {
-        if (capes == this.capes) {
-            return this
+    private fun CapeUser.editCapes(cape: Cape): CapeUser {
+        return apply {
+            this.capes.removeIf { it.capeUUID == cape.capeUUID }
+            this.capes.add(cape)
+            this.isPremium = this.isPremium || capes.any { it.type == CapeType.DONOR }
         }
-
-        for (oldCape in this.capes) {
-            if (capes.any { it.capeUUID == oldCape.capeUUID }) continue
-            capes.add(oldCape)
-        }
-
-        this.isPremium = this.isPremium || capes.any { it.type == CapeType.DONOR }
-
-        return this
     }
 
     private suspend fun Message.getCapes(): ArrayList<Cape>? {
-        capeUsers ?: run {
-            error("No capes are loaded, contact a developer about this!")
-            return null
-        }
-
         return author?.id.getCapes(this)
     }
 
@@ -443,9 +416,7 @@ object CapeCommand : Command("cape") {
     }
 
     private suspend fun Long?.getUser(message: Message?): CapeUser? {
-        return capeUsers?.find { user ->
-            user.id == this
-        } ?: run {
+        return capeUserMap[this] ?: run {
             message?.error("User <@$this> does not have any capes!")
             null
         }
@@ -541,15 +512,6 @@ object CapeCommand : Command("cape") {
         }
     }
 
-    private val hexRegex = Regex("^[A-Fa-f0-9]{6}\$")
-    private val changedTimeouts = hashMapOf<String, Long>()
-    private var capeUsers: ArrayList<CapeUser>? = null
-    private val cachedEmojis = LinkedHashMap<String, Emoji?>()
-    private var cachedServer: Server? = null
-
     private fun capeError(capeUUID: String) = "Couldn't find a Cape with a UUID of `$capeUUID`. Make sure you're entering the short UUID as the Cape UUID, not your player UUID"
     private fun changeError(capeUUID: String, time: Double) = "Cape `$capeUUID` was changed recently, you must wait $time more minutes before you can change it again!"
-
-    private const val capesFile = "config/capes.json"
-    private const val findError = "Username is improperly formatted, try pinging or using the users ID, and make sure the user exists in this server!"
 }
