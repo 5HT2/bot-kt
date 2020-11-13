@@ -475,6 +475,7 @@ object CapeCommand : Command("cape") {
     private fun changeTimeOut(capeUUID: String): Double? {
         val time = changedTimeouts.getOrPut(capeUUID) {
             System.currentTimeMillis()
+            return null
         }
 
         val difference = System.currentTimeMillis() - time
