@@ -16,8 +16,9 @@ val NOT_IN_PING_FORMAT_EXCEPTION = DynamicCommandExceptionType { LiteralMessage(
 object DiscordUserArgumentType : ArgumentType<UserPromise> {
     override fun parse(reader: StringReader?): UserPromise {
         reader ?: throw NO_READER_EXCEPTION.create()
+        val ping = reader.readDiscordPing()
         return {
-            Main.client?.getUser(reader.readDiscordPing())
+            Main.client?.getUser(ping)
         }
     }
 }
