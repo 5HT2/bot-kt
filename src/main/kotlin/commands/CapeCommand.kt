@@ -55,7 +55,7 @@ object CapeCommand : Command("cape") {
     private val hexRegex = Regex("^[A-Fa-f0-9]{6}\$")
     private val changedTimeouts = hashMapOf<String, Long>()
     private val capeUserMap = HashMap<Long, CapeUser>()
-    private val cachedEmojis = LinkedHashMap<String, Emoji?>()
+    private val cachedEmojis = LinkedHashMap<String, Emoji>()
     private var cachedServer: Server? = null
 
     private const val capesFile = "config/capes.json"
@@ -442,25 +442,27 @@ object CapeCommand : Command("cape") {
     private suspend fun makeEmojiFromHex(hex: String): Emoji? {
         trimAndSyncEmojis()
 
-        return try {
-            cachedEmojis.getOrPut(hex) {
-                val b = ByteArrayOutputStream()
-                val bufferedImage = BufferedImage(64, 64, BufferedImage.TYPE_INT_RGB)
+        return server?.let {
+            try {
+                cachedEmojis.getOrPut(hex) {
+                    val b = ByteArrayOutputStream()
+                    val bufferedImage = BufferedImage(64, 64, BufferedImage.TYPE_INT_RGB)
 
-                for (x in 0 until bufferedImage.width) for (y in 0 until bufferedImage.height) {
-                    bufferedImage.setRGB(x, y, Integer.decode("0x$hex"))
+                    for (x in 0 until bufferedImage.width) for (y in 0 until bufferedImage.height) {
+                        bufferedImage.setRGB(x, y, Integer.decode("0x$hex"))
+                    }
+
+                    ImageIO.write(bufferedImage, "jpg", b)
+
+                    it.createEmoji {
+                        name = hex
+                        image = b.toByteArray()
+                    }
                 }
-
-                ImageIO.write(bufferedImage, "jpg", b)
-
-                server?.createEmoji {
-                    name = hex
-                    image = b.toByteArray()
-                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
         }
     }
 
