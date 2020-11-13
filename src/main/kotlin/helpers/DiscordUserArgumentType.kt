@@ -16,34 +16,24 @@ val NOT_IN_PING_FORMAT_EXCEPTION = DynamicCommandExceptionType { LiteralMessage(
 object DiscordUserArgumentType : ArgumentType<UserPromise> {
     override fun parse(reader: StringReader?): UserPromise {
         reader ?: throw NO_READER_EXCEPTION.create()
-        val stringReader = UserStringReader(reader)
-        val str = stringReader.readString()
-//        val idStr = str.replace(Regex("^[<@!]{0,3}"), "").replace(Regex(">$"), "")
-//        val idStr = str.removePrefix("<@!").removePrefix("<@").removeSuffix(">")
-        val id = str.toLongOrNull() ?: throw NOT_IN_PING_FORMAT_EXCEPTION.create(str)
         return {
-            Main.client?.getUser(id)
+            Main.client?.getUser(reader.readDiscordPing())
         }
     }
 }
 
-class UserStringReader(stringReader: StringReader?) : StringReader(stringReader) {
-    override fun readString(): String {
-        if (!canRead()) {
-            return ""
-        }
-
-        return readUnquotedString()
+fun StringReader.readDiscordPing(): Long {
+    fun peekSkip(c: Char) {
+        if (canRead() && peek() == c) skip()
     }
 
-    override fun readUnquotedString(): String {
-        val start = cursor
-        while (canRead() && isAllowedInString(peek())) {
-            skip()
-        }
-        return string.substring(start, cursor)
-    }
+    peekSkip('<')
+    peekSkip('@')
+    peekSkip('!')
 
-    private fun isAllowedInString(c: Char) = c in '0'..'9' || c in 'A'..'Z' || c in 'a'..'z'
-            || c == '_' || c == '-' || c == '.' || c == '+' || c == '<' || c == '>' || c == '@' || c == '!' || c == '#' || c == '&'
+    val long = readLong()
+
+    peekSkip('>')
+
+    return long
 }
