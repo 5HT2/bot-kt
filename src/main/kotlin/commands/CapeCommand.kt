@@ -133,8 +133,7 @@ object CapeCommand : Command("cape") {
                             return@doesLaterIfHas
                         }
 
-                        val editedUser = user.deleteCape(cape.capeUUID)
-                        updateCapeUser(editedUser)
+                        user.deleteCape(cape.capeUUID)
 
                         message.success("Removed Cape `$capeUUID` from Cape User `$finalID`!")
                     }
@@ -165,7 +164,7 @@ object CapeCommand : Command("cape") {
                         val capeUUID: String = context arg "uuid"
 
 
-                        var capeUser = message.author?.id.getUser(message) ?: return@doesLater
+                        val capeUser = message.author?.id.getUser(message) ?: return@doesLater
                         val capes = message.getCapes() ?: return@doesLater
 
                         val cape = capes.find { it.capeUUID == capeUUID } ?: run {
@@ -225,7 +224,6 @@ object CapeCommand : Command("cape") {
                         }
 
                         cape.playerUUID = user!!.uuid
-                        capeUser = capeUser.editCapes(cape)
                         updateCapeUser(capeUser)
 
                         msg?.edit {
@@ -242,7 +240,6 @@ object CapeCommand : Command("cape") {
                 doesLater { context ->
                     val capeUUID: String = context arg "uuid"
 
-                    var capeUser = message.author?.id.getUser(message) ?: return@doesLater
                     val capes = message.getCapes() ?: return@doesLater
 
                     val cape = capes.find { it.capeUUID == capeUUID } ?: run {
@@ -257,8 +254,6 @@ object CapeCommand : Command("cape") {
 
                     val playerUUID = cape.playerUUID
                     cape.playerUUID = null
-                    capeUser = capeUser.editCapes(cape)
-                    updateCapeUser(capeUser)
 
                     message.success("Successfully removed ${cachedName(playerUUID)} from Cape `${cape.capeUUID}`!")
                 }
@@ -274,7 +269,6 @@ object CapeCommand : Command("cape") {
                             val colorPrimary: String = context arg "colorPrimary"
                             val colorBorder: String = context arg "colorBorder"
 
-                            var capeUser = message.author?.id.getUser(message) ?: return@doesLater
                             val capes = message.getCapes() ?: return@doesLater
 
                             val cape = capes.find { it.capeUUID == capeUUID } ?: run {
@@ -299,8 +293,6 @@ object CapeCommand : Command("cape") {
 
                             val oldCapeColor = cape.color
                             cape.color = CapeColor(colorPrimary.toLowerCase(), colorBorder.toLowerCase())
-                            capeUser = capeUser.editCapes(cape)
-                            updateCapeUser(capeUser)
 
                             // TODO() properly generate
                             //val dir = "/home/mika/projects/assets-kamiblue/assets/capes/templates"
@@ -407,19 +399,16 @@ object CapeCommand : Command("cape") {
         }
     }
 
-    private fun CapeUser.deleteCape(capeUUID: String): CapeUser {
-        val user = this
-        user.capes.removeIf { it.capeUUID == capeUUID }
-        return user
+    private fun CapeUser.deleteCape(capeUUID: String) {
+        this.capes.removeIf { it.capeUUID == capeUUID }
     }
 
     private fun CapeUser.editCapes(cape: Cape): CapeUser {
-        this.capes.removeIf { it.capeUUID == cape.capeUUID }
-        this.capes.add(cape)
-
-        this.isPremium = this.isPremium || capes.any { it.type == CapeType.DONOR }
-
-        return this
+        return apply {
+            this.capes.removeIf { it.capeUUID == cape.capeUUID }
+            this.capes.add(cape)
+            this.isPremium = this.isPremium || capes.any { it.type == CapeType.DONOR }
+        }
     }
 
     private suspend fun Message.getCapes(): ArrayList<Cape>? {
