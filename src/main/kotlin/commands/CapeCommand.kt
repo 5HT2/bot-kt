@@ -99,10 +99,9 @@ object CapeCommand : Command("cape") {
                     }
 
                     val newCape = Cape(null, type = type)
-                    val capeUser = user.id.getUser(null)
-                            ?: CapeUser(user.id, arrayListOf(newCape), type == CapeType.DONOR)
-                    capeUserMap[capeUser.id] = capeUser
-                    capeUser.addCape(newCape)
+                    capeUserMap.getOrPut(user.id) {
+                        CapeUser(user.id, arrayListOf(newCape), type == CapeType.DONOR)
+                    }.addCape(newCape)
 
                     message.channel.send {
                         embed {
@@ -409,13 +408,10 @@ object CapeCommand : Command("cape") {
     }
 
     private suspend fun Message.getCapes(): ArrayList<Cape>? {
-        return author?.id.getUser(this)?.capes
-    }
-
-    private suspend fun Long?.getUser(message: Message?): CapeUser? {
-        return capeUserMap[this] ?: run {
-            message?.error("User <@$this> does not have any capes!")
-            null
+        return author?.let { author ->
+            capeUserMap[author.id]?.capes.also {
+                if (it == null) error("User <@${author.id}> does not have any capes!")
+            }
         }
     }
 
