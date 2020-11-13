@@ -419,21 +419,14 @@ object CapeCommand : Command("cape") {
             return this
         }
 
-        val user = this
-        val oldCapes = this.capes
-        user.capes = capes
-
-        oldCapes.forEach { oldCape -> // copy unmodified capes over to new user
-            val found = user.capes.find { newCape -> oldCape.capeUUID == newCape.capeUUID }
-            if (found != null) return@forEach
-            user.capes.add(oldCape)
+        for (oldCape in this.capes) {
+            if (capes.any { it.capeUUID == oldCape.capeUUID }) continue
+            capes.add(oldCape)
         }
 
-        if (!user.isPremium && capes.find { it.type == CapeType.DONOR } != null) {
-            user.isPremium = true
-        }
+        this.isPremium = this.isPremium || capes.any { it.type == CapeType.DONOR }
 
-        return user
+        return this
     }
 
     private suspend fun Message.getCapes(): ArrayList<Cape>? {
