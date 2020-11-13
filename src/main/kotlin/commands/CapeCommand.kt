@@ -473,10 +473,10 @@ object CapeCommand : Command("cape") {
         val server = server ?: return
 
         // Sync emojis
+        cachedEmojis.values.removeIf { !server.emojis.contains(it) }
         server.emojis.reversed().forEach {
             cachedEmojis[it.name] = it
         }
-        cachedEmojis.values.removeIf { !server.emojis.contains(it) }
 
         // Delete emoji if getting close to emoji limit
         val maxEmojiSlots = server.maxEmojiSlots()
