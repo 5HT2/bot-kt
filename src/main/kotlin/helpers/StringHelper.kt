@@ -19,6 +19,8 @@ object StringHelper {
 
     fun String.uriEncode(): String = URLEncoder.encode(this, "utf-8")
 
+    fun String.firstInSentence() = this.split(" ").firstOrNull() ?: this
+
     fun String.writeBytes(url: String): Int {
         val bytes = url.readBytes()
         File(this).writeBytes(bytes)

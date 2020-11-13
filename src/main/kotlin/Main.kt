@@ -118,20 +118,30 @@ class Bot {
                 cmd.file(event)
                 if (exit != 0) log("(executed with exit code $exit)")
             } catch (e: CommandSyntaxException) {
-                if (CommandManager.isCommand(message)) {
-                    val command = CommandManager.getCommandClass(message)!!
+                if (!CommandManager.isCommand(message)) {
                     cmd.event.message.channel.send {
                         embed {
-                            title = "Invalid Syntax: $message"
-                            description = "**${e.message}**\n\n${command.getHelpUsage()}"
+                            title = "Unknown Command: ${prefix()}${message.firstInSentence()}"
+                            color = Colors.error
+                        }
+                    }
+                } else {
+                    val usage = CommandManager.getCommandClass(message)?.getHelpUsage()
+                    cmd.event.message.channel.send {
+                        embed {
+                            title = "Invalid Syntax: ${prefix()}$message"
+                            description = "${e.message}${
+                                usage?.let {
+                                    "\n\n$it"
+                                } ?: ""
+                            }"
                             color = Colors.error
                         }
                     }
                 }
             }
         } catch (e: Exception) {
-            if (e is NullPointerException) return // will be thrown for invalid syntax
-            event.message.error("```\n${e.getStackTraceAsString()}\n```")
+            event.message.error("```\n${e.getStackTraceAsString()}\n```") // TODO: proper command to view stacktraces
         }
     }
 }

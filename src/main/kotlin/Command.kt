@@ -3,6 +3,7 @@ package org.kamiblue.botkt
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.tree.LiteralCommandNode
+import helpers.StringHelper.firstInSentence
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -42,11 +43,11 @@ object CommandManager {
     private val commands = hashMapOf<String, LiteralCommandNode<Cmd>>()
     private val commandClasses = hashMapOf<String, Command>()
 
-    fun isCommand(name: String) = commands.containsKey(name.split(" ")[0])
+    fun isCommand(name: String) = commands.containsKey(name.firstInSentence())
 
-    fun getCommand(name: String) = commands[name]
+    fun getCommand(name: String) = commands[name.firstInSentence()]
 
-    fun getCommandClass(name: String) = commandClasses[name]
+    fun getCommandClass(name: String) = commandClasses[name.firstInSentence()]
 
     /**
      * Uses reflection to get a list of classes in the commands package which extend [Command]
@@ -63,12 +64,10 @@ object CommandManager {
             val literalCommand = command.getField("INSTANCE").get(null) as LiteralArgumentBuilder<Cmd>
             val commandAsInstanceOfCommand = command.getField("INSTANCE").get(null) as Command
             commandClasses[literalCommand.literal] = commandAsInstanceOfCommand
+            println("[commands] ${literalCommand.literal} ${commandAsInstanceOfCommand.arguments}")
             commands[literalCommand.literal] = dispatcher.register(literalCommand)
         }
 
-        var registeredCommands = ""
-        commands.forEach { entry -> registeredCommands += "\n> ${Main.prefix()}${entry.key}" }
-
-        log("Registered commands!$registeredCommands\n")
+        log("Registered commands!")
     }
 }

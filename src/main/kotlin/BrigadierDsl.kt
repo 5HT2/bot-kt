@@ -34,7 +34,7 @@ fun <S, T : ArgumentBuilder<S, T>, R> ArgumentBuilder<S, T>.argument(
     name: String,
     argument: ArgumentType<R>,
     block: (@BrigadierDsl RequiredArgumentBuilder<S, R>).() -> Unit
-): T =
+) =
     then(RequiredArgumentBuilder.argument<S, R>(name, argument).also(block))
 
 /**
@@ -114,6 +114,12 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.greedyString(
 ): T =
     argument(name, StringArgumentType.greedyString(), block)
 
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.ping(
+    name: String,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, UserPromise>).() -> Unit
+) =
+    argument(name, DiscordUserArgumentType, block)
+
 /**
  * Sets the executes callback for `this` [ArgumentBuilder]
  *
@@ -152,3 +158,5 @@ fun ArgumentBuilder<Cmd, *>.doesLaterIfHas(permission: PermissionTypes, later: s
  * @see CommandContext.getArgument
  */
 inline infix fun <reified R, S> CommandContext<S>.arg(name: String): R = getArgument(name, R::class.java)
+
+suspend inline infix fun <S> CommandContext<S>.userArg(name: String) = (this.arg<UserPromise, S>(name))()
