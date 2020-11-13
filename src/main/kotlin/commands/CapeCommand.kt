@@ -204,7 +204,7 @@ object CapeCommand : Command("cape") {
 
                         }
 
-                        user ?: run { return@doesLater }
+                        user ?: return@doesLater
 
                         val alreadyAttached = capes.find { it.playerUUID == user!!.uuid }
                         if (alreadyAttached != null) {
