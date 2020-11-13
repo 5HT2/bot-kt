@@ -1,6 +1,6 @@
-package helpers
+package org.kamiblue.botkt.helpers
 
-import helpers.ShellHelper.bash
+import org.kamiblue.botkt.helpers.ShellHelper.bash
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException

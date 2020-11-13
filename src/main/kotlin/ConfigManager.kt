@@ -1,5 +1,7 @@
+package org.kamiblue.botkt
+
 import com.google.gson.Gson
-import helpers.StringHelper.isUrl
+import org.kamiblue.botkt.helpers.StringHelper.isUrl
 import java.io.File
 import java.net.URL
 import java.nio.file.Files

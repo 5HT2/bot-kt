@@ -1,15 +1,9 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import Send.error
-import arg
-import doesLater
-import greedyString
-import long
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.role.Role
-import pretty
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.Send.error
 
 object RoleInfoCommand : Command("roleinfo") {
     init {
@@ -48,7 +42,7 @@ object RoleInfoCommand : Command("roleinfo") {
                 title = role.name
                 color = if (role.isEveryone) Colors.primary else role.color
                 description = role.mention
-                field("Permissions", prettyPermissions)
+                field("org.kamiblue.botkt.Permissions", prettyPermissions)
                 field("Position", role.position.toString())
                 field("Hoisted", role.hoist.toString())
             }

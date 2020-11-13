@@ -1,11 +1,11 @@
-import ConfigManager.readConfigSafe
-import Send.error
+package org.kamiblue.botkt
+
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.google.gson.internal.LinkedTreeMap
 import com.google.gson.reflect.TypeToken
-import helpers.StringHelper.toHumanReadable
-import helpers.StringHelper.uriEncode
+import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
+import org.kamiblue.botkt.helpers.StringHelper.uriEncode
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.user.User
@@ -13,13 +13,15 @@ import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import org.kamiblue.botkt.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.Send.error
 import org.l1ving.api.issue.Issue
 import java.io.PrintWriter
 import java.io.StringWriter
 import java.util.concurrent.TimeUnit
 
 /**
- * @return a pretty formatted set of permissions, "None" if empty
+ * @return a org.kamiblue.botkt.pretty formatted set of permissions, "None" if empty
  */
 fun PermissionSet.pretty() =
     if (this.isEmpty()) "None"

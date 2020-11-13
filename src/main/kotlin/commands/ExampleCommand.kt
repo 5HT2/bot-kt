@@ -1,10 +1,6 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Command
-import arg
-import doesLater
-import greedyString
-import literal
+import org.kamiblue.botkt.*
 
 /**
  * @author l1ving
@@ -14,16 +10,16 @@ object ExampleCommand : Command("ec") {
     init {
         literal("kami") {
             doesLater {
-                message.channel.send("[$fullName] First argument!")
+                message.channel.send("[$fullName] First org.kamiblue.botkt.argument!")
             }
             literal("blue") {
                 doesLater {
-                    message.channel.send("[$fullName] Second argument used after first argument!")
+                    message.channel.send("[$fullName] Second org.kamiblue.botkt.argument used after first org.kamiblue.botkt.argument!")
                 }
             }
         }
         literal("foo") {
-            doesLater { message.channel.send("[$fullName] Second argument used without first argument!") }
+            doesLater { message.channel.send("[$fullName] Second org.kamiblue.botkt.argument used without first org.kamiblue.botkt.argument!") }
         }
         literal("count") {
             greedyString("sentence") {

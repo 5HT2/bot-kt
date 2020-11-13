@@ -1,13 +1,9 @@
-import CommandManager.registerCommands
-import ConfigManager.readConfigSafe
-import Main.ready
-import Send.error
-import Send.log
+package org.kamiblue.botkt
+
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import commands.CounterCommand
-import helpers.UpdateHelper.updateCheck
-import helpers.UpdateHelper.writeCurrentVersion
+import org.kamiblue.botkt.helpers.UpdateHelper.updateCheck
+import org.kamiblue.botkt.helpers.UpdateHelper.writeCurrentVersion
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -18,6 +14,11 @@ import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
+import org.kamiblue.botkt.CommandManager.registerCommands
+import org.kamiblue.botkt.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.Send.log
+import org.kamiblue.botkt.commands.CounterCommand
 import java.awt.Color
 import kotlin.system.exitProcess
 
@@ -100,13 +101,13 @@ class Bot {
             }
         }
 
-        ready = true
+        Main.ready = true
         log(initialization)
     }
 
     @EventHandler
     suspend fun onMessageReceive(event: MessageReceiveEvent) {
-        if (!ready || event.message.content.isEmpty()) return // message can be empty on images, embeds and other attachments
+        if (!Main.ready || event.message.content.isEmpty()) return // message can be empty on images, embeds and other attachments
 
         val message = if (event.message.content[0] == Main.prefix()) event.message.content.substring(1) else return
         val cmd = Cmd(event)

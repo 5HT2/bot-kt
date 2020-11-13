@@ -1,4 +1,5 @@
-import Send.log
+package org.kamiblue.botkt
+
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.tree.LiteralCommandNode
@@ -6,6 +7,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
+import org.kamiblue.botkt.Send.log
 import org.reflections.Reflections
 import java.util.concurrent.ConcurrentLinkedQueue
 
