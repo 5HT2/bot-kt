@@ -142,7 +142,7 @@ object CapeCommand : Command("cape") {
                             return@doesLaterIfHas
                         }
 
-                        user.deleteCape(cape.capeUUID)
+                        user.deleteCape(cape)
 
                         message.success("Removed Cape `$capeUUID` from Cape User `$finalID`!")
                     }
@@ -396,8 +396,8 @@ object CapeCommand : Command("cape") {
         "git push".systemBash(assets)
     }
 
-    private fun CapeUser.deleteCape(capeUUID: String) {
-        this.capes.removeIf { it.capeUUID == capeUUID }
+    private fun CapeUser.deleteCape(cape: Cape) {
+        this.capes.remove(cape)
     }
 
     private fun CapeUser.addCape(cape: Cape): CapeUser {
