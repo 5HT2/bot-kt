@@ -5,6 +5,8 @@ import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
+import helpers.DiscordUserArgumentType
+import helpers.UserPromise
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 
 @DslMarker
@@ -111,6 +113,12 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.greedyString(
 ) =
     argument(name, StringArgumentType.greedyString(), block)
 
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.ping(
+    name: String,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, UserPromise>).() -> Unit
+) =
+    argument(name, DiscordUserArgumentType, block)
+
 /**
  * Sets the executes callback for `this` [ArgumentBuilder]
  *
@@ -149,3 +157,5 @@ fun ArgumentBuilder<Cmd, *>.doesLaterIfHas(permission: PermissionTypes, later: s
  * @see CommandContext.getArgument
  */
 inline infix fun <reified R, S> CommandContext<S>.arg(name: String) = getArgument(name, R::class.java)
+
+suspend inline infix fun <S> CommandContext<S>.userArg(name: String) = (this.arg<UserPromise, S>(name))()
