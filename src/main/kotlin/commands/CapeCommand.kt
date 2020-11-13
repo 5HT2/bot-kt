@@ -466,21 +466,18 @@ object CapeCommand : Command("cape") {
 
     suspend fun trimAndSyncEmojis() {
         val server = server ?: return
-        syncEmojis()
-        val maxEmojiSlots = server.maxEmojiSlots()
 
+        // Sync emojis
+        server.emojis.forEach {
+            cachedEmojis[it.name] = it
+        }
+        cachedEmojis.values.removeIf { !server.emojis.contains(it) }
+
+        // Delete emoji if getting close to emoji limit
+        val maxEmojiSlots = server.maxEmojiSlots()
         while (cachedEmojis.size + 5 >= maxEmojiSlots) {
             val key = cachedEmojis.keys.last()
             cachedEmojis.remove(key)?.delete()
-        }
-    }
-
-    private fun syncEmojis() {
-        server?.emojis?.let { serverEmojis ->
-            serverEmojis.forEach {
-                cachedEmojis[it.name] = it
-            }
-            cachedEmojis.values.removeIf { !serverEmojis.contains(it) }
         }
     }
 
