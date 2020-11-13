@@ -90,9 +90,8 @@ object CapeCommand : Command("cape") {
                     }
 
                     val newCape = Cape(null, type = type)
-                    val newCapes = arrayListOf(newCape)
                     val existingCapeUser = user.id.getUser(null)
-                    val updatedCapeUser = existingCapeUser?.editCapes(newCapes) ?: CapeUser(user.id, newCapes, type == CapeType.DONOR)
+                    val updatedCapeUser = existingCapeUser?.editCapes(newCape) ?: CapeUser(user.id, arrayListOf(newCape), type == CapeType.DONOR)
 
                     updateCapeUser(updatedCapeUser, existingCapeUser?.id)
 
@@ -226,7 +225,7 @@ object CapeCommand : Command("cape") {
                         }
 
                         cape.playerUUID = user!!.uuid
-                        capeUser = capeUser.editCapes(arrayListOf(cape))
+                        capeUser = capeUser.editCapes(cape)
                         updateCapeUser(capeUser)
 
                         msg?.edit {
@@ -258,7 +257,7 @@ object CapeCommand : Command("cape") {
 
                     val playerUUID = cape.playerUUID
                     cape.playerUUID = null
-                    capeUser = capeUser.editCapes(arrayListOf(cape))
+                    capeUser = capeUser.editCapes(cape)
                     updateCapeUser(capeUser)
 
                     message.success("Successfully removed ${cachedName(playerUUID)} from Cape `${cape.capeUUID}`!")
@@ -300,7 +299,7 @@ object CapeCommand : Command("cape") {
 
                             val oldCapeColor = cape.color
                             cape.color = CapeColor(colorPrimary.toLowerCase(), colorBorder.toLowerCase())
-                            capeUser = capeUser.editCapes(arrayListOf(cape))
+                            capeUser = capeUser.editCapes(cape)
                             updateCapeUser(capeUser)
 
                             // TODO() properly generate
@@ -414,15 +413,9 @@ object CapeCommand : Command("cape") {
         return user
     }
 
-    private fun CapeUser.editCapes(capes: ArrayList<Cape>): CapeUser {
-        if (capes == this.capes) {
-            return this
-        }
-
-        for (oldCape in this.capes) {
-            if (capes.any { it.capeUUID == oldCape.capeUUID }) continue
-            capes.add(oldCape)
-        }
+    private fun CapeUser.editCapes(cape: Cape): CapeUser {
+        this.capes.removeIf { it.capeUUID == cape.capeUUID }
+        this.capes.add(cape)
 
         this.isPremium = this.isPremium || capes.any { it.type == CapeType.DONOR }
 
