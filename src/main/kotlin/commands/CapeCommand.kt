@@ -59,16 +59,16 @@ object CapeCommand : Command("cape") {
                     val id: String = context arg "id"
 
                     val args = id.split(" ") // we have to do this because it's a greedy string, and <> aren't parsed as a single string
-                    val finalID: Long
+                    var finalID: Long = 0
 
                     if (args.size != 2) {
                         message.error(findError) // TODO TEMPORARY
                         return@doesLaterIfHas
                     }
 
-                    try {
-                        finalID = args[0].toUserID()
-                    } catch (e: NumberFormatException) {
+                    args[0].toUserID()?.let {
+                        finalID = it
+                    } ?: run {
                         message.error(findError)
                         return@doesLaterIfHas
                     }
@@ -115,11 +115,11 @@ object CapeCommand : Command("cape") {
                     doesLaterIfHas(AUTHORIZE_CAPES) { context ->
                         val capeUUID: String = context arg "uuid"
                         val userID: String = context arg "user"
-                        val finalID: Long
+                        var finalID: Long = 0
 
-                        try {
-                            finalID = userID.toUserID()
-                        } catch (e: NumberFormatException) {
+                        userID.toUserID()?.let {
+                            finalID = it
+                        } ?: run {
                             message.error(findError)
                             return@doesLaterIfHas
                         }

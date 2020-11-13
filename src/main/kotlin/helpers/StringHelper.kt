@@ -27,6 +27,5 @@ object StringHelper {
 
     fun String.prepend(string: String) = "$string$this"
 
-    /** @throws NumberFormatException */
-    fun String.toUserID() = this.replace("[<@!>]".toRegex(), "").toLong()
+    fun String.toUserID() = this.replace("[<@!>]".toRegex(), "").toLongOrNull()
 }
