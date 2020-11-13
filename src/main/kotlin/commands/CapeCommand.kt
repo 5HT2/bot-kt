@@ -51,6 +51,14 @@ import kotlin.collections.LinkedHashMap
 // TODO: this is pretty server specific. Will be removed in the future and changed to a plugin
 object CapeCommand : Command("cape") {
     private val gson = GsonBuilder().setPrettyPrinting().create()
+    private val hexRegex = Regex("^[A-Fa-f0-9]{6}\$")
+    private val changedTimeouts = hashMapOf<String, Long>()
+    private var capeUsers: ArrayList<CapeUser>? = null
+    private val cachedEmojis = LinkedHashMap<String, Emoji?>()
+    private var cachedServer: Server? = null
+
+    private const val capesFile = "config/capes.json"
+    private const val findError = "Username is improperly formatted, try pinging or using the users ID, and make sure the user exists in this server!"
 
     init {
         literal("create") {
@@ -523,15 +531,6 @@ object CapeCommand : Command("cape") {
         }
     }
 
-    private val hexRegex = Regex("^[A-Fa-f0-9]{6}\$")
-    private val changedTimeouts = hashMapOf<String, Long>()
-    private var capeUsers: ArrayList<CapeUser>? = null
-    private val cachedEmojis = LinkedHashMap<String, Emoji?>()
-    private var cachedServer: Server? = null
-
     private fun capeError(capeUUID: String) = "Couldn't find a Cape with a UUID of `$capeUUID`. Make sure you're entering the short UUID as the Cape UUID, not your player UUID"
     private fun changeError(capeUUID: String, time: Double) = "Cape `$capeUUID` was changed recently, you must wait $time more minutes before you can change it again!"
-
-    private const val capesFile = "config/capes.json"
-    private const val findError = "Username is improperly formatted, try pinging or using the users ID, and make sure the user exists in this server!"
 }
