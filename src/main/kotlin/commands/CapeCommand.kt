@@ -99,10 +99,10 @@ object CapeCommand : Command("cape") {
                     }
 
                     val newCape = Cape(null, type = type)
-                    val existingCapeUser = user.id.getUser(null)
-                    val updatedCapeUser = existingCapeUser?.editCapes(newCape)
+                    val capeUser = user.id.getUser(null)
                             ?: CapeUser(user.id, arrayListOf(newCape), type == CapeType.DONOR)
-                    capeUserMap[updatedCapeUser.id] = updatedCapeUser
+                    capeUserMap[capeUser.id] = capeUser
+                    capeUser.addCape(newCape)
 
                     message.channel.send {
                         embed {
@@ -400,7 +400,7 @@ object CapeCommand : Command("cape") {
         this.capes.removeIf { it.capeUUID == capeUUID }
     }
 
-    private fun CapeUser.editCapes(cape: Cape): CapeUser {
+    private fun CapeUser.addCape(cape: Cape): CapeUser {
         return apply {
             this.capes.removeIf { it.capeUUID == cape.capeUUID }
             this.capes.add(cape)
