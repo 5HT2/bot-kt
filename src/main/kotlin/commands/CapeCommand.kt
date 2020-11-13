@@ -29,7 +29,6 @@ import greedyString
 import helpers.MathHelper.round
 import helpers.ShellHelper.bash
 import helpers.ShellHelper.systemBash
-import helpers.StringHelper.prepend
 import helpers.StringHelper.toHumanReadable
 import helpers.StringHelper.toUserID
 import kotlinx.coroutines.delay
@@ -60,6 +59,7 @@ object CapeCommand : Command("cape") {
 
     private const val capesFile = "config/capes.json"
     private const val findError = "Username is improperly formatted, try pinging or using the users ID, and make sure the user exists in this server!"
+    private const val missingTexture = "<:cssource:775893099527929926> "
 
     init {
         literal("create") {
@@ -420,25 +420,15 @@ object CapeCommand : Command("cape") {
     }
 
     private suspend fun CapeColor.toEmoji(): String {
-        val primary = makeEmojiFromHex(primary)
-        val border = makeEmojiFromHex(border)
+        return StringBuilder(4).run {
+            append(makeEmojiFromHex(primary)?.let { "<:${it.name}:${it.id}> " } ?: missingTexture)
+            append("Primary (#${primary})\n")
 
-        var primaryEmoji = "Primary (#${this.primary})"
-        var borderEmoji = "Border (#${this.border})"
+            append(makeEmojiFromHex(border)?.let { "<:${it.name}:${it.id}> " } ?: missingTexture)
+            append("Border (#${border})")
 
-        primaryEmoji = primary?.let {
-            primaryEmoji.prepend("<:${it.name}:${it.id}> ")
-        } ?: run {
-            primaryEmoji.prepend("<:cssource:775893099527929926> ")
+            toString()
         }
-
-        borderEmoji = border?.let {
-            borderEmoji.prepend("<:${it.name}:${it.id}> ")
-        } ?: run {
-            borderEmoji.prepend("<:cssource:775893099527929926> ")
-        }
-
-        return "$primaryEmoji\n$borderEmoji"
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")
