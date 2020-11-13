@@ -152,12 +152,9 @@ object BanCommand : Command("ban") {
         val deleteMessageDays = if (deleteMsgs) 1 else 0
         val fixedReason = if (reason != null && reason.isNotEmpty()) reason else readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultBanReason ?: "No Reason Specified"
 
-        try {
-            val filtered = username.toUserID()
-            username = filtered.toString()
+        username.toUserID()?.let {
+            username = it.toString()
             usernameIsId = true
-        } catch (ignored: NumberFormatException) {
-            // this is fine, we're parsing user input and don't know if it's an ID or not
         }
 
         val user: User = server.members.findByName(username) ?: server.members.find(username.toLong()) ?: // ID, or ping with the regex [<@!>] removed
