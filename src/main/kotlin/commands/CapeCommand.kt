@@ -366,7 +366,7 @@ object CapeCommand : Command("cape") {
     }
 
     fun save() {
-        val capeUsers = capeUserMap.values
+        val capeUsers = capeUserMap.values.toList()
         Files.newBufferedWriter(Paths.get(capesFile)).use {
             it.write(gson.toJson(capeUsers, object : TypeToken<List<CapeUser>>() {}.type))
         }
