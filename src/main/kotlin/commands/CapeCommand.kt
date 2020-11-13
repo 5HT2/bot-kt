@@ -408,11 +408,7 @@ object CapeCommand : Command("cape") {
     }
 
     private suspend fun Message.getCapes(): ArrayList<Cape>? {
-        return author?.id.getCapes(this)
-    }
-
-    private suspend fun Long?.getCapes(message: Message?): ArrayList<Cape>? {
-        return getUser(message)?.capes
+        return author?.id.getUser(this)?.capes
     }
 
     private suspend fun Long?.getUser(message: Message?): CapeUser? {
