@@ -100,7 +100,8 @@ object CapeCommand : Command("cape") {
 
                     val newCape = Cape(null, type = type)
                     val existingCapeUser = user.id.getUser(null)
-                    val updatedCapeUser = existingCapeUser?.editCapes(newCape) ?: CapeUser(user.id, arrayListOf(newCape), type == CapeType.DONOR)
+                    val updatedCapeUser = existingCapeUser?.editCapes(newCape)
+                            ?: CapeUser(user.id, arrayListOf(newCape), type == CapeType.DONOR)
                     capeUserMap[updatedCapeUser.id] = updatedCapeUser
 
                     message.channel.send {
@@ -310,14 +311,14 @@ object CapeCommand : Command("cape") {
                                 embed {
                                     description = "Successfully changed the colors of Cape `${cape.capeUUID}`!"
                                     field(
-                                        "Old Colors",
-                                        oldColors,
-                                        true
+                                            "Old Colors",
+                                            oldColors,
+                                            true
                                     )
                                     field(
-                                        "New Colors",
-                                        newColors,
-                                        true
+                                            "New Colors",
+                                            newColors,
+                                            true
                                     )
                                     color = Colors.success
                                 }
@@ -375,7 +376,7 @@ object CapeCommand : Command("cape") {
     suspend fun commit() { // TODO: hardcoded and a hack. I'm embarrassed to push this, but this is waiting for me to add plugin support
         readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {
             if (it != 573954110454366214) return
-        } ?: run { return }
+        } ?: return
 
         val assets = "/home/mika/projects/cape-api"
         val time = "date".bash()
@@ -426,12 +427,14 @@ object CapeCommand : Command("cape") {
         var borderEmoji = "Border (#${this.border})"
 
         primaryEmoji = primary?.let {
-            primaryEmoji.prepend("<:${it.name}:${it.id}> ") } ?: run {
+            primaryEmoji.prepend("<:${it.name}:${it.id}> ")
+        } ?: run {
             primaryEmoji.prepend("<:cssource:775893099527929926> ")
         }
 
         borderEmoji = border?.let {
-            borderEmoji.prepend("<:${it.name}:${it.id}> ") } ?: run {
+            borderEmoji.prepend("<:${it.name}:${it.id}> ")
+        } ?: run {
             borderEmoji.prepend("<:cssource:775893099527929926> ")
         }
 
@@ -498,13 +501,12 @@ object CapeCommand : Command("cape") {
         return round((900000 - difference) / 60000.0, 2) // / convert ms to minutes, with 2 decimal places
     }
 
-    private val server get() = run {
-        cachedServer ?: run {
+    private val server
+        get() = cachedServer ?: run {
             val server = Main.client?.servers?.find(775449131736760361)
             cachedServer = server
             server
         }
-    }
 
     private fun capeError(capeUUID: String) = "Couldn't find a Cape with a UUID of `$capeUUID`. Make sure you're entering the short UUID as the Cape UUID, not your player UUID"
     private fun changeError(capeUUID: String, time: Double) = "Cape `$capeUUID` was changed recently, you must wait $time more minutes before you can change it again!"
