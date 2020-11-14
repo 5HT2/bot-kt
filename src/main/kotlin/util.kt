@@ -189,8 +189,6 @@ fun createGithubIssue(issue: Issue, user: String, repo: String, token: String) {
         .url(url).post(body).build()
 
     val response = OkHttpClient().newCall(request).execute()
-
-    println(response.body()?.string())
 }
 
 fun Server?.maxEmojiSlots(): Int {

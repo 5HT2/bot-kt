@@ -10,6 +10,7 @@ import net.ayataka.kordis.entity.server.emoji.Emoji
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.Send.log
 import org.kamiblue.botkt.Send.normal
 import org.kamiblue.botkt.Send.success
 import org.kamiblue.botkt.helpers.MathHelper
@@ -319,9 +320,7 @@ object CapeCommand : Command("cape") {
                     capeUserMap.putAll(cacheList.associateBy { it.id })
             }
         } catch (e: Exception) {
-            println("=".repeat(20))
-            println("Error reading capes!!")
-            println("=".repeat(20))
+            log("Error loading capes!")
             e.printStackTrace()
         }
     }
