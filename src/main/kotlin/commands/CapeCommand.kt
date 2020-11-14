@@ -32,7 +32,7 @@ import kotlin.collections.LinkedHashMap
 object CapeCommand : Command("cape") {
     private val gson = GsonBuilder().setPrettyPrinting().create()
     private val hexRegex = Regex("^[A-Fa-f0-9]{6}\$")
-    private val changedTimeouts = hashMapOf<String, Long>()
+    private val changedTimeouts = HashMap<String, Long>()
     private val capeUserMap = HashMap<Long, CapeUser>()
     private val cachedEmojis = LinkedHashMap<String, Emoji>()
     private var cachedServer: Server? = null
@@ -78,7 +78,7 @@ object CapeCommand : Command("cape") {
                         return@doesLaterIfHas
                     }
 
-                    val newCape = Cape(null, type = type)
+                    val newCape = Cape(type = type)
                     capeUserMap.getOrPut(user.id) {
                         CapeUser(user.id, arrayListOf(newCape), type == CapeType.DONOR)
                     }.addCape(newCape)
@@ -136,7 +136,8 @@ object CapeCommand : Command("cape") {
                 message.channel.send {
                     embed {
                         userCapes.forEach {
-                            field("Cape UUID ${it.capeUUID}", "Player Name: ${cachedName(it.playerUUID) ?: "Not attached"}\nCape Type: ${it.type.realName}")
+                            val playerName = UUIDManager.getByUUID(it.playerUUID)?.name ?: "Not attached"
+                            field("Cape UUID ${it.capeUUID}", "Player Name: $playerName\nCape Type: ${it.type.realName}")
                         }
                         color = Colors.primary
                     }
@@ -158,43 +159,26 @@ object CapeCommand : Command("cape") {
                             return@doesLater
                         }
 
-                        var user: User? = null
-                        var msg: Message? = null
+                        val profilePair = UUIDManager.getByString(username)
 
-                        username.fixedUUID()?.let {
-                            msg = message.normal("Found UUID to attach to Cape `$capeUUID` - verifying")
-
-                            user = getFromUUID(it) ?: run {
-                                msg?.edit {
-                                    title = "Error"
-                                    description = "Couldn't find an account with the UUID `$capeUUID`!\n" +
-                                            "Make sure you have a real Mojang account, contact a moderator if this keeps happening."
-                                    color = Colors.error
-                                }
-                                return@doesLater
+                        val msg = if (profilePair != null) {
+                            message.normal("Found UUID to attach to Cape `$capeUUID` - verifying")
+                        } else {
+                            message.error(
+                                    "Couldn't find an account with the UUID/Name `$username`!\n" +
+                                    "Make sure you have a real Mojang account and with correct UUID/Name, " +
+                                    "contact a moderator if this keeps happening."
+                            ).edit {
+                                title = "Error"
+                                color = Colors.error
                             }
-
-                        } ?: run {
-                            msg = message.normal("Found name to attach to Cape `$capeUUID` - looking up UUID!")
-
-                            user = getFromName(username) ?: run {
-                                msg?.edit {
-                                    title = "Error"
-                                    description = "Couldn't find an account with the name `$username`!\n" +
-                                            "Make sure it is spelled correctly and it is a real Mojang account, contact a moderator if this keeps happening."
-                                    color = Colors.error
-                                }
-                                return@doesLater
-                            }
-
+                            return@doesLater
                         }
 
-                        user ?: return@doesLater
-
-                        val alreadyAttached = capes.find { it.playerUUID == user!!.uuid }
+                        val alreadyAttached = capes.find { it.playerUUID == profilePair.uuid }
                         if (alreadyAttached != null) {
-                            msg?.edit {
-                                description = "You already have ${user!!.currentMojangName.name} attached to Cape `${alreadyAttached.capeUUID}`!"
+                            msg.edit {
+                                description = "You already have ${profilePair.name} attached to Cape `${alreadyAttached.capeUUID}`!"
                                 color = Colors.error
                             }
                             return@doesLater
@@ -202,17 +186,17 @@ object CapeCommand : Command("cape") {
 
                         // this is after everything because we don't care about Mojang requests that much, but we don't want to commit every 5 minutes or whatever
                         changeTimeOut(capeUUID)?.let {
-                            msg?.edit {
+                            msg.edit {
                                 description = changeError(capeUUID, it)
                                 color = Colors.error
                             }
                             return@doesLater
                         }
 
-                        cape.playerUUID = user!!.uuid
+                        cape.playerUUID = profilePair.uuid
 
-                        msg?.edit {
-                            description = "Successfully attached Cape `${cape.capeUUID}` to user `${user!!.currentMojangName.name}`"
+                        msg.edit {
+                            description = "Successfully attached Cape `${cape.capeUUID}` to user `${profilePair.name}`"
                             color = Colors.success
                         }
                     }
@@ -237,10 +221,10 @@ object CapeCommand : Command("cape") {
                         return@doesLater
                     }
 
-                    val playerUUID = cape.playerUUID
+                    val name = UUIDManager.getByUUID(cape.playerUUID)?.name
                     cape.playerUUID = null
 
-                    message.success("Successfully removed ${cachedName(playerUUID)} from Cape `${cape.capeUUID}`!")
+                    message.success("Successfully removed $name from Cape `${cape.capeUUID}`!")
                 }
             }
         }
@@ -330,17 +314,14 @@ object CapeCommand : Command("cape") {
         if (!File(capesFile).exists()) return
         try {
             Files.newBufferedReader(Paths.get(capesFile)).use { bufferedReader ->
-                val readCapeUsers = Gson().fromJson<ArrayList<CapeUser>?>(bufferedReader, object : TypeToken<List<CapeUser>>() {}.type)
-                readCapeUsers?.let {
+                val cacheList = Gson().fromJson<List<CapeUser>>(bufferedReader, object : TypeToken<List<CapeUser>>() {}.type)
                     capeUserMap.clear()
-                    capeUserMap.putAll(readCapeUsers.associateBy { it.id })
-                } ?: run {
-                    println("=".repeat(20))
-                    println("Error reading capes!!")
-                    println("=".repeat(20))
-                }
+                    capeUserMap.putAll(cacheList.associateBy { it.id })
             }
         } catch (e: Exception) {
+            println("=".repeat(20))
+            println("Error reading capes!!")
+            println("=".repeat(20))
             e.printStackTrace()
         }
     }
