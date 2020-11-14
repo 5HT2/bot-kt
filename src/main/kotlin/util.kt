@@ -189,6 +189,7 @@ fun createGithubIssue(issue: Issue, user: String, repo: String, token: String) {
         .url(url).post(body).build()
 
     val response = OkHttpClient().newCall(request).execute()
+    // TODO: Return response
 }
 
 fun Server?.maxEmojiSlots(): Int {
@@ -219,7 +220,6 @@ fun Server?.maxEmojiSlots(): Int {
         else -> 50
     }
 }
-
 
 fun Exception.getStackTraceAsString(): String {
     val sw = StringWriter()

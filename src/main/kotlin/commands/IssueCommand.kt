@@ -80,7 +80,7 @@ object IssueCommand : Command("issue") {
                             }
 
                             val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
-                                message.error("Default Github org.kamiblue.capeapi.User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                                message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
                                 return@doesLater
                             }
 
@@ -129,7 +129,7 @@ object IssueCommand : Command("issue") {
         }
 
         val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
-            message.error("Default Github org.kamiblue.capeapi.User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+            message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
             return
         }
 

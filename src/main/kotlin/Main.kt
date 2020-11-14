@@ -3,8 +3,6 @@ package org.kamiblue.botkt
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
 import kotlinx.coroutines.*
-import org.kamiblue.botkt.helpers.UpdateHelper.updateCheck
-import org.kamiblue.botkt.helpers.UpdateHelper.writeCurrentVersion
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
@@ -18,6 +16,7 @@ import org.kamiblue.botkt.Send.log
 import org.kamiblue.botkt.commands.CapeCommand
 import org.kamiblue.botkt.commands.CounterCommand
 import org.kamiblue.botkt.helpers.StringHelper.firstInSentence
+import org.kamiblue.botkt.helpers.UpdateHelper
 import java.awt.Color
 import kotlin.system.exitProcess
 
@@ -60,8 +59,8 @@ class Bot {
 
         log("Starting bot!")
 
-        writeCurrentVersion()
-        updateCheck()
+        UpdateHelper.writeCurrentVersion()
+        UpdateHelper.updateCheck()
 
         val config = readConfigSafe<AuthConfig>(ConfigType.AUTH, false)
 
