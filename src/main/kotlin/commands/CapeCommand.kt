@@ -1,43 +1,31 @@
-package commands
+package org.kamiblue.botkt.commands
 
 import Cape
 import CapeColor
 import CapeType
 import CapeUser
-import Colors
-import Command
-import ConfigManager.readConfigSafe
-import ConfigType
-import Main
-import PermissionTypes.AUTHORIZE_CAPES
-import Send.error
-import Send.normal
-import Send.success
 import User
-import UserConfig
-import arg
 import cachedName
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import doesLater
-import doesLaterIfHas
 import fixedUUID
 import getFromName
 import getFromUUID
-import greedyString
-import helpers.MathHelper.round
-import helpers.ShellHelper.bash
-import helpers.ShellHelper.systemBash
-import helpers.StringHelper.toHumanReadable
-import helpers.StringHelper.toUserID
 import kotlinx.coroutines.delay
-import literal
-import maxEmojiSlots
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.emoji.Emoji
-import string
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.Send.normal
+import org.kamiblue.botkt.Send.success
+import org.kamiblue.botkt.helpers.MathHelper
+import org.kamiblue.botkt.helpers.ShellHelper.bash
+import org.kamiblue.botkt.helpers.ShellHelper.systemBash
+import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
+import org.kamiblue.botkt.helpers.StringHelper.toUserID
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -64,7 +52,7 @@ object CapeCommand : Command("cape") {
     init {
         literal("create") {
             greedyString("id") {
-                doesLaterIfHas(AUTHORIZE_CAPES) { context ->
+                doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) { context ->
                     val id: String = context arg "id"
 
                     val args = id.split(" ") // we have to do this because it's a greedy string, and <> aren't parsed as a single string
@@ -119,7 +107,7 @@ object CapeCommand : Command("cape") {
         literal("delete") {
             string("uuid") {
                 greedyString("user") {
-                    doesLaterIfHas(AUTHORIZE_CAPES) { context ->
+                    doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) { context ->
                         val capeUUID: String = context arg "uuid"
                         val userID: String = context arg "user"
                         var finalID: Long = 0
@@ -329,14 +317,14 @@ object CapeCommand : Command("cape") {
         }
 
         literal("save") {
-            doesLaterIfHas(AUTHORIZE_CAPES) {
+            doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) {
                 save()
                 message.success("Saved!")
             }
         }
 
         literal("load") {
-            doesLaterIfHas(AUTHORIZE_CAPES) {
+            doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) {
                 load()
                 message.success("Loaded!")
             }
@@ -485,7 +473,7 @@ object CapeCommand : Command("cape") {
             return null
         }
 
-        return round((900000 - difference) / 60000.0, 2) // / convert ms to minutes, with 2 decimal places
+        return MathHelper.round((900000 - difference) / 60000.0, 2) // / convert ms to minutes, with 2 decimal places
     }
 
     private val server

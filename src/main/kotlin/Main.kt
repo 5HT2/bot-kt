@@ -2,12 +2,9 @@ package org.kamiblue.botkt
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
+import kotlinx.coroutines.*
 import org.kamiblue.botkt.helpers.UpdateHelper.updateCheck
 import org.kamiblue.botkt.helpers.UpdateHelper.writeCurrentVersion
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
@@ -18,6 +15,7 @@ import org.kamiblue.botkt.CommandManager.registerCommands
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.log
+import org.kamiblue.botkt.commands.CapeCommand
 import org.kamiblue.botkt.commands.CounterCommand
 import org.kamiblue.botkt.helpers.StringHelper.firstInSentence
 import java.awt.Color

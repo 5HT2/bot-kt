@@ -1,7 +1,6 @@
 package org.kamiblue.botkt.commands
 
 import com.google.gson.GsonBuilder
-import org.kamiblue.botkt.helpers.StringHelper.flat
 import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
@@ -15,6 +14,8 @@ import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.normal
+import org.kamiblue.botkt.helpers.StringHelper.flat
+import org.kamiblue.botkt.helpers.StringHelper.toUserID
 
 object BanCommand : Command("ban") {
     init {
