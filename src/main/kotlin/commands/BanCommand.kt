@@ -87,7 +87,7 @@ object BanCommand : Command("ban") {
         }
 
         greedyString("userAndReason") {
-            doesLaterIfHas(PermissionTypes.COUNCIL_MEMBER) { context -> // we unfortunately have to do really icky manual org.kamiblue.botkt.string parsing here, due to brigadier not knowing <@!id> is a org.kamiblue.botkt.string
+            doesLaterIfHas(PermissionTypes.COUNCIL_MEMBER) { context -> // we unfortunately have to do really icky manual string parsing here, due to brigadier not knowing <@!id> is a string
                 val username: String = context arg "userAndReason"
 
                 if (!username.contains(" ")) {
