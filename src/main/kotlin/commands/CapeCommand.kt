@@ -1,17 +1,8 @@
 package org.kamiblue.botkt.commands
 
-import Cape
-import CapeColor
-import CapeType
-import CapeUser
-import User
-import cachedName
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import fixedUUID
-import getFromName
-import getFromUUID
 import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
@@ -26,6 +17,7 @@ import org.kamiblue.botkt.helpers.ShellHelper.bash
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
 import org.kamiblue.botkt.helpers.StringHelper.toUserID
+import org.kamiblue.capeapi.*
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -70,13 +62,13 @@ object CapeCommand : Command("cape") {
                         return@doesLaterIfHas
                     }
 
-                    /** find CapeType from user's args */
+                    /** find org.kamiblue.capeapi.CapeType from user's args */
                     val type = CapeType.values().find { capeType ->
                         capeType.realName.equals(args[1], ignoreCase = true)
                     }
 
                     if (type == null) {
-                        message.error("Couldn't find Cape type \"${args[1].toHumanReadable()}\"!")
+                        message.error("Couldn't find org.kamiblue.capeapi.Cape type \"${args[1].toHumanReadable()}\"!")
                         return@doesLaterIfHas
                     }
 
@@ -93,10 +85,10 @@ object CapeCommand : Command("cape") {
 
                     message.channel.send {
                         embed {
-                            title = "Cape created!"
-                            field("User", user.mention)
+                            title = "org.kamiblue.capeapi.Cape created!"
+                            field("org.kamiblue.capeapi.User", user.mention)
                             field("Type", type.realName)
-                            field("Cape UUID", newCape.capeUUID)
+                            field("org.kamiblue.capeapi.Cape UUID", newCape.capeUUID)
                             color = Colors.success
                         }
                     }
@@ -120,7 +112,7 @@ object CapeCommand : Command("cape") {
                         }
 
                         val user = capeUserMap[finalID] ?: run {
-                            message.error("Couldn't find a Cape User with the ID `$finalID`!")
+                            message.error("Couldn't find a org.kamiblue.capeapi.Cape org.kamiblue.capeapi.User with the ID `$finalID`!")
                             return@doesLaterIfHas
                         }
 
@@ -131,7 +123,7 @@ object CapeCommand : Command("cape") {
 
                         user.deleteCape(cape)
 
-                        message.success("Removed Cape `$capeUUID` from Cape User `$finalID`!")
+                        message.success("Removed org.kamiblue.capeapi.Cape `$capeUUID` from org.kamiblue.capeapi.Cape org.kamiblue.capeapi.User `$finalID`!")
                     }
                 }
             }
@@ -144,7 +136,7 @@ object CapeCommand : Command("cape") {
                 message.channel.send {
                     embed {
                         userCapes.forEach {
-                            field("Cape UUID ${it.capeUUID}", "Player Name: ${cachedName(it.playerUUID) ?: "Not attached"}\nCape Type: ${it.type.realName}")
+                            field("org.kamiblue.capeapi.Cape UUID ${it.capeUUID}", "Player Name: ${cachedName(it.playerUUID) ?: "Not attached"}\norg.kamiblue.capeapi.Cape Type: ${it.type.realName}")
                         }
                         color = Colors.primary
                     }
@@ -170,7 +162,7 @@ object CapeCommand : Command("cape") {
                         var msg: Message? = null
 
                         username.fixedUUID()?.let {
-                            msg = message.normal("Found UUID to attach to Cape `$capeUUID` - verifying")
+                            msg = message.normal("Found UUID to attach to org.kamiblue.capeapi.Cape `$capeUUID` - verifying")
 
                             user = getFromUUID(it) ?: run {
                                 msg?.edit {
@@ -183,7 +175,7 @@ object CapeCommand : Command("cape") {
                             }
 
                         } ?: run {
-                            msg = message.normal("Found name to attach to Cape `$capeUUID` - looking up UUID!")
+                            msg = message.normal("Found name to attach to org.kamiblue.capeapi.Cape `$capeUUID` - looking up UUID!")
 
                             user = getFromName(username) ?: run {
                                 msg?.edit {
@@ -202,7 +194,7 @@ object CapeCommand : Command("cape") {
                         val alreadyAttached = capes.find { it.playerUUID == user!!.uuid }
                         if (alreadyAttached != null) {
                             msg?.edit {
-                                description = "You already have ${user!!.currentMojangName.name} attached to Cape `${alreadyAttached.capeUUID}`!"
+                                description = "You already have ${user!!.currentMojangName.name} attached to org.kamiblue.capeapi.Cape `${alreadyAttached.capeUUID}`!"
                                 color = Colors.error
                             }
                             return@doesLater
@@ -220,7 +212,7 @@ object CapeCommand : Command("cape") {
                         cape.playerUUID = user!!.uuid
 
                         msg?.edit {
-                            description = "Successfully attached Cape `${cape.capeUUID}` to user `${user!!.currentMojangName.name}`"
+                            description = "Successfully attached org.kamiblue.capeapi.Cape `${cape.capeUUID}` to user `${user!!.currentMojangName.name}`"
                             color = Colors.success
                         }
                     }
@@ -248,7 +240,7 @@ object CapeCommand : Command("cape") {
                     val playerUUID = cape.playerUUID
                     cape.playerUUID = null
 
-                    message.success("Successfully removed ${cachedName(playerUUID)} from Cape `${cape.capeUUID}`!")
+                    message.success("Successfully removed ${cachedName(playerUUID)} from org.kamiblue.capeapi.Cape `${cape.capeUUID}`!")
                 }
             }
         }
@@ -270,7 +262,7 @@ object CapeCommand : Command("cape") {
                             }
 
                             if (cape.type != CapeType.CONTEST) {
-                                message.error("You're only able to change the colors of Contest Capes, `${capeUUID} is a `${cape.type.realName} Cape!")
+                                message.error("You're only able to change the colors of Contest Capes, `${capeUUID} is a `${cape.type.realName} org.kamiblue.capeapi.Cape!")
                                 return@doesLater
                             }
 
@@ -296,7 +288,7 @@ object CapeCommand : Command("cape") {
 
                             message.channel.send {
                                 embed {
-                                    description = "Successfully changed the colors of Cape `${cape.capeUUID}`!"
+                                    description = "Successfully changed the colors of org.kamiblue.capeapi.Cape `${cape.capeUUID}`!"
                                     field(
                                             "Old Colors",
                                             oldColors,
@@ -398,7 +390,7 @@ object CapeCommand : Command("cape") {
     private suspend fun Message.getCapes(): ArrayList<Cape>? {
         return author?.let { author ->
             capeUserMap[author.id]?.capes.also {
-                if (it == null) error("User ${author.mention} does not have any capes!")
+                if (it == null) error("org.kamiblue.capeapi.User ${author.mention} does not have any capes!")
             }
         }
     }
@@ -483,6 +475,6 @@ object CapeCommand : Command("cape") {
             server
         }
 
-    private fun capeError(capeUUID: String) = "Couldn't find a Cape with a UUID of `$capeUUID`. Make sure you're entering the short UUID as the Cape UUID, not your player UUID"
-    private fun changeError(capeUUID: String, time: Double) = "Cape `$capeUUID` was changed recently, you must wait $time more minutes before you can change it again!"
+    private fun capeError(capeUUID: String) = "Couldn't find a org.kamiblue.capeapi.Cape with a UUID of `$capeUUID`. Make sure you're entering the short UUID as the org.kamiblue.capeapi.Cape UUID, not your player UUID"
+    private fun changeError(capeUUID: String, time: Double) = "org.kamiblue.capeapi.Cape `$capeUUID` was changed recently, you must wait $time more minutes before you can change it again!"
 }

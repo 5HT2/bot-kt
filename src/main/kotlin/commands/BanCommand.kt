@@ -159,7 +159,7 @@ object BanCommand : Command("ban") {
     suspend fun banIfNotFound(usernameIsId: Boolean, username: String, unfilteredUsername: String, deleteMessageDays: Int, fixedReason: String, server: Server, message: Message) {
         if (!usernameIsId) {
             val nor: String = if (username != unfilteredUsername) "$unfilteredUsername nor $username" else unfilteredUsername
-            message.error("User $nor not found!")
+            message.error("org.kamiblue.capeapi.User $nor not found!")
             return
         }
 
