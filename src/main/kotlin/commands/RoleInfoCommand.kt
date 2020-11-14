@@ -42,7 +42,7 @@ object RoleInfoCommand : Command("roleinfo") {
                 title = role.name
                 color = if (role.isEveryone) Colors.primary else role.color
                 description = role.mention
-                field("org.kamiblue.botkt.Permissions", prettyPermissions)
+                field("Permissions", prettyPermissions)
                 field("Position", role.position.toString())
                 field("Hoisted", role.hoist.toString())
             }
