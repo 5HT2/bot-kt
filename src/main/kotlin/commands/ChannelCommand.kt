@@ -1,28 +1,18 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import PermissionTypes.*
-import Send.error
-import Send.normal
-import Send.success
-import arg
-import commands.ChannelCommand.ChangeType.LOAD
-import commands.ChannelCommand.ChangeType.SAVE
-import doesLaterIfHas
-import helpers.StringHelper.toHumanReadable
-import integer
-import literal
+import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.channel.ServerChannel
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
-import pretty
-import string
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.PermissionTypes.*
+import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.Send.normal
+import org.kamiblue.botkt.Send.success
 import kotlin.collections.set
-
 
 object ChannelCommand : Command("channel") {
     init {
@@ -182,7 +172,7 @@ object ChannelCommand : Command("channel") {
             selectedConfig.add(it)
         }
 
-        previousChange = Triple(Pair(SAVE, name), serverChannel, serverChannel.rolePermissionOverwrites)
+        previousChange = Triple(Pair(ChangeType.SAVE, name), serverChannel, serverChannel.rolePermissionOverwrites)
         // make sure to run this AFTER saving previous state
         permissions[name] = selectedConfig
 
@@ -217,7 +207,7 @@ object ChannelCommand : Command("channel") {
         }
 
         val serverChannel = message.serverChannel(message) ?: run { return }
-        previousChange = Triple(Pair(LOAD, name), serverChannel, serverChannel.rolePermissionOverwrites)
+        previousChange = Triple(Pair(ChangeType.LOAD, name), serverChannel, serverChannel.rolePermissionOverwrites)
 
         serverChannel.setPermissions(selectedChannel)
 
@@ -234,7 +224,7 @@ object ChannelCommand : Command("channel") {
             }
 
             when (it.first.first) {
-                SAVE -> {
+                ChangeType.SAVE -> {
                     permissions[it.first.second] = it.third.toHashSet()
 
                     m.edit {
@@ -247,7 +237,7 @@ object ChannelCommand : Command("channel") {
                     previousChange = null
                 }
 
-                LOAD -> {
+                ChangeType.LOAD -> {
                     it.second.setPermissions(it.third.toHashSet())
 
                     m.edit {
