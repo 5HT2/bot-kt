@@ -21,7 +21,7 @@ import java.io.StringWriter
 import java.util.concurrent.TimeUnit
 
 /**
- * @return a org.kamiblue.botkt.pretty formatted set of permissions, "None" if empty
+ * @return a pretty formatted set of permissions, "None" if empty
  */
 fun PermissionSet.pretty() =
     if (this.isEmpty()) "None"
