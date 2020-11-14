@@ -1,10 +1,6 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import arg
-import doesLater
-import greedyString
+import org.kamiblue.botkt.*
 
 object LmgtfyCommand : Command("lmgtfy") {
     init {

@@ -1,4 +1,4 @@
-package helpers
+package org.kamiblue.botkt.helpers
 
 import java.io.File
 import java.net.URL

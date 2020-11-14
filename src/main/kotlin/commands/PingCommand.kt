@@ -1,8 +1,8 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import doesLater
+import org.kamiblue.botkt.Colors
+import org.kamiblue.botkt.Command
+import org.kamiblue.botkt.doesLater
 
 object PingCommand : Command("ping") {
     init {

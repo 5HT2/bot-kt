@@ -1,12 +1,14 @@
-import Send.log
+package org.kamiblue.botkt
+
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.tree.LiteralCommandNode
-import helpers.StringHelper.firstInSentence
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
+import org.kamiblue.botkt.Send.log
+import org.kamiblue.botkt.helpers.StringHelper.firstInSentence
 import org.reflections.Reflections
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -51,6 +53,7 @@ object CommandManager {
      * Uses reflection to get a list of classes in the commands package which extend [Command]
      * and register said classes instances with Brigadier.
      */
+    @Suppress("UNCHECKED_CAST")
     fun registerCommands(dispatcher: CommandDispatcher<Cmd>) {
         val reflections = Reflections("commands")
 
