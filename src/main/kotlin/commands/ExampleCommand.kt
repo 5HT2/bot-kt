@@ -10,16 +10,16 @@ object ExampleCommand : Command("ec") {
     init {
         literal("kami") {
             doesLater {
-                message.channel.send("[$fullName] First org.kamiblue.botkt.argument!")
+                message.channel.send("[$fullName] First argument!")
             }
             literal("blue") {
                 doesLater {
-                    message.channel.send("[$fullName] Second org.kamiblue.botkt.argument used after first org.kamiblue.botkt.argument!")
+                    message.channel.send("[$fullName] Second argument used after first argument!")
                 }
             }
         }
         literal("foo") {
-            doesLater { message.channel.send("[$fullName] Second org.kamiblue.botkt.argument used without first org.kamiblue.botkt.argument!") }
+            doesLater { message.channel.send("[$fullName] Second argument used without first argument!") }
         }
         literal("count") {
             greedyString("sentence") {
