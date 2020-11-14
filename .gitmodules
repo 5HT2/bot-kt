@@ -2,6 +2,6 @@
 	path = src/main/kotlin/github-discussion-api
 	url = https://github.com/l1ving/github-discussion-api.git
 
-[submodule "src/main/kotlin/cape-api"]
-	path = src/main/kotlin/cape-api
+[submodule "src/main/cape-api"]
+	path = src/main/cape-api
 	url = https://github.com/kami-blue/cape-api.git
