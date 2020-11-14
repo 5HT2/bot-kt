@@ -1,26 +1,8 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import ConfigManager.readConfigSafe
-import ConfigType
-import FakeUser
-import PermissionTypes.COUNCIL_MEMBER
-import PermissionTypes.MASS_BAN
-import Permissions.hasPermission
-import Send.error
-import Send.normal
-import UserConfig
-import arg
-import authenticatedRequest
 import com.google.gson.GsonBuilder
-import doesLaterIfHas
-import getAuthToken
-import greedyString
-import helpers.StringHelper.flat
-import helpers.StringHelper.toUserID
+import org.kamiblue.botkt.helpers.StringHelper.flat
 import kotlinx.coroutines.delay
-import literal
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.user.User
@@ -28,13 +10,18 @@ import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.Permissions.hasPermission
+import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.Send.normal
 
 object BanCommand : Command("ban") {
     init {
         literal("regex") {
             literal("confirm") {
                 greedyString("userRegex") {
-                    doesLaterIfHas(MASS_BAN) { context ->
+                    doesLaterIfHas(PermissionTypes.MASS_BAN) { context ->
                         val regex: String = context arg "userRegex"
 
                         val server = server ?: run { message.error("Server members are null, are you running this from a DM?"); return@doesLaterIfHas }
@@ -83,7 +70,7 @@ object BanCommand : Command("ban") {
             }
 
             greedyString("userRegex") {
-                doesLaterIfHas(MASS_BAN) { context ->
+                doesLaterIfHas(PermissionTypes.MASS_BAN) { context ->
                     val regex: String = context arg "userRegex"
 
                     val members = server?.members ?: run { message.error("Server members are null, are you running this from a DM?"); return@doesLaterIfHas }
@@ -100,7 +87,7 @@ object BanCommand : Command("ban") {
         }
 
         greedyString("userAndReason") {
-            doesLaterIfHas(COUNCIL_MEMBER) { context -> // we unfortunately have to do really icky manual string parsing here, due to brigadier not knowing <@!id> is a string
+            doesLaterIfHas(PermissionTypes.COUNCIL_MEMBER) { context -> // we unfortunately have to do really icky manual string parsing here, due to brigadier not knowing <@!id> is a string
                 val username: String = context arg "userAndReason"
 
                 if (!username.contains(" ")) {
@@ -179,7 +166,7 @@ object BanCommand : Command("ban") {
             if (username.toLong() == message.author?.id) {
                 message.error("You can't ban yourself!")
                 return
-            } else if (username.toLong().hasPermission(COUNCIL_MEMBER)) {
+            } else if (username.toLong().hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
                 message.error("That user is protected, I can't do that.")
                 return
             }
@@ -246,7 +233,7 @@ object BanCommand : Command("ban") {
         if (user.id == message.author?.id) {
             message.error("You can't ban yourself!")
             return
-        } else if (user.id.hasPermission(COUNCIL_MEMBER)) {
+        } else if (user.id.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
             message.error("That user is protected, I can't do that.")
             return
         }

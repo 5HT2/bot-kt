@@ -1,21 +1,25 @@
-import CommandManager.registerCommands
-import ConfigManager.readConfigSafe
-import Main.ready
-import Send.error
-import Send.log
+package org.kamiblue.botkt
+
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import commands.CapeCommand
-import commands.CounterCommand
-import helpers.UpdateHelper.updateCheck
-import helpers.UpdateHelper.writeCurrentVersion
-import kotlinx.coroutines.*
+import org.kamiblue.botkt.helpers.UpdateHelper.updateCheck
+import org.kamiblue.botkt.helpers.UpdateHelper.writeCurrentVersion
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
+import org.kamiblue.botkt.CommandManager.registerCommands
+import org.kamiblue.botkt.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.Send.log
+import org.kamiblue.botkt.commands.CounterCommand
+import org.kamiblue.botkt.helpers.StringHelper.firstInSentence
 import java.awt.Color
 import kotlin.system.exitProcess
 
@@ -115,13 +119,13 @@ class Bot {
             }
         }
 
-        ready = true
+        Main.ready = true
         log(initialization)
     }
 
     @EventHandler
     suspend fun onMessageReceive(event: MessageReceiveEvent) {
-        if (!ready || event.message.content.isEmpty()) return // message can be empty on images, embeds and other attachments
+        if (!Main.ready || event.message.content.isEmpty()) return // message can be empty on images, embeds and other attachments
 
         val message = if (event.message.content[0] == Main.prefix()) event.message.content.substring(1) else return
         val cmd = Cmd(event)
@@ -132,20 +136,30 @@ class Bot {
                 cmd.file(event)
                 if (exit != 0) log("(executed with exit code $exit)")
             } catch (e: CommandSyntaxException) {
-                if (CommandManager.isCommand(message)) {
-                    val command = CommandManager.getCommandClass(message)!!
+                if (!CommandManager.isCommand(message)) {
                     cmd.event.message.channel.send {
                         embed {
-                            title = "Invalid Syntax: $message"
-                            description = "**${e.message}**\n\n${command.getHelpUsage()}"
+                            title = "Unknown Command: ${Main.prefix()}${message.firstInSentence()}"
+                            color = Colors.error
+                        }
+                    }
+                } else {
+                    val usage = CommandManager.getCommandClass(message)?.getHelpUsage()
+                    cmd.event.message.channel.send {
+                        embed {
+                            title = "Invalid Syntax: ${Main.prefix()}$message"
+                            description = "${e.message}${
+                                usage?.let {
+                                    "\n\n$it"
+                                } ?: ""
+                            }"
                             color = Colors.error
                         }
                     }
                 }
             }
         } catch (e: Exception) {
-            if (e is NullPointerException) return // will be thrown for invalid syntax
-            event.message.error("```\n${e.getStackTraceAsString()}\n```")
+            event.message.error("```\n${e.getStackTraceAsString()}\n```") // TODO: proper command to view stacktraces
         }
     }
 }

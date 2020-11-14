@@ -1,13 +1,6 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import ConfigManager
-import ConfigType
-import RulesConfig
-import arg
-import doesLater
-import string
+import org.kamiblue.botkt.*
 
 object RulesCommand : Command("r") {
     init {
