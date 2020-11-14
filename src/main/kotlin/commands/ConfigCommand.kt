@@ -1,25 +1,16 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import ConfigManager
-import ConfigType
-import PermissionTypes.MANAGE_CONFIG
-import Send.error
-import Send.success
-import arg
 import com.google.gson.GsonBuilder
-import doesLaterIfHas
-import greedyString
-import helpers.StringHelper.writeBytes
-import literal
-import string
+import org.kamiblue.botkt.helpers.StringHelper.writeBytes
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.Send.success
 
 object ConfigCommand : Command("config") {
     init {
         literal("print") {
             string("name") {
-                doesLaterIfHas(MANAGE_CONFIG) { context ->
+                doesLaterIfHas(PermissionTypes.MANAGE_CONFIG) { context ->
                     val name: String = context arg "name"
                     val gson = GsonBuilder().setPrettyPrinting().create()
 
@@ -37,7 +28,7 @@ object ConfigCommand : Command("config") {
         }
 
         literal("list") {
-            doesLaterIfHas(MANAGE_CONFIG) {
+            doesLaterIfHas(PermissionTypes.MANAGE_CONFIG) {
                 message.channel.send {
                     embed {
                         title = "Config Types"
@@ -51,7 +42,7 @@ object ConfigCommand : Command("config") {
 
         literal("reload") {
             string("name") {
-                doesLaterIfHas(MANAGE_CONFIG) { context ->
+                doesLaterIfHas(PermissionTypes.MANAGE_CONFIG) { context ->
                     val name: String = context arg "name"
 
                     var found = false
@@ -78,7 +69,7 @@ object ConfigCommand : Command("config") {
         literal("download") {
             string("name") {
                 greedyString("url") {
-                    doesLaterIfHas(MANAGE_CONFIG) { context ->
+                    doesLaterIfHas(PermissionTypes.MANAGE_CONFIG) { context ->
                         val name: String = context arg "name"
                         val url: String = context arg "url"
                         val size: Int

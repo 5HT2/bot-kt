@@ -1,38 +1,20 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import AuthConfig
-import Colors
-import Command
-import ConfigManager
-import ConfigType
-import Main
-import PermissionTypes
-import Permissions.hasPermission
-import Send.error
-import Send.success
-import UserConfig
-import addReaction
-import arg
-import authenticatedRequest
-import createGithubIssue
-import doesLater
-import getDefaultGithubUser
-import getGithubToken
-import getStackTraceAsString
-import greedyString
-import helpers.StringHelper.flat
-import helpers.StringHelper.toHumanReadable
 import kotlinx.coroutines.delay
-import literal
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import net.ayataka.kordis.event.events.message.ReactionAddEvent
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.Permissions.hasPermission
+import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.Send.success
+import org.kamiblue.botkt.helpers.StringHelper.flat
+import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.issue.Label
 import org.l1ving.api.issue.User
 import org.l1ving.api.pull.PullRequest
-import string
 import java.awt.Color
 
 /**
@@ -98,7 +80,7 @@ object IssueCommand : Command("issue") {
                             }
 
                             val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
-                                message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                                message.error("Default Github org.kamiblue.capeapi.User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
                                 return@doesLater
                             }
 
@@ -147,7 +129,7 @@ object IssueCommand : Command("issue") {
         }
 
         val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
-            message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+            message.error("Default Github org.kamiblue.capeapi.User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
             return
         }
 
