@@ -410,7 +410,7 @@ object CapeCommand : Command("cape") {
     private suspend fun Message.getCapes(): ArrayList<Cape>? {
         return author?.let { author ->
             capeUserMap[author.id]?.capes.also {
-                if (it == null) error("User <@${author.id}> does not have any capes!")
+                if (it == null) error("User ${author.mention} does not have any capes!")
             }
         }
     }
