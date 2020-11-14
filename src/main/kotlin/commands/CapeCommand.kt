@@ -29,7 +29,6 @@ import greedyString
 import helpers.MathHelper.round
 import helpers.ShellHelper.bash
 import helpers.ShellHelper.systemBash
-import helpers.StringHelper.prepend
 import helpers.StringHelper.toHumanReadable
 import helpers.StringHelper.toUserID
 import kotlinx.coroutines.delay
@@ -55,11 +54,12 @@ object CapeCommand : Command("cape") {
     private val hexRegex = Regex("^[A-Fa-f0-9]{6}\$")
     private val changedTimeouts = hashMapOf<String, Long>()
     private val capeUserMap = HashMap<Long, CapeUser>()
-    private val cachedEmojis = LinkedHashMap<String, Emoji?>()
+    private val cachedEmojis = LinkedHashMap<String, Emoji>()
     private var cachedServer: Server? = null
 
     private const val capesFile = "config/capes.json"
     private const val findError = "Username is improperly formatted, try pinging or using the users ID, and make sure the user exists in this server!"
+    private const val missingTexture = "<:cssource:775893099527929926> "
 
     init {
         literal("create") {
@@ -99,9 +99,9 @@ object CapeCommand : Command("cape") {
                     }
 
                     val newCape = Cape(null, type = type)
-                    val existingCapeUser = user.id.getUser(null)
-                    val updatedCapeUser = existingCapeUser?.editCapes(newCape) ?: CapeUser(user.id, arrayListOf(newCape), type == CapeType.DONOR)
-                    capeUserMap[updatedCapeUser.id] = updatedCapeUser
+                    capeUserMap.getOrPut(user.id) {
+                        CapeUser(user.id, arrayListOf(newCape), type == CapeType.DONOR)
+                    }.addCape(newCape)
 
                     message.channel.send {
                         embed {
@@ -141,7 +141,7 @@ object CapeCommand : Command("cape") {
                             return@doesLaterIfHas
                         }
 
-                        user.deleteCape(cape.capeUUID)
+                        user.deleteCape(cape)
 
                         message.success("Removed Cape `$capeUUID` from Cape User `$finalID`!")
                     }
@@ -310,14 +310,14 @@ object CapeCommand : Command("cape") {
                                 embed {
                                     description = "Successfully changed the colors of Cape `${cape.capeUUID}`!"
                                     field(
-                                        "Old Colors",
-                                        oldColors,
-                                        true
+                                            "Old Colors",
+                                            oldColors,
+                                            true
                                     )
                                     field(
-                                        "New Colors",
-                                        newColors,
-                                        true
+                                            "New Colors",
+                                            newColors,
+                                            true
                                     )
                                     color = Colors.success
                                 }
@@ -329,14 +329,14 @@ object CapeCommand : Command("cape") {
         }
 
         literal("save") {
-            doesLater {
+            doesLaterIfHas(AUTHORIZE_CAPES) {
                 save()
                 message.success("Saved!")
             }
         }
 
         literal("load") {
-            doesLater {
+            doesLaterIfHas(AUTHORIZE_CAPES) {
                 load()
                 message.success("Loaded!")
             }
@@ -366,7 +366,7 @@ object CapeCommand : Command("cape") {
     }
 
     fun save() {
-        val capeUsers = capeUserMap.values
+        val capeUsers = capeUserMap.values.toList()
         Files.newBufferedWriter(Paths.get(capesFile)).use {
             it.write(gson.toJson(capeUsers, object : TypeToken<List<CapeUser>>() {}.type))
         }
@@ -375,7 +375,7 @@ object CapeCommand : Command("cape") {
     suspend fun commit() { // TODO: hardcoded and a hack. I'm embarrassed to push this, but this is waiting for me to add plugin support
         readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {
             if (it != 573954110454366214) return
-        } ?: run { return }
+        } ?: return
 
         val assets = "/home/mika/projects/cape-api"
         val time = "date".bash()
@@ -395,11 +395,11 @@ object CapeCommand : Command("cape") {
         "git push".systemBash(assets)
     }
 
-    private fun CapeUser.deleteCape(capeUUID: String) {
-        this.capes.removeIf { it.capeUUID == capeUUID }
+    private fun CapeUser.deleteCape(cape: Cape) {
+        this.capes.remove(cape)
     }
 
-    private fun CapeUser.editCapes(cape: Cape): CapeUser {
+    private fun CapeUser.addCape(cape: Cape): CapeUser {
         return apply {
             this.capes.removeIf { it.capeUUID == cape.capeUUID }
             this.capes.add(cape)
@@ -408,89 +408,73 @@ object CapeCommand : Command("cape") {
     }
 
     private suspend fun Message.getCapes(): ArrayList<Cape>? {
-        return author?.id.getCapes(this)
-    }
-
-    private suspend fun Long?.getCapes(message: Message?): ArrayList<Cape>? {
-        return getUser(message)?.capes
-    }
-
-    private suspend fun Long?.getUser(message: Message?): CapeUser? {
-        return capeUserMap[this] ?: run {
-            message?.error("User <@$this> does not have any capes!")
-            null
+        return author?.let { author ->
+            capeUserMap[author.id]?.capes.also {
+                if (it == null) error("User ${author.mention} does not have any capes!")
+            }
         }
     }
 
     private suspend fun CapeColor.toEmoji(): String {
-        val primary = makeEmojiFromHex(primary)
-        val border = makeEmojiFromHex(border)
+        return StringBuilder(4).run {
+            append(makeEmojiFromHex(primary)?.let { "<:${it.name}:${it.id}> " } ?: missingTexture)
+            append("Primary (#${primary})\n")
 
-        var primaryEmoji = "Primary (#${this.primary})"
-        var borderEmoji = "Border (#${this.border})"
+            append(makeEmojiFromHex(border)?.let { "<:${it.name}:${it.id}> " } ?: missingTexture)
+            append("Border (#${border})")
 
-        primaryEmoji = primary?.let {
-            primaryEmoji.prepend("<:${it.name}:${it.id}> ") } ?: run {
-            primaryEmoji.prepend("<:cssource:775893099527929926> ")
+            toString()
         }
-
-        borderEmoji = border?.let {
-            borderEmoji.prepend("<:${it.name}:${it.id}> ") } ?: run {
-            borderEmoji.prepend("<:cssource:775893099527929926> ")
-        }
-
-        return "$primaryEmoji\n$borderEmoji"
     }
 
     @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun makeEmojiFromHex(hex: String): Emoji? {
         trimAndSyncEmojis()
 
-        return try {
-            cachedEmojis.getOrPut(hex, {
-                val b = ByteArrayOutputStream()
-                val bufferedImage = BufferedImage(64, 64, BufferedImage.TYPE_INT_RGB)
+        return server?.let {
+            try {
+                cachedEmojis.getOrPut(hex) {
+                    val b = ByteArrayOutputStream()
+                    val bufferedImage = BufferedImage(64, 64, BufferedImage.TYPE_INT_RGB)
 
-                for (x in 0 until bufferedImage.width) for (y in 0 until bufferedImage.height) {
-                    bufferedImage.setRGB(x, y, Integer.decode("0x$hex"))
+                    for (x in 0 until bufferedImage.width) for (y in 0 until bufferedImage.height) {
+                        bufferedImage.setRGB(x, y, Integer.decode("0x$hex"))
+                    }
+
+                    ImageIO.write(bufferedImage, "jpg", b)
+
+                    it.createEmoji {
+                        name = hex
+                        image = b.toByteArray()
+                    }
                 }
-
-                ImageIO.write(bufferedImage, "jpg", b)
-
-                server?.createEmoji {
-                    name = hex
-                    image = b.toByteArray()
-                }
-            })
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
         }
     }
 
     suspend fun trimAndSyncEmojis() {
-        val server = server ?: return
-        syncEmojis()
-        val maxEmojiSlots = server.maxEmojiSlots()
-
-        while (cachedEmojis.size + 5 >= maxEmojiSlots) {
-            val key = cachedEmojis.keys.last()
-            cachedEmojis.remove(key)?.delete()
-        }
-    }
-
-    private fun syncEmojis() {
-        server?.emojis?.let { serverEmojis ->
-            serverEmojis.forEach {
+        server?.let { server ->
+            // Sync emojis
+            cachedEmojis.values.removeIf { !server.emojis.contains(it) }
+            server.emojis.reversed().forEach {
                 cachedEmojis[it.name] = it
             }
-            cachedEmojis.values.removeIf { !serverEmojis.contains(it) }
+
+            // Delete emoji if getting close to emoji limit
+            val maxEmojiSlots = server.maxEmojiSlots()
+            while (cachedEmojis.size + 5 >= maxEmojiSlots) {
+                val key = cachedEmojis.keys.first()
+                cachedEmojis.remove(key)?.delete()
+            }
         }
     }
 
     private fun changeTimeOut(capeUUID: String): Double? {
-        val time = changedTimeouts[capeUUID] ?: run {
-            changedTimeouts[capeUUID] = System.currentTimeMillis()
+        val time = changedTimeouts.getOrPut(capeUUID) {
+            System.currentTimeMillis()
             return null
         }
 
@@ -504,13 +488,12 @@ object CapeCommand : Command("cape") {
         return round((900000 - difference) / 60000.0, 2) // / convert ms to minutes, with 2 decimal places
     }
 
-    private val server get() = run {
-        cachedServer ?: run {
+    private val server
+        get() = cachedServer ?: run {
             val server = Main.client?.servers?.find(775449131736760361)
             cachedServer = server
             server
         }
-    }
 
     private fun capeError(capeUUID: String) = "Couldn't find a Cape with a UUID of `$capeUUID`. Make sure you're entering the short UUID as the Cape UUID, not your player UUID"
     private fun changeError(capeUUID: String, time: Double) = "Cape `$capeUUID` was changed recently, you must wait $time more minutes before you can change it again!"
