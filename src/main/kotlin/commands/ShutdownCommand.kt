@@ -1,10 +1,10 @@
-package org.kamiblue.botkt.commands
+package commands
 
-import org.kamiblue.botkt.Colors
-import org.kamiblue.botkt.Command
-import org.kamiblue.botkt.Main
-import org.kamiblue.botkt.PermissionTypes.REBOOT_BOT
-import org.kamiblue.botkt.doesLaterIfHas
+import Colors
+import Command
+import Main
+import PermissionTypes.REBOOT_BOT
+import doesLaterIfHas
 
 object ShutdownCommand : Command("shutdown") {
     init {

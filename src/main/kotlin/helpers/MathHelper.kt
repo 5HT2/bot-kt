@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.helpers
+package helpers
 
 import kotlin.math.pow
 

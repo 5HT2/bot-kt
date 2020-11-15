@@ -1,6 +1,10 @@
-package org.kamiblue.botkt
-
-import org.kamiblue.botkt.commands.IssueCommand
+import ConfigTypes.authConfigData
+import ConfigTypes.counterConfigData
+import ConfigTypes.mutesConfigData
+import ConfigTypes.permissionConfigData
+import ConfigTypes.rulesConfigData
+import ConfigTypes.userConfigData
+import commands.IssueCommand
 
 object ConfigTypes {
     var authConfigData: AuthConfig? = null
@@ -16,12 +20,12 @@ object ConfigTypes {
  * [data] is the actual config data, read in the format of clazz
  */
 enum class ConfigType(val configPath: String, var data: Any?) {
-    AUTH("config/auth.json", ConfigTypes.authConfigData),
-    MUTE("config/mutes.json", ConfigTypes.mutesConfigData),
-    RULES("config/rules.json", ConfigTypes.rulesConfigData),
-    USER("config/user.json", ConfigTypes.userConfigData),
-    PERMISSION("config/permissions.json", ConfigTypes.permissionConfigData),
-    COUNTER("config/counters.json", ConfigTypes.counterConfigData)
+    AUTH("config/auth.json", authConfigData),
+    MUTE("config/mutes.json", mutesConfigData),
+    RULES("config/rules.json", rulesConfigData),
+    USER("config/user.json", userConfigData),
+    PERMISSION("config/permissions.json", permissionConfigData),
+    COUNTER("config/counters.json", counterConfigData)
 }
 
 /**

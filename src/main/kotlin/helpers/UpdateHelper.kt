@@ -1,10 +1,12 @@
-package org.kamiblue.botkt.helpers
+package helpers
 
-import org.kamiblue.botkt.*
-import org.kamiblue.botkt.ConfigManager
-import org.kamiblue.botkt.Send.log
-import org.kamiblue.botkt.UserConfig
-import org.kamiblue.botkt.VersionConfig
+import ConfigManager
+import ConfigType
+import Main
+import Main.currentVersion
+import Send.log
+import UserConfig
+import VersionConfig
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -25,12 +27,12 @@ object UpdateHelper {
             return
         }
 
-        if (versionConfig.version != Main.currentVersion) {
-            log("Not up to date:\nCurrent version: ${Main.currentVersion}\nLatest Version: ${versionConfig.version}")
+        if (versionConfig.version != currentVersion) {
+            log("Not up to date:\nCurrent version: $currentVersion\nLatest Version: ${versionConfig.version}")
 
             updateBot(versionConfig.version)
         } else {
-            log("Up to date! Running on ${Main.currentVersion}")
+            log("Up to date! Running on $currentVersion")
         }
     }
 

@@ -1,16 +1,25 @@
-package org.kamiblue.botkt.commands
+package commands
 
+import Command
+import ConfigManager.readConfigSafe
+import ConfigType
+import CounterConfig
+import Main
+import PermissionTypes.UPDATE_COUNTERS
+import Send.error
+import Send.success
+import UserConfig
+import authenticatedRequest
+import doesLaterIfHas
+import getGithubToken
 import net.ayataka.kordis.entity.server.Server
-import org.kamiblue.botkt.*
-import org.kamiblue.botkt.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.Send.error
-import org.kamiblue.botkt.Send.success
 import org.l1ving.api.download.Asset
 import org.l1ving.api.download.Download
+import request
 
 object CounterCommand : Command("counter") {
     init {
-        doesLaterIfHas(PermissionTypes.UPDATE_COUNTERS) {
+        doesLaterIfHas(UPDATE_COUNTERS) {
             val path = ConfigType.COUNTER.configPath.substring(7)
             val userPath = ConfigType.USER.configPath.substring(7)
             val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)

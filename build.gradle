@@ -28,7 +28,7 @@ dependencies {
 }
 
 sourceSets {
-    main.java.srcDirs += 'src/main/github-discussion-api'
+    main.java.srcDirs += 'src/main/kotlin/'
 }
 
 compileKotlin {
@@ -40,7 +40,7 @@ compileTestKotlin {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'org.kamiblue.botkt.MainKt'
+        attributes 'Main-Class': 'MainKt'
     }
     // copy deps to jar
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }

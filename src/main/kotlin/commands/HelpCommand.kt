@@ -1,6 +1,11 @@
-package org.kamiblue.botkt.commands
+package commands
 
-import org.kamiblue.botkt.*
+import Colors
+import Command
+import CommandManager
+import arg
+import doesLater
+import string
 
 object HelpCommand : Command("help-mod") {
     init {

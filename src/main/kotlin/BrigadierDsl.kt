@@ -1,16 +1,11 @@
-@file:Suppress("UNUSED")
-package org.kamiblue.botkt
-
+import Permissions.hasPermission
+import Permissions.missingPermissions
 import com.mojang.brigadier.arguments.*
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import org.kamiblue.botkt.helpers.DiscordUserArgumentType
-import org.kamiblue.botkt.helpers.UserPromise
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.kamiblue.botkt.Permissions.hasPermission
-import org.kamiblue.botkt.Permissions.missingPermissions
 
 @DslMarker
 @Target(AnnotationTarget.TYPE)
@@ -22,7 +17,7 @@ annotation class BrigadierDsl
  * @param name the name of the literal argument
  * @param block the receiver function for further construction of the literal argument
  */
-fun <T> ArgumentBuilder<T, *>.literal(name: String, block: (@BrigadierDsl LiteralArgumentBuilder<T>).() -> Unit): ArgumentBuilder<*, *> =
+fun <T> ArgumentBuilder<T, *>.literal(name: String, block: (@BrigadierDsl LiteralArgumentBuilder<T>).() -> Unit) =
     then(LiteralArgumentBuilder.literal<T>(name).also(block))
 
 /**
@@ -58,7 +53,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.bool(
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.double(
     name: String,
     block: RequiredArgumentBuilder<S, Double>.() -> Unit
-): T =
+) =
     argument(name, DoubleArgumentType.doubleArg(), block)
 
 /**
@@ -69,7 +64,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.double(
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.float(
     name: String,
     block: (@BrigadierDsl RequiredArgumentBuilder<S, Float>).() -> Unit
-): T =
+) =
     argument(name, FloatArgumentType.floatArg(), block)
 
 /**
@@ -80,7 +75,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.float(
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.integer(
     name: String,
     block: (@BrigadierDsl RequiredArgumentBuilder<S, Int>).() -> Unit
-): T =
+) =
     argument(name, IntegerArgumentType.integer(), block)
 
 /**
@@ -91,7 +86,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.integer(
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.long(
     name: String,
     block: (@BrigadierDsl RequiredArgumentBuilder<S, Long>).() -> Unit
-): T =
+) =
     argument(name, LongArgumentType.longArg(), block)
 
 /**
@@ -102,7 +97,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.long(
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.string(
     name: String,
     block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit
-): T =
+) =
     argument(name, StringArgumentType.string(), block)
 
 /**
@@ -113,24 +108,18 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.string(
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.greedyString(
     name: String,
     block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit
-): T =
-    argument(name, StringArgumentType.greedyString(), block)
-
-fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.ping(
-    name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, UserPromise>).() -> Unit
 ) =
-    argument(name, DiscordUserArgumentType, block)
+    argument(name, StringArgumentType.greedyString(), block)
 
 /**
  * Sets the executes callback for `this` [ArgumentBuilder]
  *
  * @param command the callback
  */
-infix fun <S> ArgumentBuilder<S, *>.does(command: (@BrigadierDsl CommandContext<S>) -> Int): ArgumentBuilder<*, *> = executes(command)
+infix fun <S> ArgumentBuilder<S, *>.does(command: (@BrigadierDsl CommandContext<S>) -> Int) = executes(command)
 
 /**
- * Shorthand for [doesLater] with an empty [does] handler that always returns `0`.
+ * Shorthand for [doesLater] with an empty [now] handler that always returns `0`.
  */
 infix fun ArgumentBuilder<Cmd, *>.doesLater(later: suspend MessageReceiveEvent.(CommandContext<Cmd>) -> Unit) =
     does { context ->
@@ -143,7 +132,7 @@ infix fun ArgumentBuilder<Cmd, *>.doesLater(later: suspend MessageReceiveEvent.(
 /**
  * The same as [doesLater], but with a permission check.
  */
-fun ArgumentBuilder<Cmd, *>.doesLaterIfHas(permission: PermissionTypes, later: suspend MessageReceiveEvent.(CommandContext<Cmd>) -> Unit): ArgumentBuilder<*, *> =
+fun ArgumentBuilder<Cmd, *>.doesLaterIfHas(permission: PermissionTypes, later: suspend MessageReceiveEvent.(CommandContext<Cmd>) -> Unit) =
     does { context ->
         context.source later {
             if (this.message.author!!.id.hasPermission(permission))
@@ -159,6 +148,4 @@ fun ArgumentBuilder<Cmd, *>.doesLaterIfHas(permission: PermissionTypes, later: s
  *
  * @see CommandContext.getArgument
  */
-inline infix fun <reified R, S> CommandContext<S>.arg(name: String): R = getArgument(name, R::class.java)
-
-suspend inline infix fun <S> CommandContext<S>.userArg(name: String) = (this.arg<UserPromise, S>(name))()
+inline infix fun <reified R, S> CommandContext<S>.arg(name: String) = getArgument(name, R::class.java)

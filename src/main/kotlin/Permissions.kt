@@ -1,8 +1,6 @@
-package org.kamiblue.botkt
-
-import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
+import Send.error
+import helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.entity.message.Message
-import org.kamiblue.botkt.Send.error
 
 object Permissions {
     suspend fun Message.hasPermission(permission: PermissionTypes): Boolean {
