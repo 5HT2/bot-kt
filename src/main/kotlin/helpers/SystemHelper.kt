@@ -1,7 +1,7 @@
-package org.kamiblue.botkt.helpers
+package helpers
 
-import org.kamiblue.botkt.helpers.MathHelper.round
-import org.kamiblue.botkt.helpers.ShellHelper.bash
+import helpers.MathHelper.round
+import helpers.ShellHelper.bash
 import java.io.File
 
 object SystemHelper {

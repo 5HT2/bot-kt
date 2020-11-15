@@ -1,17 +1,22 @@
-package org.kamiblue.botkt.commands
+package commands
 
+import Command
+import PermissionTypes.COUNCIL_MEMBER
+import arg
+import doesLaterIfHas
+import greedyString
+import integer
 import net.ayataka.kordis.entity.deleteAll
-import org.kamiblue.botkt.*
 
 object PurgeCommand : Command("purge") {
     init {
         integer("number") {
-            doesLaterIfHas(PermissionTypes.COUNCIL_MEMBER) { context ->
+            doesLaterIfHas(COUNCIL_MEMBER) { context ->
                 val number: Int = context arg "number"
                 message.channel.getMessages(number + 1).deleteAll()
             }
             greedyString("user") {
-                doesLaterIfHas(PermissionTypes.COUNCIL_MEMBER) { context ->
+                doesLaterIfHas(COUNCIL_MEMBER) { context ->
                     val contextNumber: Int = context arg "number"
                     val number = contextNumber + 1 // include original message to delete
                     val user: String = context arg "user"

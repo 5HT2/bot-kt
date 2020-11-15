@@ -1,8 +1,5 @@
-package org.kamiblue.botkt
-
 import net.ayataka.kordis.entity.message.Message
 
-@Suppress("UNUSED")
 object Send {
     fun log(message: String) = println("[bot-kt] $message")
 
