@@ -1,20 +1,13 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import ConfigManager.readConfigSafe
-import ConfigType
-import PermissionTypes.ANNOUNCE
-import Send.error
-import UserConfig
-import arg
-import doesLaterIfHas
-import greedyString
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.Send.error
 
 object AnnounceCommand : Command("announce") {
     init {
         greedyString("content") {
-            doesLaterIfHas(ANNOUNCE) { context ->
+            doesLaterIfHas(PermissionTypes.ANNOUNCE) { context ->
                 val content: String = context arg "content"
 
                 val channel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.announceChannel ?: run {

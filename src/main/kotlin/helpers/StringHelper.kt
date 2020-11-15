@@ -1,4 +1,4 @@
-package helpers
+package org.kamiblue.botkt.helpers
 
 import java.io.File
 import java.net.URL
@@ -18,6 +18,8 @@ object StringHelper {
     fun String.readBytes() = URL(this).readBytes()
 
     fun String.uriEncode(): String = URLEncoder.encode(this, "utf-8")
+
+    fun String.firstInSentence() = this.split(" ").firstOrNull() ?: this
 
     fun String.writeBytes(url: String): Int {
         val bytes = url.readBytes()

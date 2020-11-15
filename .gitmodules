@@ -1,3 +1,3 @@
-[submodule "src/main/kotlin/github-discussion-api"]
-	path = src/main/kotlin/github-discussion-api
+[submodule "src/main/github-discussion-api"]
+	path = src/main/github-discussion-api
 	url = https://github.com/l1ving/github-discussion-api.git

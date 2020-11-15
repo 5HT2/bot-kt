@@ -1,10 +1,6 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Command
-import arg
-import doesLater
-import greedyString
-import literal
+import org.kamiblue.botkt.*
 
 /**
  * @author l1ving
