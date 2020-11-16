@@ -108,7 +108,7 @@ class Bot {
                         }
                     }
                 } else {
-                    val usage = CommandManager.getCommandClass(message)?.getHelpUsage()
+                    val usage = CommandManager.getCommand(message)?.getHelpUsage()
                     cmd.event.message.channel.send {
                         embed {
                             title = "Invalid Syntax: ${Main.prefix}$message"

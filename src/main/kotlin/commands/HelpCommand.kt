@@ -9,7 +9,7 @@ object HelpCommand : Command("help-mod") {
             doesLater { context ->
                 val userCommand: String = context arg "command"
                 if (CommandManager.isCommand(userCommand)) {
-                    val command = CommandManager.getCommandClass(userCommand)!!
+                    val command = CommandManager.getCommand(userCommand)!!
                     message.channel.send {
                         embed {
                             title = userCommand.toLowerCase()

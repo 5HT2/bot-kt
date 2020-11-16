@@ -2,7 +2,6 @@ package org.kamiblue.botkt
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import com.mojang.brigadier.tree.LiteralCommandNode
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -40,14 +39,11 @@ class Cmd(val event: MessageReceiveEvent) {
 
 object CommandManager {
     /* Name, Literal Command */
-    private val commands = hashMapOf<String, LiteralCommandNode<Cmd>>()
-    private val commandClasses = hashMapOf<String, Command>()
+    private val commandMap = HashMap<String, Command>()
 
-    fun isCommand(name: String) = commands.containsKey(name.firstInSentence())
+    fun isCommand(name: String) = commandMap.containsKey(name.firstInSentence())
 
-    fun getCommand(name: String) = commands[name.firstInSentence()]
-
-    fun getCommandClass(name: String) = commandClasses[name.firstInSentence()]
+    fun getCommand(name: String) = commandMap[name.firstInSentence()]
 
     /**
      * Uses reflection to get a list of classes in the commands package which extend [Command]
@@ -60,9 +56,9 @@ object CommandManager {
 
         for (clazz in commandClass) {
             val command = clazz.getField("INSTANCE").get(null) as Command
-            commandClasses[command.literal] = command
+            commandMap[command.literal] = command
             println("[commands] ${command.literal} ${command.arguments}")
-            commands[command.literal] = dispatcher.register(command)
+            dispatcher.register(command)
         }
 
         log("Registered commands!")
