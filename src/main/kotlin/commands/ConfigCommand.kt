@@ -5,6 +5,7 @@ import org.kamiblue.botkt.helpers.StringHelper.writeBytes
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.success
+import org.kamiblue.botkt.utils.Colors
 
 object ConfigCommand : Command("config") {
     init {
@@ -34,7 +35,7 @@ object ConfigCommand : Command("config") {
                         title = "Config Types"
                         description = ConfigType.values()
                             .joinToString { "`${it.configPath.substring(7)}`" } // trim config/ from name
-                        color = Colors.primary
+                        color = Colors.PRIMARY.color
                     }
                 }
             }

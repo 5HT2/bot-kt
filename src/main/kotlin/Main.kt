@@ -2,8 +2,6 @@ package org.kamiblue.botkt
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import org.kamiblue.botkt.helpers.UpdateHelper.updateCheck
-import org.kamiblue.botkt.helpers.UpdateHelper.writeCurrentVersion
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -20,7 +18,9 @@ import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.log
 import org.kamiblue.botkt.commands.CounterCommand
 import org.kamiblue.botkt.helpers.StringHelper.firstInSentence
-import java.awt.Color
+import org.kamiblue.botkt.helpers.UpdateHelper.updateCheck
+import org.kamiblue.botkt.helpers.UpdateHelper.writeCurrentVersion
+import org.kamiblue.botkt.utils.Colors
 import kotlin.system.exitProcess
 
 fun main() = runBlocking {
@@ -86,7 +86,7 @@ class Bot {
                         embed {
                             title = "Startup"
                             description = initialization
-                            color = Colors.success
+                            color = Colors.SUCCESS.color
                         }
                     }
                 }
@@ -96,7 +96,7 @@ class Bot {
                     embed {
                         title = "Startup"
                         description = initialization
-                        color = Colors.success
+                        color = Colors.SUCCESS.color
                     }
                 }
             }
@@ -123,7 +123,7 @@ class Bot {
                     cmd.event.message.channel.send {
                         embed {
                             title = "Unknown Command: ${Main.prefix()}${message.firstInSentence()}"
-                            color = Colors.error
+                            color = Colors.ERROR.color
                         }
                     }
                 } else {
@@ -136,7 +136,7 @@ class Bot {
                                     "\n\n$it"
                                 } ?: ""
                             }"
-                            color = Colors.error
+                            color = Colors.ERROR.color
                         }
                     }
                 }
@@ -166,12 +166,4 @@ object Main {
         process!!.cancel()
         exitProcess(0)
     }
-}
-
-object Colors {
-    val primary = Color(155, 144, 255)
-    val error = Color(222, 65, 60)
-    val warn = Color(222, 182, 60)
-    val success = Color(60, 222, 90)
-    val mergedPullRequest = Color(100, 29, 188)
 }

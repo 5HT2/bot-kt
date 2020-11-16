@@ -1,15 +1,15 @@
 package org.kamiblue.botkt.commands
 
-import org.kamiblue.botkt.Colors
 import org.kamiblue.botkt.Command
 import org.kamiblue.botkt.doesLater
+import org.kamiblue.botkt.utils.Colors
 
 object ServerInfoCommand : Command("serverinfo") {
     init {
         doesLater {
             message.channel.send {
                 embed {
-                    color = Colors.primary
+                    color = Colors.PRIMARY.color
                     server?.name?.let { title = it }
                     server?.icon?.url?.let { thumbnailUrl = it }
                     server?.owner?.id?.let { field("Owner ID:", it) }

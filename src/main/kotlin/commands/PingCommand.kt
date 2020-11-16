@@ -1,8 +1,8 @@
 package org.kamiblue.botkt.commands
 
-import org.kamiblue.botkt.Colors
 import org.kamiblue.botkt.Command
 import org.kamiblue.botkt.doesLater
+import org.kamiblue.botkt.utils.Colors
 
 object PingCommand : Command("ping") {
     init {
@@ -10,13 +10,13 @@ object PingCommand : Command("ping") {
             val m = message.channel.send {
                 embed {
                     description = "Ping?"
-                    color = Colors.primary
+                    color = Colors.PRIMARY.color
                 }
             }
 
             m.edit {
                 description = "Pong! ${System.currentTimeMillis() - m.timestamp.toEpochMilli()}ms."
-                color = Colors.success
+                color = Colors.SUCCESS.color
             }
 
         }

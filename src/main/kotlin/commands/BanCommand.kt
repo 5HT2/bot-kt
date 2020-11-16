@@ -17,6 +17,7 @@ import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.normal
+import org.kamiblue.botkt.utils.Colors
 
 object BanCommand : Command("ban") {
     init {
@@ -37,13 +38,13 @@ object BanCommand : Command("ban") {
                         if (filtered.isEmpty()) {
                             m.edit {
                                 description = "Not banning anybody! 0 members found."
-                                color = Colors.error
+                                color = Colors.ERROR.color
                             }
                             return@doesLaterIfHas
                         } else {
                             m.edit {
                                 description = "Banning ${filtered.size} members..."
-                                color = Colors.error
+                                color = Colors.ERROR.color
                             }
                         }
 
@@ -65,7 +66,7 @@ object BanCommand : Command("ban") {
                                 false
                             )
                             footer("ID: ${message.author?.id}", "https://cdn.discordapp.com/avatars/${message.author?.id}/${message.author?.avatar}.png")
-                            color = Colors.error
+                            color = Colors.ERROR.color
                         }
                     }
                 }
@@ -203,7 +204,7 @@ object BanCommand : Command("ban") {
                             false
                         )
                         footer("ID: ${user.id}", "https://cdn.discordapp.com/avatars/$username/${user.avatar}.png")
-                        color = Colors.error
+                        color = Colors.ERROR.color
                     }
                 }
             } else {
@@ -212,7 +213,7 @@ object BanCommand : Command("ban") {
                     embed {
                         title = "Failed to ban user!"
                         field("Response:", "```json$prettyResponse```")
-                        color = Colors.error
+                        color = Colors.ERROR.color
                     }
                 }
             }
@@ -221,7 +222,7 @@ object BanCommand : Command("ban") {
                 embed {
                     title = "That user's role is higher then mine, I can't ban them!"
                     field("Stacktrace:", "```$e```")
-                    color = Colors.error
+                    color = Colors.ERROR.color
                 }
             }
         }
@@ -257,7 +258,7 @@ object BanCommand : Command("ban") {
                             reason ?: "None Provided",
                             false
                         )
-                        color = Colors.error
+                        color = Colors.ERROR.color
                     }
                 }
             } catch (e: Exception) {
@@ -285,7 +286,7 @@ object BanCommand : Command("ban") {
                             false
                         )
                         footer("ID: ${user.id}", user.avatar.url)
-                        color = Colors.error
+                        color = Colors.ERROR.color
                     }
                 }
             }
@@ -294,7 +295,7 @@ object BanCommand : Command("ban") {
                 embed {
                     title = "That user's role is higher then mine, I can't ban them!"
                     field("Stacktrace:", "```$e```")
-                    color = Colors.error
+                    color = Colors.ERROR.color
                 }
             }
         }

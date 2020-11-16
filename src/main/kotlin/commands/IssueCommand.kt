@@ -11,6 +11,7 @@ import org.kamiblue.botkt.*
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.success
+import org.kamiblue.botkt.utils.Colors
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.issue.Label
 import org.l1ving.api.issue.User
@@ -90,7 +91,7 @@ object IssueCommand : Command("issue") {
                                     this.description = "Created by: ${message.author?.mention}\n\n$body"
 
                                     field("Repository", "`$user/$repo`")
-                                    color = Colors.primary
+                                    color = Colors.PRIMARY.color
                                 }
                             }
 
@@ -194,7 +195,7 @@ object IssueCommand : Command("issue") {
                     embed {
                         title = issue.title
                         thumbnailUrl = issue.user?.avatar_url
-                        color = if (issue.state == "closed") Colors.error else Colors.success
+                        color = if (issue.state == "closed") Colors.ERROR.color else Colors.SUCCESS.color
 
                         description = issue.body.defaultFromNull("No Description").flat(2048)
 
@@ -256,7 +257,7 @@ object IssueCommand : Command("issue") {
                         "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
                     field("Stacktrace", "```${e.getStackTraceAsString()}```", false)
                     e.printStackTrace()
-                    color = Colors.error
+                    color = Colors.ERROR.color
                 }
             }
         }
@@ -273,16 +274,16 @@ object IssueCommand : Command("issue") {
     private fun getPullRequestColor(pullRequest: PullRequest): Color {
         return when {
             pullRequest.merged -> {
-                Colors.mergedPullRequest
+                Colors.MERGED_PULL_REQUEST.color
             }
             pullRequest.state == "closed" && !pullRequest.merged -> {
-                Colors.error
+                Colors.ERROR.color
             }
             pullRequest.state == "open" -> {
-                Colors.success
+                Colors.SUCCESS.color
             }
             else -> {
-                Colors.warn
+                Colors.WARN.color
             }
         }
     }

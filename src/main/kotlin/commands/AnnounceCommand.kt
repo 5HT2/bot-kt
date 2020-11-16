@@ -3,6 +3,7 @@ package org.kamiblue.botkt.commands
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.utils.Colors
 
 object AnnounceCommand : Command("announce") {
     init {
@@ -18,7 +19,7 @@ object AnnounceCommand : Command("announce") {
                 server?.textChannels?.find(channel)?.send {
                     embed {
                         description = content
-                        color = Colors.primary
+                        color = Colors.PRIMARY.color
                     }
                 } ?: run { message.error("Error sending message! Channel `$channel` couldn't be found") }
             }

@@ -3,6 +3,7 @@ package org.kamiblue.botkt.commands
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
 import org.kamiblue.botkt.*
+import org.kamiblue.botkt.utils.Colors
 
 // TODO: make this not hardcoded
 object DiscussCommand : Command("discuss") {
@@ -18,13 +19,13 @@ object DiscussCommand : Command("discuss") {
                         if (!message.attachments.isEmpty()) {
                             embed {
                                 imageUrl = message.attachments.stream().findFirst().get().url
-                                color = Colors.primary
+                                color = Colors.PRIMARY.color
                             }
                         } else { // needs to be else because you cannot embed images in the same message with content
                             embed {
                                 author(name = message.author!!.name)
                                 field("Added:", idea, false)
-                                color = Colors.primary
+                                color = Colors.PRIMARY.color
                             }
                         }
                     }
@@ -55,7 +56,7 @@ object DiscussCommand : Command("discuss") {
                         embed {
                             author(name = "${message.author!!.name} created $topic")
                             field("Topic", description, false)
-                            color = Colors.primary
+                            color = Colors.PRIMARY.color
                         }
                     }
 

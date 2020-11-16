@@ -1,6 +1,7 @@
 package org.kamiblue.botkt.commands
 
 import org.kamiblue.botkt.*
+import org.kamiblue.botkt.utils.Colors
 
 object LmgtfyCommand : Command("lmgtfy") {
     init {
@@ -11,7 +12,7 @@ object LmgtfyCommand : Command("lmgtfy") {
                     embed {
                         title = "Here you go!"
                         description = "[Solution](https://lmgtfy.com/?q=${term.replace(" ", "+")})"
-                        color = Colors.primary
+                        color = Colors.PRIMARY.color
                     }
                 }
             }

@@ -12,6 +12,7 @@ import org.kamiblue.botkt.PermissionTypes.*
 import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.normal
 import org.kamiblue.botkt.Send.success
+import org.kamiblue.botkt.utils.Colors
 import kotlin.collections.set
 
 object ChannelCommand : Command("channel") {
@@ -220,7 +221,7 @@ object ChannelCommand : Command("channel") {
         previousChange?.let {
             m.edit {
                 description = "Attempting to undo last change...\nFound: ${it.second.name.toHumanReadable()}"
-                color = Colors.primary
+                color = Colors.PRIMARY.color
             }
 
             when (it.first.first) {
@@ -231,7 +232,7 @@ object ChannelCommand : Command("channel") {
                         description = "Attempting to undo last change...\n" +
                                 "Found: ${it.second.name.toHumanReadable()}\n\n" +
                                 "Unsaved, set ${it.first.second} to original permissions"
-                        color = Colors.success
+                        color = Colors.SUCCESS.color
                     }
 
                     previousChange = null
@@ -244,7 +245,7 @@ object ChannelCommand : Command("channel") {
                         description = "Attempting to undo last change...\n" +
                                 "Found: ${it.second.name.toHumanReadable()}\n\n" +
                                 "Unloaded, set ${it.first.second} to original permissions"
-                        color = Colors.success
+                        color = Colors.SUCCESS.color
                     }
 
                     previousChange = null
