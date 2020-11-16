@@ -48,16 +48,14 @@ object CapeCommand : Command("cape") {
 
     init {
         literal("create") {
-            ping("id") {
-                string("type") {
+            string("type") {
+                ping("id") {
                     doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) { context ->
-                        val user: User? = context arg "id"
-                        val userCapeType: String = context arg "type"
-
-                        user?.id ?: run {
+                        val user: User = context userArg "id" ?: run {
                             message.error(findError)
                             return@doesLaterIfHas
                         }
+                        val userCapeType: String = context arg "type"
 
                         /** find CapeType from user's args */
                         val type = CapeType.values().find { capeType ->
@@ -86,118 +84,62 @@ object CapeCommand : Command("cape") {
                     }
                 }
             }
+        }
 
-            literal("delete") {
-                string("uuid") {
-                    greedyString("user") {
-                        doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) { context ->
-                            val capeUUID: String = context arg "uuid"
-                            val userID: String = context arg "user"
-                            var finalID: Long = 0
+        literal("delete") {
+            string("uuid") {
+                greedyString("user") {
+                    doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) { context ->
+                        val capeUUID: String = context arg "uuid"
+                        val userID: String = context arg "user"
+                        var finalID: Long = 0
 
-                            userID.toUserID()?.let {
-                                finalID = it
-                            } ?: run {
-                                message.error(findError)
-                                return@doesLaterIfHas
-                            }
-
-                            val user = capeUserMap[finalID] ?: run {
-                                message.error("Couldn't find a Cape User with the ID `$finalID`!")
-                                return@doesLaterIfHas
-                            }
-
-                            val cape = user.capes.find { it.capeUUID.equals(capeUUID, true) } ?: run {
-                                message.error(capeError(capeUUID))
-                                return@doesLaterIfHas
-                            }
-
-                            user.deleteCape(cape)
-
-                            message.success("Removed Cape `$capeUUID` from Cape User `$finalID`!")
+                        userID.toUserID()?.let {
+                            finalID = it
+                        } ?: run {
+                            message.error(findError)
+                            return@doesLaterIfHas
                         }
+
+                        val user = capeUserMap[finalID] ?: run {
+                            message.error("Couldn't find a Cape User with the ID `$finalID`!")
+                            return@doesLaterIfHas
+                        }
+
+                        val cape = user.capes.find { it.capeUUID.equals(capeUUID, true) } ?: run {
+                            message.error(capeError(capeUUID))
+                            return@doesLaterIfHas
+                        }
+
+                        user.deleteCape(cape)
+
+                        message.success("Removed Cape `$capeUUID` from Cape User `$finalID`!")
                     }
                 }
             }
+        }
 
-            literal("list") {
-                doesLater {
-                    val userCapes = message.getCapes() ?: return@doesLater
+        literal("list") {
+            doesLater {
+                val userCapes = message.getCapes() ?: return@doesLater
 
-                    message.channel.send {
-                        embed {
-                            userCapes.forEach {
-                                val playerName = UUIDManager.getByUUID(it.playerUUID)?.name ?: "Not attached"
-                                field("Cape UUID ${it.capeUUID}", "Player Name: $playerName\nCape Type: ${it.type.realName}")
-                            }
-                            color = Colors.primary
+                message.channel.send {
+                    embed {
+                        userCapes.forEach {
+                            val playerName = UUIDManager.getByUUID(it.playerUUID)?.name ?: "Not attached"
+                            field("Cape UUID ${it.capeUUID}", "Player Name: $playerName\nCape Type: ${it.type.realName}")
                         }
+                        color = Colors.primary
                     }
                 }
             }
+        }
 
-            literal("attach") {
-                string("uuid") {
-                    greedyString("username") {
-                        doesLater { context ->
-                            val username: String = context arg "username"
-                            val capeUUID: String = context arg "uuid"
-
-                            val capes = message.getCapes() ?: return@doesLater
-
-                            val cape = capes.find { it.capeUUID == capeUUID } ?: run {
-                                message.error(capeError(capeUUID))
-                                return@doesLater
-                            }
-
-                            val profilePair = UUIDManager.getByString(username)
-
-                            val msg = if (profilePair != null) {
-                                message.normal("Found UUID to attach to Cape `$capeUUID` - verifying")
-                            } else {
-                                message.error(
-                                    "Couldn't find an account with the UUID/Name `$username`!\n" +
-                                            "Make sure you have a real Mojang account and with correct UUID/Name, " +
-                                            "contact a moderator if this keeps happening."
-                                ).edit {
-                                    title = "Error"
-                                    color = Colors.error
-                                }
-                                return@doesLater
-                            }
-
-                            val alreadyAttached = capes.find { it.playerUUID == profilePair.uuid }
-                            if (alreadyAttached != null) {
-                                msg.edit {
-                                    description = "You already have ${profilePair.name} attached to Cape `${alreadyAttached.capeUUID}`!"
-                                    color = Colors.error
-                                }
-                                return@doesLater
-                            }
-
-                            // this is after everything because we don't care about Mojang requests that much, but we don't want to commit every 5 minutes or whatever
-                            changeTimeOut(capeUUID)?.let {
-                                msg.edit {
-                                    description = changeError(capeUUID, it)
-                                    color = Colors.error
-                                }
-                                return@doesLater
-                            }
-
-                            cape.playerUUID = profilePair.uuid
-
-                            msg.edit {
-                                description = "Successfully attached Cape `${cape.capeUUID}` to user `${profilePair.name}`"
-                                color = Colors.success
-                            }
-                        }
-                    }
-                }
-            }
-
-            literal("detach") {
-                string("uuid") {
+        literal("attach") {
+            string("uuid") {
+                greedyString("username") {
                     doesLater { context ->
+                        val username: String = context arg "username"
                         val capeUUID: String = context arg "uuid"
 
                         val capes = message.getCapes() ?: return@doesLater
@@ -207,75 +149,132 @@ object CapeCommand : Command("cape") {
                             return@doesLater
                         }
 
-                        changeTimeOut(capeUUID)?.let {
-                            message.error(changeError(capeUUID, it))
+                        val profilePair = UUIDManager.getByString(username)
+
+                        val msg = if (profilePair != null) {
+                            message.normal("Found UUID to attach to Cape `$capeUUID` - verifying")
+                        } else {
+                            message.channel.send {
+                                embed {
+                                    title = "Error"
+                                    description = "Couldn't find an account with the UUID/Name `$username`!\n" +
+                                            "Make sure you have a real Mojang account and with correct UUID/Name, " +
+                                            "contact a moderator if this keeps happening."
+                                    color = Colors.error
+                                }
+                            }
                             return@doesLater
                         }
 
-                        val name = UUIDManager.getByUUID(cape.playerUUID)?.name
-                        cape.playerUUID = null
+                        val alreadyAttached = capes.find { it.playerUUID == profilePair.uuid }
+                        if (alreadyAttached != null) {
+                            msg.edit {
+                                description = "You already have ${profilePair.name} attached to Cape `${alreadyAttached.capeUUID}`!"
+                                color = Colors.error
+                            }
+                            return@doesLater
+                        }
 
-                        message.success("Successfully removed $name from Cape `${cape.capeUUID}`!")
+                        // this is after everything because we don't care about Mojang requests that much, but we don't want to commit every 5 minutes or whatever
+                        changeTimeOut(capeUUID)?.let {
+                            msg.edit {
+                                description = changeError(capeUUID, it)
+                                color = Colors.error
+                            }
+                            return@doesLater
+                        }
+
+                        cape.playerUUID = profilePair.uuid
+
+                        msg.edit {
+                            description = "Successfully attached Cape `${cape.capeUUID}` to user `${profilePair.name}`"
+                            color = Colors.success
+                        }
                     }
                 }
             }
+        }
 
-            literal("color") {
-                string("uuid") {
-                    string("colorPrimary") {
-                        string("colorBorder") {
-                            doesLater { context ->
-                                val capeUUID: String = context arg "uuid"
-                                val colorPrimary: String = context arg "colorPrimary"
-                                val colorBorder: String = context arg "colorBorder"
+        literal("detach") {
+            string("uuid") {
+                doesLater { context ->
+                    val capeUUID: String = context arg "uuid"
 
-                                val capes = message.getCapes() ?: return@doesLater
+                    val capes = message.getCapes() ?: return@doesLater
 
-                                val cape = capes.find { it.capeUUID == capeUUID } ?: run {
-                                    message.error(capeError(capeUUID))
-                                    return@doesLater
-                                }
+                    val cape = capes.find { it.capeUUID == capeUUID } ?: run {
+                        message.error(capeError(capeUUID))
+                        return@doesLater
+                    }
 
-                                if (cape.type != CapeType.CONTEST) {
-                                    message.error("You're only able to change the colors of Contest Capes, `${capeUUID} is a `${cape.type.realName} Cape!")
-                                    return@doesLater
-                                }
+                    changeTimeOut(capeUUID)?.let {
+                        message.error(changeError(capeUUID, it))
+                        return@doesLater
+                    }
 
-                                if (!hexRegex.matches(colorPrimary) || !hexRegex.matches(colorBorder)) {
-                                    message.error("You must enter both colors in 6-long hex format, eg `9b90ff` or `8778ff`.")
-                                    return@doesLater
-                                }
+                    val name = UUIDManager.getByUUID(cape.playerUUID)?.name
+                    cape.playerUUID = null
 
-                                changeTimeOut(capeUUID)?.let {
-                                    message.error(changeError(capeUUID, it))
-                                    return@doesLater
-                                }
+                    message.success("Successfully removed $name from Cape `${cape.capeUUID}`!")
+                }
+            }
+        }
 
-                                val oldCapeColor = cape.color
-                                cape.color = CapeColor(colorPrimary.toLowerCase(), colorBorder.toLowerCase())
+        literal("color") {
+            string("uuid") {
+                string("colorPrimary") {
+                    string("colorBorder") {
+                        doesLater { context ->
+                            val capeUUID: String = context arg "uuid"
+                            val colorPrimary: String = context arg "colorPrimary"
+                            val colorBorder: String = context arg "colorBorder"
 
-                                // TODO() properly generate
-                                //val dir = "/home/mika/projects/assets-kamiblue/assets/capes/templates"
-                                //"./recolor.sh ${cape.color.primary} ${cape.color.border} ${cape.capeUUID}".systemBash(dir)
+                            val capes = message.getCapes() ?: return@doesLater
 
-                                val oldColors = oldCapeColor.toEmoji()
-                                val newColors = cape.color.toEmoji()
+                            val cape = capes.find { it.capeUUID == capeUUID } ?: run {
+                                message.error(capeError(capeUUID))
+                                return@doesLater
+                            }
 
-                                message.channel.send {
-                                    embed {
-                                        description = "Successfully changed the colors of Cape `${cape.capeUUID}`!"
-                                        field(
-                                            "Old Colors",
-                                            oldColors,
-                                            true
-                                        )
-                                        field(
-                                            "New Colors",
-                                            newColors,
-                                            true
-                                        )
-                                        color = Colors.success
-                                    }
+                            if (cape.type != CapeType.CONTEST) {
+                                message.error("You're only able to change the colors of Contest Capes, `${capeUUID} is a `${cape.type.realName} Cape!")
+                                return@doesLater
+                            }
+
+                            if (!hexRegex.matches(colorPrimary) || !hexRegex.matches(colorBorder)) {
+                                message.error("You must enter both colors in 6-long hex format, eg `9b90ff` or `8778ff`.")
+                                return@doesLater
+                            }
+
+                            changeTimeOut(capeUUID)?.let {
+                                message.error(changeError(capeUUID, it))
+                                return@doesLater
+                            }
+
+                            val oldCapeColor = cape.color
+                            cape.color = CapeColor(colorPrimary.toLowerCase(), colorBorder.toLowerCase())
+
+                            // TODO() properly generate
+                            //val dir = "/home/mika/projects/assets-kamiblue/assets/capes/templates"
+                            //"./recolor.sh ${cape.color.primary} ${cape.color.border} ${cape.capeUUID}".systemBash(dir)
+
+                            val oldColors = oldCapeColor.toEmoji()
+                            val newColors = cape.color.toEmoji()
+
+                            message.channel.send {
+                                embed {
+                                    description = "Successfully changed the colors of Cape `${cape.capeUUID}`!"
+                                    field(
+                                        "Old Colors",
+                                        oldColors,
+                                        true
+                                    )
+                                    field(
+                                        "New Colors",
+                                        newColors,
+                                        true
+                                    )
+                                    color = Colors.success
                                 }
                             }
                         }
@@ -318,6 +317,8 @@ object CapeCommand : Command("cape") {
 
     fun save() {
         val capeUsers = capeUserMap.values.toList()
+        if (!File(capesFile).exists()) File(capesFile).createNewFile()
+
         Files.newBufferedWriter(Paths.get(capesFile)).use {
             it.write(gson.toJson(capeUsers, object : TypeToken<List<CapeUser>>() {}.type))
         }
