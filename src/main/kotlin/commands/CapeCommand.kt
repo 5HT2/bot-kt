@@ -38,7 +38,7 @@ object CapeCommand : Command("cape") {
     private val cachedEmojis = LinkedHashMap<String, Emoji>()
     private var cachedServer: Server? = null
 
-    private const val capesFile = "config/capes.json"
+    private const val capesFile = "cache/capes.json"
     private const val findError = "Username is improperly formatted, try pinging or using the users ID, and make sure the user exists in this server!"
     private const val missingTexture = "<:cssource:775893099527929926> "
 
@@ -340,15 +340,16 @@ object CapeCommand : Command("cape") {
         val assets = "/home/mika/projects/cape-api"
         val time = "date".bash()
 
+        // TODO: bash dsl
         "git checkout capes".systemBash(assets)
         delay(50)
         "git reset --hard origin/capes".systemBash(assets)
         delay(200)
         "git pull".systemBash(assets)
         delay(1000) // yea bash commands don't wait to finish so you get an error with the lockfile
-        "cp config/capes.json $assets/test.json".systemBash()
+        "cp cache/capes.json $assets/capes.json".systemBash()
         delay(50)
-        "git add test.json".systemBash(assets)
+        "git add capes.json".systemBash(assets)
         delay(100)
         "git commit -am \"Updated capes $time\"".systemBash(assets)
         delay(1000)
