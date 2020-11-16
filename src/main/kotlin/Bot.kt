@@ -27,7 +27,7 @@ class Bot {
 
         MessageSendUtils.log("Starting bot!")
 
-        UpdateHelper.writeCurrentVersion()
+        UpdateHelper.writeVersion(Main.currentVersion)
         UpdateHelper.updateCheck()
 
         val config = ConfigManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, false)

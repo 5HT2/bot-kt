@@ -1,13 +1,10 @@
 package org.kamiblue.botkt.helpers
 
 import org.kamiblue.botkt.*
-import org.kamiblue.botkt.ConfigManager
 import org.kamiblue.botkt.utils.MessageSendUtils.log
-import org.kamiblue.botkt.UserConfig
-import org.kamiblue.botkt.VersionConfig
 import java.io.File
+import java.io.FileWriter
 import java.net.URL
-import java.nio.file.Files
 import java.nio.file.Paths
 
 /**
@@ -18,7 +15,7 @@ object UpdateHelper {
     fun updateCheck() {
         if (File("noUpdateCheck").exists()) return
         val versionConfig =
-            ConfigManager.readConfigFromUrl<VersionConfig>("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json")
+                ConfigManager.readConfigFromUrl<VersionConfig>("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json")
 
         if (versionConfig?.version == null) {
             log("Couldn't access remote version when checking for update")
@@ -55,18 +52,14 @@ object UpdateHelper {
         }
 
         val bytes =
-            URL("https://github.com/kami-blue/bot-kt/releases/download/$version/bot-kt-$version.jar").readBytes()
+                URL("https://github.com/kami-blue/bot-kt/releases/download/$version/bot-kt-$version.jar").readBytes()
 
         log("Auto Update - Downloaded bot-kt-$version.jar ${bytes.size / 1000000}MB")
         val appendSlash = if (path.endsWith("/")) "" else "/"
         val targetFile = path.toString() + appendSlash + "bot-kt-$version.jar"
         File(targetFile).writeBytes(bytes)
 
-        val file = Paths.get("$path/currentVersion")
-        File(file.toString()).delete()
-        Files.newBufferedWriter(file).use {
-            it.write(version)
-        }
+        writeVersion(version)
 
         log("Auto Update - Finished updating to $version")
 
@@ -78,14 +71,12 @@ object UpdateHelper {
         }
     }
 
-    fun writeCurrentVersion() {
+    fun writeVersion(version: String) {
         val path = Paths.get(System.getProperty("user.dir"))
-        val file = Paths.get("$path/currentVersion")
+        val file = File("$path/currentVersion")
 
-        if (!File(file.toString()).exists()) {
-            Files.newBufferedWriter(file).use {
-                it.write(Main.currentVersion)
-            }
+        FileWriter(file).use {
+            it.write(version)
         }
     }
 }
