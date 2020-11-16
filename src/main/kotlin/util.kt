@@ -1,7 +1,6 @@
 package org.kamiblue.botkt
 
 import com.google.gson.Gson
-import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -10,9 +9,8 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.l1ving.api.issue.Issue
-import java.io.PrintWriter
-import java.io.StringWriter
 import java.util.concurrent.TimeUnit
 
 /**
@@ -97,12 +95,3 @@ fun createGithubIssue(issue: Issue, user: String, repo: String, token: String) {
 
     println(response.body?.string())
 }
-
-fun Exception.getStackTraceAsString(): String {
-    val sw = StringWriter()
-    val pw = PrintWriter(sw)
-    this.printStackTrace(pw)
-    return sw.toString()
-}
-
-inline fun <reified T> Any?.maybeCast(): T? = this as? T

@@ -124,7 +124,7 @@ class Bot {
                 }
             }
         } catch (e: Exception) {
-            event.message.error("```\n${e.getStackTraceAsString()}\n```") // TODO: proper command to view stacktraces
+            event.message.error("```\n${e.stackTraceToString()}\n```") // TODO: proper command to view stacktraces
         }
     }
 }

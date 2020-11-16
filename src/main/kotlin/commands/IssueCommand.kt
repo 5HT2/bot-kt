@@ -256,7 +256,7 @@ object IssueCommand : Command("issue") {
                     title = "Error"
                     description =
                         "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
-                    field("Stacktrace", "```${e.getStackTraceAsString()}```", false)
+                    field("Stacktrace", "```${e.stackTraceToString()}```", false)
                     e.printStackTrace()
                     color = Colors.ERROR.color
                 }
