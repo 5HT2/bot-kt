@@ -186,7 +186,7 @@ object BanCommand : Command("ban") {
 
             val response = OkHttpClient().newCall(request).execute()
 
-            if (response.body!!.string().count() == 0) {
+            if (response.body?.string()?.count() == 0) {
                 val user = authenticatedRequest<FakeUser>("Bot", getAuthToken(), "https://discord.com/api/v8/users/$username")
                 message.channel.send {
                     embed {
@@ -205,7 +205,7 @@ object BanCommand : Command("ban") {
                     }
                 }
             } else {
-                val prettyResponse = GsonBuilder().setPrettyPrinting().create().toJson(response.body!!.string())
+                val prettyResponse = GsonBuilder().setPrettyPrinting().create().toJson(response.body?.string())
                 message.channel.send {
                     embed {
                         title = "Failed to ban user!"

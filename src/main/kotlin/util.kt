@@ -38,7 +38,7 @@ inline fun <reified T> request(url: String): T {
     val request = Request.Builder().url(url).get().build()
     val response = OkHttpClient().newCall(request).execute()
 
-    return Gson().fromJson(response.body!!.string(), T::class.java)
+    return Gson().fromJson(response.body?.string(), T::class.java)
 }
 
 /**
@@ -49,7 +49,7 @@ inline fun <reified T> authenticatedRequest(authType: String, token: String, url
     val request = Request.Builder().addHeader("Authorization", "$authType $token").url(url).get().build()
     val response = OkHttpClient().newCall(request).execute()
 
-    return Gson().fromJson(response.body!!.string(), T::class.java)
+    return Gson().fromJson(response.body?.string(), T::class.java)
 }
 
 /**
@@ -202,7 +202,7 @@ fun Server?.maxEmojiSlots(): Int {
         .url(url).get().build()
 
     val response = OkHttpClient().newCall(request).execute()
-    val guildObject = Gson().fromJson(response.body()?.string(), Any::class.java) as LinkedTreeMap<*, *>
+    val guildObject = Gson().fromJson(response.body?.string(), Any::class.java) as LinkedTreeMap<*, *>
 
     val premiumTierObject = guildObject["premium_tier"] ?: run {
         log("Error getting premium tier")
