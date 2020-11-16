@@ -9,9 +9,11 @@ import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.user.User
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.log
@@ -36,7 +38,7 @@ inline fun <reified T> request(url: String): T {
     val request = Request.Builder().url(url).get().build()
     val response = OkHttpClient().newCall(request).execute()
 
-    return Gson().fromJson(response.body()!!.string(), T::class.java)
+    return Gson().fromJson(response.body!!.string(), T::class.java)
 }
 
 /**
@@ -47,7 +49,7 @@ inline fun <reified T> authenticatedRequest(authType: String, token: String, url
     val request = Request.Builder().addHeader("Authorization", "$authType $token").url(url).get().build()
     val response = OkHttpClient().newCall(request).execute()
 
-    return Gson().fromJson(response.body()!!.string(), T::class.java)
+    return Gson().fromJson(response.body!!.string(), T::class.java)
 }
 
 /**
@@ -95,7 +97,7 @@ fun Message.addReaction(emoji: Char, encode: Boolean = true) {
     val finalEmoji = if (encode) emoji.toString().uriEncode() else emoji.toString()
 
     val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}/reactions/$finalEmoji/@me"
-    val body = RequestBody.create(MediaType.parse(""), "")
+    val body = "".toRequestBody("".toMediaTypeOrNull())
 
     val request = Request.Builder()
         .addHeader(contentLength, "0")
@@ -148,7 +150,7 @@ fun Message.getReactions(emoji: Char, encode: Boolean = true): List<User>? {
     val response = OkHttpClient().newCall(request).execute()
 
     return try {
-        Gson().fromJson(response.body()?.string(), object : TypeToken<List<FakeUser>>() {}.type)
+        Gson().fromJson(response.body?.string(), object : TypeToken<List<FakeUser>>() {}.type)
     } catch (e: Exception) {
         null
     }
@@ -164,7 +166,7 @@ fun Message.getReactions(): List<FakeReaction>? {
 
     val response = OkHttpClient().newCall(request).execute()
 
-    val jsonObject = Gson().fromJson(response.body()?.string(), Any::class.java) as LinkedTreeMap<*, *>
+    val jsonObject = Gson().fromJson(response.body?.string(), Any::class.java) as LinkedTreeMap<*, *>
     val reactions = jsonObject["reactions"]
 
     return try {
@@ -181,7 +183,7 @@ fun Message.getReactions(): List<FakeReaction>? {
  */
 fun createGithubIssue(issue: Issue, user: String, repo: String, token: String) {
     val url = "https://api.github.com/repos/$user/$repo/issues"
-    val body = RequestBody.create(MediaType.parse(""), Gson().toJson(issue))
+    val body = Gson().toJson(issue).toRequestBody("".toMediaTypeOrNull())
 
     val request = Request.Builder()
         .addHeader("Accept", "application/vnd.github.v3+json")
