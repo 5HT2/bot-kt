@@ -40,7 +40,7 @@ compileTestKotlin {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'org.kamiblue.botkt.MainKt'
+        attributes 'Main-Class': 'org.kamiblue.botkt.Main'
     }
     // copy deps to jar
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }

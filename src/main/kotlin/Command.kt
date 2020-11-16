@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * @since 2020/08/18 16:30
  */
 open class Command(val name: String) : LiteralArgumentBuilder<Cmd>(name) {
-    val fullName = "${Main.prefix()}$name"
+    val fullName = "${Main.prefix}$name"
     open fun getHelpUsage(): String = "`$fullName`"
 }
 
