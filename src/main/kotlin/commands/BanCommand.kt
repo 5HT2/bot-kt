@@ -7,9 +7,11 @@ import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.user.User
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Permissions.hasPermission
@@ -176,8 +178,8 @@ object BanCommand : Command("ban") {
 
             val req = "{\"delete_message_days\":\"$deleteMessageDays\", \"reason\":\"$fixedReason\"}"
 
-            val json: MediaType? = MediaType.parse("application/json; charset=utf-8")
-            val body: RequestBody = RequestBody.create(json, req)
+            val json: MediaType? = "application/json; charset=utf-8".toMediaTypeOrNull()
+            val body: RequestBody = req.toRequestBody(json)
             val request = Request.Builder()
                 .addHeader("Authorization", "Bot ${getAuthToken()}")
                 .put(body)
@@ -186,7 +188,7 @@ object BanCommand : Command("ban") {
 
             val response = OkHttpClient().newCall(request).execute()
 
-            if (response.body()!!.string().count() == 0) {
+            if (response.body!!.string().count() == 0) {
                 val user = authenticatedRequest<FakeUser>("Bot", getAuthToken(), "https://discord.com/api/v8/users/$username")
                 message.channel.send {
                     embed {
@@ -205,7 +207,7 @@ object BanCommand : Command("ban") {
                     }
                 }
             } else {
-                val prettyResponse = GsonBuilder().setPrettyPrinting().create().toJson(response.body()!!.string())
+                val prettyResponse = GsonBuilder().setPrettyPrinting().create().toJson(response.body!!.string())
                 message.channel.send {
                     embed {
                         title = "Failed to ban user!"
