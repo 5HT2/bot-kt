@@ -166,10 +166,23 @@ object CapeCommand : Command("cape") {
                             return@doesLater
                         }
 
-                        val alreadyAttached = capes.find { it.playerUUID == profilePair.uuid }
+                        var alreadyAttached: Cape? = null
+                        var alreadyAttachedUser: Long? = null
+
+                        for (capeUser in capeUserMap) {
+                            capeUser.value.capes.find { userCape ->
+                                userCape.playerUUID == profilePair.uuid
+                            }?.let { userCape ->
+                                alreadyAttachedUser = capeUser.key
+                                alreadyAttached = userCape
+                            }
+                        }
+
+                        val attachedMsg = if (alreadyAttachedUser == message.author?.id) "You already have" else "<@!$alreadyAttachedUser already has"
+
                         if (alreadyAttached != null) {
                             msg.edit {
-                                description = "You already have ${profilePair.name} attached to Cape `${alreadyAttached.capeUUID}`!"
+                                description = "$attachedMsg ${profilePair.name} attached to Cape `${alreadyAttached?.capeUUID}`!"
                                 color = Colors.error
                             }
                             return@doesLater
@@ -253,10 +266,6 @@ object CapeCommand : Command("cape") {
 
                             val oldCapeColor = cape.color
                             cape.color = CapeColor(colorPrimary.toLowerCase(), colorBorder.toLowerCase())
-
-                            // TODO() properly generate
-                            //val dir = "/home/mika/projects/assets-kamiblue/assets/capes/templates"
-                            //"./recolor.sh ${cape.color.primary} ${cape.color.border} ${cape.capeUUID}".systemBash(dir)
 
                             val oldColors = oldCapeColor.toEmoji()
                             val newColors = cape.color.toEmoji()

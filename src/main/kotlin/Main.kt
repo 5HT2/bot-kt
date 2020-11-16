@@ -41,7 +41,7 @@ fun main() = runBlocking {
 
     Main.capeCommitProcess = launch {
         while (isActive) {
-            delay(300000) // 5 minutes
+            delay(60010) // 1 minute
             CapeCommand.commit()
         }
     }
