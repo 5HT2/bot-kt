@@ -286,6 +286,7 @@ object CapeCommand : Command("cape") {
         literal("save") {
             doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) {
                 save()
+                commit()
                 message.success("Saved!")
             }
         }
@@ -330,7 +331,7 @@ object CapeCommand : Command("cape") {
         } ?: return
 
         val assets = "/home/mika/projects/cape-api"
-        val time = "date".bash()
+        val time = "date -u +\"%H:%M:%S %Y-%m-%d\"".bash()
 
         // TODO: bash dsl
         "git checkout capes".systemBash(assets)
