@@ -2,26 +2,17 @@ package org.kamiblue.botkt
 
 import org.kamiblue.botkt.commands.IssueCommand
 
-object ConfigTypes {
-    var authConfigData: AuthConfig? = null
-    var mutesConfigData: MuteConfig? = null
-    var rulesConfigData: RulesConfig? = null
-    var userConfigData: UserConfig? = null
-    var permissionConfigData: PermissionConfig? = null
-    var counterConfigData: CounterConfig? = null
-}
-
 /**
  * [configPath] is the file name on disk, OR a remote URL. If it is a URL, it must be a valid URL which includes http/https as a prefix
  * [data] is the actual config data, read in the format of clazz
  */
-enum class ConfigType(val configPath: String, var data: Any?) {
-    AUTH("config/auth.json", ConfigTypes.authConfigData),
-    MUTE("config/mutes.json", ConfigTypes.mutesConfigData),
-    RULES("config/rules.json", ConfigTypes.rulesConfigData),
-    USER("config/user.json", ConfigTypes.userConfigData),
-    PERMISSION("config/permissions.json", ConfigTypes.permissionConfigData),
-    COUNTER("config/counters.json", ConfigTypes.counterConfigData)
+enum class ConfigType(val configPath: String, var data: Any? = null) {
+    AUTH("config/auth.json"),
+    MUTE("config/mutes.json"),
+    RULES("config/rules.json"),
+    USER("config/user.json"),
+    PERMISSION("config/permissions.json"),
+    COUNTER("config/counters.json")
 }
 
 /**
