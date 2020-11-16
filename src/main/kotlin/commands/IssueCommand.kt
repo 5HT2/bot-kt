@@ -12,6 +12,7 @@ import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.ReactionUtils.addReaction
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.issue.Label
@@ -34,7 +35,7 @@ object IssueCommand : Command("issue") {
                 string("issueNum") {
                     doesLater { context ->
                         val githubToken =
-                            getGithubToken(message) ?: return@doesLater // Error message is handled already
+                            GitHubUtils.getGithubToken(message) ?: return@doesLater // Error message is handled already
                         val user: String = context arg "user"
                         val repoName: String = context arg "repoName"
                         val issueNum: String = context arg "issueNum"
@@ -48,8 +49,8 @@ object IssueCommand : Command("issue") {
         string("repoName") {
             string("issueNum") {
                 doesLater { context ->
-                    val githubToken = getGithubToken(message) ?: return@doesLater // Error message is handled already
-                    val user: String = getDefaultGithubUser(message) ?: return@doesLater
+                    val githubToken = GitHubUtils.getGithubToken(message) ?: return@doesLater // Error message is handled already
+                    val user: String = GitHubUtils.getDefaultGithubUser(message) ?: return@doesLater
                     val repoName: String = context arg "repoName"
                     val issueNum: String = context arg "issueNum"
 
@@ -135,7 +136,7 @@ object IssueCommand : Command("issue") {
             return
         }
 
-        createGithubIssue(form.second, user, form.third, token)
+        GitHubUtils.createGithubIssue(form.second, user, form.third, token)
 
         try {
             form.first.delete()

@@ -3,6 +3,7 @@ package org.kamiblue.botkt.commands
 import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.l1ving.api.download.Asset
@@ -50,7 +51,7 @@ object CounterCommand : Command("counter") {
         var updated = false
         val perPage = config.perPage ?: 200
 
-        getGithubToken(null)?.let {
+        GitHubUtils.getGithubToken(null)?.let {
             downloadStable = config.downloadStableUrl?.let { it1 -> authenticatedRequest<Download>("token", it, formatApiUrl(it1, perPage)) }
             downloadNightly = config.downloadNightlyUrl?.let { it1 -> authenticatedRequest<Download>("token", it, formatApiUrl(it1, perPage)) }
         } ?: run {
