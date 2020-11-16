@@ -11,7 +11,7 @@ import kotlin.system.exitProcess
 
 object Main {
     private lateinit var process: Job
-    var client: DiscordClient? = null
+    lateinit var client: DiscordClient
     var ready = false
 
     var prefix: Char? = null

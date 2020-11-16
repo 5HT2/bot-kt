@@ -39,7 +39,7 @@ object CounterCommand : Command("counter") {
         val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false) ?: return false
 
         val server = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {
-            Main.client?.servers?.find(it)
+            Main.client.servers.find(it)
         } ?: run {
             return false
         }

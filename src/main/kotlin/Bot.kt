@@ -55,14 +55,14 @@ class Bot {
                 ActivityType.values().forEach { lType -> if (lType.id == it) type = lType }
             }
 
-            Main.client!!.updateStatus(UserStatus.ONLINE, type, it)
+            Main.client.updateStatus(UserStatus.ONLINE, type, it)
         }
 
         delay(2000) // Discord API is really stupid and doesn't give you the information you need right away, hence delay needed
 
         userConfig?.startUpChannel?.let {
             if (userConfig.primaryServerId == null) {
-                Main.client!!.servers.forEach { chit ->
+                Main.client.servers.forEach { chit ->
                     delay(100) // we don't want to hit the message rate limit, 10 messages a second should be fine
                     chit.textChannels.findByName(it)?.send {
                         embed {
@@ -73,7 +73,7 @@ class Bot {
                     }
                 }
             } else {
-                val channel = Main.client!!.servers.find(userConfig.primaryServerId)!!.textChannels.findByName(it)
+                val channel = Main.client.servers.find(userConfig.primaryServerId)!!.textChannels.findByName(it)
                 channel?.send {
                     embed {
                         title = "Startup"

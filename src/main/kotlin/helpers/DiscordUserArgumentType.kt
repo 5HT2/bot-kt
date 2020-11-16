@@ -18,7 +18,7 @@ object DiscordUserArgumentType : ArgumentType<UserPromise> {
         reader ?: throw NO_READER_EXCEPTION.create()
         val ping = reader.readDiscordPing()
         return {
-            Main.client?.getUser(ping)
+            Main.client.getUser(ping)
         }
     }
 }

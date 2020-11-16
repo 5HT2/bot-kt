@@ -27,7 +27,7 @@ object IssueCommand : Command("issue") {
     private val queuedIssues = HashMap<Long, Triple<Message, Issue, String>>()
 
     init {
-        Main.client?.addListener(this)
+        Main.client.addListener(this)
 
         string("user") {
             string("repoName") {
