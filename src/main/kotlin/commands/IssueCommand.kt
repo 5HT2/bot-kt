@@ -14,6 +14,7 @@ import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.ReactionUtils.addReaction
+import org.kamiblue.botkt.utils.authenticatedRequest
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.issue.Label
 import org.l1ving.api.issue.User

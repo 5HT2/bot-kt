@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.DiscordClient
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.commands.CounterCommand
+import org.kamiblue.botkt.utils.configUpdateInterval
 import kotlin.system.exitProcess
 
 object Main {

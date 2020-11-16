@@ -6,6 +6,8 @@ import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.success
+import org.kamiblue.botkt.utils.authenticatedRequest
+import org.kamiblue.botkt.utils.request
 import org.l1ving.api.download.Asset
 import org.l1ving.api.download.Download
 

@@ -13,6 +13,7 @@ import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.pretty
 import kotlin.collections.set
 
 object ChannelCommand : Command("channel") {

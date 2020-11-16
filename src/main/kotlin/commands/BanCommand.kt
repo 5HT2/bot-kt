@@ -19,6 +19,8 @@ import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.StringUtils.flat
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.ReactionUtils.FakeUser
+import org.kamiblue.botkt.utils.authenticatedRequest
+import org.kamiblue.botkt.utils.getAuthToken
 
 object BanCommand : Command("ban") {
     init {
