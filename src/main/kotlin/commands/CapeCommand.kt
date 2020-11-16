@@ -344,7 +344,7 @@ object CapeCommand : Command("cape") {
         delay(50)
         "git add capes.json".systemBash(assets)
         delay(100)
-        "git commit -am \"Updated capes $time\"".systemBash(assets)
+        "git commit -am \"$time\"".systemBash(assets)
         delay(1000)
         "git push".systemBash(assets)
     }
