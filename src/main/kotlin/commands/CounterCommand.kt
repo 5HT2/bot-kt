@@ -3,8 +3,8 @@ package org.kamiblue.botkt.commands
 import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.Send.error
-import org.kamiblue.botkt.Send.success
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.l1ving.api.download.Asset
 import org.l1ving.api.download.Download
 

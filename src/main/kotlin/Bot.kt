@@ -8,10 +8,11 @@ import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.helpers.StringHelper.firstInSentence
 import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.MessageSendUtils
+import org.kamiblue.botkt.utils.MessageSendUtils.error
 
 
 /**
@@ -24,7 +25,7 @@ class Bot {
     suspend fun start() {
         val started = System.currentTimeMillis()
 
-        Send.log("Starting bot!")
+        MessageSendUtils.log("Starting bot!")
 
         UpdateHelper.writeCurrentVersion()
         UpdateHelper.updateCheck()
@@ -32,7 +33,7 @@ class Bot {
         val config = ConfigManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, false)
 
         if (config?.botToken == null) {
-            Send.log("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
+            MessageSendUtils.log("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
             Main.exit()
             return
         }
@@ -84,7 +85,7 @@ class Bot {
         }
 
         Main.ready = true
-        Send.log(initialization)
+        MessageSendUtils.log(initialization)
     }
 
     @EventHandler
@@ -98,7 +99,7 @@ class Bot {
             try {
                 val exit = dispatcher.execute(message, cmd)
                 cmd.file(event)
-                if (exit != 0) Send.log("(executed with exit code $exit)")
+                if (exit != 0) MessageSendUtils.log("(executed with exit code $exit)")
             } catch (e: CommandSyntaxException) {
                 if (!CommandManager.isCommand(message)) {
                     cmd.event.message.channel.send {

@@ -14,8 +14,8 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Permissions.hasPermission
-import org.kamiblue.botkt.Send.error
-import org.kamiblue.botkt.Send.normal
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.helpers.StringHelper.flat
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.ReactionUtils.FakeUser

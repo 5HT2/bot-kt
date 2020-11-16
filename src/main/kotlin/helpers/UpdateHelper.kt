@@ -2,7 +2,7 @@ package org.kamiblue.botkt.helpers
 
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager
-import org.kamiblue.botkt.Send.log
+import org.kamiblue.botkt.utils.MessageSendUtils.log
 import org.kamiblue.botkt.UserConfig
 import org.kamiblue.botkt.VersionConfig
 import java.io.File

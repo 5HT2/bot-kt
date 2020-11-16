@@ -1,7 +1,6 @@
 package org.kamiblue.botkt
 
 import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.permission.PermissionSet
@@ -12,7 +11,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.l1ving.api.issue.Issue
 import java.io.PrintWriter
 import java.io.StringWriter

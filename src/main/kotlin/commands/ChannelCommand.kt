@@ -9,9 +9,9 @@ import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.PermissionTypes.*
-import org.kamiblue.botkt.Send.error
-import org.kamiblue.botkt.Send.normal
-import org.kamiblue.botkt.Send.success
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageSendUtils.normal
+import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.Colors
 import kotlin.collections.set
 

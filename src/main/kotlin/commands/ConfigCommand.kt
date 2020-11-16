@@ -3,8 +3,8 @@ package org.kamiblue.botkt.commands
 import com.google.gson.GsonBuilder
 import org.kamiblue.botkt.helpers.StringHelper.writeBytes
 import org.kamiblue.botkt.*
-import org.kamiblue.botkt.Send.error
-import org.kamiblue.botkt.Send.success
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.Colors
 
 object ConfigCommand : Command("config") {

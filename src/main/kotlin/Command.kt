@@ -6,7 +6,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.kamiblue.botkt.Send.log
+import org.kamiblue.botkt.utils.MessageSendUtils.log
 import org.kamiblue.botkt.helpers.StringHelper.firstInSentence
 import org.reflections.Reflections
 import java.util.concurrent.ConcurrentLinkedQueue

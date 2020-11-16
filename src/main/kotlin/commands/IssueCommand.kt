@@ -9,8 +9,8 @@ import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import net.ayataka.kordis.event.events.message.ReactionAddEvent
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.Permissions.hasPermission
-import org.kamiblue.botkt.Send.error
-import org.kamiblue.botkt.Send.success
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.ReactionUtils.addReaction
 import org.l1ving.api.issue.Issue

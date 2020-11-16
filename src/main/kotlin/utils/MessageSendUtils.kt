@@ -1,10 +1,9 @@
-package org.kamiblue.botkt
+package org.kamiblue.botkt.utils
 
 import net.ayataka.kordis.entity.message.Message
-import org.kamiblue.botkt.utils.Colors
 
 @Suppress("UNUSED")
-object Send {
+object MessageSendUtils {
     fun log(message: String) = println("[bot-kt] $message")
 
     suspend fun Message.normal(description: String, title: String) = channel.send {

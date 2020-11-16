@@ -2,7 +2,7 @@ package org.kamiblue.botkt.commands
 
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.Colors
 
 object AnnounceCommand : Command("announce") {
