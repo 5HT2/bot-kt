@@ -53,20 +53,16 @@ object CommandManager {
      * Uses reflection to get a list of classes in the commands package which extend [Command]
      * and register said classes instances with Brigadier.
      */
-    @Suppress("UNCHECKED_CAST")
     fun registerCommands(dispatcher: CommandDispatcher<Cmd>) {
-        val reflections = Reflections("org.kamiblue.botkt.commands")
-
-        val subTypes: Set<Class<out Command>> = reflections.getSubTypesOf(Command::class.java)
+        val commandClass = Reflections("org.kamiblue.botkt.commands").getSubTypesOf(Command::class.java)
 
         log("Registering commands...")
 
-        for (command in subTypes) {
-            val literalCommand = command.getField("INSTANCE").get(null) as LiteralArgumentBuilder<Cmd>
-            val commandAsInstanceOfCommand = command.getField("INSTANCE").get(null) as Command
-            commandClasses[literalCommand.literal] = commandAsInstanceOfCommand
-            println("[commands] ${literalCommand.literal} ${commandAsInstanceOfCommand.arguments}")
-            commands[literalCommand.literal] = dispatcher.register(literalCommand)
+        for (clazz in commandClass) {
+            val command = clazz.getField("INSTANCE").get(null) as Command
+            commandClasses[command.literal] = command
+            println("[commands] ${command.literal} ${command.arguments}")
+            commands[command.literal] = dispatcher.register(command)
         }
 
         log("Registered commands!")
