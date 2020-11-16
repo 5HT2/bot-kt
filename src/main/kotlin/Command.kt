@@ -55,7 +55,7 @@ object CommandManager {
      */
     @Suppress("UNCHECKED_CAST")
     fun registerCommands(dispatcher: CommandDispatcher<Cmd>) {
-        val reflections = Reflections("commands")
+        val reflections = Reflections("org.kamiblue.botkt.commands")
 
         val subTypes: Set<Class<out Command>> = reflections.getSubTypesOf(Command::class.java)
 
