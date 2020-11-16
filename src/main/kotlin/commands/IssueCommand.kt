@@ -12,6 +12,7 @@ import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.success
 import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.ReactionUtils.addReaction
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.issue.Label
 import org.l1ving.api.issue.User
