@@ -1,7 +1,7 @@
 package org.kamiblue.botkt.commands
 
 import com.google.gson.GsonBuilder
-import org.kamiblue.botkt.helpers.StringHelper.writeBytes
+import org.kamiblue.botkt.utils.StringUtils.writeBytes
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.success

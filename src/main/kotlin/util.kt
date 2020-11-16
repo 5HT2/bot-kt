@@ -1,14 +1,12 @@
 package org.kamiblue.botkt
 
 import com.google.gson.Gson
-import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
+import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.permission.PermissionSet
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.MessageSendUtils.error

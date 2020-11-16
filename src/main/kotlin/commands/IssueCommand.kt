@@ -1,7 +1,7 @@
 package org.kamiblue.botkt.commands
 
-import org.kamiblue.botkt.helpers.StringHelper.flat
-import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
+import org.kamiblue.botkt.utils.StringUtils.flat
+import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.event.EventHandler

@@ -11,7 +11,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.getAuthToken
-import org.kamiblue.botkt.helpers.StringHelper.uriEncode
+import org.kamiblue.botkt.utils.StringUtils.uriEncode
 
 @Suppress("UNUSED")
 object ReactionUtils {

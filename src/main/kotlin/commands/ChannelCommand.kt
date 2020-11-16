@@ -1,6 +1,6 @@
 package org.kamiblue.botkt.commands
 
-import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
+import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server

@@ -1,6 +1,6 @@
 package org.kamiblue.botkt
 
-import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
+import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import net.ayataka.kordis.entity.message.Message
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.Colors
