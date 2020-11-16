@@ -13,6 +13,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.getAuthToken
 import org.kamiblue.botkt.helpers.StringHelper.uriEncode
 
+@Suppress("UNUSED")
 object ReactionUtils {
     private const val contentLength = "Content-Length"
 
