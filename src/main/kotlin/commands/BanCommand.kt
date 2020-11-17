@@ -20,6 +20,8 @@ import org.kamiblue.botkt.helpers.StringHelper.flat
 import org.kamiblue.botkt.helpers.StringHelper.toUserID
 
 object BanCommand : Command("ban") {
+    val gson = GsonBuilder().setPrettyPrinting().create()
+
     init {
         literal("regex") {
             literal("confirm") {
@@ -205,7 +207,7 @@ object BanCommand : Command("ban") {
                     }
                 }
             } else {
-                val prettyResponse = GsonBuilder().setPrettyPrinting().create().toJson(response.body?.string())
+                val prettyResponse = gson.toJson(response.body?.string())
                 message.channel.send {
                     embed {
                         title = "Failed to ban user!"

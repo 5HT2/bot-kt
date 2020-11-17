@@ -69,7 +69,7 @@ object CapeCommand : Command("cape") {
 
                         val newCape = Cape(type = type)
                         capeUserMap.getOrPut(user.id) {
-                            CapeUser(user.id, arrayListOf(newCape), type == CapeType.DONOR)
+                            CapeUser(user.id, ArrayList(), type == CapeType.DONOR)
                         }.addCape(newCape)
 
                         message.channel.send {
@@ -166,29 +166,28 @@ object CapeCommand : Command("cape") {
                             return@doesLater
                         }
 
-                        var alreadyAttached: Cape? = null
-                        var alreadyAttachedUser: Long? = null
+                        var attachedCape: Cape? = null
+                        var attachedUser: Long? = null
 
-                        for (capeUser in capeUserMap) {
-                            capeUser.value.capes.find { userCape ->
+                        for ((id, capeUser) in capeUserMap) {
+                            capeUser.capes.find { userCape ->
                                 userCape.playerUUID == profilePair.uuid
                             }?.let { userCape ->
-                                alreadyAttachedUser = capeUser.key
-                                alreadyAttached = userCape
+                                attachedUser = id
+                                attachedCape = userCape
                             }
                         }
 
-                        val attachedMsg = if (alreadyAttachedUser == message.author?.id) "You already have" else "<@!$alreadyAttachedUser already has"
+                        val attachedMsg = if (attachedUser == message.author?.id) "You already have" else "<@!$attachedUser already has"
 
-                        if (alreadyAttached != null) {
+                        if (attachedCape != null) {
                             msg.edit {
-                                description = "$attachedMsg ${profilePair.name} attached to Cape `${alreadyAttached?.capeUUID}`!"
+                                description = "$attachedMsg ${profilePair.name} attached to Cape `${attachedCape?.capeUUID}`!"
                                 color = Colors.error
                             }
                             return@doesLater
                         }
 
-                        // this is after everything because we don't care about Mojang requests that much, but we don't want to commit every 5 minutes or whatever
                         changeTimeOut(capeUUID)?.let {
                             msg.edit {
                                 description = changeError(capeUUID, it)
@@ -327,7 +326,8 @@ object CapeCommand : Command("cape") {
 
     fun save() {
         val capeUsers = capeUserMap.values.toList()
-        if (!File(capesFile).exists()) File(capesFile).createNewFile()
+        val file = File(capesFile)
+        if (!file.exists()) file.createNewFile()
 
         Files.newBufferedWriter(Paths.get(capesFile)).use {
             it.write(gson.toJson(capeUsers, object : TypeToken<List<CapeUser>>() {}.type))
@@ -335,9 +335,7 @@ object CapeCommand : Command("cape") {
     }
 
     suspend fun commit() { // TODO: hardcoded and a hack. I'm embarrassed to push this, but this is waiting for me to add plugin support
-        readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {
-            if (it != 573954110454366214) return
-        } ?: return
+        if (readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId != 573954110454366214) return
 
         val assets = "/home/mika/projects/cape-api"
         val time = "date -u +\"%H:%M:%S %Y-%m-%d\"".bash()

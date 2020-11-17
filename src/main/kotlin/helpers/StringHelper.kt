@@ -27,7 +27,5 @@ object StringHelper {
         return bytes.size
     }
 
-    fun String.prepend(string: String) = "$string$this"
-
     fun String.toUserID() = this.replace("[<@!>]".toRegex(), "").toLongOrNull()
 }

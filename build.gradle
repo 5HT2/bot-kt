@@ -28,7 +28,6 @@ dependencies {
 }
 
 sourceSets {
-    main.java.srcDirs += 'src/main/kotlin'
     main.java.srcDirs += 'src/main/github-discussion-api'
     main.java.srcDirs += 'src/main/cape-api'
 }
