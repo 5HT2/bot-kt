@@ -1,7 +1,5 @@
 package org.kamiblue.botkt.commands
 
-import org.kamiblue.botkt.helpers.StringHelper.flat
-import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
 import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.event.EventHandler
@@ -11,6 +9,8 @@ import org.kamiblue.botkt.*
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.success
+import org.kamiblue.botkt.helpers.StringHelper.flat
+import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.issue.Label
 import org.l1ving.api.issue.User

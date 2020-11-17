@@ -2,12 +2,7 @@ package org.kamiblue.botkt
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.exceptions.CommandSyntaxException
-import org.kamiblue.botkt.helpers.UpdateHelper.updateCheck
-import org.kamiblue.botkt.helpers.UpdateHelper.writeCurrentVersion
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
@@ -18,17 +13,36 @@ import org.kamiblue.botkt.CommandManager.registerCommands
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.log
+import org.kamiblue.botkt.commands.CapeCommand
 import org.kamiblue.botkt.commands.CounterCommand
 import org.kamiblue.botkt.helpers.StringHelper.firstInSentence
+import org.kamiblue.botkt.helpers.UpdateHelper
 import java.awt.Color
 import kotlin.system.exitProcess
 
 fun main() = runBlocking {
     Main.process = launch {
         Bot().start()
-        while (true) {
+    }
+
+    Main.counterProcess = launch {
+        while (isActive) {
             delay(configUpdateInterval())
             CounterCommand.updateChannel()
+        }
+    }
+
+    Main.capeSaveProcess = launch {
+        while (isActive) {
+            delay(60000) // 1 minute
+            CapeCommand.save()
+        }
+    }
+
+    Main.capeCommitProcess = launch {
+        while (isActive) {
+            delay(60010) // 1 minute
+            CapeCommand.commit()
         }
     }
 }
@@ -45,8 +59,8 @@ class Bot {
 
         log("Starting bot!")
 
-        writeCurrentVersion()
-        updateCheck()
+        UpdateHelper.writeCurrentVersion()
+        UpdateHelper.updateCheck()
 
         val config = readConfigSafe<AuthConfig>(ConfigType.AUTH, false)
 
@@ -149,6 +163,9 @@ class Bot {
 
 object Main {
     var process: Job? = null
+    var counterProcess: Job? = null
+    var capeSaveProcess: Job? = null
+    var capeCommitProcess: Job? = null
     var client: DiscordClient? = null
     var ready = false
     const val currentVersion = "v1.2.5"

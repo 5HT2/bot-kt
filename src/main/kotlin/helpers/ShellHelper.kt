@@ -24,6 +24,15 @@ object ShellHelper {
     }
 
     /**
+     * Run a command and send the output to stdout / stderr
+     * @throws IOException
+     */
+    fun String.systemBash(dir: String) {
+        this.process(dir).systemProcess().start()
+    }
+
+
+    /**
      * Run a command but return the output
      * // TODO: stderr does not return
      * @return shell stdout and stderr as a String
@@ -34,10 +43,27 @@ object ShellHelper {
     }
 
     /**
+     * Run a command but return the output
+     * // TODO: stderr does not return
+     * @return shell stdout and stderr as a String
+     * @throws IOException
+     */
+    fun String.bash(dir: String): String {
+        return BufferedReader(InputStreamReader(this.process(dir).start().inputStream)).nonNullLines()
+    }
+
+    /**
      * @return a process with the working directory set to the path the program is running from
      */
     private fun String.process(): ProcessBuilder {
         return ProcessBuilder(listOf("/bin/bash", "-c", this)).directory(workingDir)
+    }
+
+    /**
+     * @return a process with the working directory set to [dir]
+     */
+    private fun String.process(dir: String): ProcessBuilder {
+        return ProcessBuilder(listOf("/bin/bash", "-c", this)).directory(File(dir))
     }
 
     /**
