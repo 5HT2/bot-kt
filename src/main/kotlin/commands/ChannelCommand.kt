@@ -1,6 +1,5 @@
 package org.kamiblue.botkt.commands
 
-import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
@@ -9,14 +8,20 @@ import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.PermissionTypes.*
+import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.MessageSendUtils.success
-import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.pretty
 import kotlin.collections.set
 
 object ChannelCommand : Command("channel") {
+    /* <Saved Config, <Role ID, Pair<Allowed, Disallowed>>> */
+    private val permissions = HashMap<String, Collection<RolePermissionOverwrite>>()
+
+    private var previousChange: Triple<Pair<ChangeType, String>, ServerChannel, Collection<RolePermissionOverwrite>>? = null
+
     init {
         literal("save") {
             doesLaterIfHas(MANAGE_CHANNELS) {
@@ -131,8 +136,8 @@ object ChannelCommand : Command("channel") {
                 val totalArchived = archivedChannels.size
 
                 c.edit {
-                    userPermissionOverwrites.removeAll(userPermissionOverwrites)
-                    rolePermissionOverwrites.removeAll(rolePermissionOverwrites)
+                    userPermissionOverwrites.clear()
+                    rolePermissionOverwrites.clear()
                     rolePermissionOverwrites.add(RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(1024))) // disallow read for everyone
                     name = "archived-$totalArchived"
                 }
@@ -168,11 +173,7 @@ object ChannelCommand : Command("channel") {
     }
 
     private suspend fun save(name: String, serverChannel: ServerChannel, message: Message) {
-        val selectedConfig = HashSet<RolePermissionOverwrite>()
-
-        serverChannel.rolePermissionOverwrites.forEach {
-            selectedConfig.add(it)
-        }
+        val selectedConfig = ArrayList(serverChannel.rolePermissionOverwrites)
 
         previousChange = Triple(Pair(ChangeType.SAVE, name), serverChannel, serverChannel.rolePermissionOverwrites)
         // make sure to run this AFTER saving previous state
@@ -227,7 +228,7 @@ object ChannelCommand : Command("channel") {
 
             when (it.first.first) {
                 ChangeType.SAVE -> {
-                    permissions[it.first.second] = it.third.toHashSet()
+                    permissions[it.first.second] = it.third
 
                     m.edit {
                         description = "Attempting to undo last change...\n" +
@@ -240,7 +241,7 @@ object ChannelCommand : Command("channel") {
                 }
 
                 ChangeType.LOAD -> {
-                    it.second.setPermissions(it.third.toHashSet())
+                    it.second.setPermissions(it.third)
 
                     m.edit {
                         description = "Attempting to undo last change...\n" +
@@ -267,10 +268,10 @@ object ChannelCommand : Command("channel") {
         }
 
         if (reverse) {
-            category.setPermissions(perms.toHashSet())
+            category.setPermissions(perms)
             message.success("Synchronized category permissions to the `${serverChannel.name.toHumanReadable()}` channel!")
         } else {
-            serverChannel.setPermissions(perms.toHashSet())
+            serverChannel.setPermissions(perms)
             message.success("Synchronized channel permissions to the `${category.name.toHumanReadable()}` category!")
         }
     }
@@ -282,9 +283,7 @@ object ChannelCommand : Command("channel") {
         val serverChannel = (if (category) message.serverChannel?.category else message.serverChannel)
             ?: run { message.error("${if (category) "Category" else "Server channel"} was null, was you running this from a DM?"); return }
 
-        val perms: RolePermissionOverwrite?
-
-        perms = if (lock) {
+        val perms = if (lock) {
             message.success("Locked ${if (category) "category" else "channel"}!")
             RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(2048))
         } else {
@@ -298,13 +297,10 @@ object ChannelCommand : Command("channel") {
 
     }
 
-    private suspend fun ServerChannel.setPermissions(permissions: HashSet<RolePermissionOverwrite>) {
+    private suspend fun ServerChannel.setPermissions(permissions: Collection<RolePermissionOverwrite>) {
         this.edit {
-            this.rolePermissionOverwrites.removeAll(this.rolePermissionOverwrites)
-
-            permissions.forEach {
-                this.rolePermissionOverwrites.add(it)
-            }
+            this.rolePermissionOverwrites.clear()
+            this.rolePermissionOverwrites.addAll(permissions)
         }
     }
 
@@ -317,11 +313,6 @@ object ChannelCommand : Command("channel") {
 
         return sc
     }
-
-    /* <Saved Config, <Role ID, Pair<Allowed, Disallowed>>> */
-    private val permissions = HashMap<String, HashSet<RolePermissionOverwrite>>()
-
-    private var previousChange: Triple<Pair<ChangeType, String>, ServerChannel, Collection<RolePermissionOverwrite>>? = null
 
     private enum class ChangeType {
         SAVE, LOAD
