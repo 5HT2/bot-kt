@@ -70,11 +70,8 @@ object IssueCommand : Command("issue") {
                             val title: String = context arg "title"
                             val body: String = context arg "body"
 
-                            val issue = Issue()
                             val formattedIssue = "Created by: ${message.author?.name?.toHumanReadable()} `(${message.author?.id})`\n\n$body"
-
-                            issue.title = title
-                            issue.body = formattedIssue
+                            val issue = Issue(title = title, body = formattedIssue)
 
                             val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
                             issueChannel?.issueCreationChannel?.let {
@@ -195,7 +192,7 @@ object IssueCommand : Command("issue") {
     ) {
         val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
-            if (issue.html_url != null && issue.html_url!!.contains("issue")) {
+            if (issue.html_url != null && issue.html_url.contains("issue")) {
                 message.channel.send {
                     embed {
                         title = issue.title
@@ -207,7 +204,7 @@ object IssueCommand : Command("issue") {
                         url = issue.html_url
                     }
                 }
-            } else if (issue.html_url != null && issue.html_url!!.contains("pull")) {
+            } else if (issue.html_url != null && issue.html_url.contains("pull")) {
                 val pullRequest = authenticatedRequest<PullRequest>("token", token, issue.url!!)
 
                 message.channel.send {
