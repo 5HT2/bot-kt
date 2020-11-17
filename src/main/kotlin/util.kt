@@ -1,6 +1,8 @@
 package org.kamiblue.botkt
 
 import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import com.google.gson.annotations.SerializedName
 import com.google.gson.internal.LinkedTreeMap
 import com.google.gson.reflect.TypeToken
@@ -8,11 +10,9 @@ import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.user.User
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Send.error
@@ -194,24 +194,22 @@ fun createGithubIssue(issue: Issue, user: String, repo: String, token: String) {
     // TODO: Return response
 }
 
-fun Server?.maxEmojiSlots(): Int {
-    val server = this ?: return 50
-    val url = "https://discord.com/api/v6/guilds/${server.id}"
+fun Server.maxEmojiSlots(): Int {
+    val url = "https://discord.com/api/v6/guilds/${this.id}"
     val request = Request.Builder()
         .addHeader("Authorization", "Bot ${getAuthToken()}")
         .url(url).get().build()
 
     val response = OkHttpClient().newCall(request).execute()
-    val guildObject = Gson().fromJson(response.body?.string(), Any::class.java) as LinkedTreeMap<*, *>
-
-    val premiumTierObject = guildObject["premium_tier"] ?: run {
-        log("Error getting premium tier")
-        return 50
-    }
+    val jsonObject = response.body?.charStream()?.use {
+        JsonParser.parseReader(it)
+    } as? JsonObject
 
     val premiumTier = try {
-        (premiumTierObject as Double).toInt()
-    } catch (e: NumberFormatException) {
+        jsonObject?.get("premium_tier")?.asInt
+    } catch (e: Exception) {
+        log("Error getting premium tier")
+        e.printStackTrace()
         0
     }
 
