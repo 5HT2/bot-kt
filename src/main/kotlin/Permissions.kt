@@ -7,7 +7,7 @@ import org.kamiblue.botkt.utils.Colors
 
 object Permissions {
     suspend fun Message.hasPermission(permission: PermissionTypes): Boolean {
-        this.author?.let {
+        return this.author?.let {
             return if (!it.id.hasPermission(permission)) {
                 this.missingPermissions(permission)
                 false
@@ -16,18 +16,14 @@ object Permissions {
             }
         } ?: run {
             this.error("Message `${this.id}` author was null")
-            return false
+            false
         }
     }
 
     fun Long.hasPermission(permission: PermissionTypes): Boolean {
-        var has = false
-        ConfigManager.readConfigSafe<PermissionConfig>(ConfigType.PERMISSION, false)?.let {
-            it.councilMembers[this]?.forEach { peit ->
-                if (peit == permission) has = true
-            }
-        }
-        return has
+        return ConfigManager.readConfigSafe<PermissionConfig>(ConfigType.PERMISSION, false)?.let {
+            it.councilMembers[this]?.contains(permission)
+        } ?: false
     }
 
     suspend fun Message.missingPermissions(permission: PermissionTypes) {
