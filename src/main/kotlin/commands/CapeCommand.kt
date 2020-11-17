@@ -239,6 +239,30 @@ object CapeCommand : Command("cape") {
 
         literal("color") {
             string("uuid") {
+                doesLater { context ->
+                    val capeUUID: String = context arg "uuid"
+
+                    val capes = message.getCapes() ?: return@doesLater
+
+                    val cape = capes.find { it.capeUUID == capeUUID } ?: run {
+                        message.error(capeError(capeUUID))
+                        return@doesLater
+                    }
+
+                    val emojis = cape.color.toEmoji()
+
+                    message.channel.send {
+                        embed {
+                            field(
+                                "Colors for Cape `${cape.capeUUID}`",
+                                emojis,
+                                true
+                            )
+                            color = Colors.primary
+                        }
+                    }
+                }
+
                 string("colorPrimary") {
                     string("colorBorder") {
                         doesLater { context ->
@@ -312,6 +336,17 @@ object CapeCommand : Command("cape") {
         }
 
         load()
+    }
+
+    override fun getHelpUsage(): String {
+        return "Capes are updated every minute, if you don't see your cape in game and it is attached wait a few minutes before asking for help\n\n" +
+                "`$fullName list`\n" +
+                "Attach a cape to your Minecraft account:\n" +
+                "`$fullName attach <cape uuid> <username/uuid>`\n" +
+                "View the colors of your cape:\n" +
+                "`$fullName color <cape uuid>`\n" +
+                "Change the colors of your cape:\n" +
+                "`$fullName color <cape uuid> <primary color> <border color>`"
     }
 
 
