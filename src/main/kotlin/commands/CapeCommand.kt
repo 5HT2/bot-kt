@@ -170,12 +170,13 @@ object CapeCommand : Command("cape") {
                         var attachedUser: Long? = null
 
                         for ((id, capeUser) in capeUserMap) {
-                            capeUser.capes.find { userCape ->
+                            val userCape = capeUser.capes.find { userCape ->
                                 userCape.playerUUID == profilePair.uuid
-                            }?.let { userCape ->
-                                attachedUser = id
-                                attachedCape = userCape
-                            }
+                            } ?: continue
+
+                            attachedUser = id
+                            attachedCape = userCape
+                            break
                         }
 
                         val attachedMsg = if (attachedUser == message.author?.id) "You already have" else "<@!$attachedUser already has"
