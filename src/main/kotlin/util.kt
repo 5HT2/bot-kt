@@ -1,22 +1,24 @@
 package org.kamiblue.botkt
 
 import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import com.google.gson.annotations.SerializedName
 import com.google.gson.internal.LinkedTreeMap
 import com.google.gson.reflect.TypeToken
-import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
-import org.kamiblue.botkt.helpers.StringHelper.uriEncode
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.user.User
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.Send.log
+import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
+import org.kamiblue.botkt.helpers.StringHelper.uriEncode
 import org.l1ving.api.issue.Issue
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -36,7 +38,7 @@ inline fun <reified T> request(url: String): T {
     val request = Request.Builder().url(url).get().build()
     val response = OkHttpClient().newCall(request).execute()
 
-    return Gson().fromJson(response.body!!.string(), T::class.java)
+    return Gson().fromJson(response.body?.string(), T::class.java)
 }
 
 /**
@@ -47,7 +49,7 @@ inline fun <reified T> authenticatedRequest(authType: String, token: String, url
     val request = Request.Builder().addHeader("Authorization", "$authType $token").url(url).get().build()
     val response = OkHttpClient().newCall(request).execute()
 
-    return Gson().fromJson(response.body!!.string(), T::class.java)
+    return Gson().fromJson(response.body?.string(), T::class.java)
 }
 
 /**
@@ -189,8 +191,34 @@ fun createGithubIssue(issue: Issue, user: String, repo: String, token: String) {
         .url(url).post(body).build()
 
     val response = OkHttpClient().newCall(request).execute()
+    // TODO: Return response
+}
 
-    println(response.body?.string())
+fun Server.maxEmojiSlots(): Int {
+    val url = "https://discord.com/api/v6/guilds/${this.id}"
+    val request = Request.Builder()
+        .addHeader("Authorization", "Bot ${getAuthToken()}")
+        .url(url).get().build()
+
+    val response = OkHttpClient().newCall(request).execute()
+    val jsonObject = response.body?.charStream()?.use {
+        JsonParser.parseReader(it)
+    } as? JsonObject
+
+    val premiumTier = try {
+        jsonObject?.get("premium_tier")?.asInt
+    } catch (e: Exception) {
+        log("Error getting premium tier")
+        e.printStackTrace()
+        0
+    }
+
+    return when (premiumTier) {
+        1 -> 100
+        2 -> 150
+        3 -> 250
+        else -> 50
+    }
 }
 
 fun Exception.getStackTraceAsString(): String {
