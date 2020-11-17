@@ -1,6 +1,9 @@
 package org.kamiblue.botkt.utils
 
 import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
+import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -8,6 +11,7 @@ import org.kamiblue.botkt.AuthConfig
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.CounterConfig
+import org.kamiblue.botkt.utils.MessageSendUtils.log
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import java.util.concurrent.TimeUnit
 
@@ -54,4 +58,31 @@ fun configUpdateInterval(): Long {
  */
 fun getAuthToken(): String {
     return readConfigSafe<AuthConfig>(ConfigType.AUTH, false)!!.botToken
+}
+
+fun Server.maxEmojiSlots(): Int {
+    val url = "https://discord.com/api/v6/guilds/${this.id}"
+    val request = Request.Builder()
+            .addHeader("Authorization", "Bot ${getAuthToken()}")
+            .url(url).get().build()
+
+    val response = OkHttpClient().newCall(request).execute()
+    val jsonObject = response.body?.charStream()?.use {
+        JsonParser.parseReader(it)
+    } as? JsonObject
+
+    val premiumTier = try {
+        jsonObject?.get("premium_tier")?.asInt
+    } catch (e: Exception) {
+        log("Error getting premium tier")
+        e.printStackTrace()
+        0
+    }
+
+    return when (premiumTier) {
+        1 -> 100
+        2 -> 150
+        3 -> 250
+        else -> 50
+    }
 }

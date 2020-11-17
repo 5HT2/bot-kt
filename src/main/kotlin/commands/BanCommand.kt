@@ -14,16 +14,18 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Permissions.hasPermission
+import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
-import org.kamiblue.botkt.utils.StringUtils.flat
-import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.ReactionUtils.FakeUser
+import org.kamiblue.botkt.utils.StringUtils.flat
+import org.kamiblue.botkt.utils.StringUtils.toUserID
 import org.kamiblue.botkt.utils.authenticatedRequest
 import org.kamiblue.botkt.utils.getAuthToken
 
 object BanCommand : Command("ban") {
     private const val banReason = "Ban Reason:"
+    private val gson = GsonBuilder().setPrettyPrinting().create()
 
     init {
         literal("regex") {
@@ -147,12 +149,9 @@ object BanCommand : Command("ban") {
         val deleteMessageDays = if (deleteMsgs) 1 else 0
         val fixedReason = if (reason != null && reason.isNotEmpty()) reason else readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultBanReason ?: "No Reason Specified"
 
-        try {
-            val filtered = username.replace("[<@!>]".toRegex(), "").toLong()
-            username = filtered.toString()
+        username.toUserID()?.let {
+            username = it.toString()
             usernameIsId = true
-        } catch (ignored: NumberFormatException) {
-            // this is fine, we're parsing user input and don't know if it's an ID or not
         }
 
         val user: User = server.members.findByName(username) ?: server.members.find(username.toLong()) ?: // ID, or ping with the regex [<@!>] removed
@@ -194,7 +193,7 @@ object BanCommand : Command("ban") {
 
             val response = OkHttpClient().newCall(request).execute()
 
-            if (response.body!!.string().count() == 0) {
+            if (response.body?.string()?.count() == 0) {
                 val user = authenticatedRequest<FakeUser>("Bot", getAuthToken(), "https://discord.com/api/v8/users/$username")
                 message.channel.send {
                     embed {
@@ -213,7 +212,7 @@ object BanCommand : Command("ban") {
                     }
                 }
             } else {
-                val prettyResponse = GsonBuilder().setPrettyPrinting().create().toJson(response.body!!.string())
+                val prettyResponse = gson.toJson(response.body?.string())
                 message.channel.send {
                     embed {
                         title = "Failed to ban user!"

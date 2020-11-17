@@ -1,17 +1,19 @@
 package org.kamiblue.botkt
 
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.commands.CapeCommand
 import org.kamiblue.botkt.commands.CounterCommand
 import org.kamiblue.botkt.utils.configUpdateInterval
 import kotlin.system.exitProcess
 
 object Main {
     private lateinit var process: Job
+    private lateinit var counterProcess: Job
+    private lateinit var capeSaveProcess: Job
+    private lateinit var capeCommitProcess: Job
+
     lateinit var client: DiscordClient
     var ready = false
 
@@ -31,9 +33,26 @@ object Main {
     fun main(vararg args: String) = runBlocking {
         process = launch {
             Bot().start()
-            while (true) {
+        }
+
+        counterProcess = launch {
+            while (isActive) {
                 delay(configUpdateInterval())
                 CounterCommand.updateChannel()
+            }
+        }
+
+        capeSaveProcess = launch {
+            while (isActive) {
+                delay(60000) // 1 minute
+                CapeCommand.save()
+            }
+        }
+
+        capeCommitProcess = launch {
+            while (isActive) {
+                delay(60010) // 1 minute
+                CapeCommand.commit()
             }
         }
     }

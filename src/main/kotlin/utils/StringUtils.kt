@@ -30,4 +30,6 @@ object StringUtils {
         File(this).writeBytes(bytes)
         return bytes.size
     }
+
+    fun String.toUserID() = this.replace("[<@!>]".toRegex(), "").toLongOrNull()
 }

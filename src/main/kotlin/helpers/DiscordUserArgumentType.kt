@@ -11,7 +11,6 @@ import org.kamiblue.botkt.Main
 typealias UserPromise = (suspend () -> User?)
 
 val NO_READER_EXCEPTION = SimpleCommandExceptionType(LiteralMessage("There was no reader to read the argument."))
-val NOT_IN_PING_FORMAT_EXCEPTION = DynamicCommandExceptionType { LiteralMessage("The string `$it` is not in ping format.") }
 
 object DiscordUserArgumentType : ArgumentType<UserPromise> {
     override fun parse(reader: StringReader?): UserPromise {
