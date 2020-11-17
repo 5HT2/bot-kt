@@ -340,9 +340,12 @@ object CapeCommand : Command("cape") {
 
     override fun getHelpUsage(): String {
         return "Capes are updated every minute, if you don't see your cape in game and it is attached wait a few minutes before asking for help\n\n" +
+                "List your available capes\n" +
                 "`$fullName list`\n" +
                 "Attach a cape to your Minecraft account:\n" +
                 "`$fullName attach <cape uuid> <username/uuid>`\n" +
+                "Detach a cape from all accounts. Not required to change accounts.\n" +
+                "`$fullName detach <cape uuid>`\n" +
                 "View the colors of your cape:\n" +
                 "`$fullName color <cape uuid>`\n" +
                 "Change the colors of your cape:\n" +
