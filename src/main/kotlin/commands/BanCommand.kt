@@ -23,6 +23,8 @@ import org.kamiblue.botkt.utils.authenticatedRequest
 import org.kamiblue.botkt.utils.getAuthToken
 
 object BanCommand : Command("ban") {
+    private const val banReason = "Ban Reason:"
+
     init {
         literal("regex") {
             literal("confirm") {
@@ -303,8 +305,6 @@ object BanCommand : Command("ban") {
             }
         }
     }
-
-    private const val banReason = "Ban Reason:"
 
     override fun getHelpUsage(): String {
         return "$fullName <user(id, username, ping)>\n" +
