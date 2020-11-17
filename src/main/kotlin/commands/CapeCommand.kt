@@ -14,15 +14,13 @@ import org.kamiblue.botkt.Send.error
 import org.kamiblue.botkt.Send.log
 import org.kamiblue.botkt.Send.normal
 import org.kamiblue.botkt.Send.success
+import org.kamiblue.botkt.UUIDManager.UUIDFormatException
 import org.kamiblue.botkt.helpers.MathHelper
 import org.kamiblue.botkt.helpers.ShellHelper.bash
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
 import org.kamiblue.botkt.helpers.StringHelper.toUserID
-import org.kamiblue.capeapi.Cape
-import org.kamiblue.capeapi.CapeColor
-import org.kamiblue.capeapi.CapeType
-import org.kamiblue.capeapi.CapeUser
+import org.kamiblue.capeapi.*
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -149,7 +147,13 @@ object CapeCommand : Command("cape") {
                             return@doesLater
                         }
 
-                        val profilePair = UUIDManager.getByString(username)
+                        val profilePair: PlayerProfile?
+                        try {
+                            profilePair = UUIDManager.getByString(username)
+                        } catch (e: UUIDFormatException) {
+                            message.error(e.message.toString() + "\nMake sure your UUID / username is correct")
+                            return@doesLater
+                        }
 
                         val msg = if (profilePair != null) {
                             message.normal("Found UUID to attach to Cape `$capeUUID` - verifying")
