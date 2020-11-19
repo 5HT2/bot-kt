@@ -169,7 +169,7 @@ object Main {
     var capeCommitProcess: Job? = null
     var client: DiscordClient? = null
     var ready = false
-    const val currentVersion = "v1.2.5"
+    const val currentVersion = "v1.2.6"
 
     private var defaultPrefix: Char? = null
 
