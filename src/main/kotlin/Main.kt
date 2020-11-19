@@ -134,14 +134,7 @@ class Bot {
                 cmd.file(event)
                 if (exit != 0) log("(executed with exit code $exit)")
             } catch (e: CommandSyntaxException) {
-                if (!CommandManager.isCommand(message) && readConfigSafe<UserConfig>(ConfigType.USER, false)?.unknownCommandError == true) {
-                    cmd.event.message.channel.send {
-                        embed {
-                            title = "Unknown Command: ${Main.prefix()}${message.firstInSentence()}"
-                            color = Colors.error
-                        }
-                    }
-                } else {
+                if (CommandManager.isCommand(message)) {
                     val usage = CommandManager.getCommandClass(message)?.getHelpUsage()
                     cmd.event.message.channel.send {
                         embed {
@@ -154,6 +147,14 @@ class Bot {
                             color = Colors.error
                         }
                     }
+                } else if (readConfigSafe<UserConfig>(ConfigType.USER, false)?.unknownCommandError == true) {
+                    cmd.event.message.channel.send {
+                        embed {
+                            title = "Unknown Command: ${Main.prefix()}${message.firstInSentence()}"
+                            color = Colors.error
+                        }
+                    }
+
                 }
             }
         } catch (e: Exception) {
