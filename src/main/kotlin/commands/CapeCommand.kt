@@ -209,7 +209,7 @@ object CapeCommand : Command("cape") {
 
                         if (attachedCape != null) {
                             msg.edit {
-                                description = "$attachedMsg ${profilePair.name} attached to Cape `${attachedCape?.capeUUID}`!"
+                                description = "$attachedMsg ${profilePair.name} attached to Cape `${attachedCape.capeUUID}`!"
                                 color = Colors.error
                             }
                             return@doesLater
