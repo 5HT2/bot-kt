@@ -183,7 +183,7 @@ object CapeCommand : Command("cape") {
                             break
                         }
 
-                        val attachedMsg = if (attachedUser == message.author?.id) "You already have" else "<@!$attachedUser already has"
+                        val attachedMsg = if (attachedUser == message.author?.id) "You already have" else "<@!$attachedUser> already has"
 
                         if (attachedCape != null) {
                             msg.edit {
