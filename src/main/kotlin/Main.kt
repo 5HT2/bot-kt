@@ -127,7 +127,7 @@ class Bot {
                 cmd.file(event)
                 if (exit != 0) log("(executed with exit code $exit)")
             } catch (e: CommandSyntaxException) {
-                if (!CommandManager.isCommand(message)) {
+                if (!CommandManager.isCommand(message) && readConfigSafe<UserConfig>(ConfigType.USER, false)?.unknownCommandError == true) {
                     cmd.event.message.channel.send {
                         embed {
                             title = "Unknown Command: ${Main.prefix()}${message.firstInSentence()}"
