@@ -8,7 +8,7 @@ import kotlinx.coroutines.coroutineScope
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.kamiblue.botkt.utils.MessageSendUtils.log
 import org.kamiblue.botkt.utils.StringUtils.firstInSentence
-import org.reflections.Reflections
+import org.kamiblue.commons.utils.ClassUtils
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
@@ -50,12 +50,12 @@ object CommandManager {
      * and register said classes instances with Brigadier.
      */
     fun registerCommands(dispatcher: CommandDispatcher<Cmd>) {
-        val commandClass = Reflections("org.kamiblue.botkt.commands").getSubTypesOf(Command::class.java)
+        val commandClasses = ClassUtils.findClasses("org.kamiblue.botkt.commands", Command::class.java)
 
         log("Registering commands...")
 
-        for (clazz in commandClass) {
-            val command = clazz.getField("INSTANCE").get(null) as Command
+        for (clazz in commandClasses) {
+            val command = ClassUtils.getInstance(clazz)
             commandMap[command.literal] = command
             println("[commands] ${command.literal} ${command.arguments}")
             dispatcher.register(command)
