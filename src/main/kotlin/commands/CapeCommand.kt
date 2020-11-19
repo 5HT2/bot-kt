@@ -323,7 +323,6 @@ object CapeCommand : Command("cape") {
         literal("save") {
             doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) {
                 save()
-                commit()
                 message.success("Saved!")
             }
         }
@@ -375,28 +374,6 @@ object CapeCommand : Command("cape") {
         Files.newBufferedWriter(Paths.get(capesFile)).use {
             it.write(gson.toJson(capeUsers, object : TypeToken<List<CapeUser>>() {}.type))
         }
-    }
-
-    suspend fun commit() { // TODO: hardcoded and a hack. I'm embarrassed to push this, but this is waiting for me to add plugin support
-        if (readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId != 573954110454366214) return
-
-        val assets = "/home/mika/projects/cape-api"
-        val time = "date -u +\"%H:%M:%S %Y-%m-%d\"".bash()
-
-        // TODO: bash dsl
-        "git checkout capes".systemBash(assets)
-        delay(50)
-        "git reset --hard origin/capes".systemBash(assets)
-        delay(200)
-        "git pull".systemBash(assets)
-        delay(1000) // yea bash commands don't wait to finish so you get an error with the lockfile
-        "cp cache/capes.json $assets/capes.json".systemBash()
-        delay(50)
-        "git add capes.json".systemBash(assets)
-        delay(100)
-        "git commit -am \"$time\"".systemBash(assets)
-        delay(1000)
-        "git push".systemBash(assets)
     }
 
     private fun CapeUser.deleteCape(cape: Cape) {
