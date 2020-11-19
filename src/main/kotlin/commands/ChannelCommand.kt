@@ -25,7 +25,7 @@ object ChannelCommand : Command("channel") {
     init {
         literal("save") {
             doesLaterIfHas(MANAGE_CHANNELS) {
-                val serverChannel = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+                val serverChannel = message.serverChannel(message) ?: return@doesLaterIfHas
                 val name = serverChannel.name
 
                 save(name, serverChannel, message)
@@ -33,7 +33,7 @@ object ChannelCommand : Command("channel") {
 
             string("name") {
                 doesLaterIfHas(MANAGE_CHANNELS) { context ->
-                    val serverChannel = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+                    val serverChannel = message.serverChannel(message) ?: return@doesLaterIfHas
                     val name: String = context arg "name"
 
                     save(name, serverChannel, message)
@@ -43,7 +43,7 @@ object ChannelCommand : Command("channel") {
 
         literal("print") {
             doesLaterIfHas(MANAGE_CHANNELS) {
-                val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+                val c = message.serverChannel(message) ?: return@doesLaterIfHas
                 val name = c.name
 
                 print(name, message)
@@ -81,14 +81,14 @@ object ChannelCommand : Command("channel") {
         literal("sync") {
             literal("category") {
                 doesLaterIfHas(MANAGE_CHANNELS) {
-                    val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+                    val c = message.serverChannel(message) ?: return@doesLaterIfHas
 
                     sync(true, message, c)
                 }
             }
 
             doesLaterIfHas(MANAGE_CHANNELS) {
-                val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+                val c = message.serverChannel(message) ?: return@doesLaterIfHas
 
                 sync(false, message, c)
             }
@@ -127,8 +127,9 @@ object ChannelCommand : Command("channel") {
 
         literal("archive") {
             doesLaterIfHas(ARCHIVE_CHANNEL) {
-                val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
-                val s = server ?: run { message.error("Server is null, are you running this from a DM?"); return@doesLaterIfHas }
+                val c = message.serverChannel(message) ?: return@doesLaterIfHas
+                val s = server
+                        ?: run { message.error("Server is null, are you running this from a DM?"); return@doesLaterIfHas }
                 val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
                 val oldName = c.name
 
@@ -150,19 +151,19 @@ object ChannelCommand : Command("channel") {
         literal("lock") {
             literal("category") {
                 doesLaterIfHas(COUNCIL_MEMBER) {
-                    lockOrUnlock(category = true, lock = true, message = message, server = server)
+                    lockOrUnlock(true, true, message, server)
                 }
             }
 
             doesLaterIfHas(COUNCIL_MEMBER) {
-                lockOrUnlock(category = false, lock = true, message = message, server = server)
+                lockOrUnlock(false, true, message, server)
             }
         }
 
         literal("unlock") {
             literal("category") {
                 doesLaterIfHas(COUNCIL_MEMBER) {
-                    lockOrUnlock(category = true, lock = false, message = message, server = server)
+                    lockOrUnlock(true, false, message, server)
                 }
             }
 
@@ -183,24 +184,22 @@ object ChannelCommand : Command("channel") {
     }
 
     private suspend fun print(name: String, message: Message) {
-        val s = StringBuilder()
-
         val selectedChannel = permissions[name] ?: run {
             message.error("Couldn't find `$name` in saved channel presets!")
             return
         }
 
-        selectedChannel.forEach {
-            s.append("${it.role.mention}\n" +
+        val string = selectedChannel.joinToString(separator = "\n") {
+            "${it.role.mention}\n" +
                     "Allow: ${it.allow.pretty()}\n" +
-                    "Deny: ${it.deny.pretty()}\n\n")
+                    "Deny: ${it.deny.pretty()}\n"
         }
 
         permissions[name] = selectedChannel
 
-        if (s.isEmpty()) {
+        if (string.isBlank()) {
             message.error("No saved permissions for `$name`!")
-        } else message.normal(s.toString())
+        } else message.normal(string)
     }
 
     private suspend fun load(name: String, message: Message) {
@@ -209,7 +208,7 @@ object ChannelCommand : Command("channel") {
             return
         }
 
-        val serverChannel = message.serverChannel(message) ?: run { return }
+        val serverChannel = message.serverChannel(message) ?: return
         previousChange = Triple(Pair(ChangeType.LOAD, name), serverChannel, serverChannel.rolePermissionOverwrites)
 
         serverChannel.setPermissions(selectedChannel)
@@ -281,7 +280,7 @@ object ChannelCommand : Command("channel") {
         val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
 
         val serverChannel = (if (category) message.serverChannel?.category else message.serverChannel)
-            ?: run { message.error("${if (category) "Category" else "Server channel"} was null, was you running this from a DM?"); return }
+                ?: run { message.error("${if (category) "Category" else "Server channel"} was null, was you running this from a DM?"); return }
 
         val perms = if (lock) {
             message.success("Locked ${if (category) "category" else "channel"}!")
