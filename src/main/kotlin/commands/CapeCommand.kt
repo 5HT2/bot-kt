@@ -53,6 +53,7 @@ object CapeCommand : Command("cape") {
                             message.error(findError)
                             return@doesLaterIfHas
                         }
+
                         val userCapeType: String = context arg "type"
 
                         /** find CapeType from user's args */
@@ -118,6 +119,27 @@ object CapeCommand : Command("cape") {
         }
 
         literal("list") {
+            ping("id") {
+                doesLater { context ->
+                    val user: User = context userArg "id" ?: run {
+                        message.error(findError)
+                        return@doesLater
+                    }
+
+                    val userCapes = user.id.getCapes() ?: return@doesLater
+
+                    message.channel.send {
+                        embed {
+                            userCapes.forEach {
+                                val playerName = UUIDManager.getByUUID(it.playerUUID)?.name ?: "Not attached"
+                                field("Cape UUID ${it.capeUUID}", "Player Name: $playerName\nCape Type: ${it.type.realName}")
+                            }
+                            color = Colors.primary
+                        }
+                    }
+                }
+            }
+
             doesLater {
                 val userCapes = message.getCapes() ?: return@doesLater
 
@@ -408,6 +430,12 @@ object CapeCommand : Command("cape") {
             this.capes.removeIf { it.capeUUID == cape.capeUUID }
             this.capes.add(cape)
             this.isPremium = this.isPremium || capes.any { it.type == CapeType.DONOR }
+        }
+    }
+
+    private fun Long.getCapes(): ArrayList<Cape>? {
+        return capeUserMap[this]?.capes.also {
+            if (it == null) error("User <@!$this> does not have any capes!")
         }
     }
 
