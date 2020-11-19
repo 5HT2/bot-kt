@@ -39,6 +39,13 @@ fun main() = runBlocking {
             CapeCommand.save()
         }
     }
+
+    Main.capeCommitProcess = launch {
+        while (isActive) {
+            delay(60010) // 1 minute
+            CapeCommand.commit()
+        }
+    }
 }
 
 /**
@@ -159,6 +166,7 @@ object Main {
     var process: Job? = null
     var counterProcess: Job? = null
     var capeSaveProcess: Job? = null
+    var capeCommitProcess: Job? = null
     var client: DiscordClient? = null
     var ready = false
     const val currentVersion = "v1.2.7"
