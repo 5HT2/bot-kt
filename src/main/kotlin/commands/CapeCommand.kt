@@ -185,7 +185,7 @@ object CapeCommand : Command("cape") {
                             break
                         }
 
-                        val attachedMsg = if (attachedUser == message.author?.id) "You already have" else "<@!$attachedUser already has"
+                        val attachedMsg = if (attachedUser == message.author?.id) "You already have" else "<@!$attachedUser> already has"
 
                         if (attachedCape != null) {
                             msg.edit {
@@ -280,7 +280,7 @@ object CapeCommand : Command("cape") {
                             }
 
                             if (cape.type != CapeType.CONTEST) {
-                                message.error("You're only able to change the colors of Contest Capes, `${capeUUID} is a `${cape.type.realName} Cape!")
+                                message.error("You're only able to change the colors of Contest Capes, `${capeUUID}` is a ${cape.type.realName} Cape!")
                                 return@doesLater
                             }
 
