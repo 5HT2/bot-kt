@@ -161,7 +161,7 @@ object Main {
     var capeSaveProcess: Job? = null
     var client: DiscordClient? = null
     var ready = false
-    const val currentVersion = "v1.2.6"
+    const val currentVersion = "v1.2.7"
 
     private var defaultPrefix: Char? = null
 
