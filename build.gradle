@@ -28,8 +28,9 @@ dependencies {
 }
 
 sourceSets {
-    main.java.srcDirs += 'src/main/github-discussion-api'
+    main.java.srcDirs += 'src/main/commons'
     main.java.srcDirs += 'src/main/cape-api'
+    main.java.srcDirs += 'src/main/github-discussion-api'
 }
 
 compileKotlin {
