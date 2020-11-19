@@ -16,6 +16,7 @@ import org.kamiblue.botkt.Send.log
 import org.kamiblue.botkt.commands.CapeCommand
 import org.kamiblue.botkt.commands.CounterCommand
 import org.kamiblue.botkt.helpers.StringHelper.firstInSentence
+import org.kamiblue.botkt.helpers.StringHelper.flat
 import org.kamiblue.botkt.helpers.UpdateHelper
 import java.awt.Color
 import kotlin.system.exitProcess
@@ -105,7 +106,7 @@ class Bot {
                     }
                 }
             } else {
-                val channel = Main.client!!.servers.find(userConfig.primaryServerId)!!.textChannels.findByName(it)
+                val channel = Main.client?.servers?.find(userConfig.primaryServerId)?.textChannels?.findByName(it)
                 channel?.send {
                     embed {
                         title = "Startup"
@@ -156,7 +157,7 @@ class Bot {
                 }
             }
         } catch (e: Exception) {
-            event.message.error("```\n${e.getStackTraceAsString()}\n```") // TODO: proper command to view stacktraces
+            event.message.error("```\n${e.getStackTraceAsString()}\n".flat(2045) + "```") // TODO: proper command to view stacktraces
         }
     }
 }
