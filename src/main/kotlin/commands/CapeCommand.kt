@@ -126,7 +126,10 @@ object CapeCommand : Command("cape") {
                         return@doesLater
                     }
 
-                    val userCapes = user.id.getCapes() ?: return@doesLater
+                    val userCapes = capeUserMap[user.id]?.capes ?: run {
+                        message.error("User ${user.mention} does not have any capes!")
+                        return@doesLater
+                    }
 
                     message.channel.send {
                         embed {
@@ -430,12 +433,6 @@ object CapeCommand : Command("cape") {
             this.capes.removeIf { it.capeUUID == cape.capeUUID }
             this.capes.add(cape)
             this.isPremium = this.isPremium || capes.any { it.type == CapeType.DONOR }
-        }
-    }
-
-    private fun Long.getCapes(): ArrayList<Cape>? {
-        return capeUserMap[this]?.capes.also {
-            if (it == null) error("User <@!$this> does not have any capes!")
         }
     }
 
