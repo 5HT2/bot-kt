@@ -278,7 +278,7 @@ object CapeCommand : Command("cape") {
                             }
 
                             if (cape.type != CapeType.CONTEST) {
-                                message.error("You're only able to change the colors of Contest Capes, `${capeUUID} is a `${cape.type.realName} Cape!")
+                                message.error("You're only able to change the colors of Contest Capes, `${capeUUID}` is a ${cape.type.realName} Cape!")
                                 return@doesLater
                             }
 
