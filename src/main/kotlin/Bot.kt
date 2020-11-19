@@ -8,12 +8,12 @@ import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.kamiblue.botkt.utils.StringUtils.firstInSentence
 import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error
-
+import org.kamiblue.botkt.utils.StringUtils.firstInSentence
+import org.kamiblue.botkt.utils.StringUtils.flat
 
 /**
  * @author l1ving
@@ -101,14 +101,7 @@ class Bot {
                 cmd.file(event)
                 if (exit != 0) MessageSendUtils.log("(executed with exit code $exit)")
             } catch (e: CommandSyntaxException) {
-                if (!CommandManager.isCommand(message)) {
-                    cmd.event.message.channel.send {
-                        embed {
-                            title = "Unknown Command: ${Main.prefix}${message.firstInSentence()}"
-                            color = Colors.ERROR.color
-                        }
-                    }
-                } else {
+                if (CommandManager.isCommand(message)) {
                     val usage = CommandManager.getCommand(message)?.getHelpUsage()
                     cmd.event.message.channel.send {
                         embed {
@@ -121,10 +114,18 @@ class Bot {
                             color = Colors.ERROR.color
                         }
                     }
+                } else if (ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)?.unknownCommandError == true) {
+                    cmd.event.message.channel.send {
+                        embed {
+                            title = "Unknown Command: ${Main.prefix}${message.firstInSentence()}"
+                            color = Colors.ERROR.color
+                        }
+                    }
+
                 }
             }
         } catch (e: Exception) {
-            event.message.error("```\n${e.stackTraceToString()}\n```") // TODO: proper command to view stacktraces
+            event.message.error("```\n${e.stackTraceToString()}\n".flat(2045) + "```") // TODO: proper command to view stacktraces
         }
     }
 }
