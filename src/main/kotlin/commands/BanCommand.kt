@@ -32,15 +32,16 @@ object BanCommand : Command("ban") {
             literal("confirm") {
                 greedyString("userRegex") {
                     doesLaterIfHas(PermissionTypes.MASS_BAN) { context ->
-                        val regex: String = context arg "userRegex"
+                        val regexIn: String = context arg "userRegex"
 
                         val server = server ?: run { message.error("Server members are null, are you running this from a DM?"); return@doesLaterIfHas }
 
                         val m = message.error("Banning [calculating] members...")
 
                         var banned = 0
+                        val regex = regexIn.toRegex()
                         val reason = "Mass ban by ${message.author?.name}#${message.author?.discriminator}"
-                        val filtered = server.members.filter { it.name.contains(regex.toRegex()) }
+                        val filtered = server.members.filter { it.name.contains(regex) }
 
                         if (filtered.isEmpty()) {
                             m.edit {
@@ -81,14 +82,19 @@ object BanCommand : Command("ban") {
 
             greedyString("userRegex") {
                 doesLaterIfHas(PermissionTypes.MASS_BAN) { context ->
-                    val regex: String = context arg "userRegex"
+                    val regexIn: String = context arg "userRegex"
+                    val regex = regexIn.toRegex()
 
-                    val members = server?.members ?: run { message.error("Server members are null, are you running this from a DM?"); return@doesLaterIfHas }
-                    val filtered = members.filter { it.name.contains(regex.toRegex()) }.joinToString { it.mention }.replace(", ", "\n")
+                    val members = server?.members ?: run {
+                        message.error("Server members are null, are you running this from a DM?")
+                        return@doesLaterIfHas
+                    }
+
+                    val filtered = members.filter { it.name.contains(regex) }.joinToString(separator = "\n") { it.mention }
                     val final = if (filtered.length > 2048) filtered.flat(1998) + "\nNot all users are shown, due to size limitations." else filtered
 
                     if (members.isEmpty()) {
-                        message.error("Couldn't find any members that match the regex `$regex`!")
+                        message.error("Couldn't find any members that match the regex `$regexIn`!")
                     } else {
                         message.normal(final)
                     }
@@ -106,18 +112,12 @@ object BanCommand : Command("ban") {
                 } else {
                     // split message in the format of [username, false/true, reason]
                     val splitWithDeleteMsgs = username.split(" ".toRegex(), 3)
-                    var deleteMsgsReason: String? = null
+                    val deleteMsgsReason = splitWithDeleteMsgs.getOrNull(2)
 
-                    try {
-                        deleteMsgsReason = splitWithDeleteMsgs[2]
-                    } catch (e: IndexOutOfBoundsException) {
-                        // this is fine, it just means we just won't have a reason while deleting messages
-                    }
-
-                    if (splitWithDeleteMsgs[1] == "true") { // [username, *true*, reason]
+                    if (splitWithDeleteMsgs[1].equals("true", true)) { // [username, *true*, reason]
                         ban(splitWithDeleteMsgs[0], true, deleteMsgsReason, server, message)
                         return@doesLaterIfHas
-                    } else if (splitWithDeleteMsgs[1] == "false") { // [username, *false*, reason]
+                    } else if (splitWithDeleteMsgs[1].equals("false", true)) { // [username, *false*, reason]
                         ban(splitWithDeleteMsgs[0], false, deleteMsgsReason, server, message)
                         return@doesLaterIfHas
                     }
