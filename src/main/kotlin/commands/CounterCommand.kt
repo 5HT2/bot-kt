@@ -50,19 +50,22 @@ object CounterCommand : Command("counter") {
 
         val perPage = config.perPage ?: 200
 
-        val download = GitHubUtils.getGithubToken(null)?.let { token ->
-            config.downloadNightlyUrl?.let { authenticatedRequest<Download>("token", token, formatApiUrl(it, perPage)) } // Nightly
-                    ?: config.downloadStableUrl?.let { authenticatedRequest<Download>("token", token, formatApiUrl(it, perPage)) } // Stable
+        var stable: Download? = null
+        var nightly: Download? = null
+
+        GitHubUtils.getGithubToken(null)?.let { token ->
+            stable = config.downloadStableUrl?.let { authenticatedRequest<Download>("token", token, formatApiUrl(it, perPage)) } // Stable
+            nightly = config.downloadNightlyUrl?.let { authenticatedRequest<Download>("token", token, formatApiUrl(it, perPage)) } // Nightly
         } ?: run {
-            config.downloadNightlyUrl?.let { request<Download>(formatApiUrl(it, perPage)) }
-                    ?: config.downloadStableUrl?.let { request<Download>(formatApiUrl(it, perPage)) }
+            stable = config.downloadStableUrl?.let { request<Download>(formatApiUrl(it, perPage)) }
+            nightly = config.downloadNightlyUrl?.let { request<Download>(formatApiUrl(it, perPage)) }
         }
 
         val memberCount = server.members.size
-        val downLoadCount = download?.countDownload()
+        val totalDownload = (stable?.countDownload()?.first ?: 0) + (nightly?.countDownload()?.first ?: 0)
 
-        return if (downLoadCount != null && memberCount != 0) {
-            edit(config, server, downLoadCount.first, downLoadCount.second, memberCount)
+        return if (totalDownload != 0 || memberCount != 0) {
+            edit(config, server, totalDownload, nightly?.countDownload()?.second ?: -1, memberCount)
             true
         } else {
             false
