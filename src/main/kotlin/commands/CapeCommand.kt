@@ -55,6 +55,7 @@ object CapeCommand : Command("cape") {
                             message.error(findError)
                             return@doesLaterIfHas
                         }
+
                         val userCapeType: String = context arg "type"
 
                         /** find CapeType from user's args */
@@ -120,6 +121,30 @@ object CapeCommand : Command("cape") {
         }
 
         literal("list") {
+            ping("id") {
+                doesLater { context ->
+                    val user: User = context userArg "id" ?: run {
+                        message.error(findError)
+                        return@doesLater
+                    }
+
+                    val userCapes = capeUserMap[user.id]?.capes ?: run {
+                        message.error("User ${user.mention} does not have any capes!")
+                        return@doesLater
+                    }
+
+                    message.channel.send {
+                        embed {
+                            userCapes.forEach {
+                                val playerName = UUIDManager.getByUUID(it.playerUUID)?.name ?: "Not attached"
+                                field("Cape UUID ${it.capeUUID}", "Player Name: $playerName\nCape Type: ${it.type.realName}")
+                            }
+                            color = Colors.PRIMARY.color
+                        }
+                    }
+                }
+            }
+
             doesLater {
                 val userCapes = message.getCapes() ?: return@doesLater
 
