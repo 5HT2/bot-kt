@@ -3,7 +3,6 @@ package org.kamiblue.botkt.commands
 import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.commands.CounterCommand.countDownload
 import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.success
@@ -77,7 +76,7 @@ object CounterCommand : Command("counter") {
 
     private fun Download.countDownload(): Pair<Int, Int>? {
         return this.sumBy { release -> release.assets.sumBy { it.download_count } } to
-            this[0].assets.sumBy { it.download_count }
+                this[0].assets.sumBy { it.download_count }
     }
 
     private suspend fun edit(config: CounterConfig, server: Server, totalCount: Int, latestCount: Int, memberCount: Int) {
