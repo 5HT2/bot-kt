@@ -35,8 +35,8 @@ object IssueCommand : Command("issue") {
                 string("issueNum") {
                     doesLater { context ->
                         val githubToken =
-                                GitHubUtils.getGithubToken(message)
-                                        ?: return@doesLater // Error message is handled already
+                            GitHubUtils.getGithubToken(message)
+                                ?: return@doesLater // Error message is handled already
                         val user: String = context arg "user"
                         val repoName: String = context arg "repoName"
                         val issueNum: String = context arg "issueNum"
@@ -51,7 +51,7 @@ object IssueCommand : Command("issue") {
             string("issueNum") {
                 doesLater { context ->
                     val githubToken = GitHubUtils.getGithubToken(message)
-                            ?: return@doesLater // Error message is handled already
+                        ?: return@doesLater // Error message is handled already
                     val user: String = GitHubUtils.getDefaultGithubUser(message) ?: return@doesLater
                     val repoName: String = context arg "repoName"
                     val issueNum: String = context arg "issueNum"
@@ -82,10 +82,10 @@ object IssueCommand : Command("issue") {
                             }
 
                             val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
-                                    ?: run {
-                                        message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
-                                        return@doesLater
-                                    }
+                                ?: run {
+                                    message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                                    return@doesLater
+                                }
 
                             val form = message.channel.send {
                                 embed {
@@ -184,11 +184,11 @@ object IssueCommand : Command("issue") {
     }
 
     private suspend fun sendResponse(
-            message: Message,
-            token: String,
-            user: String,
-            repoName: String,
-            issueNum: String
+        message: Message,
+        token: String,
+        user: String,
+        repoName: String,
+        issueNum: String,
     ) {
         val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
@@ -242,15 +242,15 @@ object IssueCommand : Command("issue") {
         field("Milestone", issue.milestone?.title ?: "No Milestone", false)
 
         field(
-                "Labels",
-                issue.labels?.mapNotNull { it.name }?.joinToString() ?: "None",
-                false
+            "Labels",
+            issue.labels?.mapNotNull { it.name }?.joinToString() ?: "None",
+            false
         )
 
         field(
-                "Assignees",
-                issue.assignees?.mapNotNull { it.login }?.joinToString() ?: "None",
-                false
+            "Assignees",
+            issue.assignees?.mapNotNull { it.login }?.joinToString() ?: "None",
+            false
         )
     }
 
