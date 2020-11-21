@@ -1,6 +1,7 @@
 package org.kamiblue.botkt.commands
 
 import org.kamiblue.botkt.*
+import org.kamiblue.botkt.utils.Colors
 
 object RulesCommand : Command("r") {
     init {
@@ -16,13 +17,13 @@ object RulesCommand : Command("r") {
                     if (rule.contains("Couldn't find rule")) {
                         embed {
                             description = rule
-                            color = Colors.error
+                            color = Colors.ERROR.color
                         }
                     } else {
                         embed {
                             title = "Rule $ruleName"
                             description = rule
-                            color = Colors.primary
+                            color = Colors.PRIMARY.color
                         }
                     }
                 }

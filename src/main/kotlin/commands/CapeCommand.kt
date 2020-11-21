@@ -10,16 +10,18 @@ import net.ayataka.kordis.entity.server.emoji.Emoji
 import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.Send.error
-import org.kamiblue.botkt.Send.log
-import org.kamiblue.botkt.Send.normal
-import org.kamiblue.botkt.Send.success
 import org.kamiblue.botkt.UUIDManager.UUIDFormatException
 import org.kamiblue.botkt.helpers.MathHelper
 import org.kamiblue.botkt.helpers.ShellHelper.bash
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash
-import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
-import org.kamiblue.botkt.helpers.StringHelper.toUserID
+import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageSendUtils.log
+import org.kamiblue.botkt.utils.MessageSendUtils.normal
+import org.kamiblue.botkt.utils.MessageSendUtils.success
+import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
+import org.kamiblue.botkt.utils.StringUtils.toUserID
+import org.kamiblue.botkt.utils.maxEmojiSlots
 import org.kamiblue.capeapi.*
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
@@ -77,7 +79,7 @@ object CapeCommand : Command("cape") {
                                 field("User", user.mention)
                                 field("Type", type.realName)
                                 field("Cape UUID", newCape.capeUUID)
-                                color = Colors.success
+                                color = Colors.SUCCESS.color
                             }
                         }
                     }
@@ -137,7 +139,7 @@ object CapeCommand : Command("cape") {
                                 val playerName = UUIDManager.getByUUID(it.playerUUID)?.name ?: "Not attached"
                                 field("Cape UUID ${it.capeUUID}", "Player Name: $playerName\nCape Type: ${it.type.realName}")
                             }
-                            color = Colors.primary
+                            color = Colors.PRIMARY.color
                         }
                     }
                 }
@@ -152,7 +154,7 @@ object CapeCommand : Command("cape") {
                             val playerName = UUIDManager.getByUUID(it.playerUUID)?.name ?: "Not attached"
                             field("Cape UUID ${it.capeUUID}", "Player Name: $playerName\nCape Type: ${it.type.realName}")
                         }
-                        color = Colors.primary
+                        color = Colors.PRIMARY.color
                     }
                 }
             }
@@ -189,7 +191,7 @@ object CapeCommand : Command("cape") {
                                     description = "Couldn't find an account with the UUID/Name `$username`!\n" +
                                             "Make sure you have a real Mojang account and with correct UUID/Name, " +
                                             "contact a moderator if this keeps happening."
-                                    color = Colors.error
+                                    color = Colors.ERROR.color
                                 }
                             }
                             return@doesLater
@@ -213,7 +215,7 @@ object CapeCommand : Command("cape") {
                         if (attachedCape != null) {
                             msg.edit {
                                 description = "$attachedMsg ${profilePair.name} attached to Cape `${attachedCape.capeUUID}`!"
-                                color = Colors.error
+                                color = Colors.ERROR.color
                             }
                             return@doesLater
                         }
@@ -221,7 +223,7 @@ object CapeCommand : Command("cape") {
                         changeTimeOut(capeUUID)?.let {
                             msg.edit {
                                 description = changeError(capeUUID, it)
-                                color = Colors.error
+                                color = Colors.ERROR.color
                             }
                             return@doesLater
                         }
@@ -230,7 +232,7 @@ object CapeCommand : Command("cape") {
 
                         msg.edit {
                             description = "Successfully attached Cape `${cape.capeUUID}` to user `${profilePair.name}`"
-                            color = Colors.success
+                            color = Colors.SUCCESS.color
                         }
                     }
                 }
@@ -283,7 +285,7 @@ object CapeCommand : Command("cape") {
                                 emojis,
                                 true
                             )
-                            color = Colors.primary
+                            color = Colors.PRIMARY.color
                         }
                     }
                 }
@@ -336,7 +338,7 @@ object CapeCommand : Command("cape") {
                                         newColors,
                                         true
                                     )
-                                    color = Colors.success
+                                    color = Colors.SUCCESS.color
                                 }
                             }
                         }
@@ -519,7 +521,7 @@ object CapeCommand : Command("cape") {
 
     private val server
         get() = cachedServer ?: run {
-            val server = Main.client?.servers?.find(775449131736760361)
+            val server = Main.client.servers.find(775449131736760361)
             cachedServer = server
             server
         }
