@@ -16,7 +16,9 @@ object PurgeCommand : Command("purge") {
                     val number = contextNumber + 1 // include original message to delete
                     val user: String = context arg "user"
                     val search = if (number < 1000) number * 2 + 50 else number
-                    message.channel.getMessages(search).filter { it.author!!.id.toString() == user || it.author!!.mention == user || it.author!!.tag == user }.take(number).deleteAll()
+                    message.channel.getMessages(search).filter {
+                        it.author?.id.toString() == user || it.author?.mention == user || it.author?.tag == user
+                    }.take(number).deleteAll()
                 }
             }
         }

@@ -2,18 +2,21 @@ package org.kamiblue.botkt.commands
 
 import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.message.embed.EmbedBuilder
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import net.ayataka.kordis.event.events.message.ReactionAddEvent
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.Permissions.hasPermission
-import org.kamiblue.botkt.Send.error
-import org.kamiblue.botkt.Send.success
-import org.kamiblue.botkt.helpers.StringHelper.flat
-import org.kamiblue.botkt.helpers.StringHelper.toHumanReadable
+import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.GitHubUtils
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageSendUtils.success
+import org.kamiblue.botkt.utils.ReactionUtils.addReaction
+import org.kamiblue.botkt.utils.StringUtils.flat
+import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
+import org.kamiblue.botkt.utils.authenticatedRequest
 import org.l1ving.api.issue.Issue
-import org.l1ving.api.issue.Label
-import org.l1ving.api.issue.User
 import org.l1ving.api.pull.PullRequest
 import java.awt.Color
 
@@ -25,14 +28,15 @@ object IssueCommand : Command("issue") {
     private val queuedIssues = HashMap<Long, Triple<Message, Issue, String>>()
 
     init {
-        Main.client?.addListener(this)
+        Main.client.addListener(this)
 
         string("user") {
             string("repoName") {
                 string("issueNum") {
                     doesLater { context ->
                         val githubToken =
-                            getGithubToken(message) ?: return@doesLater // Error message is handled already
+                            GitHubUtils.getGithubToken(message)
+                                ?: return@doesLater // Error message is handled already
                         val user: String = context arg "user"
                         val repoName: String = context arg "repoName"
                         val issueNum: String = context arg "issueNum"
@@ -46,8 +50,9 @@ object IssueCommand : Command("issue") {
         string("repoName") {
             string("issueNum") {
                 doesLater { context ->
-                    val githubToken = getGithubToken(message) ?: return@doesLater // Error message is handled already
-                    val user: String = getDefaultGithubUser(message) ?: return@doesLater
+                    val githubToken = GitHubUtils.getGithubToken(message)
+                        ?: return@doesLater // Error message is handled already
+                    val user: String = GitHubUtils.getDefaultGithubUser(message) ?: return@doesLater
                     val repoName: String = context arg "repoName"
                     val issueNum: String = context arg "issueNum"
 
@@ -65,11 +70,8 @@ object IssueCommand : Command("issue") {
                             val title: String = context arg "title"
                             val body: String = context arg "body"
 
-                            val issue = Issue()
                             val formattedIssue = "Created by: ${message.author?.name?.toHumanReadable()} `(${message.author?.id})`\n\n$body"
-
-                            issue.title = title
-                            issue.body = formattedIssue
+                            val issue = Issue(title = title, body = formattedIssue)
 
                             val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
                             issueChannel?.issueCreationChannel?.let {
@@ -79,10 +81,11 @@ object IssueCommand : Command("issue") {
                                 }
                             }
 
-                            val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
-                                message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
-                                return@doesLater
-                            }
+                            val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
+                                ?: run {
+                                    message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                                    return@doesLater
+                                }
 
                             val form = message.channel.send {
                                 embed {
@@ -90,7 +93,7 @@ object IssueCommand : Command("issue") {
                                     this.description = "Created by: ${message.author?.mention}\n\n$body"
 
                                     field("Repository", "`$user/$repo`")
-                                    color = Colors.primary
+                                    color = Colors.PRIMARY.color
                                 }
                             }
 
@@ -133,7 +136,7 @@ object IssueCommand : Command("issue") {
             return
         }
 
-        createGithubIssue(form.second, user, form.third, token)
+        GitHubUtils.createGithubIssue(form.second, user, form.third, token)
 
         try {
             form.first.delete()
@@ -189,33 +192,19 @@ object IssueCommand : Command("issue") {
     ) {
         val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
-            if (issue.html_url != null && issue.html_url!!.contains("issue")) {
+            if (issue.html_url != null && issue.html_url.contains("issue")) {
                 message.channel.send {
                     embed {
                         title = issue.title
                         thumbnailUrl = issue.user?.avatar_url
-                        color = if (issue.state == "closed") Colors.error else Colors.success
+                        color = if (issue.state == "closed") Colors.ERROR.color else Colors.SUCCESS.color
 
-                        description = issue.body.defaultFromNull("No Description").flat(2048)
-
-                        field("Milestone", issue.milestone?.title ?: "No Milestone", false)
-
-                        field(
-                            "Labels",
-                            issue.labels.joinToLabels(),
-                            false
-                        )
-
-                        field(
-                            "Assignees",
-                            issue.assignees.joinToUsers(),
-                            false
-                        )
+                        commonFields(issue)
 
                         url = issue.html_url
                     }
                 }
-            } else if (issue.html_url != null && issue.html_url!!.contains("pull")) {
+            } else if (issue.html_url != null && issue.html_url.contains("pull")) {
                 val pullRequest = authenticatedRequest<PullRequest>("token", token, issue.url!!)
 
                 message.channel.send {
@@ -224,21 +213,7 @@ object IssueCommand : Command("issue") {
                         thumbnailUrl = pullRequest.user?.avatar_url
                         color = getPullRequestColor(pullRequest)
 
-                        description = issue.body.defaultFromNull("No Description").flat(2048)
-
-                        field("Milestone", issue.milestone?.title ?: "No Milestone", false)
-
-                        field(
-                            "Labels",
-                            issue.labels.joinToLabels(),
-                            false
-                        )
-
-                        field(
-                            "Assignees",
-                            issue.assignees.joinToUsers(),
-                            false
-                        )
+                        commonFields(issue)
 
                         field("Lines", "+${pullRequest.additions} / - ${pullRequest.deletions}", false)
                         field("Commits", pullRequest.commits ?: -1, false)
@@ -252,70 +227,47 @@ object IssueCommand : Command("issue") {
             message.channel.send {
                 embed {
                     title = "Error"
-                    description =
-                        "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
-                    field("Stacktrace", "```${e.getStackTraceAsString()}```", false)
+                    description = "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
+                    field("Stacktrace", "```${e.stackTraceToString()}```", false)
                     e.printStackTrace()
-                    color = Colors.error
+                    color = Colors.ERROR.color
                 }
             }
         }
     }
 
-    override fun getHelpUsage(): String {
-        return "Getting information of an issue/pull on github. \n\n" +
-                "Usage: \n" +
-                "`$fullName <user/organization> <repository> <issue>`\n\n" +
-                "Example: \n" +
-                "`$fullName kami-blue bot-kt 10`\n\n"
+    private fun EmbedBuilder.commonFields(issue: Issue) {
+        description = issue.body.defaultFromNull("No Description").flat(2048)
+
+        field("Milestone", issue.milestone?.title ?: "No Milestone", false)
+
+        field(
+            "Labels",
+            issue.labels?.mapNotNull { it.name }?.joinToString() ?: "None",
+            false
+        )
+
+        field(
+            "Assignees",
+            issue.assignees?.mapNotNull { it.login }?.joinToString() ?: "None",
+            false
+        )
     }
 
     private fun getPullRequestColor(pullRequest: PullRequest): Color {
         return when {
             pullRequest.merged -> {
-                Colors.mergedPullRequest
+                Colors.MERGED_PULL_REQUEST.color
             }
             pullRequest.state == "closed" && !pullRequest.merged -> {
-                Colors.error
+                Colors.ERROR.color
             }
             pullRequest.state == "open" -> {
-                Colors.success
+                Colors.SUCCESS.color
             }
             else -> {
-                Colors.warn
+                Colors.WARN.color
             }
-        }
-    }
-
-    private fun List<Label>?.joinToLabels(): String {
-        val list = ArrayList<String>()
-
-        this?.forEach {
-            it.name?.let { name ->
-                list.add(name)
-            }
-        }
-
-        return if (list.isEmpty()) {
-            "None"
-        } else {
-            list.joinToString()
-        }
-    }
-
-    private fun List<User>?.joinToUsers(): String {
-        val list = ArrayList<String>()
-
-        this?.forEach {
-            it.login?.let { login ->
-                list.add(login)
-            }
-        }
-
-        return if (list.isEmpty()) {
-            "None"
-        } else {
-            list.joinToString()
         }
     }
 
@@ -325,5 +277,13 @@ object IssueCommand : Command("issue") {
         } else {
             this.replace(Regex("<!--.*-->"), "")
         }
+    }
+
+    override fun getHelpUsage(): String {
+        return "Getting information of an issue/pull on github. \n\n" +
+                "Usage: \n" +
+                "`$fullName <user/organization> <repository> <issue>`\n\n" +
+                "Example: \n" +
+                "`$fullName kami-blue bot-kt 10`\n\n"
     }
 }

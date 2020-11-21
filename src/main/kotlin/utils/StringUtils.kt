@@ -1,13 +1,17 @@
-package org.kamiblue.botkt.helpers
+package org.kamiblue.botkt.utils
 
 import java.io.File
 import java.net.URL
 import java.net.URLEncoder
 
-object StringHelper {
-    fun String.isUrl() = Regex("https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)").matches(this)
+@Suppress("UNUSED")
+object StringUtils {
+    private val urlRegex = "https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)".toRegex()
+    private val humanReadableRegex = "[_-]".toRegex()
 
-    fun String.toHumanReadable() = this.toLowerCase().replace("[_-]".toRegex(), " ").capitalizeWords()
+    fun String.isUrl() = urlRegex.matches(this)
+
+    fun String.toHumanReadable() = this.toLowerCase().replace(humanReadableRegex, " ").capitalizeWords()
 
     fun String.capitalizeWords(): String = split(" ").joinToString(" ") { it.capitalize() }
 

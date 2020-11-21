@@ -1,6 +1,7 @@
 package org.kamiblue.botkt.commands
 
 import org.kamiblue.botkt.*
+import org.kamiblue.botkt.utils.Colors
 
 object HelpCommand : Command("help-mod") {
     init {
@@ -8,12 +9,12 @@ object HelpCommand : Command("help-mod") {
             doesLater { context ->
                 val userCommand: String = context arg "command"
                 if (CommandManager.isCommand(userCommand)) {
-                    val command = CommandManager.getCommandClass(userCommand)!!
+                    val command = CommandManager.getCommand(userCommand)!!
                     message.channel.send {
                         embed {
                             title = userCommand.toLowerCase()
                             description = command.getHelpUsage()
-                            color = Colors.primary
+                            color = Colors.PRIMARY.color
                         }
                     }
                 } else {
@@ -21,7 +22,7 @@ object HelpCommand : Command("help-mod") {
                         embed {
                             title = "Error"
                             description = "Command `$userCommand` not found!"
-                            color = Colors.error
+                            color = Colors.ERROR.color
                         }
                     }
                 }

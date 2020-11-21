@@ -1,23 +1,23 @@
-package org.kamiblue.botkt
+package org.kamiblue.botkt.utils
 
 import net.ayataka.kordis.entity.message.Message
 
 @Suppress("UNUSED")
-object Send {
+object MessageSendUtils {
     fun log(message: String) = println("[bot-kt] $message")
 
     suspend fun Message.normal(description: String, title: String) = channel.send {
         embed {
             this.title = title
             this.description = description
-            this.color = Colors.primary
+            this.color = Colors.PRIMARY.color
         }
     }
 
     suspend fun Message.normal(description: String) = channel.send {
         embed {
             this.description = description
-            this.color = Colors.primary
+            this.color = Colors.PRIMARY.color
         }
 
     }
@@ -25,7 +25,7 @@ object Send {
     suspend fun Message.success(description: String) = channel.send {
         embed {
             this.description = description
-            color = Colors.success
+            color = Colors.SUCCESS.color
         }
     }
 
@@ -34,7 +34,7 @@ object Send {
         embed {
             this.title = "Error"
             this.description = description
-            this.color = Colors.error
+            this.color = Colors.ERROR.color
         }
     }
 
@@ -43,7 +43,7 @@ object Send {
         embed {
             title = "Error"
             description = "```" + e.message + "```\n```" + e.stackTrace.joinToString("\n") + "```"
-            color = Colors.error
+            color = Colors.ERROR.color
         }
     }
 
@@ -52,7 +52,7 @@ object Send {
             embed {
                 this.title = "Warning"
                 this.description = description
-                this.color = Colors.warn
+                this.color = Colors.WARN.color
             }
         }
     }

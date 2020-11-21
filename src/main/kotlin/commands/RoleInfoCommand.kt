@@ -3,7 +3,9 @@ package org.kamiblue.botkt.commands
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.role.Role
 import org.kamiblue.botkt.*
-import org.kamiblue.botkt.Send.error
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.pretty
 
 object RoleInfoCommand : Command("roleinfo") {
     init {
@@ -40,7 +42,7 @@ object RoleInfoCommand : Command("roleinfo") {
         message.channel.send {
             embed {
                 title = role.name
-                color = if (role.isEveryone) Colors.primary else role.color
+                color = if (role.isEveryone) Colors.PRIMARY.color else role.color
                 description = role.mention
                 field("Permissions", prettyPermissions)
                 field("Position", role.position.toString())
