@@ -73,7 +73,7 @@ class Bot {
                     }
                 }
             } else {
-                val channel = Main.client.servers.find(userConfig.primaryServerId)!!.textChannels.findByName(it)
+                val channel = Main.client.servers.find(userConfig.primaryServerId)?.textChannels?.findByName(it)
                 channel?.send {
                     embed {
                         title = "Startup"
