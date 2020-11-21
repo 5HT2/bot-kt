@@ -3,6 +3,7 @@ package org.kamiblue.botkt.commands
 import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.commands.CounterCommand.countDownload
 import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.success
@@ -46,26 +47,26 @@ object CounterCommand : Command("counter") {
 
         val server = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {
             Main.client.servers.find(it)
-        } ?: return false
-
+        }
+        val stableUrl = config.downloadStableUrl
+        val nightlyUrl = config.downloadNightlyUrl
         val perPage = config.perPage ?: 200
 
-        var stable: Download? = null
-        var nightly: Download? = null
+        if (server == null || stableUrl == null || nightlyUrl == null) return false
 
-        GitHubUtils.getGithubToken(null)?.let { token ->
-            stable = config.downloadStableUrl?.let { authenticatedRequest<Download>("token", token, formatApiUrl(it, perPage)) } // Stable
-            nightly = config.downloadNightlyUrl?.let { authenticatedRequest<Download>("token", token, formatApiUrl(it, perPage)) } // Nightly
+        val downloads = GitHubUtils.getGithubToken(null)?.let { token ->
+            authenticatedRequest<Download>("token", token, formatApiUrl(stableUrl, perPage)).countDownload() to // Stable
+                authenticatedRequest<Download>("token", token, formatApiUrl(nightlyUrl, perPage)).countDownload() // Nightly
         } ?: run {
-            stable = config.downloadStableUrl?.let { request<Download>(formatApiUrl(it, perPage)) }
-            nightly = config.downloadNightlyUrl?.let { request<Download>(formatApiUrl(it, perPage)) }
+            request<Download>(formatApiUrl(stableUrl, perPage)).countDownload() to
+                request<Download>(formatApiUrl(nightlyUrl, perPage)).countDownload()
         }
 
         val memberCount = server.members.size
-        val totalDownload = (stable?.countDownload()?.first ?: 0) + (nightly?.countDownload()?.first ?: 0)
+        val totalDownload = (downloads.first?.first ?: 0) + (downloads.second?.first ?: 0)
 
         return if (totalDownload != 0 || memberCount != 0) {
-            edit(config, server, totalDownload, nightly?.countDownload()?.second ?: -1, memberCount)
+            edit(config, server, totalDownload, downloads.second?.second ?: -1, memberCount)
             true
         } else {
             false
@@ -76,7 +77,7 @@ object CounterCommand : Command("counter") {
 
     private fun Download.countDownload(): Pair<Int, Int>? {
         return this.sumBy { release -> release.assets.sumBy { it.download_count } } to
-                this[0].assets.sumBy { it.download_count }
+            this[0].assets.sumBy { it.download_count }
     }
 
     private suspend fun edit(config: CounterConfig, server: Server, totalCount: Int, latestCount: Int, memberCount: Int) {
