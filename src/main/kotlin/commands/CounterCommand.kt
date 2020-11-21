@@ -55,10 +55,10 @@ object CounterCommand : Command("counter") {
 
         val downloads = GitHubUtils.getGithubToken(null)?.let { token ->
             authenticatedRequest<Download>("token", token, formatApiUrl(stableUrl, perPage)).countDownload() to // Stable
-                authenticatedRequest<Download>("token", token, formatApiUrl(nightlyUrl, perPage)).countDownload() // Nightly
+                    authenticatedRequest<Download>("token", token, formatApiUrl(nightlyUrl, perPage)).countDownload() // Nightly
         } ?: run {
             request<Download>(formatApiUrl(stableUrl, perPage)).countDownload() to
-                request<Download>(formatApiUrl(nightlyUrl, perPage)).countDownload()
+                    request<Download>(formatApiUrl(nightlyUrl, perPage)).countDownload()
         }
 
         val memberCount = server.members.size
