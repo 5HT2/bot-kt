@@ -8,7 +8,8 @@ import kotlinx.coroutines.coroutineScope
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.kamiblue.botkt.utils.MessageSendUtils.log
 import org.kamiblue.botkt.utils.StringUtils.firstInSentence
-import org.kamiblue.commons.utils.ClassUtils
+import org.kamiblue.commons.utils.ReflectionUtils
+import org.kamiblue.commons.utils.ReflectionUtils.instance
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
@@ -22,7 +23,7 @@ open class Command(val name: String) : LiteralArgumentBuilder<Cmd>(name) {
 
 class Cmd(val event: MessageReceiveEvent) {
 
-    private var asyncQueue: ConcurrentLinkedQueue<suspend MessageReceiveEvent.() -> Unit> = ConcurrentLinkedQueue()
+    private val asyncQueue = ConcurrentLinkedQueue<suspend MessageReceiveEvent.() -> Unit>()
 
     infix fun later(block: suspend MessageReceiveEvent.() -> Unit) {
         asyncQueue.add(block)
@@ -50,12 +51,12 @@ object CommandManager {
      * and register said classes instances with Brigadier.
      */
     fun registerCommands(dispatcher: CommandDispatcher<Cmd>) {
-        val commandClasses = ClassUtils.findClasses("org.kamiblue.botkt.commands", Command::class.java)
+        val commandClasses = ReflectionUtils.getSubclassOfFast<Command>("org.kamiblue.botkt.commands")
 
         log("Registering commands...")
 
         for (clazz in commandClasses) {
-            val command = ClassUtils.getInstance(clazz)
+            val command = clazz.instance
             commandMap[command.literal] = command
             println("[commands] ${command.literal} ${command.arguments}")
             dispatcher.register(command)
