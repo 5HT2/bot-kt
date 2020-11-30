@@ -21,7 +21,7 @@ object WhoisCommand : Command("userinfo") {
         greedyString("name") {
             doesLater { context ->
                 val username: String = context arg "name"
-                val member: Member? = username.toLongOrNull()?.let {
+                val member: Member? = username.toUserID()?.let {
                     message.server?.members?.find(it)
                 } ?: message.server?.members?.findByTag(username)
                 ?: message.server?.members?.findByName(username)
