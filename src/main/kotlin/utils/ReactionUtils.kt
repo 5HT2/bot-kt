@@ -108,7 +108,7 @@ object ReactionUtils {
             val id: Long,
             val username: String,
             val avatar: String,
-            val discriminator: Int,
+            val discriminator: String,
             @SerializedName("public_flags")
             val publicFlags: Int,
             val bot: Boolean
