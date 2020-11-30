@@ -294,6 +294,7 @@ object ChannelCommand : Command("channel") {
                 add(channel.rolePermissionOverwrites.toList())
                 while (size > 5) this.removeFirst()
             }
+
             channel.edit {
                 rolePermissionOverwrites.add(perm)
             }
