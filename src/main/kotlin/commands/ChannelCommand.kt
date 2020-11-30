@@ -290,7 +290,10 @@ object ChannelCommand : Command("channel") {
         val perm = RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(2048))
 
         if (lock) {
-            rolePermHistory.getOrPut(channel, ::ArrayDeque).add(channel.rolePermissionOverwrites.toList())
+            rolePermHistory.getOrPut(channel, ::ArrayDeque).apply {
+                add(channel.rolePermissionOverwrites.toList())
+                while (size > 5) this.removeFirst()
+            }
             channel.edit {
                 rolePermissionOverwrites.add(perm)
             }
