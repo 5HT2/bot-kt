@@ -4,6 +4,7 @@ import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.channel.ServerChannel
+import net.ayataka.kordis.entity.server.channel.text.ServerTextChannel
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
 import org.kamiblue.botkt.*
@@ -17,8 +18,8 @@ import org.kamiblue.botkt.utils.pretty
 import kotlin.collections.set
 
 object ChannelCommand : Command("channel") {
-    /* <Saved Config, <Role ID, Pair<Allowed, Disallowed>>> */
     private val permissions = HashMap<String, Collection<RolePermissionOverwrite>>()
+    private val rolePermHistory = HashMap<ServerChannel, ArrayDeque<List<RolePermissionOverwrite>>>()
 
     private var previousChange: Triple<Pair<ChangeType, String>, ServerChannel, Collection<RolePermissionOverwrite>>? = null
 
@@ -151,24 +152,24 @@ object ChannelCommand : Command("channel") {
         literal("lock") {
             literal("category") {
                 doesLaterIfHas(COUNCIL_MEMBER) {
-                    lockOrUnlock(true, true, message, server)
+                    lockOrUnlock(category = true, lock = true, message, server)
                 }
             }
 
             doesLaterIfHas(COUNCIL_MEMBER) {
-                lockOrUnlock(false, true, message, server)
+                lockOrUnlock(category = false, lock = true, message, server)
             }
         }
 
         literal("unlock") {
             literal("category") {
                 doesLaterIfHas(COUNCIL_MEMBER) {
-                    lockOrUnlock(true, false, message, server)
+                    lockOrUnlock(category = true, lock = false, message, server)
                 }
             }
 
             doesLaterIfHas(COUNCIL_MEMBER) {
-                lockOrUnlock(category = false, lock = false, message = message, server = server)
+                lockOrUnlock(category = false, lock = false, message, server)
             }
         }
     }
@@ -276,24 +277,40 @@ object ChannelCommand : Command("channel") {
     }
 
     private suspend fun lockOrUnlock(category: Boolean, lock: Boolean, message: Message, server: Server?) {
-        val s = server ?: run { message.error("Server is null, are you running this from a DM?"); return }
-        val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
+        if (server == null) {
+            message.error("Server is null, are you running this from a DM?")
+            return
+        }
 
-        val serverChannel = (if (category) message.serverChannel?.category else message.serverChannel)
-                ?: run { message.error("${if (category) "Category" else "Server channel"} was null, was you running this from a DM?"); return }
+        val everyone = server.roles.find(server.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
 
-        val perms = if (lock) {
+        val channel = (if (category) message.serverChannel?.category else message.serverChannel)
+            ?: run { message.error("${if (category) "Category" else "Server channel"} was null, was you running this from a DM?"); return }
+
+        val perm = RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(2048))
+
+        if (lock) {
+            rolePermHistory.getOrPut(channel, ::ArrayDeque).add(channel.rolePermissionOverwrites.toList())
+            channel.edit {
+                rolePermissionOverwrites.add(perm)
+            }
             message.success("Locked ${if (category) "category" else "channel"}!")
-            RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(2048))
         } else {
+            channel.tryGetPrevPerm()?.let {
+                channel.setPermissions(it)
+            } ?: channel.edit {
+                rolePermissionOverwrites.remove(perm)
+            }
             message.success("Unlocked ${if (category) "category" else "channel"}!")
-            RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(0))
         }
 
-        serverChannel.edit {
-            rolePermissionOverwrites.add(perms)
-        }
+    }
 
+    private fun ServerChannel.tryGetPrevPerm(): Collection<RolePermissionOverwrite>? {
+        return rolePermHistory[this]?.lastOrNull()
+            ?: permissions[this.name]
+            ?: if (this is ServerTextChannel) permissions[this.category?.name]
+            else null
     }
 
     private suspend fun ServerChannel.setPermissions(permissions: Collection<RolePermissionOverwrite>) {
