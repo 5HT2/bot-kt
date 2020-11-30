@@ -1,61 +1,69 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import FakeUser
-import arg
-import authenticatedRequest
-import doesLater
-import getAuthToken
-import greedyString
-import helpers.StringHelper.toHumanReadable
 import net.ayataka.kordis.entity.findByTag
+import net.ayataka.kordis.entity.server.member.Member
+import org.kamiblue.botkt.Command
+import org.kamiblue.botkt.arg
+import org.kamiblue.botkt.doesLater
+import org.kamiblue.botkt.greedyString
+import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.ReactionUtils.FakeUser
+import org.kamiblue.botkt.utils.SnowflakeHelper.prettyFormat
+import org.kamiblue.botkt.utils.SnowflakeHelper.toInstant
+import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
+import org.kamiblue.botkt.utils.StringUtils.toUserID
+import org.kamiblue.botkt.utils.authenticatedRequest
+import org.kamiblue.botkt.utils.getAuthToken
 
-object WhoisCommand : Command("whois") {
+object WhoisCommand : Command("userinfo") {
     init {
         greedyString("name") {
             doesLater { context ->
                 val username: String = context arg "name"
-                val member: net.ayataka.kordis.entity.server.member.Member? = try {
-                    message.server?.members?.find(username.toLong())
-                } catch (e: NumberFormatException) {
-                    if (message.server?.members?.findByTag(username) == null) {
-                        message.server?.members?.findByName(username)
-                    } else {
-                        message.server?.members?.findByTag(username)
-                    }
-                }
-                if (member == null) {
-                    val fetchUser = authenticatedRequest<FakeUser>(
-                        "Bot",
-                        getAuthToken(),
-                        "https://discord.com/api/v6/users/${member?.id}"
-                    )
-                    val discriminator = when (fetchUser.discriminator.toString().length) {
-                        1 -> "${fetchUser.discriminator}000"
-                        2 -> "${fetchUser.discriminator}00"
-                        3 -> "${fetchUser.discriminator}0"
-                        else -> fetchUser.discriminator.toString()
-                    }
+                val member: Member? = username.toLongOrNull()?.let {
+                    message.server?.members?.find(it)
+                } ?: message.server?.members?.findByTag(username)
+                ?: message.server?.members?.findByName(username)
+
+                member?.let {
                     message.channel.send {
                         embed {
-                            title = "${fetchUser.username}#$discriminator"
-                            color = Colors.primary
-                            thumbnailUrl = "https://cdn.discordapp.com/avatars/${fetchUser.id}/${fetchUser.avatar}.png"
+                            title = it.nickname ?: it.name
+                            color = Colors.PRIMARY.color
+                            thumbnailUrl = it.avatar.url
+
+                            field("Created:", it.timestamp.prettyFormat(), true)
+                            field("Joined:", it.joinedAt.prettyFormat(), true)
+                            field("Mention:", it.mention, true)
+                            field("Tag:", it.tag, true)
+                            field("Status:", it.status.name.toHumanReadable(), true)
                         }
                     }
-                } else {
+
+                } ?: run {
+                    val id = username.toUserID() ?: run {
+                        message.error("Couldn't find user nor a valid ID!")
+                        return@doesLater
+                    }
+
+                    val user = authenticatedRequest<FakeUser>(
+                        "Bot",
+                        getAuthToken(),
+                        "https://discord.com/api/v8/users/$id"
+                    )
+
                     message.channel.send {
                         embed {
-                            title = member.tag
-                            color = Colors.primary
-                            thumbnailUrl = member.avatar.url
-                            field("Created:", "Placeholder", true) /* TODO: Create time for discord*/
-                            field("Joined:", member.joinedAt.toString(), true)
-                            field("Name:", member.nickname ?: member.name)
-                            field("Mention:", member.mention)
-                            field("Online:", member.status.toString().toHumanReadable())
-                            field("Playing:", "Placeholder") /* TODO: Show custom status */
+                            title = user.username
+                            color = Colors.PRIMARY.color
+                            thumbnailUrl = "https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png"
+
+                            field("Created:", user.id.toInstant().prettyFormat(), true)
+                            field("Joined:", "Not in current guild!", true)
+                            field("Mention:", "<@!${user.id}>", true)
+                            field("Tag:", "${user.username}#${user.discriminator}", true)
+                            field("Status:", "Not in current guild!", true)
                         }
                     }
                 }
