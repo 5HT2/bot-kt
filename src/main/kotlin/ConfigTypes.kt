@@ -72,7 +72,8 @@ data class UserConfig(
     val defaultBanReason: String?,
     val announceChannel: Long?,
     val issueCreationChannel: Long?,
-    val unknownCommandError: Boolean?
+    val unknownCommandError: Boolean?,
+    val capeCommit: Boolean?
 )
 
 /**

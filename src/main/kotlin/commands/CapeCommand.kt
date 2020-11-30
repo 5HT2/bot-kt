@@ -405,7 +405,7 @@ object CapeCommand : Command("cape") {
     }
 
     suspend fun commit() { // TODO: hardcoded and a hack. I'm embarrassed to push this, but this is waiting for me to add plugin support
-        if (readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId != 573954110454366214) return
+        if (readConfigSafe<UserConfig>(ConfigType.USER, false)?.capeCommit != true) return
 
         val assets = "/home/mika/projects/cape-api"
         val time = "date -u +\"%H:%M:%S %Y-%m-%d\"".bash()
