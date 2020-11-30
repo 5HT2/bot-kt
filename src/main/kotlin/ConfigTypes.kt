@@ -1,31 +1,18 @@
-import ConfigTypes.authConfigData
-import ConfigTypes.counterConfigData
-import ConfigTypes.mutesConfigData
-import ConfigTypes.permissionConfigData
-import ConfigTypes.rulesConfigData
-import ConfigTypes.userConfigData
-import commands.IssueCommand
+package org.kamiblue.botkt
 
-object ConfigTypes {
-    var authConfigData: AuthConfig? = null
-    var mutesConfigData: MuteConfig? = null
-    var rulesConfigData: RulesConfig? = null
-    var userConfigData: UserConfig? = null
-    var permissionConfigData: PermissionConfig? = null
-    var counterConfigData: CounterConfig? = null
-}
+import org.kamiblue.botkt.commands.IssueCommand
 
 /**
  * [configPath] is the file name on disk, OR a remote URL. If it is a URL, it must be a valid URL which includes http/https as a prefix
  * [data] is the actual config data, read in the format of clazz
  */
-enum class ConfigType(val configPath: String, var data: Any?) {
-    AUTH("config/auth.json", authConfigData),
-    MUTE("config/mutes.json", mutesConfigData),
-    RULES("config/rules.json", rulesConfigData),
-    USER("config/user.json", userConfigData),
-    PERMISSION("config/permissions.json", permissionConfigData),
-    COUNTER("config/counters.json", counterConfigData)
+enum class ConfigType(val configPath: String, var data: Any? = null) {
+    AUTH("config/auth.json"),
+    MUTE("config/mutes.json"),
+    RULES("config/rules.json"),
+    USER("config/user.json"),
+    PERMISSION("config/permissions.json"),
+    COUNTER("config/counters.json")
 }
 
 /**
@@ -69,6 +56,8 @@ data class VersionConfig(val version: String)
  * [prefix] is the single character command prefix. Defaults to ;
  * [defaultBanReason] is the default Reason for ban.
  * [announceChannel] is the main announcement channel for your discord server
+ * [issueCreationChannel] is the channel where issue creation is allowed. Leave null to allow in any channel
+ * [unknownCommandError] is if you want a response when a command is ran with your [prefix], but there is no registered command for it
  * // TODO: refactor into module-specific settings
  */
 data class UserConfig(
@@ -81,7 +70,9 @@ data class UserConfig(
     val defaultGithubUser: String?,
     val prefix: Char?,
     val defaultBanReason: String?,
-    val announceChannel: Long?
+    val announceChannel: Long?,
+    val issueCreationChannel: Long?,
+    val unknownCommandError: Boolean?
 )
 
 /**

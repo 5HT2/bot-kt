@@ -1,5 +1,7 @@
-import helpers.StringHelper.isUrl
+package org.kamiblue.botkt
+
 import com.google.gson.Gson
+import org.kamiblue.botkt.utils.StringUtils.isUrl
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -11,9 +13,9 @@ import java.nio.file.Paths
  */
 object ConfigManager {
 
-    fun writeConfig(configType: ConfigType) {
-
-    }
+/*    fun writeConfig(configType: ConfigType) {
+        TODO: implement lol
+    }*/
 
     /**
      * Safely returns [readConfig] without worrying if the file exists.

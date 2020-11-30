@@ -1,20 +1,14 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import ConfigManager.readConfigSafe
-import ConfigType
-import PermissionTypes.ANNOUNCE
-import Send.error
-import UserConfig
-import arg
-import doesLaterIfHas
-import greedyString
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.Colors
 
 object AnnounceCommand : Command("announce") {
     init {
         greedyString("content") {
-            doesLaterIfHas(ANNOUNCE) { context ->
+            doesLaterIfHas(PermissionTypes.ANNOUNCE) { context ->
                 val content: String = context arg "content"
 
                 val channel = readConfigSafe<UserConfig>(ConfigType.USER, false)?.announceChannel ?: run {
@@ -25,7 +19,7 @@ object AnnounceCommand : Command("announce") {
                 server?.textChannels?.find(channel)?.send {
                     embed {
                         description = content
-                        color = Colors.primary
+                        color = Colors.PRIMARY.color
                     }
                 } ?: run { message.error("Error sending message! Channel `$channel` couldn't be found") }
             }

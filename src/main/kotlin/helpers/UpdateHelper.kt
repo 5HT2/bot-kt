@@ -1,15 +1,10 @@
-package helpers
+package org.kamiblue.botkt.helpers
 
-import ConfigManager
-import ConfigType
-import Main
-import Main.currentVersion
-import Send.log
-import UserConfig
-import VersionConfig
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.utils.MessageSendUtils.log
 import java.io.File
+import java.io.FileWriter
 import java.net.URL
-import java.nio.file.Files
 import java.nio.file.Paths
 
 /**
@@ -27,12 +22,12 @@ object UpdateHelper {
             return
         }
 
-        if (versionConfig.version != currentVersion) {
-            log("Not up to date:\nCurrent version: $currentVersion\nLatest Version: ${versionConfig.version}")
+        if (versionConfig.version != Main.currentVersion) {
+            log("Not up to date:\nCurrent version: ${Main.currentVersion}\nLatest Version: ${versionConfig.version}")
 
             updateBot(versionConfig.version)
         } else {
-            log("Up to date! Running on $currentVersion")
+            log("Up to date! Running on ${Main.currentVersion}")
         }
     }
 
@@ -64,11 +59,7 @@ object UpdateHelper {
         val targetFile = path.toString() + appendSlash + "bot-kt-$version.jar"
         File(targetFile).writeBytes(bytes)
 
-        val file = Paths.get("$path/currentVersion")
-        File(file.toString()).delete()
-        Files.newBufferedWriter(file).use {
-            it.write(version)
-        }
+        writeVersion(version)
 
         log("Auto Update - Finished updating to $version")
 
@@ -80,14 +71,12 @@ object UpdateHelper {
         }
     }
 
-    fun writeCurrentVersion() {
+    fun writeVersion(version: String) {
         val path = Paths.get(System.getProperty("user.dir"))
-        val file = Paths.get("$path/currentVersion")
+        val file = File("$path/currentVersion")
 
-        if (!File(file.toString()).exists()) {
-            Files.newBufferedWriter(file).use {
-                it.write(Main.currentVersion)
-            }
+        FileWriter(file).use {
+            it.write(version)
         }
     }
 }

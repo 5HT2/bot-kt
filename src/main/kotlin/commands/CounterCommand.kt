@@ -1,34 +1,32 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Command
-import ConfigManager.readConfigSafe
-import ConfigType
-import CounterConfig
-import Main
-import PermissionTypes.UPDATE_COUNTERS
-import Send.error
-import Send.success
-import UserConfig
-import authenticatedRequest
-import doesLaterIfHas
-import getGithubToken
-import org.l1ving.api.download.Asset
+import net.ayataka.kordis.entity.server.Server
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.utils.GitHubUtils
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageSendUtils.success
+import org.kamiblue.botkt.utils.authenticatedRequest
+import org.kamiblue.botkt.utils.request
 import org.l1ving.api.download.Download
-import request
 
 object CounterCommand : Command("counter") {
     init {
-        doesLaterIfHas(UPDATE_COUNTERS) {
+        doesLaterIfHas(PermissionTypes.UPDATE_COUNTERS) {
             val path = ConfigType.COUNTER.configPath.substring(7)
             val userPath = ConfigType.USER.configPath.substring(7)
             val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)
 
-            if (config?.downloadEnabled != true && config?.memberEnabled != true) {
-                message.error("Counters are not configured / enabled!")
-            } else if (config.downloadEnabled != true) {
-                message.error("Download counter is not enabled in the `$path` config!")
-            } else if (config.memberEnabled != true) {
-                message.error("Member counter is not enabled in the `$path` config!")
+            when {
+                config?.downloadEnabled != true && config?.memberEnabled != true -> {
+                    message.error("Counters are not configured / enabled!")
+                }
+                config.downloadEnabled != true -> {
+                    message.error("Download counter is not enabled in the `$path` config!")
+                }
+                config.memberEnabled != true -> {
+                    message.error("Member counter is not enabled in the `$path` config!")
+                }
             }
 
             if (updateChannel()) {
@@ -47,69 +45,43 @@ object CounterCommand : Command("counter") {
         val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false) ?: return false
 
         val server = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {
-            Main.client?.servers?.find(it)
-        } ?: run {
-            return false
+            Main.client.servers.find(it)
         }
-
-        val totalChannel = config.downloadChannelTotal?.let { server.voiceChannels.find(it) }
-        val latestChannel = config.downloadChannelLatest?.let { server.voiceChannels.find(it) }
-        val memberChannel = config.memberChannel?.let { server.voiceChannels.find(it) }
-
-        var downloadStable: Download? = null
-        var downloadNightly: Download? = null
-
-        var updated = false
+        val stableUrl = config.downloadStableUrl
+        val nightlyUrl = config.downloadNightlyUrl
         val perPage = config.perPage ?: 200
 
-        getGithubToken(null)?.let {
-            downloadStable = config.downloadStableUrl?.let { it1 -> authenticatedRequest<Download>("token", it, formatApiUrl(it1, perPage)) }
-            downloadNightly = config.downloadNightlyUrl?.let { it1 -> authenticatedRequest<Download>("token", it, formatApiUrl(it1, perPage)) }
+        if (server == null || stableUrl == null || nightlyUrl == null) return false
+
+        val downloads = GitHubUtils.getGithubToken(null)?.let { token ->
+            authenticatedRequest<Download>("token", token, formatApiUrl(stableUrl, perPage)).countDownload() to // Stable
+                    authenticatedRequest<Download>("token", token, formatApiUrl(nightlyUrl, perPage)).countDownload() // Nightly
         } ?: run {
-            downloadStable = config.downloadStableUrl?.let { request<Download>(formatApiUrl(it, perPage)) }
-            downloadNightly = config.downloadNightlyUrl?.let { request<Download>(formatApiUrl(it, perPage)) }
+            request<Download>(formatApiUrl(stableUrl, perPage)).countDownload() to
+                    request<Download>(formatApiUrl(nightlyUrl, perPage)).countDownload()
         }
 
-        var totalCount = 0
-        var latestCount = 0
         val memberCount = server.members.size
+        val totalDownload = (downloads.first?.first ?: 0) + (downloads.second?.first ?: 0)
 
-        downloadStable?.let {
-            totalCount += countedDownloads(it)
-            latestCount = it[0].assets.count()
+        return if (totalDownload != 0 || memberCount != 0) {
+            edit(config, server, totalDownload, downloads.second?.second ?: -1, memberCount)
+            true
+        } else {
+            false
         }
-
-        downloadNightly?.let {
-            totalCount += countedDownloads(it)
-            latestCount = it[0].assets.count() // nightly will be newer, so we assign it again if nightly isn't null
-        }
-
-
-
-
-        if (totalCount != 0 || latestCount != 0 || memberCount != 0) {
-            totalChannel?.let { it.edit { name = "$totalCount Downloads" } }
-            latestChannel?.let { it.edit { name = "$latestCount Nightly DLs" } }
-            memberChannel?.let { it.edit { name = "$memberCount Members" } }
-            updated = true
-        }
-
-        return updated
     }
 
     private fun formatApiUrl(repo: String, perPage: Int) = "https://api.github.com/repos/$repo/releases?per_page=$perPage"
 
-    private fun countedDownloads(download: Download): Int {
-        var total = 0
-        download.forEach { release ->
-            total += release.assets.count()
-        }
-        return total
+    private fun Download.countDownload(): Pair<Int, Int>? {
+        return this.sumBy { release -> release.assets.sumBy { it.download_count } } to
+                this[0].assets.sumBy { it.download_count }
     }
 
-    private fun List<Asset>.count(): Int {
-        var total = 0
-        this.forEach { total += it.download_count }
-        return total
+    private suspend fun edit(config: CounterConfig, server: Server, totalCount: Int, latestCount: Int, memberCount: Int) {
+        config.downloadChannelTotal?.let { server.voiceChannels.find(it)?.edit { name = "$totalCount Downloads" } }
+        config.downloadChannelLatest?.let { server.voiceChannels.find(it)?.edit { name = "$latestCount Nightly DLs" } }
+        config.memberChannel?.let { server.voiceChannels.find(it)?.edit { name = "$memberCount Members" } }
     }
 }

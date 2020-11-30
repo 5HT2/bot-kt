@@ -30,6 +30,8 @@ Why should you use this over other Kotlin bots:
 
 Note: If you forget the `--recurse-submodules` flag or cloned in an IDE, you can do `git submodule update --init --recursive` after.
 
+Note: To upgrade submodules, execute this command: `git submodule foreach git pull origin master`
+
 ## Usage
 
 Create your `config/auth.json` like below. Generate `githubToken` with `repo:status` and `public_repo` access checked [here](https://github.com/settings/tokens) and you can get your bot token [here](https://discord.com/developers/applications/BOT_ID_HERE/bot).
@@ -73,7 +75,7 @@ If that still does not help, Hit `Add Configuration` in the upper right of your 
 #### Running prebuilt binaries
 
 ```bash
-java -jar bot-kt-v1.2.0.jar
+java -jar bot-kt-v1.3.1.jar
 ```
 
 #### Disabling update checking

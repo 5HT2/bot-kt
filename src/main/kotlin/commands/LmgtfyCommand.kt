@@ -1,10 +1,7 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import arg
-import doesLater
-import greedyString
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.utils.Colors
 
 object LmgtfyCommand : Command("lmgtfy") {
     init {
@@ -15,7 +12,7 @@ object LmgtfyCommand : Command("lmgtfy") {
                     embed {
                         title = "Here you go!"
                         description = "[Solution](https://lmgtfy.com/?q=${term.replace(" ", "+")})"
-                        color = Colors.primary
+                        color = Colors.PRIMARY.color
                     }
                 }
             }

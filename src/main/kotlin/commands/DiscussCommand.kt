@@ -1,22 +1,16 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import PermissionTypes.COUNCIL_MEMBER
-import arg
-import doesLaterIfHas
-import greedyString
-import literal
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
-import string
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.utils.Colors
 
 // TODO: make this not hardcoded
 object DiscussCommand : Command("discuss") {
     init {
         literal("addon") {
             greedyString("idea") {
-                doesLaterIfHas(COUNCIL_MEMBER) { context ->
+                doesLaterIfHas(PermissionTypes.COUNCIL_MEMBER) { context ->
                     val idea: String = context arg "idea"
                     val name = "t-" + server!!.channels.find(message.channel.id)!!.name.substring(2)
                     val discussionTopic = server!!.textChannels.findByName(name)!!
@@ -25,13 +19,13 @@ object DiscussCommand : Command("discuss") {
                         if (!message.attachments.isEmpty()) {
                             embed {
                                 imageUrl = message.attachments.stream().findFirst().get().url
-                                color = Colors.primary
+                                color = Colors.PRIMARY.color
                             }
                         } else { // needs to be else because you cannot embed images in the same message with content
                             embed {
                                 author(name = message.author!!.name)
                                 field("Added:", idea, false)
-                                color = Colors.primary
+                                color = Colors.PRIMARY.color
                             }
                         }
                     }
@@ -39,9 +33,10 @@ object DiscussCommand : Command("discuss") {
                 }
             }
         }
+
         string("topic") {
             greedyString("description") {
-                doesLaterIfHas(COUNCIL_MEMBER) { context ->
+                doesLaterIfHas(PermissionTypes.COUNCIL_MEMBER) { context ->
                     val upperCouncil = server!!.roles.findByName("upper council")!!
                     val lowerCouncil = server!!.roles.findByName("lower council")!!
 
@@ -61,7 +56,7 @@ object DiscussCommand : Command("discuss") {
                         embed {
                             author(name = "${message.author!!.name} created $topic")
                             field("Topic", description, false)
-                            color = Colors.primary
+                            color = Colors.PRIMARY.color
                         }
                     }
 

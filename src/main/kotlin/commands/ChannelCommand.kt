@@ -1,34 +1,31 @@
-package commands
+package org.kamiblue.botkt.commands
 
-import Colors
-import Command
-import PermissionTypes.*
-import Send.error
-import Send.normal
-import Send.success
-import arg
-import commands.ChannelCommand.ChangeType.LOAD
-import commands.ChannelCommand.ChangeType.SAVE
-import doesLaterIfHas
-import helpers.StringHelper.toHumanReadable
-import integer
-import literal
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.channel.ServerChannel
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
-import pretty
-import string
+import org.kamiblue.botkt.*
+import org.kamiblue.botkt.PermissionTypes.*
+import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageSendUtils.normal
+import org.kamiblue.botkt.utils.MessageSendUtils.success
+import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
+import org.kamiblue.botkt.utils.pretty
 import kotlin.collections.set
 
-
 object ChannelCommand : Command("channel") {
+    /* <Saved Config, <Role ID, Pair<Allowed, Disallowed>>> */
+    private val permissions = HashMap<String, Collection<RolePermissionOverwrite>>()
+
+    private var previousChange: Triple<Pair<ChangeType, String>, ServerChannel, Collection<RolePermissionOverwrite>>? = null
+
     init {
         literal("save") {
             doesLaterIfHas(MANAGE_CHANNELS) {
-                val serverChannel = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+                val serverChannel = message.serverChannel(message) ?: return@doesLaterIfHas
                 val name = serverChannel.name
 
                 save(name, serverChannel, message)
@@ -36,7 +33,7 @@ object ChannelCommand : Command("channel") {
 
             string("name") {
                 doesLaterIfHas(MANAGE_CHANNELS) { context ->
-                    val serverChannel = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+                    val serverChannel = message.serverChannel(message) ?: return@doesLaterIfHas
                     val name: String = context arg "name"
 
                     save(name, serverChannel, message)
@@ -46,7 +43,7 @@ object ChannelCommand : Command("channel") {
 
         literal("print") {
             doesLaterIfHas(MANAGE_CHANNELS) {
-                val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+                val c = message.serverChannel(message) ?: return@doesLaterIfHas
                 val name = c.name
 
                 print(name, message)
@@ -84,14 +81,14 @@ object ChannelCommand : Command("channel") {
         literal("sync") {
             literal("category") {
                 doesLaterIfHas(MANAGE_CHANNELS) {
-                    val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+                    val c = message.serverChannel(message) ?: return@doesLaterIfHas
 
                     sync(true, message, c)
                 }
             }
 
             doesLaterIfHas(MANAGE_CHANNELS) {
-                val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
+                val c = message.serverChannel(message) ?: return@doesLaterIfHas
 
                 sync(false, message, c)
             }
@@ -130,8 +127,9 @@ object ChannelCommand : Command("channel") {
 
         literal("archive") {
             doesLaterIfHas(ARCHIVE_CHANNEL) {
-                val c = message.serverChannel(message) ?: run { return@doesLaterIfHas }
-                val s = server ?: run { message.error("Server is null, are you running this from a DM?"); return@doesLaterIfHas }
+                val c = message.serverChannel(message) ?: return@doesLaterIfHas
+                val s = server
+                        ?: run { message.error("Server is null, are you running this from a DM?"); return@doesLaterIfHas }
                 val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
                 val oldName = c.name
 
@@ -139,8 +137,8 @@ object ChannelCommand : Command("channel") {
                 val totalArchived = archivedChannels.size
 
                 c.edit {
-                    userPermissionOverwrites.removeAll(userPermissionOverwrites)
-                    rolePermissionOverwrites.removeAll(rolePermissionOverwrites)
+                    userPermissionOverwrites.clear()
+                    rolePermissionOverwrites.clear()
                     rolePermissionOverwrites.add(RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(1024))) // disallow read for everyone
                     name = "archived-$totalArchived"
                 }
@@ -153,19 +151,19 @@ object ChannelCommand : Command("channel") {
         literal("lock") {
             literal("category") {
                 doesLaterIfHas(COUNCIL_MEMBER) {
-                    lockOrUnlock(category = true, lock = true, message = message, server = server)
+                    lockOrUnlock(true, true, message, server)
                 }
             }
 
             doesLaterIfHas(COUNCIL_MEMBER) {
-                lockOrUnlock(category = false, lock = true, message = message, server = server)
+                lockOrUnlock(false, true, message, server)
             }
         }
 
         literal("unlock") {
             literal("category") {
                 doesLaterIfHas(COUNCIL_MEMBER) {
-                    lockOrUnlock(category = true, lock = false, message = message, server = server)
+                    lockOrUnlock(true, false, message, server)
                 }
             }
 
@@ -176,13 +174,9 @@ object ChannelCommand : Command("channel") {
     }
 
     private suspend fun save(name: String, serverChannel: ServerChannel, message: Message) {
-        val selectedConfig = HashSet<RolePermissionOverwrite>()
+        val selectedConfig = ArrayList(serverChannel.rolePermissionOverwrites)
 
-        serverChannel.rolePermissionOverwrites.forEach {
-            selectedConfig.add(it)
-        }
-
-        previousChange = Triple(Pair(SAVE, name), serverChannel, serverChannel.rolePermissionOverwrites)
+        previousChange = Triple(Pair(ChangeType.SAVE, name), serverChannel, serverChannel.rolePermissionOverwrites)
         // make sure to run this AFTER saving previous state
         permissions[name] = selectedConfig
 
@@ -190,24 +184,22 @@ object ChannelCommand : Command("channel") {
     }
 
     private suspend fun print(name: String, message: Message) {
-        val s = StringBuilder()
-
         val selectedChannel = permissions[name] ?: run {
             message.error("Couldn't find `$name` in saved channel presets!")
             return
         }
 
-        selectedChannel.forEach {
-            s.append("${it.role.mention}\n" +
+        val string = selectedChannel.joinToString(separator = "\n") {
+            "${it.role.mention}\n" +
                     "Allow: ${it.allow.pretty()}\n" +
-                    "Deny: ${it.deny.pretty()}\n\n")
+                    "Deny: ${it.deny.pretty()}\n"
         }
 
         permissions[name] = selectedChannel
 
-        if (s.isEmpty()) {
+        if (string.isBlank()) {
             message.error("No saved permissions for `$name`!")
-        } else message.normal(s.toString())
+        } else message.normal(string)
     }
 
     private suspend fun load(name: String, message: Message) {
@@ -216,8 +208,8 @@ object ChannelCommand : Command("channel") {
             return
         }
 
-        val serverChannel = message.serverChannel(message) ?: run { return }
-        previousChange = Triple(Pair(LOAD, name), serverChannel, serverChannel.rolePermissionOverwrites)
+        val serverChannel = message.serverChannel(message) ?: return
+        previousChange = Triple(Pair(ChangeType.LOAD, name), serverChannel, serverChannel.rolePermissionOverwrites)
 
         serverChannel.setPermissions(selectedChannel)
 
@@ -230,31 +222,31 @@ object ChannelCommand : Command("channel") {
         previousChange?.let {
             m.edit {
                 description = "Attempting to undo last change...\nFound: ${it.second.name.toHumanReadable()}"
-                color = Colors.primary
+                color = Colors.PRIMARY.color
             }
 
             when (it.first.first) {
-                SAVE -> {
-                    permissions[it.first.second] = it.third.toHashSet()
+                ChangeType.SAVE -> {
+                    permissions[it.first.second] = it.third
 
                     m.edit {
                         description = "Attempting to undo last change...\n" +
                                 "Found: ${it.second.name.toHumanReadable()}\n\n" +
                                 "Unsaved, set ${it.first.second} to original permissions"
-                        color = Colors.success
+                        color = Colors.SUCCESS.color
                     }
 
                     previousChange = null
                 }
 
-                LOAD -> {
-                    it.second.setPermissions(it.third.toHashSet())
+                ChangeType.LOAD -> {
+                    it.second.setPermissions(it.third)
 
                     m.edit {
                         description = "Attempting to undo last change...\n" +
                                 "Found: ${it.second.name.toHumanReadable()}\n\n" +
                                 "Unloaded, set ${it.first.second} to original permissions"
-                        color = Colors.success
+                        color = Colors.SUCCESS.color
                     }
 
                     previousChange = null
@@ -275,10 +267,10 @@ object ChannelCommand : Command("channel") {
         }
 
         if (reverse) {
-            category.setPermissions(perms.toHashSet())
+            category.setPermissions(perms)
             message.success("Synchronized category permissions to the `${serverChannel.name.toHumanReadable()}` channel!")
         } else {
-            serverChannel.setPermissions(perms.toHashSet())
+            serverChannel.setPermissions(perms)
             message.success("Synchronized channel permissions to the `${category.name.toHumanReadable()}` category!")
         }
     }
@@ -288,11 +280,9 @@ object ChannelCommand : Command("channel") {
         val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
 
         val serverChannel = (if (category) message.serverChannel?.category else message.serverChannel)
-            ?: run { message.error("${if (category) "Category" else "Server channel"} was null, was you running this from a DM?"); return }
+                ?: run { message.error("${if (category) "Category" else "Server channel"} was null, was you running this from a DM?"); return }
 
-        val perms: RolePermissionOverwrite?
-
-        perms = if (lock) {
+        val perms = if (lock) {
             message.success("Locked ${if (category) "category" else "channel"}!")
             RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(2048))
         } else {
@@ -306,13 +296,10 @@ object ChannelCommand : Command("channel") {
 
     }
 
-    private suspend fun ServerChannel.setPermissions(permissions: HashSet<RolePermissionOverwrite>) {
+    private suspend fun ServerChannel.setPermissions(permissions: Collection<RolePermissionOverwrite>) {
         this.edit {
-            this.rolePermissionOverwrites.removeAll(this.rolePermissionOverwrites)
-
-            permissions.forEach {
-                this.rolePermissionOverwrites.add(it)
-            }
+            this.rolePermissionOverwrites.clear()
+            this.rolePermissionOverwrites.addAll(permissions)
         }
     }
 
@@ -325,11 +312,6 @@ object ChannelCommand : Command("channel") {
 
         return sc
     }
-
-    /* <Saved Config, <Role ID, Pair<Allowed, Disallowed>>> */
-    private val permissions = HashMap<String, HashSet<RolePermissionOverwrite>>()
-
-    private var previousChange: Triple<Pair<ChangeType, String>, ServerChannel, Collection<RolePermissionOverwrite>>? = null
 
     private enum class ChangeType {
         SAVE, LOAD
