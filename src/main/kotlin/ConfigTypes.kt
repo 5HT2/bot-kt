@@ -55,7 +55,6 @@ data class VersionConfig(val version: String)
  * [defaultGithubUser] is the default user / org used in the [IssueCommand].
  * [prefix] is the single character command prefix. Defaults to ;
  * [defaultBanReason] is the default Reason for ban.
- * [announceChannel] is the main announcement channel for your discord server
  * [issueCreationChannel] is the channel where issue creation is allowed. Leave null to allow in any channel
  * [unknownCommandError] is if you want a response when a command is ran with your [prefix], but there is no registered command for it
  * // TODO: refactor into module-specific settings
@@ -70,7 +69,6 @@ data class UserConfig(
     val defaultGithubUser: String?,
     val prefix: Char?,
     val defaultBanReason: String?,
-    val announceChannel: Long?,
     val issueCreationChannel: Long?,
     val unknownCommandError: Boolean?,
     val capeCommit: Boolean?

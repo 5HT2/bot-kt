@@ -8,6 +8,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.ayataka.kordis.entity.server.Server
+import net.ayataka.kordis.entity.server.channel.ServerChannel
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.Permissions.missingPermissions
