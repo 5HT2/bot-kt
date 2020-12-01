@@ -63,51 +63,49 @@ object IssueCommand : Command("issue") {
 
         literal("create") {
             string("repo") {
-                string("title") {
-                    greedyString("body") {
-                        doesLater { context ->
-                            val repo: String = context arg "repo"
-                            val title: String = context arg "title"
-                            val body: String = context arg "body"
+                greedyString("contents") {
+                    doesLater { context ->
+                        val repo: String = context arg "repo"
+                        val contents: String = context arg "contents"
 
-                            val formattedIssue = "Created by: ${message.author?.name?.toHumanReadable()} `(${message.author?.id})`\n\n$body"
-                            val issue = Issue(title = title, body = formattedIssue)
+                        val split = contents.split(';')
+                        val title = split.getOrNull(0)
+                        val body = split.getOrNull(1)
 
-                            val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
-                            issueChannel?.issueCreationChannel?.let {
-                                if (it != message.channel.id) {
-                                    message.error("You're only allowed to create issues in <#$it>!")
-                                    return@doesLater
-                                }
+                        val formattedIssue = "Created by: ${message.author?.name?.toHumanReadable()} `(${message.author?.id})`\n\n$body"
+                        val issue = Issue(title = title, body = formattedIssue)
+
+                        val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
+                        issueChannel?.issueCreationChannel?.let {
+                            if (it != message.channel.id) {
+                                message.error("You're only allowed to create issues in <#$it>!")
+                                return@doesLater
                             }
-
-                            val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
-                                ?: run {
-                                    message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
-                                    return@doesLater
-                                }
-
-                            val form = message.channel.send {
-                                embed {
-                                    this.title = title
-                                    this.description = "Created by: ${message.author?.mention}\n\n$body"
-
-                                    field("Repository", "`$user/$repo`")
-                                    color = Colors.PRIMARY.color
-                                }
-                            }
-
-                            try {
-                                message.delete()
-                            } catch (e: IllegalStateException) {
-                                // this is fine. it just means the member list isn't cached and we can't delete it
-                            }
-
-                            delay(1000)
-                            form.addReaction('✅')
-
-                            queuedIssues[form.id] = Triple(form, issue, repo)
                         }
+
+                        val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
+                            ?: run {
+                                message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                                return@doesLater
+                            }
+
+                        val form = message.channel.send {
+                            embed {
+                                this.title = title
+                                this.description = "Created by: ${message.author?.mention}\n\n$body"
+
+                                field("Repository", "`$user/$repo`")
+                                color = Colors.PRIMARY.color
+                            }
+                        }
+
+                        message.delete()
+
+                        delay(1000)
+                        form.addReaction('✅')
+                        form.addReaction('⛔')
+
+                        queuedIssues[form.id] = Triple(form, issue, repo)
                     }
                 }
             }
@@ -120,38 +118,40 @@ object IssueCommand : Command("issue") {
 
         val form = queuedIssues[event.reaction.messageId] ?: return
 
-        if (event.reaction.emoji.name != "✅") return
+        if (event.reaction.emoji.name == "✅") {
 
-        if (!event.reaction.userId.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return
+            if (!event.reaction.userId.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return
 
-        var message = form.first
+            var message = form.first
 
-        val token = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)?.githubToken ?: run {
-            message.error("Github Token is not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
-            return
-        }
+            val token = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)?.githubToken ?: run {
+                message.error("Github Token is not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
+                return
+            }
 
-        val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
-            message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
-            return
-        }
+            val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
+                message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                return
+            }
 
-        GitHubUtils.createGithubIssue(form.second, user, form.third, token)
+            GitHubUtils.createGithubIssue(form.second, user, form.third, token)
 
-        try {
             form.first.delete()
-        } catch (e: IllegalStateException) {
-            // this is fine. it just means the member list isn't cached and we can't delete it
-        }
 
-        message = message.success("Successfully created issue `${form.second.title}`!")
+            message = message.success("Successfully created issue `${form.second.title}`!")
 
-        delay(10000)
+            delay(10000)
 
-        try {
             message.delete()
-        } catch (e: IllegalStateException) {
-            // this is fine. it just means the member list isn't cached and we can't delete it
+        } else if (event.reaction.emoji.name == "⛔") {
+            val message = form.first
+
+            val feedback = message.error("Issue `${form.second.title}` rejected!")
+
+            delay(5000)
+            message.delete()
+            delay(5000)
+            feedback.delete()
         }
 
     }
@@ -188,7 +188,7 @@ object IssueCommand : Command("issue") {
         token: String,
         user: String,
         repoName: String,
-        issueNum: String
+        issueNum: String,
     ) {
         val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
