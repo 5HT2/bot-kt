@@ -7,9 +7,12 @@ import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
+import net.ayataka.kordis.entity.server.Server
+import net.ayataka.kordis.entity.server.channel.ServerChannel
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.Permissions.missingPermissions
+import org.kamiblue.botkt.arguments.DiscordChannelArgumentType
 import org.kamiblue.botkt.arguments.DiscordEmojiArgumentType
 import org.kamiblue.botkt.arguments.DiscordUserArgumentType
 import org.kamiblue.botkt.arguments.UserPromise
@@ -133,7 +136,6 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.ping(
 /**
  * A shorthand for appending a discord emoji required argument to `this` [ArgumentBuilder]
  *
- * @return Pair<Animated, Emoji>
  * @see argument
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.emoji(
@@ -141,6 +143,17 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.emoji(
     block: (@BrigadierDsl RequiredArgumentBuilder<S, AnimatableEmoji>).() -> Unit,
 ): T =
     argument(name, DiscordEmojiArgumentType, block)
+
+/**
+ * A shorthand for appending a discord channel required argument to `this` [ArgumentBuilder]
+ *
+ * @see argument
+ */
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.channel(
+    name: String,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Long>).() -> Unit,
+): T =
+    argument(name, DiscordChannelArgumentType, block)
 
 /**
  * Sets the executes callback for `this` [ArgumentBuilder]
@@ -182,3 +195,5 @@ fun ArgumentBuilder<Cmd, *>.doesLaterIfHas(permission: PermissionTypes, later: s
 inline infix fun <reified R, S> CommandContext<S>.arg(name: String): R = getArgument(name, R::class.java)
 
 suspend inline infix fun <S> CommandContext<S>.userArg(name: String) = (this.arg<UserPromise, S>(name))()
+
+fun <S> CommandContext<S>.channelArg(name: String, server: Server?) = server?.channels?.find(this.arg(name))

@@ -44,7 +44,7 @@ enum class PermissionTypes {
     REBOOT_BOT,
     MANAGE_CONFIG,
     UPDATE_COUNTERS,
-    ANNOUNCE,
+    SAY,
     MANAGE_CHANNELS,
     MASS_BAN,
     APPROVE_ISSUE_CREATION,
