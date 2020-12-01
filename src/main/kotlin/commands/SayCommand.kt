@@ -16,21 +16,20 @@ object SayCommand : Command("say") {
                         val embed: Boolean = context arg "embed"
                         val content: String = context arg "content"
 
-                        val channel: ServerChannel = context.channelArg("channel", server) ?: run {
-                            message.error("Error sending message! The channel does not exist.")
-
+                        val channel: TextChannel = (context.channelArg("channel", server) ?: run {
+                            message.error("Error sending message! The text channel does not exist.")
                             return@doesLaterIfHas
-                        }
+                        }) as TextChannel
 
                         if (embed) {
-                            server?.textChannels?.find(channel.id)?.send {
+                            channel.send {
                                 embed {
                                     description = content
                                     color = Colors.PRIMARY.color
                                 }
                             }
                         } else {
-                            server?.textChannels?.find(channel.id)?.send(content)
+                            channel.send(content)
                         }
                     }
                 }
@@ -38,19 +37,17 @@ object SayCommand : Command("say") {
         }
 
         literal("edit") {
-            channel("channel") { // kordis is literally so terrible :woeis:
+            channel("channel") {
                 long("message") {
                     greedyString("content") {
                         doesLaterIfHas(PermissionTypes.SAY) { context ->
                             val channel: TextChannel = (context.channelArg("channel", server) ?: run {
-                                message.error("Error sending message! The channel does not exist.")
-
+                                message.error("Error sending message! The text channel does not exist.")
                                 return@doesLaterIfHas
                             }) as TextChannel
 
                             val message: Message = channel.getMessage(context arg "message") ?: run {
                                 message.error("Error editing message! The message does not exist.")
-
                                 return@doesLaterIfHas
                             }
 
@@ -72,8 +69,8 @@ object SayCommand : Command("say") {
     }
 
     override fun getHelpUsage(): String {
-        return "Say or edit messages via the bot. Examples:\n\n" +
-                "`;say <channel> <embed (true or false)> <content>`\n" +
-                "`;say edit <channel> <message id> <new content>`"
+        return "Say or edit messages via the bot.\n\n" +
+                "`$fullName <channel> <embed (true or false)> <content>`\n" +
+                "`$fullName edit <channel> <message id> <new content>`"
     }
 }
