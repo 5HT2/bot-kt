@@ -121,8 +121,4 @@ object ReactionUtils {
             val selfReacted: Boolean
     )
 
-    data class Emoji(
-            val id: Long,
-            val name: String
-    )
 }

@@ -63,8 +63,8 @@ fun getAuthToken(): String {
 fun Server.maxEmojiSlots(): Int {
     val url = "https://discord.com/api/v6/guilds/${this.id}"
     val request = Request.Builder()
-            .addHeader("Authorization", "Bot ${getAuthToken()}")
-            .url(url).get().build()
+        .addHeader("Authorization", "Bot ${getAuthToken()}")
+        .url(url).get().build()
 
     val response = OkHttpClient().newCall(request).execute()
     val jsonObject = response.body?.charStream()?.use {
@@ -84,5 +84,24 @@ fun Server.maxEmojiSlots(): Int {
         2 -> 150
         3 -> 250
         else -> 50
+    }
+}
+
+data class AnimatableEmoji(
+    val animated: Boolean = false,
+    val emoji: Emoji,
+) {
+    override fun toString(): String {
+        val a = if (animated) "a" else ""
+        return "<$a:${emoji.name}:${emoji.id}>"
+    }
+}
+
+data class Emoji(
+    val id: Long,
+    val name: String,
+) {
+    override fun toString(): String {
+        return "<:$name:$id>"
     }
 }
