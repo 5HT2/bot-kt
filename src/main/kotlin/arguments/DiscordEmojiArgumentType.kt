@@ -4,6 +4,7 @@ import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
 import org.kamiblue.botkt.utils.AnimatableEmoji
 import org.kamiblue.botkt.utils.Emoji
+import org.kamiblue.botkt.utils.NO_READER_EXCEPTION
 
 object DiscordEmojiArgumentType : ArgumentType<AnimatableEmoji> {
     override fun parse(reader: StringReader?): AnimatableEmoji {
