@@ -9,7 +9,7 @@ import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.StringUtils.readBytes
 
-object StealEmojiCommand : Command("stealemoji") {
+object StealEmojiCommand : Command("stealmoji") {
     init {
         emoji("emoji") {
             doesLater { context ->
