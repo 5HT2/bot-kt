@@ -32,7 +32,7 @@ object StealEmojiCommand : Command("stealemoji") {
                     return@doesLater
                 }
 
-                message.normal("Successfully stolen $emoji!")
+                message.normal("Successfully stolen emoji `${emoji.name}`!")
             }
 
         }
