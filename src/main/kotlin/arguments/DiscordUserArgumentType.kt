@@ -1,9 +1,8 @@
-package org.kamiblue.botkt.helpers
+package org.kamiblue.botkt.arguments
 
 import com.mojang.brigadier.LiteralMessage
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType
 import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.Main

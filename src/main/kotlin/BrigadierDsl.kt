@@ -1,4 +1,5 @@
 @file:Suppress("UNUSED")
+
 package org.kamiblue.botkt
 
 import com.mojang.brigadier.arguments.*
@@ -6,11 +7,13 @@ import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
-import org.kamiblue.botkt.helpers.DiscordUserArgumentType
-import org.kamiblue.botkt.helpers.UserPromise
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.Permissions.missingPermissions
+import org.kamiblue.botkt.arguments.DiscordEmojiArgumentType
+import org.kamiblue.botkt.arguments.DiscordUserArgumentType
+import org.kamiblue.botkt.arguments.UserPromise
+import org.kamiblue.botkt.utils.AnimatableEmoji
 
 @DslMarker
 @Target(AnnotationTarget.TYPE)
@@ -35,7 +38,7 @@ fun <T> ArgumentBuilder<T, *>.literal(name: String, block: (@BrigadierDsl Litera
 fun <S, T : ArgumentBuilder<S, T>, R> ArgumentBuilder<S, T>.argument(
     name: String,
     argument: ArgumentType<R>,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, R>).() -> Unit
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, R>).() -> Unit,
 ) =
     then(RequiredArgumentBuilder.argument<S, R>(name, argument).also(block))
 
@@ -46,7 +49,7 @@ fun <S, T : ArgumentBuilder<S, T>, R> ArgumentBuilder<S, T>.argument(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.bool(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, Boolean>).() -> Unit
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Boolean>).() -> Unit,
 ) =
     argument(name, BoolArgumentType.bool(), block)
 
@@ -57,7 +60,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.bool(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.double(
     name: String,
-    block: RequiredArgumentBuilder<S, Double>.() -> Unit
+    block: RequiredArgumentBuilder<S, Double>.() -> Unit,
 ): T =
     argument(name, DoubleArgumentType.doubleArg(), block)
 
@@ -68,7 +71,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.double(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.float(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, Float>).() -> Unit
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Float>).() -> Unit,
 ): T =
     argument(name, FloatArgumentType.floatArg(), block)
 
@@ -79,7 +82,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.float(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.integer(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, Int>).() -> Unit
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Int>).() -> Unit,
 ): T =
     argument(name, IntegerArgumentType.integer(), block)
 
@@ -90,7 +93,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.integer(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.long(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, Long>).() -> Unit
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Long>).() -> Unit,
 ): T =
     argument(name, LongArgumentType.longArg(), block)
 
@@ -101,7 +104,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.long(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.string(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit,
 ): T =
     argument(name, StringArgumentType.string(), block)
 
@@ -112,15 +115,32 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.string(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.greedyString(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit,
 ): T =
     argument(name, StringArgumentType.greedyString(), block)
 
+/**
+ * A shorthand for appending a discord ping required argument to `this` [ArgumentBuilder]
+ *
+ * @see argument
+ */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.ping(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, UserPromise>).() -> Unit
-) =
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, UserPromise>).() -> Unit,
+): T =
     argument(name, DiscordUserArgumentType, block)
+
+/**
+ * A shorthand for appending a discord emoji required argument to `this` [ArgumentBuilder]
+ *
+ * @return Pair<Animated, Emoji>
+ * @see argument
+ */
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.emoji(
+    name: String,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, AnimatableEmoji>).() -> Unit,
+): T =
+    argument(name, DiscordEmojiArgumentType, block)
 
 /**
  * Sets the executes callback for `this` [ArgumentBuilder]
