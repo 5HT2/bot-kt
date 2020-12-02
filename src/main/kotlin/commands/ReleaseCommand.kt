@@ -21,4 +21,8 @@ object ReleaseCommand : Command("release") {
             }
         }
     }
+
+    override fun getHelpUsage(): String {
+        return "Usage:\n`$fullName major`\n`$fullName beta`"
+    }
 }
