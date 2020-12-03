@@ -114,14 +114,12 @@ object IssueCommand : Command("issue") {
 
     @EventHandler
     suspend fun onReact(event: ReactionAddEvent) {
-        if (!Main.ready) return
+        if (!Main.ready || event.reaction.member?.bot == true) return
+        if (!event.reaction.userId.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return
 
         val form = queuedIssues[event.reaction.messageId] ?: return
 
         if (event.reaction.emoji.name == "✅") {
-
-            if (!event.reaction.userId.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return
-
             var message = form.first
 
             val token = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)?.githubToken ?: run {
@@ -148,6 +146,7 @@ object IssueCommand : Command("issue") {
 
             val feedback = message.error("Issue `${form.second.title}` rejected!")
 
+            queuedIssues.remove(event.reaction.messageId)
             delay(5000)
             message.delete()
             delay(5000)
@@ -172,14 +171,10 @@ object IssueCommand : Command("issue") {
         if (event.message.content.isEmpty() || !event.message.content.startsWith("$fullName create")) {
             val reply = event.message.error("You need to use the `$fullName create` command to create an issue!")
 
-            try {
-                event.message.delete()
-                delay(5000)
-                reply.delete()
-                return
-            } catch (e: IllegalStateException) {
-                return
-            }
+            event.message.delete()
+            delay(5000)
+            reply.delete()
+            return
         }
     }
 
