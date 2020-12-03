@@ -8,3 +8,6 @@
 [submodule "src/main/commons"]
 	path = src/main/commons
 	url = https://github.com/kami-blue/commons
+[submodule "src/main/command"]
+	path = src/main/command
+	url = https://github.com/kami-blue/command.git
