@@ -172,16 +172,12 @@ object IssueCommand : Command("issue") {
                 }
             }
 
-            println("1")
             val feedback = message.error("Issue `${form.issue.title}` rejected!")
 
             delay(5000)
-            println("3")
             message.delete()
             delay(5000)
-            println("4")
             feedback.delete()
-            println("2")
             queuedIssues.remove(event.reaction.messageId)
         }
 
