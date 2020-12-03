@@ -28,7 +28,6 @@ dependencies {
 }
 
 sourceSets.main.java {
-    srcDirs += 'src/main/bot-kt'
     srcDirs += 'src/main/commons'
     srcDirs += 'src/main/cape-api'
     srcDirs += 'src/main/github-discussion-api'
