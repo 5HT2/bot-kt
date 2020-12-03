@@ -74,8 +74,7 @@ object IssueCommand : Command("issue") {
                         val title = split.getOrNull(0)
                         val body = split.getOrNull(1)
 
-                        val formattedIssue =
-                            "Created by: ${message.author?.name?.toHumanReadable()} (${message.author?.mention})\n\n$body"
+                        val formattedIssue = "Created by: ${message.author?.name?.toHumanReadable()} (${message.author?.mention})\n\n$body"
                         val issue = Issue(title = title, body = formattedIssue)
 
                         val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
@@ -88,13 +87,7 @@ object IssueCommand : Command("issue") {
 
                         val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
                             ?: run {
-                                message.error(
-                                    "Default Github User is not set in `${
-                                        ConfigType.USER.configPath.substring(
-                                            7
-                                        )
-                                    }`!"
-                                )
+                                message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
                                 return@doesLater
                             }
 
@@ -221,8 +214,7 @@ object IssueCommand : Command("issue") {
         repoName: String,
         issueNum: String,
     ) {
-        val issue =
-            authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
+        val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
             if (issue.html_url != null && issue.html_url.contains("issue")) {
                 message.channel.send {
@@ -259,8 +251,7 @@ object IssueCommand : Command("issue") {
             message.channel.send {
                 embed {
                     title = "Error"
-                    description =
-                        "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
+                    description = "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
                     field("Stacktrace", "```${e.stackTraceToString()}```", false)
                     e.printStackTrace()
                     color = Colors.ERROR.color
@@ -316,14 +307,14 @@ object IssueCommand : Command("issue") {
         val formMessage: Message,
         val issue: Issue,
         val creator: Member?,
-        val repo: String
+        val repo: String,
     )
 
     override fun getHelpUsage(): String {
         return "Getting information of an issue/pull on github. \n\n" +
-            "Usage: \n" +
-            "`$fullName <user/organization> <repository> <issue>`\n\n" +
-            "Example: \n" +
-            "`$fullName kami-blue bot-kt 10`\n\n"
+                "Usage: \n" +
+                "`$fullName <user/organization> <repository> <issue>`\n\n" +
+                "Example: \n" +
+                "`$fullName kami-blue bot-kt 10`\n\n"
     }
 }
