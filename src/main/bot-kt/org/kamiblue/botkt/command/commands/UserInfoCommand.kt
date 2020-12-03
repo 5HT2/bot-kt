@@ -19,10 +19,12 @@ import java.time.temporal.ChronoUnit
 object UserInfoCommand : Command("userinfo") {
     init {
         doesLater {
-            val username: String = message.author?.id?.toString() ?: run { message.author?.tag ?: run {
-                message.error("Couldn't find your user, try using a direct ID!")
-                return@doesLater
-            }}
+            val username: String = message.author?.id?.toString() ?: run {
+                message.author?.tag ?: run {
+                    message.error("Couldn't find your user, try using a direct ID!")
+                    return@doesLater
+                }
+            }
             send(username, message)
         }
 

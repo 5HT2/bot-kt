@@ -3,7 +3,8 @@ package org.kamiblue.botkt.command.commands
 import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.command.Command
+import org.kamiblue.botkt.command.doesLaterIfHas
 import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.success
@@ -63,10 +64,10 @@ object CounterCommand : Command("counter") {
         }
 
         val memberCount = server.members.size
-        val totalDownload = (downloads.first?.first ?: 0) + (downloads.second?.first ?: 0)
+        val totalDownload = downloads.first.first + downloads.second.first
 
         return if (totalDownload != 0 || memberCount != 0) {
-            edit(config, server, totalDownload, downloads.second?.second ?: -1, memberCount)
+            edit(config, server, totalDownload, downloads.second.second, memberCount)
             true
         } else {
             false
@@ -75,7 +76,7 @@ object CounterCommand : Command("counter") {
 
     private fun formatApiUrl(repo: String, perPage: Int) = "https://api.github.com/repos/$repo/releases?per_page=$perPage"
 
-    private fun Download.countDownload(): Pair<Int, Int>? {
+    private fun Download.countDownload(): Pair<Int, Int> {
         return this.sumBy { release -> release.assets.sumBy { it.download_count } } to
                 this[0].assets.sumBy { it.download_count }
     }

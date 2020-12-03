@@ -131,7 +131,7 @@ object ChannelCommand : Command("channel") {
             doesLaterIfHas(ARCHIVE_CHANNEL) {
                 val c = message.serverChannel(message) ?: return@doesLaterIfHas
                 val s = server
-                        ?: run { message.error("Server is null, are you running this from a DM?"); return@doesLaterIfHas }
+                    ?: run { message.error("Server is null, are you running this from a DM?"); return@doesLaterIfHas }
                 val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
                 val oldName = c.name
 

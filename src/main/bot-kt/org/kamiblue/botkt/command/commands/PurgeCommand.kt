@@ -1,7 +1,7 @@
 package org.kamiblue.botkt.command.commands
 
 import net.ayataka.kordis.entity.deleteAll
-import org.kamiblue.botkt.*
+import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.*
 
 object PurgeCommand : Command("purge") {
@@ -27,7 +27,7 @@ object PurgeCommand : Command("purge") {
 
     override fun getHelpUsage(): String {
         return "Purges a number of messages in a channel based on parameters.\n" +
-            "`$fullName <number>`\n" +
-            "`$fullName <number> <userid>`"
+                "`$fullName <number>`\n" +
+                "`$fullName <number> <userid>`"
     }
 }

@@ -76,7 +76,7 @@ object SayCommand : Command("say") {
 
     override fun getHelpUsage(): String {
         return "Say or edit messages via the bot.\n\n" +
-            "`$fullName <channel> <embed (true or false)> <title or empty> <content>`\n" +
-            "`$fullName edit <channel> <message id> <title or empty> <new content>`"
+                "`$fullName <channel> <embed (true or false)> <title or empty> <content>`\n" +
+                "`$fullName edit <channel> <message id> <title or empty> <new content>`"
     }
 }

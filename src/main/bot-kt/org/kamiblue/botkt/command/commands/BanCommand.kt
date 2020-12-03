@@ -141,7 +141,7 @@ object BanCommand : Command("ban") {
         deleteMsgs: Boolean, // if we should delete the past day of their messages or not
         reason: String?, // reason why they were banned. dmed before banning
         nullableServer: Server?,
-        message: Message
+        message: Message,
     ) {
         val server = nullableServer ?: run { message.error("Server is null, make sure you aren't running this from a DM!"); return }
 
@@ -239,7 +239,7 @@ object BanCommand : Command("ban") {
         sendReasonFeedback: Boolean, // if false, will not send feedback in channel. will not dm user
         reason: String?,
         server: Server,
-        message: Message
+        message: Message,
     ) {
         if (user.id == message.author?.id) {
             message.error("You can't ban yourself!")
