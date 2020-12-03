@@ -9,10 +9,7 @@ import org.kamiblue.botkt.utils.configUpdateInterval
 import kotlin.system.exitProcess
 
 object Main {
-    private lateinit var process: Job
-    private lateinit var counterProcess: Job
-    private lateinit var capeSaveProcess: Job
-    private lateinit var capeCommitProcess: Job
+    private lateinit var processes: Array<Job>
 
     lateinit var client: DiscordClient
     var ready = false
@@ -31,34 +28,36 @@ object Main {
 
     @JvmStatic
     fun main(vararg args: String) = runBlocking {
-        process = launch {
-            Bot().start()
-        }
+        processes = arrayOf(
+            launch {
+                Bot.start()
+            },
 
-        counterProcess = launch {
-            while (isActive) {
-                delay(configUpdateInterval())
-                CounterCommand.updateChannel()
-            }
-        }
+            launch {
+                while (isActive) {
+                    delay(configUpdateInterval())
+                    CounterCommand.updateChannel()
+                }
+            },
 
-        capeSaveProcess = launch {
-            while (isActive) {
-                delay(60000) // 1 minute
-                CapeCommand.save()
-            }
-        }
+            launch {
+                while (isActive) {
+                    delay(60000) // 1 minute
+                    CapeCommand.save()
+                }
+            },
 
-        capeCommitProcess = launch {
-            while (isActive) {
-                delay(60010) // 1 minute
-                CapeCommand.commit()
+            launch {
+                while (isActive) {
+                    delay(60010) // 1 minute
+                    CapeCommand.commit()
+                }
             }
-        }
+        )
     }
 
     fun exit() {
-        process.cancel()
+        processes.forEach { it.cancel() }
         exitProcess(0)
     }
 }
