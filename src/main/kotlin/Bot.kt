@@ -19,7 +19,7 @@ import org.kamiblue.botkt.utils.StringUtils.flat
  * @author l1ving
  * @since 16/08/20 17:30
  */
-class Bot {
+object Bot {
     private val dispatcher = CommandDispatcher<Cmd>()
 
     suspend fun start() {
