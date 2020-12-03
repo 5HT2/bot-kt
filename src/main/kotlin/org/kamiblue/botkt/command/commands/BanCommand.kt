@@ -308,7 +308,7 @@ object BanCommand : Command("ban") {
 
     override fun getHelpUsage(): String {
         return "$fullName <user(id, username, ping)>\n" +
-                "$fullName <user(id, username, ping)> <reason>\n" +
-                "$fullName <user(id, username, ping)> <delete messages (boolean)> <reason>"
+            "$fullName <user(id, username, ping)> <reason>\n" +
+            "$fullName <user(id, username, ping)> <delete messages (boolean)> <reason>"
     }
 }

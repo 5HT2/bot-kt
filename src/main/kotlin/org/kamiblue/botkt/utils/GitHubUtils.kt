@@ -43,9 +43,9 @@ object GitHubUtils {
         val body = Gson().toJson(issue).toRequestBody("".toMediaTypeOrNull())
 
         val request = Request.Builder()
-                .addHeader("Accept", "application/vnd.github.v3+json")
-                .addHeader("Authorization", "token $token")
-                .url(url).post(body).build()
+            .addHeader("Accept", "application/vnd.github.v3+json")
+            .addHeader("Authorization", "token $token")
+            .url(url).post(body).build()
 
         val response = OkHttpClient().newCall(request).execute()
 

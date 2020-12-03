@@ -312,9 +312,9 @@ object IssueCommand : Command("issue") {
 
     override fun getHelpUsage(): String {
         return "Getting information of an issue/pull on github. \n\n" +
-                "Usage: \n" +
-                "`$fullName <user/organization> <repository> <issue>`\n\n" +
-                "Example: \n" +
-                "`$fullName kami-blue bot-kt 10`\n\n"
+            "Usage: \n" +
+            "`$fullName <user/organization> <repository> <issue>`\n\n" +
+            "Example: \n" +
+            "`$fullName kami-blue bot-kt 10`\n\n"
     }
 }

@@ -34,11 +34,11 @@ object ExampleCommand : Command("ec") {
 
     override fun getHelpUsage(): String {
         return "Examples for Brigadier's syntax.\n\n" +
-                "Example for chaining arguments:\n" +
-                "`$fullName kami [blue]`\n\n" +
-                "Example for multiple first arguments:\n" +
-                "`$fullName foo`\n\n" +
-                "Example for greedy strings:\n" +
-                "`$fullName count <some sentence you'd like to count>`"
+            "Example for chaining arguments:\n" +
+            "`$fullName kami [blue]`\n\n" +
+            "Example for multiple first arguments:\n" +
+            "`$fullName foo`\n\n" +
+            "Example for greedy strings:\n" +
+            "`$fullName count <some sentence you'd like to count>`"
     }
 }

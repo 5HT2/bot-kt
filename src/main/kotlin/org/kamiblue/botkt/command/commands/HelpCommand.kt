@@ -32,7 +32,7 @@ object HelpCommand : Command("help-mod") {
 
     override fun getHelpUsage(): String {
         return "Gives usage examples for commands.\n\n" +
-                "Usage:\n" +
-                "`$fullName <command name>`"
+            "Usage:\n" +
+            "`$fullName <command name>`"
     }
 }

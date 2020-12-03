@@ -193,8 +193,8 @@ object ChannelCommand : Command("channel") {
 
         val string = selectedChannel.joinToString(separator = "\n") {
             "${it.role.mention}\n" +
-                    "Allow: ${it.allow.pretty()}\n" +
-                    "Deny: ${it.deny.pretty()}\n"
+                "Allow: ${it.allow.pretty()}\n" +
+                "Deny: ${it.deny.pretty()}\n"
         }
 
         permissions[name] = selectedChannel
@@ -233,8 +233,8 @@ object ChannelCommand : Command("channel") {
 
                     m.edit {
                         description = "Attempting to undo last change...\n" +
-                                "Found: ${it.second.name.toHumanReadable()}\n\n" +
-                                "Unsaved, set ${it.first.second} to original permissions"
+                            "Found: ${it.second.name.toHumanReadable()}\n\n" +
+                            "Unsaved, set ${it.first.second} to original permissions"
                         color = Colors.SUCCESS.color
                     }
 
@@ -246,8 +246,8 @@ object ChannelCommand : Command("channel") {
 
                     m.edit {
                         description = "Attempting to undo last change...\n" +
-                                "Found: ${it.second.name.toHumanReadable()}\n\n" +
-                                "Unloaded, set ${it.first.second} to original permissions"
+                            "Found: ${it.second.name.toHumanReadable()}\n\n" +
+                            "Unloaded, set ${it.first.second} to original permissions"
                         color = Colors.SUCCESS.color
                     }
 

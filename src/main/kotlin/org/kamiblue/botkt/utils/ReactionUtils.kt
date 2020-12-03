@@ -27,9 +27,9 @@ object ReactionUtils {
         val body = "".toRequestBody("".toMediaTypeOrNull())
 
         val request = Request.Builder()
-                .addHeader(contentLength, "0")
-                .addHeader("Authorization", "Bot ${getAuthToken()}")
-                .url(url).put(body).build()
+            .addHeader(contentLength, "0")
+            .addHeader("Authorization", "Bot ${getAuthToken()}")
+            .url(url).put(body).build()
 
         OkHttpClient().newCall(request).execute()
     }
@@ -53,9 +53,9 @@ object ReactionUtils {
         val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}/reactions$reaction"
 
         val request = Request.Builder()
-                .addHeader(contentLength, "0")
-                .addHeader("Authorization", "Bot ${getAuthToken()}")
-                .url(url).delete().build()
+            .addHeader(contentLength, "0")
+            .addHeader("Authorization", "Bot ${getAuthToken()}")
+            .url(url).delete().build()
 
         OkHttpClient().newCall(request).execute()
     }
@@ -70,9 +70,9 @@ object ReactionUtils {
         val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}/reactions/$finalEmoji"
 
         val request = Request.Builder()
-                .addHeader(contentLength, "0")
-                .addHeader("Authorization", "Bot ${getAuthToken()}")
-                .url(url).get().build()
+            .addHeader(contentLength, "0")
+            .addHeader("Authorization", "Bot ${getAuthToken()}")
+            .url(url).get().build()
 
         val response = OkHttpClient().newCall(request).execute()
 
@@ -87,9 +87,9 @@ object ReactionUtils {
         val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}"
 
         val request = Request.Builder()
-                .addHeader(contentLength, "0")
-                .addHeader("Authorization", "Bot ${getAuthToken()}")
-                .url(url).get().build()
+            .addHeader(contentLength, "0")
+            .addHeader("Authorization", "Bot ${getAuthToken()}")
+            .url(url).get().build()
 
         val response = OkHttpClient().newCall(request).execute()
 
@@ -105,20 +105,20 @@ object ReactionUtils {
     }
 
     data class FakeUser(
-            val id: Long,
-            val username: String,
-            val avatar: String,
-            val discriminator: String,
-            @SerializedName("public_flags")
-            val publicFlags: Int,
-            val bot: Boolean
+        val id: Long,
+        val username: String,
+        val avatar: String,
+        val discriminator: String,
+        @SerializedName("public_flags")
+        val publicFlags: Int,
+        val bot: Boolean
     )
 
     data class FakeReaction(
-            val emoji: Emoji,
-            val count: Int,
-            @SerializedName("me")
-            val selfReacted: Boolean
+        val emoji: Emoji,
+        val count: Int,
+        @SerializedName("me")
+        val selfReacted: Boolean
     )
 
 }

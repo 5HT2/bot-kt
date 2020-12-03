@@ -77,9 +77,9 @@ object DiscussCommand : Command("discuss") {
 
     override fun getHelpUsage(): String {
         return "Discuss any topic asynchronously with the council.\n\n" +
-                "Create a new discussion:\n" +
-                "`$fullName <topic-name> <Some detailed description of the topic>`\n\n" +
-                "Add to the current discussion, while inside a `#d-` channel:\n" +
-                "`$fullName addon <Some point to add on. Put a . here if you're attaching an image>`"
+            "Create a new discussion:\n" +
+            "`$fullName <topic-name> <Some detailed description of the topic>`\n\n" +
+            "Add to the current discussion, while inside a `#d-` channel:\n" +
+            "`$fullName addon <Some point to add on. Put a . here if you're attaching an image>`"
     }
 }

@@ -83,8 +83,10 @@ object ConfigCommand : Command("config") {
                             val stackTrace = e.stackTrace.toList().run {
                                 subList(0, min(10, this.size))
                             }
-                            message.error("Failed to download `$name`\n" +
-                                    "```${stackTrace}```")
+                            message.error(
+                                "Failed to download `$name`\n" +
+                                    "```${stackTrace}```"
+                            )
                         }
                     }
                 }
