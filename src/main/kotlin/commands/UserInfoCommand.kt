@@ -10,12 +10,15 @@ import org.kamiblue.botkt.greedyString
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.ReactionUtils.FakeUser
+import org.kamiblue.botkt.utils.SnowflakeHelper.fromDiscordSnowFlake
 import org.kamiblue.botkt.utils.SnowflakeHelper.prettyFormat
 import org.kamiblue.botkt.utils.SnowflakeHelper.toInstant
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.StringUtils.toUserID
 import org.kamiblue.botkt.utils.authenticatedRequest
 import org.kamiblue.botkt.utils.getAuthToken
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 object UserInfoCommand : Command("userinfo") {
     init {
@@ -44,16 +47,17 @@ object UserInfoCommand : Command("userinfo") {
         member?.let {
             message.channel.send {
                 embed {
-                    title = it.nickname ?: it.name
+                    title = it.name
                     color = Colors.PRIMARY.color
                     thumbnailUrl = it.avatar.url
 
-                    field("Created Account:", it.timestamp.prettyFormat(), true)
-                    field("Joined Guild:", it.joinedAt.prettyFormat(), true)
-                    field("Mention:", it.mention, true)
-                    field("Tag:", it.tag, true)
-                    field("ID:", "`${it.id}`", true)
-                    field("Status:", it.status.name.toHumanReadable(), true)
+                    field("Created Account:", it.timestamp.prettyFormat())
+                    field("Joined Guild:", it.joinedAt.prettyFormat())
+                    field("Join Age:", it.joinedAt.until(Instant.now(), ChronoUnit.DAYS).toString() + " days")
+                    field("Account Age:", it.timestamp.until(Instant.now(), ChronoUnit.DAYS).toString() + " days")
+                    field("Mention:", it.mention)
+                    field("ID:", "`${it.id}`")
+                    field("Status:", it.status.name.toHumanReadable())
                 }
             }
 
@@ -75,15 +79,19 @@ object UserInfoCommand : Command("userinfo") {
                     color = Colors.PRIMARY.color
                     thumbnailUrl = "https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png"
 
-                    field("Created:", user.id.toInstant().prettyFormat(), true)
-                    field("Joined:", "Not in current guild!", true)
-                    field("Mention:", "<@!${user.id}>", true)
-                    field("Tag:", "${user.username}#${user.discriminator}", true)
-                    field("Status:", "Not in current guild!", true)
+                    field("Created Account:", user.id.toInstant().prettyFormat())
+                    field("Joined Guild:", current)
+                    field("Join Age:", current)
+                    field("Account Age:", user.id.toInstant().until(Instant.now(), ChronoUnit.DAYS).toString() + " days")
+                    field("Mention:", "<@!${user.id}>")
+                    field("ID:", "`${user.id}`")
+                    field("Status:", current)
                 }
             }
         }
     }
+
+    private const val current = "Not in current guild!"
 
     override fun getHelpUsage(): String {
         return "$fullName + <user id/user tag/user name>"
