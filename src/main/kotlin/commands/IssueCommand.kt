@@ -3,6 +3,7 @@ package org.kamiblue.botkt.commands
 import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.message.embed.EmbedBuilder
+import net.ayataka.kordis.entity.server.member.Member
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import net.ayataka.kordis.event.events.message.ReactionAddEvent
@@ -25,7 +26,7 @@ import java.awt.Color
  * @since 2020/9/8
  */
 object IssueCommand : Command("issue") {
-    private val queuedIssues = HashMap<Long, Triple<Message, Issue, String>>()
+    private val queuedIssues = HashMap<Long, QueuedIssue>()
 
     init {
         Main.client.addListener(this)
@@ -72,7 +73,7 @@ object IssueCommand : Command("issue") {
                         val title = split.getOrNull(0)
                         val body = split.getOrNull(1)
 
-                        val formattedIssue = "Created by: ${message.author?.name?.toHumanReadable()} `(${message.author?.id})`\n\n$body"
+                        val formattedIssue = "Created by: ${message.author?.name?.toHumanReadable()} (${message.author?.mention})\n\n$body"
                         val issue = Issue(title = title, body = formattedIssue)
 
                         val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
@@ -101,11 +102,12 @@ object IssueCommand : Command("issue") {
 
                         message.delete()
 
-                        delay(1000)
+                        delay(500)
                         form.addReaction('✅')
+                        delay(500)
                         form.addReaction('⛔')
 
-                        queuedIssues[form.id] = Triple(form, issue, repo)
+                        queuedIssues[form.id] = QueuedIssue(form, issue, message.member, repo)
                     }
                 }
             }
@@ -120,7 +122,7 @@ object IssueCommand : Command("issue") {
         val form = queuedIssues[event.reaction.messageId] ?: return
 
         if (event.reaction.emoji.name == "✅") {
-            var message = form.first
+            var message = form.formMessage
 
             val token = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)?.githubToken ?: run {
                 message.error("Github Token is not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
@@ -132,25 +134,55 @@ object IssueCommand : Command("issue") {
                 return
             }
 
-            GitHubUtils.createGithubIssue(form.second, user, form.third, token)
+            GitHubUtils.createGithubIssue(form.issue, user, form.repo, token)
 
-            form.first.delete()
+            form.creator?.getPrivateChannel()?.send {
+                embed {
+                    title = form.issue.title
+                    description = "Your suggestion / bug was accepted!"
+                    field("Description:", form.issue.body ?: "")
+                    field("Repository:", "$user/${form.repo}")
+                    color = Colors.SUCCESS.color
+                }
 
-            message = message.success("Successfully created issue `${form.second.title}`!")
+            }
 
-            delay(10000)
+            form.formMessage.delete()
+
+            message = message.success("Successfully created issue `${form.issue.title}`!")
+
+            delay(5000)
 
             message.delete()
         } else if (event.reaction.emoji.name == "⛔") {
-            val message = form.first
+            val message = form.formMessage
 
-            val feedback = message.error("Issue `${form.second.title}` rejected!")
+            val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
+                message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                return
+            }
 
-            queuedIssues.remove(event.reaction.messageId)
+            form.creator?.getPrivateChannel()?.send {
+                embed {
+                    title = form.issue.title
+                    description = "Your suggestion / bug was rejected!"
+                    field("Description:", form.issue.body ?: "")
+                    field("Repository:", "$user/${form.repo}")
+                    color = Colors.ERROR.color
+                }
+            }
+
+            println("1")
+            val feedback = message.error("Issue `${form.issue.title}` rejected!")
+
             delay(5000)
+            println("3")
             message.delete()
             delay(5000)
+            println("4")
             feedback.delete()
+            println("2")
+            queuedIssues.remove(event.reaction.messageId)
         }
 
     }
@@ -273,6 +305,13 @@ object IssueCommand : Command("issue") {
             this.replace(Regex("<!--.*-->"), "")
         }
     }
+
+    private data class QueuedIssue(
+        val formMessage: Message,
+        val issue: Issue,
+        val creator: Member?,
+        val repo: String
+    )
 
     override fun getHelpUsage(): String {
         return "Getting information of an issue/pull on github. \n\n" +
