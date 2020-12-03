@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.arguments
+package org.kamiblue.botkt.command.arguments
 
 import com.mojang.brigadier.StringReader
 import com.mojang.brigadier.arguments.ArgumentType

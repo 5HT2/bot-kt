@@ -1,4 +1,4 @@
-package org.kamiblue.botkt
+package org.kamiblue.botkt.command
 
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
@@ -6,6 +6,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
+import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.utils.MessageSendUtils.log
 import org.kamiblue.botkt.utils.StringUtils.firstInSentence
 import org.kamiblue.commons.utils.ClassUtils
@@ -50,7 +51,7 @@ object CommandManager {
      * and register said classes instances with Brigadier.
      */
     fun registerCommands(dispatcher: CommandDispatcher<Cmd>) {
-        val commandClasses = ClassUtils.findClasses("org.kamiblue.botkt.commands", Command::class.java)
+        val commandClasses = ClassUtils.findClasses("org.kamiblue.botkt.command.commands", Command::class.java)
 
         log("Registering commands...")
 

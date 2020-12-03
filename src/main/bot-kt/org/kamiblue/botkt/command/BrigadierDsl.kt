@@ -1,6 +1,6 @@
 @file:Suppress("UNUSED")
 
-package org.kamiblue.botkt
+package org.kamiblue.botkt.command
 
 import com.mojang.brigadier.arguments.*
 import com.mojang.brigadier.builder.ArgumentBuilder
@@ -8,14 +8,14 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
 import net.ayataka.kordis.entity.server.Server
-import net.ayataka.kordis.entity.server.channel.ServerChannel
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
+import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.Permissions.missingPermissions
-import org.kamiblue.botkt.arguments.DiscordChannelArgumentType
-import org.kamiblue.botkt.arguments.DiscordEmojiArgumentType
-import org.kamiblue.botkt.arguments.DiscordUserArgumentType
-import org.kamiblue.botkt.arguments.UserPromise
+import org.kamiblue.botkt.command.arguments.DiscordChannelArgumentType
+import org.kamiblue.botkt.command.arguments.DiscordEmojiArgumentType
+import org.kamiblue.botkt.command.arguments.DiscordUserArgumentType
+import org.kamiblue.botkt.command.arguments.UserPromise
 import org.kamiblue.botkt.utils.AnimatableEmoji
 
 @DslMarker

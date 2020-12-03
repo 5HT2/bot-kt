@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.commands
+package org.kamiblue.botkt.command.commands
 
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.delay
@@ -14,6 +14,7 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.Permissions.hasPermission
+import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal

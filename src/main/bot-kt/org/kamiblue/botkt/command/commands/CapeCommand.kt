@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.commands
+package org.kamiblue.botkt.command.commands
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -11,6 +11,7 @@ import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.UUIDManager.UUIDFormatException
+import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.helpers.MathHelper
 import org.kamiblue.botkt.helpers.ShellHelper.bash
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash

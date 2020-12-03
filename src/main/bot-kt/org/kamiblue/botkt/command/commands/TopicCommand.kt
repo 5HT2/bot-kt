@@ -1,6 +1,7 @@
-package org.kamiblue.botkt.commands
+package org.kamiblue.botkt.command.commands
 
-import org.kamiblue.botkt.*
+import org.kamiblue.botkt.PermissionTypes
+import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.StringUtils.flat

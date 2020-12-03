@@ -1,9 +1,9 @@
-package org.kamiblue.botkt.commands
+package org.kamiblue.botkt.command.commands
 
 import net.ayataka.kordis.entity.channel.TextChannel
 import net.ayataka.kordis.entity.message.Message
-import net.ayataka.kordis.entity.server.channel.ServerChannel
 import org.kamiblue.botkt.*
+import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 
@@ -76,7 +76,7 @@ object SayCommand : Command("say") {
 
     override fun getHelpUsage(): String {
         return "Say or edit messages via the bot.\n\n" +
-                "`$fullName <channel> <embed (true or false)> <title or empty> <content>`\n" +
-                "`$fullName edit <channel> <message id> <title or empty> <new content>`"
+            "`$fullName <channel> <embed (true or false)> <title or empty> <content>`\n" +
+            "`$fullName edit <channel> <message id> <title or empty> <new content>`"
     }
 }

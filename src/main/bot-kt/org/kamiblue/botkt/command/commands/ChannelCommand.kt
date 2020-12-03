@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.commands
+package org.kamiblue.botkt.command.commands
 
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.message.Message
@@ -9,6 +9,7 @@ import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.PermissionTypes.*
+import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal

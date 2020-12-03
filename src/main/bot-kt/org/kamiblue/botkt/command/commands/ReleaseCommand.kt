@@ -1,10 +1,10 @@
-package org.kamiblue.botkt.commands
+package org.kamiblue.botkt.command.commands
 
-import org.kamiblue.botkt.Command
 import org.kamiblue.botkt.PermissionTypes.CREATE_RELEASE
-import org.kamiblue.botkt.doesLaterIfHas
+import org.kamiblue.botkt.command.Command
+import org.kamiblue.botkt.command.doesLaterIfHas
+import org.kamiblue.botkt.command.literal
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash
-import org.kamiblue.botkt.literal
 
 // TODO hardcoded, pending plugin support
 object ReleaseCommand : Command("release") {

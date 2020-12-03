@@ -3,8 +3,8 @@ package org.kamiblue.botkt
 import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.commands.CapeCommand
-import org.kamiblue.botkt.commands.CounterCommand
+import org.kamiblue.botkt.command.commands.CapeCommand
+import org.kamiblue.botkt.command.commands.CounterCommand
 import org.kamiblue.botkt.utils.configUpdateInterval
 import kotlin.system.exitProcess
 

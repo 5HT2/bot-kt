@@ -1,7 +1,8 @@
-package org.kamiblue.botkt.commands
+package org.kamiblue.botkt.command.commands
 
 import com.google.gson.GsonBuilder
 import org.kamiblue.botkt.*
+import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.success

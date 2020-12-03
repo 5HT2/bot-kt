@@ -1,6 +1,12 @@
-package org.kamiblue.botkt.commands
+package org.kamiblue.botkt.command.commands
 
-import org.kamiblue.botkt.*
+import org.kamiblue.botkt.ConfigManager
+import org.kamiblue.botkt.ConfigType
+import org.kamiblue.botkt.RulesConfig
+import org.kamiblue.botkt.command.Command
+import org.kamiblue.botkt.command.arg
+import org.kamiblue.botkt.command.doesLater
+import org.kamiblue.botkt.command.string
 import org.kamiblue.botkt.utils.Colors
 
 object RulesCommand : Command("r") {
@@ -34,6 +40,6 @@ object RulesCommand : Command("r") {
 
     override fun getHelpUsage(): String {
         return "Rule command, gets rule from rules channel:\n" +
-                "`$fullName [rule]`"
+            "`$fullName [rule]`"
     }
 }
