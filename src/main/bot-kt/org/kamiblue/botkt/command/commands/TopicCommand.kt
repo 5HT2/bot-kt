@@ -23,6 +23,17 @@ object TopicCommand : Command("topic") {
             }
 
         }
+
+        literal("clear") {
+            doesLaterIfHas(PermissionTypes.MANAGE_CHANNELS) {
+                message.serverChannel?.edit {
+                    topic = null
+                }
+
+                message.success("Cleared Channel Topic!")
+            }
+        }
+
         doesLater {
             val topic = message.serverChannel?.topic
             message.normal(if (topic.isNullOrEmpty()) "No topic set!" else topic, "#" + message.serverChannel?.name)
