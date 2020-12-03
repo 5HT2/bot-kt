@@ -4,7 +4,7 @@ import net.ayataka.kordis.entity.message.Message
 
 @Suppress("UNUSED")
 object MessageSendUtils {
-    fun log(message: String) = println("[bot-kt] $message")
+    fun log(message: String, prefix: String = "[bot-kt]") = println("$prefix $message")
 
     suspend fun Message.normal(description: String, title: String) = channel.send {
         embed {

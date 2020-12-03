@@ -57,7 +57,7 @@ object CommandManager {
         for (clazz in commandClasses) {
             val command = ClassUtils.getInstance(clazz)
             commandMap[command.literal] = command
-            println("[commands] ${command.literal} ${command.arguments}")
+            log("${command.literal} ${command.arguments}", "[commands]")
             dispatcher.register(command)
         }
 
