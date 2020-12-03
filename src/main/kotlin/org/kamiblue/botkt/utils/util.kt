@@ -89,7 +89,7 @@ fun Server.maxEmojiSlots(): Int {
 
 data class AnimatableEmoji(
     val animated: Boolean = false,
-    val emoji: Emoji,
+    val emoji: Emoji
 ) {
     override fun toString(): String {
         val a = if (animated) "a" else ""
@@ -99,7 +99,7 @@ data class AnimatableEmoji(
 
 data class Emoji(
     val id: Long,
-    val name: String,
+    val name: String
 ) {
     override fun toString(): String {
         return "<:$name:$id>"

@@ -212,7 +212,7 @@ object IssueCommand : Command("issue") {
         token: String,
         user: String,
         repoName: String,
-        issueNum: String,
+        issueNum: String
     ) {
         val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
         try {
@@ -307,7 +307,7 @@ object IssueCommand : Command("issue") {
         val formMessage: Message,
         val issue: Issue,
         val creator: Member?,
-        val repo: String,
+        val repo: String
     )
 
     override fun getHelpUsage(): String {

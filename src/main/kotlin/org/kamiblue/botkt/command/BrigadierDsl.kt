@@ -41,7 +41,7 @@ fun <T> ArgumentBuilder<T, *>.literal(name: String, block: (@BrigadierDsl Litera
 fun <S, T : ArgumentBuilder<S, T>, R> ArgumentBuilder<S, T>.argument(
     name: String,
     argument: ArgumentType<R>,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, R>).() -> Unit,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, R>).() -> Unit
 ) =
     then(RequiredArgumentBuilder.argument<S, R>(name, argument).also(block))
 
@@ -52,7 +52,7 @@ fun <S, T : ArgumentBuilder<S, T>, R> ArgumentBuilder<S, T>.argument(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.bool(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, Boolean>).() -> Unit,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Boolean>).() -> Unit
 ) =
     argument(name, BoolArgumentType.bool(), block)
 
@@ -63,7 +63,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.bool(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.double(
     name: String,
-    block: RequiredArgumentBuilder<S, Double>.() -> Unit,
+    block: RequiredArgumentBuilder<S, Double>.() -> Unit
 ): T =
     argument(name, DoubleArgumentType.doubleArg(), block)
 
@@ -74,7 +74,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.double(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.float(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, Float>).() -> Unit,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Float>).() -> Unit
 ): T =
     argument(name, FloatArgumentType.floatArg(), block)
 
@@ -85,7 +85,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.float(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.integer(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, Int>).() -> Unit,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Int>).() -> Unit
 ): T =
     argument(name, IntegerArgumentType.integer(), block)
 
@@ -96,7 +96,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.integer(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.long(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, Long>).() -> Unit,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Long>).() -> Unit
 ): T =
     argument(name, LongArgumentType.longArg(), block)
 
@@ -107,7 +107,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.long(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.string(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit
 ): T =
     argument(name, StringArgumentType.string(), block)
 
@@ -118,7 +118,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.string(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.greedyString(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, String>).() -> Unit
 ): T =
     argument(name, StringArgumentType.greedyString(), block)
 
@@ -129,7 +129,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.greedyString(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.ping(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, UserPromise>).() -> Unit,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, UserPromise>).() -> Unit
 ): T =
     argument(name, DiscordUserArgumentType, block)
 
@@ -140,7 +140,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.ping(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.emoji(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, AnimatableEmoji>).() -> Unit,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, AnimatableEmoji>).() -> Unit
 ): T =
     argument(name, DiscordEmojiArgumentType, block)
 
@@ -151,7 +151,7 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.emoji(
  */
 fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.channel(
     name: String,
-    block: (@BrigadierDsl RequiredArgumentBuilder<S, Long>).() -> Unit,
+    block: (@BrigadierDsl RequiredArgumentBuilder<S, Long>).() -> Unit
 ): T =
     argument(name, DiscordChannelArgumentType, block)
 
