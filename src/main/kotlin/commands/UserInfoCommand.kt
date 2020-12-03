@@ -47,7 +47,7 @@ object UserInfoCommand : Command("userinfo") {
         member?.let {
             message.channel.send {
                 embed {
-                    title = it.name
+                    title = it.tag
                     color = Colors.PRIMARY.color
                     thumbnailUrl = it.avatar.url
 
@@ -75,7 +75,7 @@ object UserInfoCommand : Command("userinfo") {
 
             message.channel.send {
                 embed {
-                    title = user.username
+                    title = user.username + "#" + user.discriminator
                     color = Colors.PRIMARY.color
                     thumbnailUrl = "https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png"
 
