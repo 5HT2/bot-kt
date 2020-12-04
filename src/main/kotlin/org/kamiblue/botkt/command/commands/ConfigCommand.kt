@@ -1,40 +1,42 @@
 package org.kamiblue.botkt.command.commands
 
 import com.google.gson.GsonBuilder
-import org.kamiblue.botkt.*
-import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.ConfigManager
+import org.kamiblue.botkt.ConfigType
+import org.kamiblue.botkt.PermissionTypes
+import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.MessageSendUtils.success
+import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.StringUtils.writeBytes
 import kotlin.math.min
 
-object ConfigCommand : CommandOld("config") {
+object ConfigCommand : BotCommand(
+    name = "config",
+    alias = arrayOf("cfg"),
+    description = "Manage configurations of the bot"
+) {
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
     init {
         literal("print") {
-            string("name") {
-                doesLaterIfHas(PermissionTypes.MANAGE_CONFIG) { context ->
-                    val name: String = context arg "name"
+            enum<ConfigType>("type") { typeArg ->
+                executeIfHas(PermissionTypes.MANAGE_CONFIG) {
+                    val configType = typeArg.value
 
-                    ConfigType.values().find {
-                        it.configPath.substring(7).toLowerCase() == name.toLowerCase()
-                    }?.let { config ->
-                        ConfigManager.readConfig<Any>(config, false)?.let {
-                            message.channel.send("```json\n" + gson.toJson(it) + "\n```")
-                        } ?: message.error("Couldn't find config file, or config is in invalid format")
-                    }
+                    ConfigManager.readConfig<Any>(configType, false)?.let {
+                        message.channel.send("```json\n" + gson.toJson(it) + "\n```")
+                    } ?: message.error("Couldn't find config file, or config is in invalid format")
                 }
             }
         }
 
         literal("list") {
-            doesLaterIfHas(PermissionTypes.MANAGE_CONFIG) {
+            executeIfHas(PermissionTypes.MANAGE_CONFIG) {
                 message.channel.send {
                     embed {
                         title = "Config Types"
-                        description = ConfigType.values().joinToString { "`${it.configPath.substring(7)}`" } // trim config/ from name
+                        description = ConfigType.values().joinToString { "`${it.name}`" } // trim config/ from name
                         color = Colors.PRIMARY.color
                     }
                 }
@@ -42,51 +44,50 @@ object ConfigCommand : CommandOld("config") {
         }
 
         literal("reload") {
-            string("name") {
-                doesLaterIfHas(PermissionTypes.MANAGE_CONFIG) { context ->
-                    val name: String = context arg "name"
+            enum<ConfigType>("type") { typeArg ->
+                executeIfHas(PermissionTypes.MANAGE_CONFIG) {
+                    val configType = typeArg.value
 
-                    var found = false
-                    ConfigType.values().forEach { config ->
-                        if (config.configPath.substring(7).toLowerCase() == name.toLowerCase()) {
-                            found = true
-                            message.success("Reloading the `${config.configPath.substring(7)}` config")
+                    val message = message.normal("Reloading the `${configType.name}` config")
 
-                            /* unfortunately due to JVM limitations I cannot infer T, meaning it will not throw null if the format is invalid */
-                            ConfigManager.readConfig<Any>(config, true)?.let {
-                                message.success("Successfully reloaded the `${config.configPath.substring(7)}` config!")
-                            } ?: message.error("Couldn't find config file, or config is in invalid format")
-                            return@doesLaterIfHas
+                    /* unfortunately due to JVM limitations I cannot infer T, meaning it will not throw null if the format is invalid */
+                    ConfigManager.readConfig<Any>(configType, true)?.let {
+                        message.edit {
+                            color = Colors.SUCCESS.color
+                            description = "Successfully reloaded the `${configType.name}` config!"
                         }
-                    }
-
-                    if (!found) {
-                        message.error("Couldn't find config type `$name`")
+                    } ?: message.edit {
+                        color = Colors.ERROR.color
+                        description = "Couldn't find config file, or config is in invalid format"
                     }
                 }
             }
         }
 
         literal("download") {
-            string("name") {
-                greedyString("url") {
-                    doesLaterIfHas(PermissionTypes.MANAGE_CONFIG) { context ->
-                        val name: String = context arg "name"
-                        val url: String = context arg "url"
+            enum<ConfigType>("name") { typeArg ->
+                greedy("url") { urlArg ->
+                    executeIfHas(PermissionTypes.MANAGE_CONFIG) {
+                        val configType = typeArg.value
+                        val url = urlArg.value
 
-                        message.success("Downloading `$name`...")
+                        val message = message.normal("Downloading `${configType.name}`...")
 
                         try {
                             val size = "config/$name".writeBytes(url)
-                            message.success("Successfully downloaded `$name` (${size / 1000.0}KB)!")
+                            message.edit {
+                                color = Colors.SUCCESS.color
+                                description = "Successfully downloaded `$name` (${size / 1000.0}KB)!"
+                            }
                         } catch (e: Exception) {
                             val stackTrace = e.stackTrace.toList().run {
                                 subList(0, min(10, this.size))
                             }
-                            message.error(
-                                "Failed to download `$name`\n" +
+                            message.edit {
+                                color = Colors.ERROR.color
+                                description = "Failed to download `$name`\n" +
                                     "```${stackTrace}```"
-                            )
+                            }
                         }
                     }
                 }
