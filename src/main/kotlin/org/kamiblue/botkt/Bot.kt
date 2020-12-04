@@ -1,7 +1,6 @@
 package org.kamiblue.botkt
 
 import com.mojang.brigadier.CommandDispatcher
-import com.mojang.brigadier.exceptions.CommandSyntaxException
 import kotlinx.coroutines.delay
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
@@ -14,9 +13,6 @@ import org.kamiblue.botkt.command.CommandManagerOld
 import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils
-import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.StringUtils.firstInSentence
-import org.kamiblue.botkt.utils.StringUtils.flat
 
 /**
  * @author l1ving
@@ -50,28 +46,41 @@ object Bot {
         CommandManager.init()
         CommandManagerOld.registerCommands(dispatcher)
 
-        val initialization = "Initialized bot!\nRunning on ${Main.currentVersion}\nStartup took ${System.currentTimeMillis() - started}ms"
+        val initMessage = "Initialized bot!\n" +
+            "Running on ${Main.currentVersion}\n" +
+            "Startup took ${System.currentTimeMillis() - started}ms"
+
         val userConfig = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
 
-        userConfig?.statusMessage?.let {
-            var type = ActivityType.UNKNOWN
-            userConfig.statusMessageType.let {
-                ActivityType.values().forEach { lType -> if (lType.id == it) type = lType }
-            }
-
-            Main.client.updateStatus(UserStatus.ONLINE, type, it)
-        }
+        updateStatus(userConfig)
 
         delay(2000) // Discord API is really stupid and doesn't give you the information you need right away, hence delay needed
 
+        sendStartupMessage(userConfig, initMessage)
+
+        Main.ready = true
+        MessageSendUtils.log(initMessage)
+    }
+
+    private fun updateStatus(userConfig: UserConfig?) {
+        userConfig?.statusMessage?.let { message ->
+            val type = userConfig.statusMessageType?.let {
+                ActivityType.values().getOrNull(it)
+            } ?: ActivityType.UNKNOWN
+
+            Main.client.updateStatus(UserStatus.ONLINE, type, message)
+        }
+    }
+
+    private suspend fun sendStartupMessage(userConfig: UserConfig?, initMessage: String) {
         userConfig?.startUpChannel?.let {
             if (userConfig.primaryServerId == null) {
-                Main.client.servers.forEach { chit ->
+                Main.client.servers.forEach { server ->
                     delay(100) // we don't want to hit the message rate limit, 10 messages a second should be fine
-                    chit.textChannels.findByName(it)?.send {
+                    server.textChannels.findByName(it)?.send {
                         embed {
                             title = "Startup"
-                            description = initialization
+                            description = initMessage
                             color = Colors.SUCCESS.color
                         }
                     }
@@ -81,15 +90,12 @@ object Bot {
                 channel?.send {
                     embed {
                         title = "Startup"
-                        description = initialization
+                        description = initMessage
                         color = Colors.SUCCESS.color
                     }
                 }
             }
         }
-
-        Main.ready = true
-        MessageSendUtils.log(initialization)
     }
 
     @EventHandler
