@@ -36,7 +36,7 @@ object ConfigCommand : BotCommand(
                 message.channel.send {
                     embed {
                         title = "Config Types"
-                        description = ConfigType.values().joinToString { "`${it.name}`" } // trim config/ from name
+                        description = ConfigType.values().joinToString { "`${it.name}`" }
                         color = Colors.PRIMARY.color
                     }
                 }
