@@ -1,14 +1,15 @@
 package org.kamiblue.botkt.command.commands
 
 import org.kamiblue.botkt.Main
-import org.kamiblue.botkt.PermissionTypes.REBOOT_BOT
-import org.kamiblue.botkt.command.CommandOld
-import org.kamiblue.botkt.command.doesLaterIfHas
+import org.kamiblue.botkt.PermissionTypes
+import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.utils.Colors
 
-object ShutdownCommand : CommandOld("shutdown") {
+object ShutdownCommand : BotCommand(
+    name = "shutdown"
+) {
     init {
-        doesLaterIfHas(REBOOT_BOT) {
+        executeIfHas(PermissionTypes.REBOOT_BOT) {
             message.channel.send {
                 embed {
                     title = "Shutting down..."
