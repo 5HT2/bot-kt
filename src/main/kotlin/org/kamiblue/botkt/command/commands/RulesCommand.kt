@@ -3,24 +3,25 @@ package org.kamiblue.botkt.command.commands
 import org.kamiblue.botkt.ConfigManager
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.RulesConfig
-import org.kamiblue.botkt.command.CommandOld
-import org.kamiblue.botkt.command.arg
-import org.kamiblue.botkt.command.doesLater
-import org.kamiblue.botkt.command.string
+import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.utils.Colors
 
-object RulesCommand : CommandOld("r") {
+object RulesCommand : BotCommand(
+    name = "rule",
+    alias = arrayOf("r", "law"),
+    description = "Rule command, gets rule from rules channel"
+) {
     init {
-        string("rule") {
-            doesLater { context ->
-                val ruleName: String = context arg "rule"
+        string("ruleName") { ruleNameArg ->
+            execute {
+                val ruleName = ruleNameArg.value
                 val rule = ConfigManager.readConfigSafe<RulesConfig>(ConfigType.RULES, false)?.rules?.getOrDefault(
                     ruleName,
                     "Couldn't find rule $ruleName."
                 ) ?: "Couldn't find rule config file!"
 
                 message.channel.send {
-                    if (rule.contains("Couldn't find rule")) {
+                    if (rule.startsWith("Couldn't find rule")) {
                         embed {
                             description = rule
                             color = Colors.ERROR.color
@@ -36,10 +37,5 @@ object RulesCommand : CommandOld("r") {
 
             }
         }
-    }
-
-    override fun getHelpUsage(): String {
-        return "Rule command, gets rule from rules channel:\n" +
-            "`$fullName [rule]`"
     }
 }
