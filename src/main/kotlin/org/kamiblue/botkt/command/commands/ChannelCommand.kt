@@ -18,7 +18,7 @@ import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.pretty
 import kotlin.collections.set
 
-object ChannelCommand : Command("channel") {
+object ChannelCommand : CommandOld("channel") {
     private val permissions = HashMap<String, Collection<RolePermissionOverwrite>>()
     private val rolePermHistory = HashMap<ServerChannel, ArrayDeque<List<RolePermissionOverwrite>>>()
 

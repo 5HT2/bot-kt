@@ -7,7 +7,7 @@ import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 
-object SayCommand : Command("say") {
+object SayCommand : CommandOld("say") {
     init {
         channel("channel") {
             bool("embed") {

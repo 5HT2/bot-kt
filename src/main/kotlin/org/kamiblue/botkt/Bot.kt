@@ -8,8 +8,8 @@ import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.kamiblue.botkt.command.Cmd
-import org.kamiblue.botkt.command.CommandManager
+import org.kamiblue.botkt.command.CmdOld
+import org.kamiblue.botkt.command.CommandManagerOld
 import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils
@@ -22,7 +22,7 @@ import org.kamiblue.botkt.utils.StringUtils.flat
  * @since 16/08/20 17:30
  */
 object Bot {
-    private val dispatcher = CommandDispatcher<Cmd>()
+    private val dispatcher = CommandDispatcher<CmdOld>()
 
     suspend fun start() {
         val started = System.currentTimeMillis()
@@ -46,7 +46,7 @@ object Bot {
             addListener(this@Bot)
         }
 
-        CommandManager.registerCommands(dispatcher)
+        CommandManagerOld.registerCommands(dispatcher)
 
         val initialization = "Initialized bot!\nRunning on ${Main.currentVersion}\nStartup took ${System.currentTimeMillis() - started}ms"
         val userConfig = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
@@ -95,7 +95,7 @@ object Bot {
         if (!Main.ready || event.message.content.isEmpty()) return // message can be empty on images, embeds and other attachments
 
         val message = if (event.message.content[0] == Main.prefix) event.message.content.substring(1) else return
-        val cmd = Cmd(event)
+        val cmd = CmdOld(event)
 
         try {
             try {
@@ -103,8 +103,8 @@ object Bot {
                 cmd.file(event)
                 if (exit != 0) MessageSendUtils.log("(executed with exit code $exit)")
             } catch (e: CommandSyntaxException) {
-                if (CommandManager.isCommand(message)) {
-                    val usage = CommandManager.getCommand(message)?.getHelpUsage()
+                if (CommandManagerOld.isCommand(message)) {
+                    val usage = CommandManagerOld.getCommand(message)?.getHelpUsage()
                     cmd.event.message.channel.send {
                         embed {
                             title = "Invalid Syntax: ${Main.prefix}$message"

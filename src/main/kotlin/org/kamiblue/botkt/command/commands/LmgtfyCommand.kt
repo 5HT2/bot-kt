@@ -1,12 +1,12 @@
 package org.kamiblue.botkt.command.commands
 
-import org.kamiblue.botkt.command.Command
+import org.kamiblue.botkt.command.CommandOld
 import org.kamiblue.botkt.command.arg
 import org.kamiblue.botkt.command.doesLater
 import org.kamiblue.botkt.command.greedyString
 import org.kamiblue.botkt.utils.Colors
 
-object LmgtfyCommand : Command("lmgtfy") {
+object LmgtfyCommand : CommandOld("lmgtfy") {
     init {
         greedyString("search term") {
             doesLater { context ->

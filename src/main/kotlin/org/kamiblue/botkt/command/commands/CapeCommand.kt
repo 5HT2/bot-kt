@@ -35,7 +35,7 @@ import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
 
 // TODO: this is pretty server specific. Will be removed in the future and changed to a plugin
-object CapeCommand : Command("cape") {
+object CapeCommand : CommandOld("cape") {
     private val gson = GsonBuilder().setPrettyPrinting().create()
     private val hexRegex = Regex("^[A-Fa-f0-9]{6}\$")
     private val changedTimeouts = HashMap<String, Long>()

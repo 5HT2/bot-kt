@@ -3,7 +3,7 @@ package org.kamiblue.botkt.command.commands
 import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.command.Command
+import org.kamiblue.botkt.command.CommandOld
 import org.kamiblue.botkt.command.doesLaterIfHas
 import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error
@@ -12,7 +12,7 @@ import org.kamiblue.botkt.utils.authenticatedRequest
 import org.kamiblue.botkt.utils.request
 import org.l1ving.api.download.Download
 
-object CounterCommand : Command("counter") {
+object CounterCommand : CommandOld("counter") {
     init {
         doesLaterIfHas(PermissionTypes.UPDATE_COUNTERS) {
             val path = ConfigType.COUNTER.configPath.substring(7)

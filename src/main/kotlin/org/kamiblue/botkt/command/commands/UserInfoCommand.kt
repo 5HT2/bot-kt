@@ -16,7 +16,7 @@ import org.kamiblue.botkt.utils.getAuthToken
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-object UserInfoCommand : Command("userinfo") {
+object UserInfoCommand : CommandOld("userinfo") {
     init {
         doesLater {
             val username: String = message.author?.id?.toString() ?: run {

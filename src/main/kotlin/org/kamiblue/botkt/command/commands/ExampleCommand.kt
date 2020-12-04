@@ -6,7 +6,7 @@ import org.kamiblue.botkt.command.*
  * @author l1ving
  * @since 2020/08/18 16:30
  */
-object ExampleCommand : Command("ec") {
+object ExampleCommand : CommandOld("ec") {
     init {
         literal("kami") {
             doesLater {
