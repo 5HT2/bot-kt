@@ -7,7 +7,7 @@ import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
 
 // TODO: make this not hardcoded
-object DiscussCommand : Command("discuss") {
+object DiscussCommand : CommandOld("discuss") {
     init {
         literal("addon") {
             greedyString("idea") {

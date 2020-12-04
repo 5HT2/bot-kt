@@ -1,10 +1,10 @@
 package org.kamiblue.botkt.command.commands
 
-import org.kamiblue.botkt.command.Command
+import org.kamiblue.botkt.command.CommandOld
 import org.kamiblue.botkt.command.doesLater
 import org.kamiblue.botkt.utils.Colors
 
-object PingCommand : Command("ping") {
+object PingCommand : CommandOld("ping") {
     init {
         doesLater {
             val m = message.channel.send {

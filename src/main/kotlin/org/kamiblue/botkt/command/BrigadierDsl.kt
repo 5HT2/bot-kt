@@ -165,7 +165,7 @@ infix fun <S> ArgumentBuilder<S, *>.does(command: (@BrigadierDsl CommandContext<
 /**
  * Shorthand for [doesLater] with an empty [does] handler that always returns `0`.
  */
-infix fun ArgumentBuilder<Cmd, *>.doesLater(later: suspend MessageReceiveEvent.(CommandContext<Cmd>) -> Unit) =
+infix fun ArgumentBuilder<CmdOld, *>.doesLater(later: suspend MessageReceiveEvent.(CommandContext<CmdOld>) -> Unit) =
     does { context ->
         context.source later {
             later(this, context)
@@ -176,7 +176,7 @@ infix fun ArgumentBuilder<Cmd, *>.doesLater(later: suspend MessageReceiveEvent.(
 /**
  * The same as [doesLater], but with a permission check.
  */
-fun ArgumentBuilder<Cmd, *>.doesLaterIfHas(permission: PermissionTypes, later: suspend MessageReceiveEvent.(CommandContext<Cmd>) -> Unit): ArgumentBuilder<*, *> =
+fun ArgumentBuilder<CmdOld, *>.doesLaterIfHas(permission: PermissionTypes, later: suspend MessageReceiveEvent.(CommandContext<CmdOld>) -> Unit): ArgumentBuilder<*, *> =
     does { context ->
         context.source later {
             if (this.message.author!!.id.hasPermission(permission))

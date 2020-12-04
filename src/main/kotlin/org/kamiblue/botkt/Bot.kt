@@ -8,8 +8,9 @@ import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.kamiblue.botkt.command.Cmd
+import org.kamiblue.botkt.command.CmdOld
 import org.kamiblue.botkt.command.CommandManager
+import org.kamiblue.botkt.command.CommandManagerOld
 import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils
@@ -22,7 +23,7 @@ import org.kamiblue.botkt.utils.StringUtils.flat
  * @since 16/08/20 17:30
  */
 object Bot {
-    private val dispatcher = CommandDispatcher<Cmd>()
+    val dispatcher = CommandDispatcher<CmdOld>()
 
     suspend fun start() {
         val started = System.currentTimeMillis()
@@ -46,7 +47,8 @@ object Bot {
             addListener(this@Bot)
         }
 
-        CommandManager.registerCommands(dispatcher)
+        CommandManager.init()
+        CommandManagerOld.registerCommands(dispatcher)
 
         val initialization = "Initialized bot!\nRunning on ${Main.currentVersion}\nStartup took ${System.currentTimeMillis() - started}ms"
         val userConfig = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
@@ -94,40 +96,9 @@ object Bot {
     suspend fun onMessageReceive(event: MessageReceiveEvent) {
         if (!Main.ready || event.message.content.isEmpty()) return // message can be empty on images, embeds and other attachments
 
-        val message = if (event.message.content[0] == Main.prefix) event.message.content.substring(1) else return
-        val cmd = Cmd(event)
+        val string = if (event.message.content[0] == Main.prefix) event.message.content.substring(1) else return
 
-        try {
-            try {
-                val exit = dispatcher.execute(message, cmd)
-                cmd.file(event)
-                if (exit != 0) MessageSendUtils.log("(executed with exit code $exit)")
-            } catch (e: CommandSyntaxException) {
-                if (CommandManager.isCommand(message)) {
-                    val usage = CommandManager.getCommand(message)?.getHelpUsage()
-                    cmd.event.message.channel.send {
-                        embed {
-                            title = "Invalid Syntax: ${Main.prefix}$message"
-                            description = "${e.message}${
-                                usage?.let {
-                                    "\n\n$it"
-                                } ?: ""
-                            }"
-                            color = Colors.ERROR.color
-                        }
-                    }
-                } else if (ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)?.unknownCommandError == true) {
-                    cmd.event.message.channel.send {
-                        embed {
-                            title = "Unknown Command: ${Main.prefix}${message.firstInSentence()}"
-                            color = Colors.ERROR.color
-                        }
-                    }
-
-                }
-            }
-        } catch (e: Exception) {
-            event.message.error("```\n${e.stackTraceToString()}\n".flat(2045) + "```") // TODO: proper command to view stacktraces
-        }
+        CommandManager.submit(event, string)
     }
+
 }

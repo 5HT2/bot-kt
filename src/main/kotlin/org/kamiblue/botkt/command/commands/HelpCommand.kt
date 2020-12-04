@@ -3,13 +3,13 @@ package org.kamiblue.botkt.command.commands
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
 
-object HelpCommand : Command("help-mod") {
+object HelpCommand : CommandOld("help-mod") {
     init {
         string("command") {
             doesLater { context ->
                 val userCommand: String = context arg "command"
-                if (CommandManager.isCommand(userCommand)) {
-                    val command = CommandManager.getCommand(userCommand)!!
+                if (CommandManagerOld.isCommand(userCommand)) {
+                    val command = CommandManagerOld.getCommand(userCommand)!!
                     message.channel.send {
                         embed {
                             title = userCommand.toLowerCase()

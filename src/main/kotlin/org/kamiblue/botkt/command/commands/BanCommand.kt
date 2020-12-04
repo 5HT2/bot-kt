@@ -24,7 +24,7 @@ import org.kamiblue.botkt.utils.StringUtils.toUserID
 import org.kamiblue.botkt.utils.authenticatedRequest
 import org.kamiblue.botkt.utils.getAuthToken
 
-object BanCommand : Command("ban") {
+object BanCommand : CommandOld("ban") {
     private const val banReason = "Ban Reason:"
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
