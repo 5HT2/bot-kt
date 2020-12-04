@@ -29,7 +29,7 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
             register(ClassUtils.getInstance(clazz))
         }
 
-        MessageSendUtils.log("Registered commands!")
+        MessageSendUtils.log("Registered ${getCommands().size} commands!")
     }
 
     suspend fun submit(event: MessageReceiveEvent, string: String) {
