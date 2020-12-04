@@ -12,7 +12,7 @@ import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.StringUtils.firstInSentence
 import org.kamiblue.botkt.utils.StringUtils.flat
 import org.kamiblue.command.AbstractCommandManager
-import org.kamiblue.command.SubCommandNotFoundException
+import org.kamiblue.command.utils.SubCommandNotFoundException
 import org.kamiblue.commons.utils.ClassUtils
 import java.util.concurrent.ConcurrentLinkedQueue
 

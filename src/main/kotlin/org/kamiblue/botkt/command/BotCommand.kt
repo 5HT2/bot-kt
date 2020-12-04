@@ -9,9 +9,9 @@ import org.kamiblue.botkt.command.arguments.DiscordEmojiArg
 import org.kamiblue.botkt.command.arguments.DiscordUserArg
 import org.kamiblue.botkt.utils.AnimatableEmoji
 import org.kamiblue.command.AbstractArg
-import org.kamiblue.command.BuilderBlock
+import org.kamiblue.command.utils.BuilderBlock
 import org.kamiblue.command.CommandBuilder
-import org.kamiblue.command.ExecuteBlock
+import org.kamiblue.command.utils.ExecuteBlock
 
 abstract class BotCommand(
     name: String,
