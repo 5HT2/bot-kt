@@ -9,7 +9,7 @@ object PurgeCommand : BotCommand(
     description = "Purges a number of messages in a channel based on parameters."
 ) {
     init {
-        int("number") { numberArg ->
+        int("amount") { numberArg ->
             executeIfHas(PermissionTypes.COUNCIL_MEMBER) {
                 val number = numberArg.value + 1
                 message.channel.getMessages(number).deleteAll()
