@@ -1,13 +1,12 @@
 [submodule "src/main/github-discussion-api"]
 	path = src/main/github-discussion-api
 	url = https://github.com/l1ving/github-discussion-api.git
-
 [submodule "src/main/cape-api"]
 	path = src/main/cape-api
 	url = https://github.com/kami-blue/cape-api.git
 [submodule "src/main/commons"]
 	path = src/main/commons
-	url = https://github.com/kami-blue/commons
+	url = https://github.com/kami-blue/commons.git
 [submodule "src/main/command"]
 	path = src/main/command
 	url = https://github.com/kami-blue/command.git
