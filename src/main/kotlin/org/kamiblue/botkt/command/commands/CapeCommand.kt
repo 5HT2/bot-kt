@@ -25,8 +25,10 @@ import org.kamiblue.botkt.utils.StringUtils.toUserID
 import org.kamiblue.botkt.utils.maxEmojiSlots
 import org.kamiblue.capeapi.*
 import java.awt.image.BufferedImage
+import java.io.BufferedWriter
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileWriter
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.*
@@ -396,12 +398,16 @@ object CapeCommand : CommandOld("cape") {
     }
 
     fun save() {
-        val capeUsers = capeUserMap.values.toList()
-        val file = File(capesFile)
-        if (!file.exists()) file.createNewFile()
+        try {
+            val file = File(capesFile)
+            if (!file.exists()) file.createNewFile()
 
-        Files.newBufferedWriter(Paths.get(capesFile)).use {
-            it.write(gson.toJson(capeUsers, object : TypeToken<List<CapeUser>>() {}.type))
+            BufferedWriter(FileWriter(file)).use {
+                val capeUsers = capeUserMap.values.toList()
+                it.write(gson.toJson(capeUsers, object : TypeToken<List<CapeUser>>() {}.type))
+            }
+        } catch (e : Exception) {
+            e.printStackTrace()
         }
     }
 
