@@ -44,9 +44,13 @@ object Main {
             },
 
             runLooping(30000) {
-                CapeCommand.save()
-                delay(30000)
-                CapeCommand.commit()
+                try {
+                    CapeCommand.save()
+                    delay(30000)
+                    CapeCommand.commit()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
         )
     }
