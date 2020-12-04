@@ -26,7 +26,7 @@ import java.awt.Color
  * @author sourTaste000
  * @since 2020/9/8
  */
-object IssueCommand : Command("issue") {
+object IssueCommand : CommandOld("issue") {
     private val queuedIssues = HashMap<Long, QueuedIssue>()
 
     init {

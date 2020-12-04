@@ -4,7 +4,7 @@ import net.ayataka.kordis.entity.deleteAll
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.*
 
-object PurgeCommand : Command("purge") {
+object PurgeCommand : CommandOld("purge") {
     init {
         integer("number") {
             doesLaterIfHas(PermissionTypes.COUNCIL_MEMBER) { context ->

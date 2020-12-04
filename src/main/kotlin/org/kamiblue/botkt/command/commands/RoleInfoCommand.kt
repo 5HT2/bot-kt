@@ -8,7 +8,7 @@ import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.pretty
 
-object RoleInfoCommand : Command("roleinfo") {
+object RoleInfoCommand : CommandOld("roleinfo") {
     init {
         long("id") {
             doesLater { context ->

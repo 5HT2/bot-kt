@@ -1,10 +1,10 @@
 package org.kamiblue.botkt.command.commands
 
-import org.kamiblue.botkt.command.Command
+import org.kamiblue.botkt.command.CommandOld
 import org.kamiblue.botkt.command.doesLater
 import org.kamiblue.botkt.utils.Colors
 
-object ServerInfoCommand : Command("serverinfo") {
+object ServerInfoCommand : CommandOld("serverinfo") {
     init {
         doesLater {
             message.channel.send {

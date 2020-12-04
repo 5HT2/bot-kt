@@ -9,7 +9,7 @@ import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.StringUtils.writeBytes
 import kotlin.math.min
 
-object ConfigCommand : Command("config") {
+object ConfigCommand : CommandOld("config") {
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
     init {

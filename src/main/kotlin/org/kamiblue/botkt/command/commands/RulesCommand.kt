@@ -3,13 +3,13 @@ package org.kamiblue.botkt.command.commands
 import org.kamiblue.botkt.ConfigManager
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.RulesConfig
-import org.kamiblue.botkt.command.Command
+import org.kamiblue.botkt.command.CommandOld
 import org.kamiblue.botkt.command.arg
 import org.kamiblue.botkt.command.doesLater
 import org.kamiblue.botkt.command.string
 import org.kamiblue.botkt.utils.Colors
 
-object RulesCommand : Command("r") {
+object RulesCommand : CommandOld("r") {
     init {
         string("rule") {
             doesLater { context ->

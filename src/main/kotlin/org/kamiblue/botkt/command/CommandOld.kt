@@ -16,12 +16,12 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * @author l1ving
  * @since 2020/08/18 16:30
  */
-open class Command(val name: String) : LiteralArgumentBuilder<Cmd>(name) {
+open class CommandOld(val name: String) : LiteralArgumentBuilder<CmdOld>(name) {
     val fullName = "${Main.prefix}$name"
     open fun getHelpUsage(): String = "`$fullName`"
 }
 
-class Cmd(val event: MessageReceiveEvent) {
+class CmdOld(val event: MessageReceiveEvent) {
 
     private var asyncQueue: ConcurrentLinkedQueue<suspend MessageReceiveEvent.() -> Unit> = ConcurrentLinkedQueue()
 
@@ -38,20 +38,20 @@ class Cmd(val event: MessageReceiveEvent) {
     }
 }
 
-object CommandManager {
+object CommandManagerOld {
     /* Name, Literal Command */
-    private val commandMap = HashMap<String, Command>()
+    private val commandMap = HashMap<String, CommandOld>()
 
     fun isCommand(name: String) = commandMap.containsKey(name.firstInSentence())
 
     fun getCommand(name: String) = commandMap[name.firstInSentence()]
 
     /**
-     * Uses reflection to get a list of classes in the commands package which extend [Command]
+     * Uses reflection to get a list of classes in the commands package which extend [CommandOld]
      * and register said classes instances with Brigadier.
      */
-    fun registerCommands(dispatcher: CommandDispatcher<Cmd>) {
-        val commandClasses = ClassUtils.findClasses("org.kamiblue.botkt.command.commands", Command::class.java)
+    fun registerCommands(dispatcher: CommandDispatcher<CmdOld>) {
+        val commandClasses = ClassUtils.findClasses("org.kamiblue.botkt.command.commands", CommandOld::class.java)
 
         log("Registering commands...")
 

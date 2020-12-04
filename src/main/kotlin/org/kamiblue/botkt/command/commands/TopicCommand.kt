@@ -6,7 +6,7 @@ import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.StringUtils.flat
 
-object TopicCommand : Command("topic") {
+object TopicCommand : CommandOld("topic") {
     init {
         literal("set") {
             greedyString("topic") {
