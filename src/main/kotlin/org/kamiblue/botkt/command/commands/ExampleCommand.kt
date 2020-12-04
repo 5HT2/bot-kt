@@ -2,43 +2,36 @@ package org.kamiblue.botkt.command.commands
 
 import org.kamiblue.botkt.command.*
 
-/**
- * @author l1ving
- * @since 2020/08/18 16:30
- */
-object ExampleCommand : CommandOld("ec") {
+object ExampleCommand : BotCommand(
+    "example",
+    arrayOf("ex"),
+    "Example Command for kami-blue.command"
+) {
     init {
         literal("kami") {
-            doesLater {
-                message.channel.send("[$fullName] First argument!")
+            execute("Example for chaining arguments") {
+                message.channel.send("[$name] First argument!")
             }
             literal("blue") {
-                doesLater {
-                    message.channel.send("[$fullName] Second argument used after first argument!")
+                execute("Example for chaining arguments") {
+                    message.channel.send("[$name] Second argument used after first argument!")
                 }
             }
         }
-        literal("foo") {
-            doesLater { message.channel.send("[$fullName] Second argument used without first argument!") }
-        }
-        literal("count") {
-            greedyString("sentence") {
-                doesLater { context ->
-                    // Explicit types are necessary for type inference
-                    val sentence: String = context arg "sentence"
-                    message.channel.send("[$fullName] There's ${sentence.length} characters in that sentence!")
-                }
-            }
-        }
-    }
 
-    override fun getHelpUsage(): String {
-        return "Examples for Brigadier's syntax.\n\n" +
-            "Example for chaining arguments:\n" +
-            "`$fullName kami [blue]`\n\n" +
-            "Example for multiple first arguments:\n" +
-            "`$fullName foo`\n\n" +
-            "Example for greedy strings:\n" +
-            "`$fullName count <some sentence you'd like to count>`"
+        literal ("foo") {
+            execute("Example for multiple literal arguments") {
+                message.channel.send("[$name] Second argument used without first argument!")
+            }
+        }
+
+        literal("count") {
+            greedy("sentence") { sentenceArg ->
+                execute("Example for greedy strings") {
+                    val sentence = sentenceArg.value
+                    message.channel.send("[$name] There's ${sentence.length} characters in that sentence!")
+                }
+            }
+        }
     }
 }
