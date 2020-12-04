@@ -14,7 +14,7 @@ import kotlin.math.min
 object ConfigCommand : BotCommand(
     name = "config",
     alias = arrayOf("cfg"),
-    description = "Manage configurations of the bot"
+    description = "Manage bot configurations"
 ) {
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
