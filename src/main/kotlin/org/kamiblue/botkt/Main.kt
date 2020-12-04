@@ -55,7 +55,7 @@ object Main {
         )
     }
 
-    private suspend fun runLooping(loopDelay: Long = 0L, block: suspend CoroutineScope.() -> Unit) = coroutineScope {
+    private suspend fun runLooping(loopDelay: Long = 50L, block: suspend CoroutineScope.() -> Unit) = coroutineScope {
         launch {
             while (isActive) {
                 delay(loopDelay)
