@@ -6,7 +6,6 @@ import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.command.commands.CapeCommand
 import org.kamiblue.botkt.command.commands.CounterCommand
-import org.kamiblue.botkt.utils.configUpdateInterval
 import kotlin.system.exitProcess
 
 object Main {
@@ -34,34 +33,31 @@ object Main {
                 Bot.start()
             },
 
-            launch {
-                while (isActive) {
-                    delay(50)
-                    CommandManager.runQueued()
-                }
+            runLooping(50) {
+                CommandManager.runQueued()
             },
 
-            launch {
-                while (isActive) {
-                    delay(configUpdateInterval())
-                    CounterCommand.updateChannel()
-                }
+            runLooping {
+                val loopDelay = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)?.updateInterval ?: 600000L
+                delay(loopDelay)
+                CounterCommand.updateChannel()
             },
 
-            launch {
-                while (isActive) {
-                    delay(60000) // 1 minute
-                    CapeCommand.save()
-                }
-            },
-
-            launch {
-                while (isActive) {
-                    delay(60010) // 1 minute
-                    CapeCommand.commit()
-                }
+            runLooping(30000) {
+                CapeCommand.save()
+                delay(30000)
+                CapeCommand.commit()
             }
         )
+    }
+
+    private suspend fun runLooping(loopDelay: Long = 0L, block: suspend CoroutineScope.() -> Unit) = coroutineScope {
+        launch {
+            while (isActive) {
+                delay(loopDelay)
+                block.invoke(this)
+            }
+        }
     }
 
     fun exit() {
