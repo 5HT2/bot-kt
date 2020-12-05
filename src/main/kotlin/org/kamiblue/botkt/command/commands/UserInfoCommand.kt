@@ -84,10 +84,7 @@ object UserInfoCommand : BotCommand(
                     field("Created Account:", user.id.toInstant().prettyFormat())
                     field("Joined Guild:", current)
                     field("Join Age:", current)
-                    field(
-                        "Account Age:",
-                        user.id.toInstant().until(Instant.now(), ChronoUnit.DAYS).toString() + " days"
-                    )
+                    field("Account Age:", user.id.toInstant().until(Instant.now(), ChronoUnit.DAYS).toString() + " days")
                     field("Mention:", "<@!${user.id}>")
                     field("ID:", "`${user.id}`")
                     field("Status:", current)
