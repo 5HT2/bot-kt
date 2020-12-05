@@ -16,22 +16,26 @@ import org.kamiblue.botkt.utils.getAuthToken
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-object UserInfoCommand : CommandOld("userinfo") {
+object UserInfoCommand : BotCommand(
+    name = "userinfo",
+    alias = arrayOf("whois"),
+    description = "Look up info for a Discord user"
+) {
     init {
-        doesLater {
+        execute {
             val username: String = message.author?.id?.toString() ?: run {
                 message.author?.tag ?: run {
                     message.error("Couldn't find your user, try using a direct ID!")
-                    return@doesLater
+                    return@execute
                 }
             }
             send(username, message)
         }
 
-        greedyString("name") {
-            doesLater { context ->
-                val username: String = context arg "name"
-                send(username, message)
+        greedy("name") { nameArg ->
+            execute {
+                val name = nameArg.value
+                send(name, message)
             }
         }
     }
@@ -91,7 +95,4 @@ object UserInfoCommand : CommandOld("userinfo") {
 
     private const val current = "Not in current guild!"
 
-    override fun getHelpUsage(): String {
-        return "$fullName + <user id/user tag/user name>"
-    }
 }

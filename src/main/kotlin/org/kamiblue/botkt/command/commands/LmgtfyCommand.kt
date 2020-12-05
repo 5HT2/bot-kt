@@ -1,29 +1,23 @@
 package org.kamiblue.botkt.command.commands
 
-import org.kamiblue.botkt.command.CommandOld
-import org.kamiblue.botkt.command.arg
-import org.kamiblue.botkt.command.doesLater
-import org.kamiblue.botkt.command.greedyString
+import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.utils.Colors
 
-object LmgtfyCommand : CommandOld("lmgtfy") {
+object LmgtfyCommand : BotCommand(
+    name = "lmgtfy",
+    description = "Creates a LMGTFY link with a search term."
+) {
     init {
-        greedyString("search term") {
-            doesLater { context ->
-                val term: String = context arg "search term"
+        greedy("search term") { termArg ->
+            execute {
                 message.channel.send {
                     embed {
                         title = "Here you go!"
-                        description = "[Solution](https://lmgtfy.com/?q=${term.replace(" ", "+")})"
+                        description = "[Solution](https://lmgtfy.com/?q=${termArg.value.replace(" ", "+")})"
                         color = Colors.PRIMARY.color
                     }
                 }
             }
         }
-    }
-
-    override fun getHelpUsage(): String {
-        return "Creates a LMGTFY link with a search term:\n" +
-            "`$fullName <search term>`"
     }
 }

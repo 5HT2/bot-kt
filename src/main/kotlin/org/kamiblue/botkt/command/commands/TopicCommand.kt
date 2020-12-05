@@ -1,18 +1,19 @@
 package org.kamiblue.botkt.command.commands
 
 import org.kamiblue.botkt.PermissionTypes
-import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.StringUtils.flat
 
-object TopicCommand : CommandOld("topic") {
+object TopicCommand : BotCommand(
+    "topic"
+) {
     init {
         literal("set") {
-            greedyString("topic") {
-                doesLaterIfHas(PermissionTypes.MANAGE_CHANNELS) { context ->
-                    var setTopic: String = context arg "topic"
-                    setTopic = setTopic.flat(1024)
+            greedy("topic") { topicArg ->
+                executeIfHas(PermissionTypes.MANAGE_CHANNELS) {
+                    val setTopic = topicArg.value.flat(1024)
 
                     message.serverChannel?.edit {
                         topic = setTopic
@@ -25,7 +26,8 @@ object TopicCommand : CommandOld("topic") {
         }
 
         literal("clear") {
-            doesLaterIfHas(PermissionTypes.MANAGE_CHANNELS) {
+            executeIfHas(PermissionTypes.MANAGE_CHANNELS) {
+
                 message.serverChannel?.edit {
                     topic = null
                 }
@@ -34,7 +36,7 @@ object TopicCommand : CommandOld("topic") {
             }
         }
 
-        doesLater {
+        execute {
             val topic = message.serverChannel?.topic
             message.normal(if (topic.isNullOrEmpty()) "No topic set!" else topic, "#" + message.serverChannel?.name)
         }

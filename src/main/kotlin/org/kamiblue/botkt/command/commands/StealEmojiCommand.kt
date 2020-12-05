@@ -1,32 +1,34 @@
 package org.kamiblue.botkt.command.commands
 
 import org.kamiblue.botkt.command.*
-import org.kamiblue.botkt.utils.AnimatableEmoji
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.StringUtils.readBytes
 
-object StealEmojiCommand : CommandOld("stealemoji") {
+object StealEmojiCommand : BotCommand(
+    name = "stealemoji",
+    description = "Emoji theif!"
+) {
     init {
-        emoji("emoji") {
-            doesLater { context ->
-                val aEmoji: AnimatableEmoji = context arg "emoji"
+        emoji("emoji") { emojiArg ->
+            execute {
+                val animatableEmoji = emojiArg.value
 
-                val foundEmoji = server?.emojis?.findByName(aEmoji.emoji.name)
+                val foundEmoji = server?.emojis?.findByName(animatableEmoji.emoji.name)
                 if (foundEmoji != null) {
-                    message.error("There is already an emoji with the name `${aEmoji.emoji.name}`!")
-                    return@doesLater
+                    message.error("There is already an emoji with the name `${animatableEmoji.emoji.name}`!")
+                    return@execute
                 }
 
-                val extension = if (aEmoji.animated) "gif" else "png"
-                val bytes = "https://cdn.discordapp.com/emojis/${aEmoji.emoji.id}.$extension".readBytes()
+                val extension = if (animatableEmoji.animated) "gif" else "png"
+                val bytes = "https://cdn.discordapp.com/emojis/${animatableEmoji.emoji.id}.$extension".readBytes()
 
                 val emoji = server?.createEmoji {
-                    name = aEmoji.emoji.name
+                    name = animatableEmoji.emoji.name
                     image = bytes
                 } ?: run {
                     message.error("Guild is null, make sure you're not running this from a DM!")
-                    return@doesLater
+                    return@execute
                 }
 
                 message.normal("Successfully stolen emoji `${emoji.name}`!")
