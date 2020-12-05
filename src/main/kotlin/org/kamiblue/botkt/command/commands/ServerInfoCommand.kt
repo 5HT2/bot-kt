@@ -1,12 +1,13 @@
 package org.kamiblue.botkt.command.commands
 
-import org.kamiblue.botkt.command.CommandOld
-import org.kamiblue.botkt.command.doesLater
+import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.utils.Colors
 
-object ServerInfoCommand : CommandOld("serverinfo") {
+object ServerInfoCommand : BotCommand(
+    name = "serverinfo"
+) {
     init {
-        doesLater {
+        execute {
             message.channel.send {
                 embed {
                     color = Colors.PRIMARY.color

@@ -8,31 +8,33 @@ import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.pretty
 
-object RoleInfoCommand : CommandOld("roleinfo") {
+object RoleInfoCommand : BotCommand(
+    name = "roleinfo"
+) {
     init {
-        long("id") {
-            doesLater { context ->
-                val id: Long = context arg "id"
+        long("id") { idArg ->
+            execute {
+                val id = idArg.value
 
-                val foundRole = message.server?.roles?.find(id) ?: run {
+                val role = message.server?.roles?.find(id) ?: run {
                     message.error("Role ID not found! Does this role exist?")
-                    return@doesLater
+                    return@execute
                 }
 
-                sendRoleMsg(foundRole, message)
+                sendRoleMsg(role, message)
             }
         }
 
-        greedyString("name") {
-            doesLater { context ->
-                val name: String = context arg "name"
+        greedy("name") { nameArg ->
+            execute {
+                val name = nameArg.value
 
-                val foundRole = message.server?.roles?.findByName(name) ?: run {
+                val role = message.server?.roles?.findByName(name) ?: run {
                     message.error("Role name not found! Try using the role ID.")
-                    return@doesLater
+                    return@execute
                 }
 
-                sendRoleMsg(foundRole, message)
+                sendRoleMsg(role, message)
             }
         }
     }
@@ -52,7 +54,4 @@ object RoleInfoCommand : CommandOld("roleinfo") {
         }
     }
 
-    override fun getHelpUsage(): String {
-        return "`$name` <roleName/roleId>"
-    }
 }
