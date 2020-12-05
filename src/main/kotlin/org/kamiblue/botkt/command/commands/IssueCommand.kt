@@ -70,7 +70,7 @@ object IssueCommand : CommandOld("issue") {
                         val repo: String = context arg "repo"
                         val contents: String = context arg "contents"
 
-                        val split = contents.split(';')
+                        val split = contents.split('-')
                         val title = split.getOrNull(0)
                         val body = split.getOrNull(1)
 
