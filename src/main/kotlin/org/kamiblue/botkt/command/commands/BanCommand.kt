@@ -154,8 +154,8 @@ object BanCommand : BotCommand(
                 user.getPrivateChannel().send {
                     embed {
                         field(
-                            "You were banned by: ${msg.author?.mention ?: "Ban message author not found!"}",
-                            "In the guild '${server.name}'"
+                            "You were banned by:",
+                            "${msg.author?.mention ?: "Ban message author not found!"}, in the guild `${server.name}`"
                         )
                         field(
                             banReason,
