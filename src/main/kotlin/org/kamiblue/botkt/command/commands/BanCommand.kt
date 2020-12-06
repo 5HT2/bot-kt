@@ -112,6 +112,10 @@ object BanCommand : BotCommand(
                     ban(user.value, false, reason.value, server, message)
                 }
             }
+
+            executeIfHas(COUNCIL_MEMBER) {
+                ban(user.value, false, null, server, message)
+            }
         }
     }
 
