@@ -67,7 +67,7 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
                 val bestCommand = e.command.finalArgs.maxByOrNull { it.countArgs(args) }
                 val prediction = if (bestCommand != null) {
                     "\n" +
-                    "Did you mean:\n" +
+                        "Did you mean:\n" +
                         "`${Main.prefix}${e.command.name} ${bestCommand.printArgHelp()}`?\n"
                 } else {
                     ""
