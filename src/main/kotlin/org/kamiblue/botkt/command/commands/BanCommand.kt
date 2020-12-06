@@ -162,6 +162,7 @@ object BanCommand : BotCommand(
                             fixedReason
                         )
                         color = Colors.ERROR.color
+                        footer("ID: ${msg.author?.id}", msg.author?.avatar?.url)
                     }
                 }
             } catch (e: Exception) {
