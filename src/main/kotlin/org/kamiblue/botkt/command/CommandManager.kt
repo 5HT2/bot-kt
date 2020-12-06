@@ -51,8 +51,9 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
     private suspend fun runCommand(event: MessageReceiveEvent, string: String) {
         try {
+            val args = parseArguments(string)
+
             try {
-                val args = parseArguments(string)
                 invoke(MessageExecuteEvent(args, event))
             } catch (e: IllegalArgumentException) {
                 event.message.channel.send {
@@ -63,6 +64,15 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
                     }
                 }
             } catch (e: SubCommandNotFoundException) {
+                val bestCommand = e.command.finalArgs.maxByOrNull { it.countArgs(args) }
+                val prediction = if (bestCommand != null) {
+                    "\n" +
+                    "Did you mean:\n" +
+                        "`${Main.prefix}${e.command.name} ${bestCommand.printArgHelp()}`?\n"
+                } else {
+                    ""
+                }
+
                 val syntax = e.command.printArgHelp()
                     .lines()
                     .joinToString("\n") {
@@ -76,7 +86,12 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
                 event.message.channel.send {
                     embed {
                         title = "Invalid Syntax: ${Main.prefix}${string}"
-                        description = "${e.message}\n\n${e.command.description}\n\n$syntax"
+                        description = "${e.message}\n" +
+                            prediction +
+                            "\n" +
+                            "Syntax for `${Main.prefix}${e.command.name}`:\n" +
+                            "\n" +
+                            syntax
                         color = Colors.ERROR.color
                     }
                 }
