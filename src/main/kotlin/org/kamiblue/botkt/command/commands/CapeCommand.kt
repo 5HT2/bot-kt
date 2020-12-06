@@ -50,7 +50,7 @@ object CapeCommand : CommandOld("cape") {
     init {
         literal("create") {
             string("type") {
-                ping("id") {
+                user("id") {
                     doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) { context ->
                         val user: User = context userArg "id" ?: run {
                             message.error(findError)
@@ -122,7 +122,7 @@ object CapeCommand : CommandOld("cape") {
         }
 
         literal("list") {
-            ping("id") {
+            user("id") {
                 doesLater { context ->
                     val user: User = context userArg "id" ?: run {
                         message.error(findError)

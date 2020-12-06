@@ -123,11 +123,11 @@ fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.greedyString(
     argument(name, StringArgumentType.greedyString(), block)
 
 /**
- * A shorthand for appending a discord ping required argument to `this` [ArgumentBuilder]
+ * A shorthand for appending a discord user required argument to `this` [ArgumentBuilder]
  *
  * @see argument
  */
-fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.ping(
+fun <S, T : ArgumentBuilder<S, T>> ArgumentBuilder<S, T>.user(
     name: String,
     block: (@BrigadierDsl RequiredArgumentBuilder<S, UserPromise>).() -> Unit
 ): T =

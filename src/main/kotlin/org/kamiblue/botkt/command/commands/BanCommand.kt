@@ -94,7 +94,7 @@ object BanCommand : BotCommand(
             }
         }
 
-        ping("user") { user ->
+        user("user") { user ->
             boolean("delete messages") { deleteMsgs ->
                 greedy("reason") { reason ->
                     executeIfHas(COUNCIL_MEMBER) {
