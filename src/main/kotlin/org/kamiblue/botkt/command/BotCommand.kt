@@ -52,7 +52,7 @@ abstract class BotCommand(
     }
 
     @CommandBuilder
-    protected fun AbstractArg<*>.ping(
+    protected fun AbstractArg<*>.user(
         name: String,
         block: BuilderBlock<User>
     ) {
