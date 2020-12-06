@@ -1,7 +1,6 @@
 package org.kamiblue.botkt.command.commands
 
 import net.ayataka.kordis.entity.message.Message
-import net.ayataka.kordis.entity.server.channel.ServerChannel
 import net.ayataka.kordis.entity.server.channel.announcement.AnnouncementChannel
 import net.ayataka.kordis.entity.server.channel.text.ServerTextChannel
 import org.kamiblue.botkt.*
