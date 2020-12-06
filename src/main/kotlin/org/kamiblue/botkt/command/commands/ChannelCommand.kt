@@ -22,7 +22,7 @@ object ChannelCommand : BotCommand(
     name = "channel",
     alias = arrayOf("ch"),
     description = "Modify, copy, save, archive and slow channels"
-)  {
+) {
     private val permissions = HashMap<String, Collection<RolePermissionOverwrite>>()
     private val rolePermHistory = HashMap<ServerChannel, ArrayDeque<List<RolePermissionOverwrite>>>()
 
