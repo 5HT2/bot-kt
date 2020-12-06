@@ -85,7 +85,7 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
                         prediction?.let { prediction ->
                             field("Did you mean?", prediction)
                         }
-                        field("Available arguments:", syntax)
+                        field("Available arguments:", syntax.flat(1024))
                         color = Colors.ERROR.color
                     }
                 }
