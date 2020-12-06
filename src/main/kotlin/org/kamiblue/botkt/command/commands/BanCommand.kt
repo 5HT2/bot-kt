@@ -2,9 +2,12 @@ package org.kamiblue.botkt.command.commands
 
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.delay
+import net.ayataka.kordis.DiscordClientImpl
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
+import net.ayataka.kordis.entity.server.permission.Permission
 import net.ayataka.kordis.entity.user.User
+import net.ayataka.kordis.exception.NotFoundException
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
@@ -14,6 +17,7 @@ import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.StringUtils.flat
+import org.kamiblue.botkt.utils.checkPermission
 
 object BanCommand : BotCommand(
     name = "ban",
@@ -124,12 +128,25 @@ object BanCommand : BotCommand(
         val fixedReason = if (!reason.isNullOrBlank()) reason else readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultBanReason ?: "No Reason Specified"
 
 
-        if (user.id.hasPermission(COUNCIL_MEMBER)) {
-            message?.error("That user is protected, I can't do that.")
-            return
-        } else if (user.id == message?.author?.id) {
-            message.error("You can't ban yourself!")
-            return
+        when {
+            user.id.hasPermission(COUNCIL_MEMBER) -> {
+                message?.error("That user is protected, I can't do that.")
+                return
+            }
+
+            user.id == message?.author?.id -> {
+                message.error("You can't ban yourself!")
+                return
+            }
+
+            else -> {
+                try {
+                    checkPermission(Main.client as DiscordClientImpl, server, Permission.BAN_MEMBERS)
+                } catch (e: NotFoundException) {
+                    message?.error("Client is not fully initialized, member list not loaded!")
+                    return
+                }
+            }
         }
 
         message?.let { msg ->
@@ -137,8 +154,8 @@ object BanCommand : BotCommand(
                 user.getPrivateChannel().send {
                     embed {
                         field(
-                            "You were banned by:",
-                            msg.author?.mention ?: "Ban message author not found!"
+                            "You were banned by: ${msg.author?.mention ?: "Ban message author not found!"}",
+                            "In the guild '${server.name}'"
                         )
                         field(
                             banReason,
@@ -152,23 +169,8 @@ object BanCommand : BotCommand(
                     embed {
                         title = "Error"
                         description = "I couldn't DM that user the ban reason, they might have had DMs disabled."
-                        field("Stacktrace:", "```${e.message}\n${e.stackTraceToString().flat(256)}```")
                         color = Colors.ERROR.color
                     }
-                }
-            }
-            msg.channel.send {
-                embed {
-                    field(
-                        "${user.name}#${user.discriminator} was banned by:",
-                        msg.author?.mention ?: "Ban message author not found!"
-                    )
-                    field(
-                        banReason,
-                        fixedReason
-                    )
-                    footer("ID: ${user.id}", user.avatar.url)
-                    color = Colors.ERROR.color
                 }
             }
         }
@@ -185,6 +187,24 @@ object BanCommand : BotCommand(
                     title = "Error"
                     description = "That user's role is higher then mine, I can't ban them!"
                     field("Stacktrace:", "```${e.message}\n${e.stackTraceToString().flat(256)}```")
+                    color = Colors.ERROR.color
+                }
+            }
+            return
+        }
+
+        message?.let { msg ->
+            msg.channel.send {
+                embed {
+                    field(
+                        "${user.name}#${user.discriminator} was banned by:",
+                        msg.author?.mention ?: "Ban message author not found!"
+                    )
+                    field(
+                        banReason,
+                        fixedReason
+                    )
+                    footer("ID: ${user.id}", user.avatar.url)
                     color = Colors.ERROR.color
                 }
             }

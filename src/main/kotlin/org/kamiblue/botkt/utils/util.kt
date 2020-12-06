@@ -3,8 +3,14 @@ package org.kamiblue.botkt.utils
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import net.ayataka.kordis.DiscordClientImpl
+import net.ayataka.kordis.entity.find
 import net.ayataka.kordis.entity.server.Server
+import net.ayataka.kordis.entity.server.member.Member
+import net.ayataka.kordis.entity.server.permission.Permission
 import net.ayataka.kordis.entity.server.permission.PermissionSet
+import net.ayataka.kordis.exception.MissingPermissionsException
+import net.ayataka.kordis.exception.NotFoundException
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.kamiblue.botkt.AuthConfig
@@ -86,6 +92,21 @@ fun Server.maxEmojiSlots(): Int {
         else -> 50
     }
 }
+
+fun checkPermission(client: DiscordClientImpl, server: Server, permission: Permission) {
+    val myself = server.members.find(client.botUser) ?: throw NotFoundException()
+
+    if (isNotInitialized(myself)) {
+        return
+    }
+
+    if (!myself.hasPermission(permission)) {
+        throw MissingPermissionsException(server, "Permission: ${permission.desciption}")
+    }
+}
+
+// Bot users can not have one or fewer roles. If so, this means the server roles are not initialized yet.
+private fun isNotInitialized(myself: Member) = myself.roles.size < 2
 
 data class AnimatableEmoji(
     val animated: Boolean = false,
