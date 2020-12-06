@@ -9,20 +9,20 @@ import org.kamiblue.botkt.command.arguments.DiscordEmojiArg
 import org.kamiblue.botkt.command.arguments.DiscordUserArg
 import org.kamiblue.botkt.utils.AnimatableEmoji
 import org.kamiblue.command.AbstractArg
-import org.kamiblue.command.utils.BuilderBlock
 import org.kamiblue.command.CommandBuilder
+import org.kamiblue.command.utils.BuilderBlock
 import org.kamiblue.command.utils.ExecuteBlock
 
 abstract class BotCommand(
     name: String,
     alias: Array<out String> = emptyArray(),
-    description: String = "",
+    description: String = "No description",
 ) : CommandBuilder<MessageExecuteEvent>(name, alias, description) {
 
     @CommandBuilder
     protected fun AbstractArg<*>.executeIfHas(
         permission: PermissionTypes,
-        description: String = "",
+        description: String = "No description",
         block: ExecuteBlock<MessageExecuteEvent>
     ) {
         val blockWithIf: ExecuteBlock<MessageExecuteEvent> = {
