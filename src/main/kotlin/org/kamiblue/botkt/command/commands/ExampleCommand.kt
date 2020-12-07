@@ -1,6 +1,6 @@
 package org.kamiblue.botkt.command.commands
 
-import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.command.BotCommand
 
 object ExampleCommand : BotCommand(
     "example",
@@ -19,7 +19,7 @@ object ExampleCommand : BotCommand(
             }
         }
 
-        literal ("foo") {
+        literal("foo") {
             execute("Example for multiple literal arguments") {
                 message.channel.send("[$name] Second argument used without first argument!")
             }

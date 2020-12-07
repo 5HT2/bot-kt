@@ -1,15 +1,12 @@
 package org.kamiblue.botkt
 
-import com.mojang.brigadier.CommandDispatcher
 import kotlinx.coroutines.delay
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.kamiblue.botkt.command.CmdOld
 import org.kamiblue.botkt.command.CommandManager
-import org.kamiblue.botkt.command.CommandManagerOld
 import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils
@@ -19,7 +16,6 @@ import org.kamiblue.botkt.utils.MessageSendUtils
  * @since 16/08/20 17:30
  */
 object Bot {
-    val dispatcher = CommandDispatcher<CmdOld>()
 
     suspend fun start() {
         val started = System.currentTimeMillis()
@@ -44,7 +40,6 @@ object Bot {
         }
 
         CommandManager.init()
-        CommandManagerOld.registerCommands(dispatcher)
 
         val initMessage = "Initialized bot!\n" +
             "Running on ${Main.currentVersion}\n" +

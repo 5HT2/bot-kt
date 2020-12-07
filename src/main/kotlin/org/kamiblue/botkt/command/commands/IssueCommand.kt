@@ -210,50 +210,39 @@ object IssueCommand : BotCommand(
         issueNum: Int
     ) {
         val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
-        try {
-            if (issue.html_url != null && issue.html_url.contains("issue")) {
-                message.channel.send {
-                    embed {
-                        title = issue.title
-                        thumbnailUrl = issue.user?.avatar_url
-                        color = if (issue.state == "closed") Colors.ERROR.color else Colors.SUCCESS.color
 
-                        commonFields(issue)
-
-                        url = issue.html_url
-                    }
-                }
-            } else if (issue.html_url != null && issue.html_url.contains("pull")) {
-                val pullRequest = authenticatedRequest<PullRequest>("token", token, issue.url!!)
-
-                message.channel.send {
-                    embed {
-                        title = pullRequest.title
-                        thumbnailUrl = pullRequest.user?.avatar_url
-                        color = getPullRequestColor(pullRequest)
-
-                        commonFields(issue)
-
-                        field("Lines", "+${pullRequest.additions} / - ${pullRequest.deletions}", false)
-                        field("Commits", pullRequest.commits ?: -1, false)
-                        field("Changed Files", pullRequest.changed_files ?: -1, false)
-
-                        url = pullRequest.html_url
-                    }
-                }
-            } else {
-                message.error("Issue / pull `#$issueNum` in `$user/$repoName` could not be found!")
-            }
-        } catch (e: Exception) {
+        if (issue.html_url != null && issue.html_url.contains("issue")) {
             message.channel.send {
                 embed {
-                    title = "Error"
-                    description = "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
-                    field("Stacktrace", "```${e.stackTraceToString().flat(1018)}```", false)
-                    e.printStackTrace()
-                    color = Colors.ERROR.color
+                    title = issue.title
+                    thumbnailUrl = issue.user?.avatar_url
+                    color = if (issue.state == "closed") Colors.ERROR.color else Colors.SUCCESS.color
+
+                    commonFields(issue)
+
+                    url = issue.html_url
                 }
             }
+        } else if (issue.html_url != null && issue.html_url.contains("pull")) {
+            val pullRequest = authenticatedRequest<PullRequest>("token", token, issue.url!!)
+
+            message.channel.send {
+                embed {
+                    title = pullRequest.title
+                    thumbnailUrl = pullRequest.user?.avatar_url
+                    color = getPullRequestColor(pullRequest)
+
+                    commonFields(issue)
+
+                    field("Lines", "+${pullRequest.additions} / - ${pullRequest.deletions}", false)
+                    field("Commits", pullRequest.commits ?: -1, false)
+                    field("Changed Files", pullRequest.changed_files ?: -1, false)
+
+                    url = pullRequest.html_url
+                }
+            }
+        } else {
+            message.error("Issue / pull `#$issueNum` in `$user/$repoName` could not be found!")
         }
     }
 
