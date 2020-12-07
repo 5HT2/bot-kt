@@ -52,58 +52,50 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
     }
 
     private suspend fun runCommand(event: MessageReceiveEvent, string: String) {
-        val args = parseArguments(string)
+        val args = tryParseArgument(event, string) ?: return
 
         try {
-            invoke(MessageExecuteEvent(args, event))
-        } catch (e: CommandNotFoundException) {
-            if (ConfigManager.readConfigSafe<UserConfig>(
-                    ConfigType.USER,
-                    false
-                )?.unknownCommandError == true
-            ) {
+            try {
+                invoke(MessageExecuteEvent(args, event))
+            } catch (e: CommandNotFoundException) {
+                if (ConfigManager.readConfigSafe<UserConfig>(
+                        ConfigType.USER,
+                        false
+                    )?.unknownCommandError == true
+                ) {
+                    event.message.channel.send {
+                        embed {
+                            title = "Unknown Command"
+                            description = "todo"//TODO() // reference help command
+                            color = Colors.ERROR.color
+                        }
+                    }
+                }
+            } catch (e: SubCommandNotFoundException) {
+                val bestCommand = e.command.finalArgs.maxByOrNull { it.countArgs(args) }
+                val prediction = bestCommand?.let { best ->
+                    "`${Main.prefix}${e.command.name} ${best.printArgHelp()}`"
+                }
+
+                val syntax = e.command.printArgHelp()
+                    .lines()
+                    .joinToString("\n") {
+                        if (it.isNotBlank() && !it.startsWith("    - ")) {
+                            "`${Main.prefix}${e.command.name} $it`"
+                        } else {
+                            it
+                        }
+                    }
+
                 event.message.channel.send {
                     embed {
-                        title = "Unknown Command"
-                        description = "todo"//TODO() // reference help command
+                        title = "Invalid Syntax: ${Main.prefix}${string}"
+                        prediction?.let { prediction ->
+                            field("Did you mean?", prediction)
+                        }
+                        field("Available arguments:", syntax.flat(1024))
                         color = Colors.ERROR.color
                     }
-                }
-            }
-        } catch (e: IllegalArgumentException) {
-            ExceptionCommand.addException(e)
-            event.message.channel.send {
-                embed {
-                    title = "Invalid input: ${Main.prefix}$string"
-                    description = "${e.message}" +
-                        "\nUse the `${Main.prefix}exception` command to view the full stacktrace."
-                    color = Colors.ERROR.color
-                }
-            }
-        } catch (e: SubCommandNotFoundException) {
-            val bestCommand = e.command.finalArgs.maxByOrNull { it.countArgs(args) }
-            val prediction = bestCommand?.let { best ->
-                "`${Main.prefix}${e.command.name} ${best.printArgHelp()}`"
-            }
-
-            val syntax = e.command.printArgHelp()
-                .lines()
-                .joinToString("\n") {
-                    if (it.isNotBlank() && !it.startsWith("    - ")) {
-                        "`${Main.prefix}${e.command.name} $it`"
-                    } else {
-                        it
-                    }
-                }
-
-            event.message.channel.send {
-                embed {
-                    title = "Invalid Syntax: ${Main.prefix}${string}"
-                    prediction?.let { prediction ->
-                        field("Did you mean?", prediction)
-                    }
-                    field("Available arguments:", syntax.flat(1024))
-                    color = Colors.ERROR.color
                 }
             }
         } catch (e: Exception) {
@@ -118,6 +110,21 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
                 }
             }
         }
+    }
+
+    private suspend fun tryParseArgument(event: MessageReceiveEvent, string: String) = try {
+        parseArguments(string)
+    } catch (e: IllegalArgumentException) {
+        ExceptionCommand.addException(e)
+        event.message.channel.send {
+            embed {
+                title = "Invalid input: ${Main.prefix}$string"
+                description = "${e.message}" +
+                    "\nUse the `${Main.prefix}exception` command to view the full stacktrace."
+                color = Colors.ERROR.color
+            }
+        }
+        null
     }
 }
 
