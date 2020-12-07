@@ -45,7 +45,7 @@ jar {
 
     // copy deps to jar
     from {
-        configurations.compile.collect {
+        configurations.runtimeClasspath.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
