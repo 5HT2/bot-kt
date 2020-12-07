@@ -5,7 +5,7 @@ import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.utils.Colors
 
 object HelpCommand : BotCommand(
-    name = "help-mod",
+    name = "help",
     alias = arrayOf("command", "commands", "cmd", "cmds"),
     description = "Get a list of commands or get help for a command"
 ) {
