@@ -8,6 +8,7 @@ import org.kamiblue.botkt.ConfigManager
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.UserConfig
+import org.kamiblue.botkt.command.commands.ExceptionCommand
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils
 import org.kamiblue.botkt.utils.StringUtils.flat
@@ -54,19 +55,18 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
         val args = parseArguments(string)
 
         try {
-            try {
-                invoke(MessageExecuteEvent(args, event))
-            } catch (e: CommandNotFoundException) {
-                if (ConfigManager.readConfigSafe<UserConfig>(
-                        ConfigType.USER,
-                        false
-                    )?.unknownCommandError == true
-                ) {
-                    event.message.channel.send {
-                        embed {
-                            title = "Unknown Command"
-                            description = TODO() // reference help command
-                        }
+            invoke(MessageExecuteEvent(args, event))
+        } catch (e: CommandNotFoundException) {
+            if (ConfigManager.readConfigSafe<UserConfig>(
+                    ConfigType.USER,
+                    false
+                )?.unknownCommandError == true
+            ) {
+                event.message.channel.send {
+                    embed {
+                        title = "Unknown Command"
+                        description = "todo"//TODO() // reference help command
+                        color = Colors.ERROR.color
                     }
                 }
             }
@@ -104,49 +104,18 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
                     color = Colors.ERROR.color
                 }
             }
+        } catch (e: Exception) {
+            ExceptionCommand.addException(e)
+            event.message.channel.send {
+                embed {
+                    title = "Command Exception Occurred"
+                    description = "The command `${args.first().toLowerCase()}` threw an exception." +
+                        "\nUse the `${Main.prefix}exception` command to view the full stacktrace."
+                    field("Exception Message", e.message.toString())
+                    color = Colors.ERROR.color
+                }
+            }
         }
     }
-//
-//    private suspend fun runOldCommand(event: MessageReceiveEvent, string: String) {
-//        val cmd = CmdOld(event)
-//
-//        try {
-//            try {
-//                val exit = Bot.dispatcher.execute(string, cmd)
-//                cmd.file(event)
-//                if (exit != 0) MessageSendUtils.log("(executed with exit code $exit)")
-//            } catch (e: CommandSyntaxException) {
-//                if (CommandManagerOld.isCommand(string)) {
-//                    val usage = CommandManagerOld.getCommand(string)?.getHelpUsage()
-//                    cmd.event.message.channel.send {
-//                        embed {
-//                            title = "Invalid Syntax: ${Main.prefix}$string"
-//                            description = "${e.message}${
-//                                usage?.let {
-//                                    "\n\n$it"
-//                                } ?: ""
-//                            }"
-//                            color = Colors.ERROR.color
-//                        }
-//                    }
-//                } else if (ConfigManager.readConfigSafe<UserConfig>(
-//                        ConfigType.USER,
-//                        false
-//                    )?.unknownCommandError == true
-//                ) {
-//                    cmd.event.message.channel.send {
-//                        embed {
-//                            title = "Unknown Command: ${Main.prefix}${string.firstInSentence()}"
-//                            color = Colors.ERROR.color
-//                        }
-//                    }
-//
-//                }
-//            }
-//        } catch (e: Exception) {
-//            event.message.error("```\n${e.stackTraceToString()}\n".flat(2045) + "```") // TODO: proper command to view stacktraces
-//        }
-//    }
-
 }
 
