@@ -35,7 +35,7 @@ import kotlin.collections.LinkedHashMap
 // TODO: this is pretty server specific. Will be removed in the future and changed to a plugin
 object CapeCommand : BotCommand(
     name = "cape",
-    description = "Modify / view KAMI Blue Capes. Capes are updated every minute, if you don't see your cape in game and it is attached wait a few minutes before asking for help"
+    description = "Modify / view KAMI Blue Capes."
 ) {
     private val gson = GsonBuilder().setPrettyPrinting().create()
     private val hexRegex = Regex("^[A-Fa-f0-9]{6}\$")
