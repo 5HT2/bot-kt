@@ -1,17 +1,18 @@
 package org.kamiblue.botkt.command
 
-import com.mojang.brigadier.exceptions.CommandSyntaxException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.kamiblue.botkt.*
+import org.kamiblue.botkt.ConfigManager
+import org.kamiblue.botkt.ConfigType
+import org.kamiblue.botkt.Main
+import org.kamiblue.botkt.UserConfig
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils
-import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.StringUtils.firstInSentence
 import org.kamiblue.botkt.utils.StringUtils.flat
 import org.kamiblue.command.AbstractCommandManager
+import org.kamiblue.command.utils.CommandNotFoundException
 import org.kamiblue.command.utils.SubCommandNotFoundException
 import org.kamiblue.commons.utils.ClassUtils
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -50,91 +51,102 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
     }
 
     private suspend fun runCommand(event: MessageReceiveEvent, string: String) {
-        try {
-            val args = parseArguments(string)
+        val args = parseArguments(string)
 
+        try {
             try {
                 invoke(MessageExecuteEvent(args, event))
-            } catch (e: IllegalArgumentException) {
-                event.message.channel.send {
-                    embed {
-                        title = "Invalid input: ${Main.prefix}$string"
-                        description = "${e.message}"
-                        color = Colors.ERROR.color
-                    }
-                }
-            } catch (e: SubCommandNotFoundException) {
-                val bestCommand = e.command.finalArgs.maxByOrNull { it.countArgs(args) }
-                val prediction = bestCommand?.let { best ->
-                    "`${Main.prefix}${e.command.name} ${best.printArgHelp()}`"
-                }
-
-                val syntax = e.command.printArgHelp()
-                    .lines()
-                    .joinToString("\n") {
-                        if (it.isNotBlank() && !it.startsWith("    - ")) {
-                            "`${Main.prefix}${e.command.name} $it`"
-                        } else {
-                            it
-                        }
-                    }
-
-                event.message.channel.send {
-                    embed {
-                        title = "Invalid Syntax: ${Main.prefix}${string}"
-                        prediction?.let { prediction ->
-                            field("Did you mean?", prediction)
-                        }
-                        field("Available arguments:", syntax.flat(1024))
-                        color = Colors.ERROR.color
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            runOldCommand(event, string)
-        }
-    }
-
-    private suspend fun runOldCommand(event: MessageReceiveEvent, string: String) {
-        val cmd = CmdOld(event)
-
-        try {
-            try {
-                val exit = Bot.dispatcher.execute(string, cmd)
-                cmd.file(event)
-                if (exit != 0) MessageSendUtils.log("(executed with exit code $exit)")
-            } catch (e: CommandSyntaxException) {
-                if (CommandManagerOld.isCommand(string)) {
-                    val usage = CommandManagerOld.getCommand(string)?.getHelpUsage()
-                    cmd.event.message.channel.send {
-                        embed {
-                            title = "Invalid Syntax: ${Main.prefix}$string"
-                            description = "${e.message}${
-                                usage?.let {
-                                    "\n\n$it"
-                                } ?: ""
-                            }"
-                            color = Colors.ERROR.color
-                        }
-                    }
-                } else if (ConfigManager.readConfigSafe<UserConfig>(
+            } catch (e: CommandNotFoundException) {
+                if (ConfigManager.readConfigSafe<UserConfig>(
                         ConfigType.USER,
                         false
                     )?.unknownCommandError == true
                 ) {
-                    cmd.event.message.channel.send {
+                    event.message.channel.send {
                         embed {
-                            title = "Unknown Command: ${Main.prefix}${string.firstInSentence()}"
-                            color = Colors.ERROR.color
+                            title = "Unknown Command"
+                            description = TODO() // reference help command
                         }
                     }
-
                 }
             }
-        } catch (e: Exception) {
-            event.message.error("```\n${e.stackTraceToString()}\n".flat(2045) + "```") // TODO: proper command to view stacktraces
+        } catch (e: IllegalArgumentException) {
+            event.message.channel.send {
+                embed {
+                    title = "Invalid input: ${Main.prefix}$string"
+                    description = "${e.message}"
+                    color = Colors.ERROR.color
+                }
+            }
+        } catch (e: SubCommandNotFoundException) {
+            val bestCommand = e.command.finalArgs.maxByOrNull { it.countArgs(args) }
+            val prediction = bestCommand?.let { best ->
+                "`${Main.prefix}${e.command.name} ${best.printArgHelp()}`"
+            }
+
+            val syntax = e.command.printArgHelp()
+                .lines()
+                .joinToString("\n") {
+                    if (it.isNotBlank() && !it.startsWith("    - ")) {
+                        "`${Main.prefix}${e.command.name} $it`"
+                    } else {
+                        it
+                    }
+                }
+
+            event.message.channel.send {
+                embed {
+                    title = "Invalid Syntax: ${Main.prefix}${string}"
+                    prediction?.let { prediction ->
+                        field("Did you mean?", prediction)
+                    }
+                    field("Available arguments:", syntax.flat(1024))
+                    color = Colors.ERROR.color
+                }
+            }
         }
     }
+//
+//    private suspend fun runOldCommand(event: MessageReceiveEvent, string: String) {
+//        val cmd = CmdOld(event)
+//
+//        try {
+//            try {
+//                val exit = Bot.dispatcher.execute(string, cmd)
+//                cmd.file(event)
+//                if (exit != 0) MessageSendUtils.log("(executed with exit code $exit)")
+//            } catch (e: CommandSyntaxException) {
+//                if (CommandManagerOld.isCommand(string)) {
+//                    val usage = CommandManagerOld.getCommand(string)?.getHelpUsage()
+//                    cmd.event.message.channel.send {
+//                        embed {
+//                            title = "Invalid Syntax: ${Main.prefix}$string"
+//                            description = "${e.message}${
+//                                usage?.let {
+//                                    "\n\n$it"
+//                                } ?: ""
+//                            }"
+//                            color = Colors.ERROR.color
+//                        }
+//                    }
+//                } else if (ConfigManager.readConfigSafe<UserConfig>(
+//                        ConfigType.USER,
+//                        false
+//                    )?.unknownCommandError == true
+//                ) {
+//                    cmd.event.message.channel.send {
+//                        embed {
+//                            title = "Unknown Command: ${Main.prefix}${string.firstInSentence()}"
+//                            color = Colors.ERROR.color
+//                        }
+//                    }
+//
+//                }
+//            }
+//        } catch (e: Exception) {
+//            event.message.error("```\n${e.stackTraceToString()}\n".flat(2045) + "```") // TODO: proper command to view stacktraces
+//        }
+//    }
 
 }
 

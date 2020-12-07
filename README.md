@@ -18,7 +18,7 @@ Why should you use this over other Kotlin bots:
 - Entirely modular, including config types and commands
 - Config types support providing a URL instead of a file name, allowing you to load configurations remotely
 - Command registration is automatic, just create an object which extends `Command("commandName")`
-- Uses Brigadier as a command system, making creating a command as easy as just writing a few lambdas 
+- Has a DSL for our own Brigadier-like command system, making creating a command *as easy as just writing a few lambdas*
 - Has (optional) automatic updating
 
 ## Contributing
@@ -86,7 +86,9 @@ If you're on Windows, please make sure you don't have .txt at the end, as Window
 
 ## Creating a new command
 
-Create an object in the commands package that extends `Command("yourCommandName")`. Look at ExampleCommand for example usage of our Brigadier DSL wrapper.
+Create an object in the commands package that extends `BotCommand(name = "Example", description = "Example Command)`. 
+
+Look at ExampleCommand for example usage of our Command DSL.
 
 ## Creating a new config type
 
