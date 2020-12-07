@@ -34,7 +34,7 @@ object ExceptionCommand : BotCommand(
                         message.success("No exceptions caught recently!")
                     } else {
                         exceptions.getOrNull(number.value)?.let {
-                            message.channel.send("```\n" + it.stackTraceToString().flat(2040) + "\n```")
+                            message.channel.send("```\n" + it.stackTraceToString().flat(1992) + "\n```")
                         } ?: run {
                             message.error("Exception with number `${number.value}` is not stored!")
                         }

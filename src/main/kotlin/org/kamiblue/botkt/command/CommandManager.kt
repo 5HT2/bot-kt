@@ -71,10 +71,12 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
                 }
             }
         } catch (e: IllegalArgumentException) {
+            ExceptionCommand.addException(e)
             event.message.channel.send {
                 embed {
                     title = "Invalid input: ${Main.prefix}$string"
-                    description = "${e.message}"
+                    description = "${e.message}" +
+                        "\nUse the `${Main.prefix}exception` command to view the full stacktrace."
                     color = Colors.ERROR.color
                 }
             }
