@@ -3,8 +3,7 @@ package org.kamiblue.botkt.command.commands
 import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.command.CommandOld
-import org.kamiblue.botkt.command.doesLaterIfHas
+import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.success
@@ -12,9 +11,12 @@ import org.kamiblue.botkt.utils.authenticatedRequest
 import org.kamiblue.botkt.utils.request
 import org.l1ving.api.download.Download
 
-object CounterCommand : CommandOld("counter") {
+object CounterCommand : BotCommand(
+    name = "counter",
+    description = "Count members and Github repo downloads"
+) {
     init {
-        doesLaterIfHas(PermissionTypes.UPDATE_COUNTERS) {
+        executeIfHas(PermissionTypes.UPDATE_COUNTERS) {
             val path = ConfigType.COUNTER.configPath.substring(7)
             val userPath = ConfigType.USER.configPath.substring(7)
             val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)

@@ -76,11 +76,7 @@ object ReactionUtils {
 
         val response = OkHttpClient().newCall(request).execute()
 
-        return try {
-            Gson().fromJson(response.body?.string(), object : TypeToken<List<FakeUser>>() {}.type)
-        } catch (e: Exception) {
-            null
-        }
+        return Gson().fromJson(response.body?.string(), object : TypeToken<List<FakeUser>>() {}.type)
     }
 
     fun Message.getReactions(): List<FakeReaction>? {
@@ -96,12 +92,7 @@ object ReactionUtils {
         val jsonObject = Gson().fromJson(response.body?.string(), Any::class.java) as LinkedTreeMap<*, *>
         val reactions = jsonObject["reactions"]
 
-        return try {
-            Gson().fromJson(reactions.toString(), object : TypeToken<List<FakeReaction>>() {}.type)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+        return Gson().fromJson(reactions.toString(), object : TypeToken<List<FakeReaction>>() {}.type)
     }
 
     data class FakeUser(

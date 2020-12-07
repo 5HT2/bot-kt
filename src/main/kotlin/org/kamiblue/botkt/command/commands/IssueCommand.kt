@@ -26,51 +26,46 @@ import java.awt.Color
  * @author sourTaste000
  * @since 2020/9/8
  */
-object IssueCommand : CommandOld("issue") {
+object IssueCommand : BotCommand(
+    name = "issue",
+    description = "Fetch and create Github issues / pulls"
+) {
     private val queuedIssues = HashMap<Long, QueuedIssue>()
 
     init {
         Main.client.addListener(this)
 
-        string("user") {
-            string("repoName") {
-                string("issueNum") {
-                    doesLater { context ->
-                        val githubToken =
-                            GitHubUtils.getGithubToken(message)
-                                ?: return@doesLater // Error message is handled already
-                        val user: String = context arg "user"
-                        val repoName: String = context arg "repoName"
-                        val issueNum: String = context arg "issueNum"
+        string("user") { user ->
+            string("repoName") { repo ->
+                int("issueNum") { issueNum ->
+                    execute {
+                        val githubToken = GitHubUtils.getGithubToken(message) ?: return@execute // Error message is handled already
 
-                        sendResponse(message, githubToken, user, repoName, issueNum)
+                        sendResponse(message, githubToken, user.value, repo.value, issueNum.value)
                     }
                 }
             }
         }
 
-        string("repoName") {
-            string("issueNum") {
-                doesLater { context ->
+        string("repoName") { repo ->
+            int("issueNum") { issueNum ->
+                execute {
                     val githubToken = GitHubUtils.getGithubToken(message)
-                        ?: return@doesLater // Error message is handled already
-                    val user: String = GitHubUtils.getDefaultGithubUser(message) ?: return@doesLater
-                    val repoName: String = context arg "repoName"
-                    val issueNum: String = context arg "issueNum"
+                        ?: return@execute // Error message is handled already
+                    val user: String = GitHubUtils.getDefaultGithubUser(message) ?: return@execute
 
-                    sendResponse(message, githubToken, user, repoName, issueNum)
+                    sendResponse(message, githubToken, user, repo.value, issueNum.value)
                 }
             }
         }
 
         literal("create") {
-            string("repo") {
-                greedyString("contents") {
-                    doesLater { context ->
-                        val repo: String = context arg "repo"
-                        val contents: String = context arg "contents"
+            string("repo") { repoArg ->
+                greedy("contents") { contentsArg ->
+                    execute {
+                        val repo = repoArg.value
 
-                        val split = contents.split(';')
+                        val split = contentsArg.value.split('-')
                         val title = split.getOrNull(0)
                         val body = split.getOrNull(1)
 
@@ -81,14 +76,14 @@ object IssueCommand : CommandOld("issue") {
                         issueChannel?.issueCreationChannel?.let {
                             if (it != message.channel.id) {
                                 message.error("You're only allowed to create issues in <#$it>!")
-                                return@doesLater
+                                return@execute
                             }
                         }
 
                         val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
                             ?: run {
                                 message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
-                                return@doesLater
+                                return@execute
                             }
 
                         val form = message.channel.send {
@@ -197,8 +192,8 @@ object IssueCommand : CommandOld("issue") {
             return // issues are allowed inside any channel
         }
 
-        if (event.message.content.isEmpty() || !event.message.content.startsWith("$fullName create")) {
-            val reply = event.message.error("You need to use the `$fullName create` command to create an issue!")
+        if (event.message.content.isEmpty() || !event.message.content.startsWith("$name create")) {
+            val reply = event.message.error("You need to use the `$name create` command to create an issue!")
 
             event.message.delete()
             delay(5000)
@@ -212,51 +207,42 @@ object IssueCommand : CommandOld("issue") {
         token: String,
         user: String,
         repoName: String,
-        issueNum: String
+        issueNum: Int
     ) {
         val issue = authenticatedRequest<Issue>("token", token, "https://api.github.com/repos/$user/$repoName/issues/$issueNum")
-        try {
-            if (issue.html_url != null && issue.html_url.contains("issue")) {
-                message.channel.send {
-                    embed {
-                        title = issue.title
-                        thumbnailUrl = issue.user?.avatar_url
-                        color = if (issue.state == "closed") Colors.ERROR.color else Colors.SUCCESS.color
 
-                        commonFields(issue)
-
-                        url = issue.html_url
-                    }
-                }
-            } else if (issue.html_url != null && issue.html_url.contains("pull")) {
-                val pullRequest = authenticatedRequest<PullRequest>("token", token, issue.url!!)
-
-                message.channel.send {
-                    embed {
-                        title = pullRequest.title
-                        thumbnailUrl = pullRequest.user?.avatar_url
-                        color = getPullRequestColor(pullRequest)
-
-                        commonFields(issue)
-
-                        field("Lines", "+${pullRequest.additions} / - ${pullRequest.deletions}", false)
-                        field("Commits", pullRequest.commits ?: -1, false)
-                        field("Changed Files", pullRequest.changed_files ?: -1, false)
-
-                        url = pullRequest.html_url
-                    }
-                }
-            }
-        } catch (e: Exception) {
+        if (issue.html_url != null && issue.html_url.contains("issue")) {
             message.channel.send {
                 embed {
-                    title = "Error"
-                    description = "Something went wrong when trying to execute this command! Does the user / repo / issue exist?"
-                    field("Stacktrace", "```${e.stackTraceToString()}```", false)
-                    e.printStackTrace()
-                    color = Colors.ERROR.color
+                    title = issue.title
+                    thumbnailUrl = issue.user?.avatar_url
+                    color = if (issue.state == "closed") Colors.ERROR.color else Colors.SUCCESS.color
+
+                    commonFields(issue)
+
+                    url = issue.html_url
                 }
             }
+        } else if (issue.html_url != null && issue.html_url.contains("pull")) {
+            val pullRequest = authenticatedRequest<PullRequest>("token", token, issue.url!!)
+
+            message.channel.send {
+                embed {
+                    title = pullRequest.title
+                    thumbnailUrl = pullRequest.user?.avatar_url
+                    color = getPullRequestColor(pullRequest)
+
+                    commonFields(issue)
+
+                    field("Lines", "+${pullRequest.additions} / - ${pullRequest.deletions}", false)
+                    field("Commits", pullRequest.commits ?: -1, false)
+                    field("Changed Files", pullRequest.changed_files ?: -1, false)
+
+                    url = pullRequest.html_url
+                }
+            }
+        } else {
+            message.error("Issue / pull `#$issueNum` in `$user/$repoName` could not be found!")
         }
     }
 
@@ -309,12 +295,4 @@ object IssueCommand : CommandOld("issue") {
         val creator: Member?,
         val repo: String
     )
-
-    override fun getHelpUsage(): String {
-        return "Getting information of an issue/pull on github. \n\n" +
-            "Usage: \n" +
-            "`$fullName <user/organization> <repository> <issue>`\n\n" +
-            "Example: \n" +
-            "`$fullName kami-blue bot-kt 10`\n\n"
-    }
 }

@@ -7,7 +7,6 @@ import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.emoji.Emoji
-import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.UUIDManager.UUIDFormatException
@@ -21,7 +20,6 @@ import org.kamiblue.botkt.utils.MessageSendUtils.log
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
-import org.kamiblue.botkt.utils.StringUtils.toUserID
 import org.kamiblue.botkt.utils.maxEmojiSlots
 import org.kamiblue.capeapi.*
 import java.awt.image.BufferedImage
@@ -35,7 +33,10 @@ import kotlin.collections.HashMap
 import kotlin.collections.LinkedHashMap
 
 // TODO: this is pretty server specific. Will be removed in the future and changed to a plugin
-object CapeCommand : CommandOld("cape") {
+object CapeCommand : BotCommand(
+    name = "cape",
+    description = "Modify / view KAMI Blue Capes. Capes are updated every minute, if you don't see your cape in game and it is attached wait a few minutes before asking for help"
+) {
     private val gson = GsonBuilder().setPrettyPrinting().create()
     private val hexRegex = Regex("^[A-Fa-f0-9]{6}\$")
     private val changedTimeouts = HashMap<String, Long>()
@@ -43,21 +44,17 @@ object CapeCommand : CommandOld("cape") {
     private val cachedEmojis = LinkedHashMap<String, Emoji>()
     private var cachedServer: Server? = null
 
+    private const val capeUUIDArgName = "cape uuid"
     private const val capesFile = "cache/capes.json"
-    private const val findError = "Username is improperly formatted, try pinging or using the users ID, and make sure the user exists in this server!"
     private const val missingTexture = "<:cssource:775893099527929926> "
 
     init {
         literal("create") {
-            string("type") {
-                ping("id") {
-                    doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) { context ->
-                        val user: User = context userArg "id" ?: run {
-                            message.error(findError)
-                            return@doesLaterIfHas
-                        }
-
-                        val userCapeType: String = context arg "type"
+            string("type") { typeArg ->
+                user("id") { userArg ->
+                    executeIfHas(PermissionTypes.AUTHORIZE_CAPES) {
+                        val user = userArg.value
+                        val userCapeType = typeArg.value
 
                         /** find CapeType from user's args */
                         val type = CapeType.values().find { capeType ->
@@ -66,7 +63,7 @@ object CapeCommand : CommandOld("cape") {
 
                         if (type == null) {
                             message.error("Couldn't find Cape type \"${userCapeType.toHumanReadable()}\"!")
-                            return@doesLaterIfHas
+                            return@executeIfHas
                         }
 
                         val newCape = Cape(type = type)
@@ -89,28 +86,20 @@ object CapeCommand : CommandOld("cape") {
         }
 
         literal("delete") {
-            string("uuid") {
-                greedyString("user") {
-                    doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) { context ->
-                        val capeUUID: String = context arg "uuid"
-                        val userID: String = context arg "user"
-                        var finalID: Long = 0
-
-                        userID.toUserID()?.let {
-                            finalID = it
-                        } ?: run {
-                            message.error(findError)
-                            return@doesLaterIfHas
-                        }
+            string(capeUUIDArgName) { uuidArg ->
+                user("user") { userArg ->
+                    executeIfHas(PermissionTypes.AUTHORIZE_CAPES) {
+                        val capeUUID = uuidArg.value
+                        val finalID = userArg.value.id
 
                         val user = capeUserMap[finalID] ?: run {
                             message.error("Couldn't find a Cape User with the ID `$finalID`!")
-                            return@doesLaterIfHas
+                            return@executeIfHas
                         }
 
                         val cape = user.capes.find { it.capeUUID.equals(capeUUID, true) } ?: run {
                             message.error(capeError(capeUUID))
-                            return@doesLaterIfHas
+                            return@executeIfHas
                         }
 
                         user.deleteCape(cape)
@@ -122,16 +111,11 @@ object CapeCommand : CommandOld("cape") {
         }
 
         literal("list") {
-            ping("id") {
-                doesLater { context ->
-                    val user: User = context userArg "id" ?: run {
-                        message.error(findError)
-                        return@doesLater
-                    }
-
-                    val userCapes = capeUserMap[user.id]?.capes ?: run {
-                        message.error("User ${user.mention} does not have any capes!")
-                        return@doesLater
+            user("id") { userArg ->
+                execute {
+                    val userCapes = capeUserMap[userArg.value.id]?.capes ?: run {
+                        message.error("User ${userArg.value.mention} does not have any capes!")
+                        return@execute
                     }
 
                     message.channel.send {
@@ -146,8 +130,8 @@ object CapeCommand : CommandOld("cape") {
                 }
             }
 
-            doesLater {
-                val userCapes = message.getCapes() ?: return@doesLater
+            execute {
+                val userCapes = message.getCapes() ?: return@execute
 
                 message.channel.send {
                     embed {
@@ -162,17 +146,17 @@ object CapeCommand : CommandOld("cape") {
         }
 
         literal("attach") {
-            string("uuid") {
-                greedyString("username") {
-                    doesLater { context ->
-                        val username: String = context arg "username"
-                        val capeUUID: String = context arg "uuid"
+            string(capeUUIDArgName) { capeArg ->
+                greedy("username") { usernameArg ->
+                    execute {
+                        val username = usernameArg.value
+                        val capeUUID = capeArg.value
 
-                        val capes = message.getCapes() ?: return@doesLater
+                        val capes = message.getCapes() ?: return@execute
 
                         val cape = capes.find { it.capeUUID == capeUUID } ?: run {
                             message.error(capeError(capeUUID))
-                            return@doesLater
+                            return@execute
                         }
 
                         val profilePair: PlayerProfile?
@@ -180,7 +164,7 @@ object CapeCommand : CommandOld("cape") {
                             profilePair = UUIDManager.getByString(username)
                         } catch (e: UUIDFormatException) {
                             message.error(e.message.toString() + "\nMake sure your UUID / username is correct")
-                            return@doesLater
+                            return@execute
                         }
 
                         val msg = if (profilePair != null) {
@@ -195,7 +179,7 @@ object CapeCommand : CommandOld("cape") {
                                     color = Colors.ERROR.color
                                 }
                             }
-                            return@doesLater
+                            return@execute
                         }
 
                         var attachedCape: Cape? = null
@@ -218,7 +202,7 @@ object CapeCommand : CommandOld("cape") {
                                 description = "$attachedMsg ${profilePair.name} attached to Cape `${attachedCape.capeUUID}`!"
                                 color = Colors.ERROR.color
                             }
-                            return@doesLater
+                            return@execute
                         }
 
                         changeTimeOut(capeUUID)?.let {
@@ -226,7 +210,7 @@ object CapeCommand : CommandOld("cape") {
                                 description = changeError(capeUUID, it)
                                 color = Colors.ERROR.color
                             }
-                            return@doesLater
+                            return@execute
                         }
 
                         cape.playerUUID = profilePair.uuid
@@ -241,20 +225,20 @@ object CapeCommand : CommandOld("cape") {
         }
 
         literal("detach") {
-            string("uuid") {
-                doesLater { context ->
-                    val capeUUID: String = context arg "uuid"
+            string(capeUUIDArgName) { capeArg ->
+                execute {
+                    val capeUUID = capeArg.value
 
-                    val capes = message.getCapes() ?: return@doesLater
+                    val capes = message.getCapes() ?: return@execute
 
                     val cape = capes.find { it.capeUUID == capeUUID } ?: run {
                         message.error(capeError(capeUUID))
-                        return@doesLater
+                        return@execute
                     }
 
                     changeTimeOut(capeUUID)?.let {
                         message.error(changeError(capeUUID, it))
-                        return@doesLater
+                        return@execute
                     }
 
                     val name = UUIDManager.getByUUID(cape.playerUUID)?.name
@@ -266,15 +250,15 @@ object CapeCommand : CommandOld("cape") {
         }
 
         literal("color") {
-            string("uuid") {
-                doesLater { context ->
-                    val capeUUID: String = context arg "uuid"
+            string(capeUUIDArgName) { capeArg ->
+                execute {
+                    val capeUUID = capeArg.value
 
-                    val capes = message.getCapes() ?: return@doesLater
+                    val capes = message.getCapes() ?: return@execute
 
                     val cape = capes.find { it.capeUUID == capeUUID } ?: run {
                         message.error(capeError(capeUUID))
-                        return@doesLater
+                        return@execute
                     }
 
                     val emojis = cape.color.toEmoji()
@@ -291,33 +275,33 @@ object CapeCommand : CommandOld("cape") {
                     }
                 }
 
-                string("colorPrimary") {
-                    string("colorBorder") {
-                        doesLater { context ->
-                            val capeUUID: String = context arg "uuid"
-                            val colorPrimary: String = context arg "colorPrimary"
-                            val colorBorder: String = context arg "colorBorder"
+                string("primary color") { colorPrimaryArg ->
+                    string("border color") { colorBorderArg ->
+                        execute {
+                            val capeUUID = capeArg.value
+                            val colorPrimary = colorPrimaryArg.value
+                            val colorBorder = colorBorderArg.value
 
-                            val capes = message.getCapes() ?: return@doesLater
+                            val capes = message.getCapes() ?: return@execute
 
                             val cape = capes.find { it.capeUUID == capeUUID } ?: run {
                                 message.error(capeError(capeUUID))
-                                return@doesLater
+                                return@execute
                             }
 
                             if (cape.type != CapeType.CONTEST) {
                                 message.error("You're only able to change the colors of Contest Capes, `${capeUUID}` is a ${cape.type.realName} Cape!")
-                                return@doesLater
+                                return@execute
                             }
 
                             if (!hexRegex.matches(colorPrimary) || !hexRegex.matches(colorBorder)) {
                                 message.error("You must enter both colors in 6-long hex format, eg `9b90ff` or `8778ff`.")
-                                return@doesLater
+                                return@execute
                             }
 
                             changeTimeOut(capeUUID)?.let {
                                 message.error(changeError(capeUUID, it))
-                                return@doesLater
+                                return@execute
                             }
 
                             val oldCapeColor = cape.color
@@ -349,7 +333,7 @@ object CapeCommand : CommandOld("cape") {
         }
 
         literal("save") {
-            doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) {
+            executeIfHas(PermissionTypes.AUTHORIZE_CAPES) {
                 save()
                 commit()
                 message.success("Saved!")
@@ -357,7 +341,7 @@ object CapeCommand : CommandOld("cape") {
         }
 
         literal("load") {
-            doesLaterIfHas(PermissionTypes.AUTHORIZE_CAPES) {
+            executeIfHas(PermissionTypes.AUTHORIZE_CAPES) {
                 load()
                 message.success("Loaded!")
             }
@@ -365,21 +349,6 @@ object CapeCommand : CommandOld("cape") {
 
         load()
     }
-
-    override fun getHelpUsage(): String {
-        return "Capes are updated every minute, if you don't see your cape in game and it is attached wait a few minutes before asking for help\n\n" +
-            "List your available capes\n" +
-            "`$fullName list`\n" +
-            "Attach a cape to your Minecraft account:\n" +
-            "`$fullName attach <cape uuid> <username/uuid>`\n" +
-            "Detach a cape from all accounts. Not required to change accounts.\n" +
-            "`$fullName detach <cape uuid>`\n" +
-            "View the colors of your cape:\n" +
-            "`$fullName color <cape uuid>`\n" +
-            "Change the colors of your cape:\n" +
-            "`$fullName color <cape uuid> <primary color> <border color>`"
-    }
-
 
     private fun load() {
         if (!File(capesFile).exists()) return

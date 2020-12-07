@@ -18,7 +18,11 @@ import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.pretty
 import kotlin.collections.set
 
-object ChannelCommand : CommandOld("channel") {
+object ChannelCommand : BotCommand(
+    name = "channel",
+    alias = arrayOf("ch"),
+    description = "Modify, copy, save, archive and slow channels"
+) {
     private val permissions = HashMap<String, Collection<RolePermissionOverwrite>>()
     private val rolePermHistory = HashMap<ServerChannel, ArrayDeque<List<RolePermissionOverwrite>>>()
 
@@ -26,55 +30,50 @@ object ChannelCommand : CommandOld("channel") {
 
     init {
         literal("save") {
-            doesLaterIfHas(MANAGE_CHANNELS) {
-                val serverChannel = message.serverChannel(message) ?: return@doesLaterIfHas
+            executeIfHas(MANAGE_CHANNELS) {
+                val serverChannel = message.serverChannel(message) ?: return@executeIfHas
                 val name = serverChannel.name
 
                 save(name, serverChannel, message)
             }
 
-            string("name") {
-                doesLaterIfHas(MANAGE_CHANNELS) { context ->
-                    val serverChannel = message.serverChannel(message) ?: return@doesLaterIfHas
-                    val name: String = context arg "name"
+            string("name") { name ->
+                executeIfHas(MANAGE_CHANNELS) {
+                    val serverChannel = message.serverChannel(message) ?: return@executeIfHas
 
-                    save(name, serverChannel, message)
+                    save(name.value, serverChannel, message)
                 }
             }
         }
 
         literal("print") {
-            doesLaterIfHas(MANAGE_CHANNELS) {
-                val c = message.serverChannel(message) ?: return@doesLaterIfHas
+            executeIfHas(MANAGE_CHANNELS) {
+                val c = message.serverChannel(message) ?: return@executeIfHas
                 val name = c.name
 
                 print(name, message)
             }
 
-            string("name") {
-                doesLaterIfHas(MANAGE_CHANNELS) { context ->
-                    val name: String = context arg "name"
-
-                    print(name, message)
+            string("name") { name ->
+                executeIfHas(MANAGE_CHANNELS) {
+                    print(name.value, message)
                 }
             }
         }
 
         literal("load") {
-            string("name") {
-                doesLaterIfHas(MANAGE_CHANNELS) { context ->
-                    val name: String = context arg "name"
-
-                    load(name, message)
+            string("name") { name ->
+                executeIfHas(MANAGE_CHANNELS) {
+                    load(name.value, message)
                 }
             }
         }
 
         @Suppress("UNREACHABLE_CODE") // TODO: Doesn't work
         literal("undo") {
-            doesLaterIfHas(MANAGE_CHANNELS) {
+            executeIfHas(MANAGE_CHANNELS) {
                 message.error("Undo isn't fully supported yet!")
-                return@doesLaterIfHas
+                return@executeIfHas
 
                 undo(message)
             }
@@ -82,22 +81,22 @@ object ChannelCommand : CommandOld("channel") {
 
         literal("sync") {
             literal("category") {
-                doesLaterIfHas(MANAGE_CHANNELS) {
-                    val c = message.serverChannel(message) ?: return@doesLaterIfHas
+                executeIfHas(MANAGE_CHANNELS) {
+                    val c = message.serverChannel(message) ?: return@executeIfHas
 
                     sync(true, message, c)
                 }
             }
 
-            doesLaterIfHas(MANAGE_CHANNELS) {
-                val c = message.serverChannel(message) ?: return@doesLaterIfHas
+            executeIfHas(MANAGE_CHANNELS) {
+                val c = message.serverChannel(message) ?: return@executeIfHas
 
                 sync(false, message, c)
             }
         }
 
         literal("slow") {
-            doesLaterIfHas(COUNCIL_MEMBER) {
+            executeIfHas(COUNCIL_MEMBER) {
                 message.serverChannel?.let {
                     it.edit {
                         rateLimitPerUser = 0
@@ -109,9 +108,9 @@ object ChannelCommand : CommandOld("channel") {
                 }
             }
 
-            integer("wait") {
-                doesLaterIfHas(COUNCIL_MEMBER) { context ->
-                    val wait: Int = context arg "wait"
+            int("wait") { waitArg ->
+                executeIfHas(COUNCIL_MEMBER) {
+                    val wait = waitArg.value
 
                     message.serverChannel?.let {
                         it.edit {
@@ -128,10 +127,10 @@ object ChannelCommand : CommandOld("channel") {
         }
 
         literal("archive") {
-            doesLaterIfHas(ARCHIVE_CHANNEL) {
-                val c = message.serverChannel(message) ?: return@doesLaterIfHas
+            executeIfHas(ARCHIVE_CHANNEL) {
+                val c = message.serverChannel(message) ?: return@executeIfHas
                 val s = server
-                    ?: run { message.error("Server is null, are you running this from a DM?"); return@doesLaterIfHas }
+                    ?: run { message.error("Server is null, are you running this from a DM?"); return@executeIfHas }
                 val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
                 val oldName = c.name
 
@@ -152,37 +151,37 @@ object ChannelCommand : CommandOld("channel") {
 
         literal("lock") {
             literal("category") {
-                doesLaterIfHas(COUNCIL_MEMBER) {
+                executeIfHas(COUNCIL_MEMBER) {
                     lockOrUnlock(category = true, lock = true, message, server)
                 }
             }
 
-            doesLaterIfHas(COUNCIL_MEMBER) {
+            executeIfHas(COUNCIL_MEMBER) {
                 lockOrUnlock(category = false, lock = true, message, server)
             }
         }
 
         literal("unlock") {
             literal("category") {
-                doesLaterIfHas(COUNCIL_MEMBER) {
+                executeIfHas(COUNCIL_MEMBER) {
                     lockOrUnlock(category = true, lock = false, message, server)
                 }
             }
 
-            doesLaterIfHas(COUNCIL_MEMBER) {
+            executeIfHas(COUNCIL_MEMBER) {
                 lockOrUnlock(category = false, lock = false, message, server)
             }
         }
     }
 
-    private suspend fun save(name: String, serverChannel: ServerChannel, message: Message) {
+    private suspend fun save(saveName: String, serverChannel: ServerChannel, message: Message) {
         val selectedConfig = ArrayList(serverChannel.rolePermissionOverwrites)
 
-        previousChange = Triple(Pair(ChangeType.SAVE, name), serverChannel, serverChannel.rolePermissionOverwrites)
+        previousChange = Triple(Pair(ChangeType.SAVE, saveName), serverChannel, serverChannel.rolePermissionOverwrites)
         // make sure to run this AFTER saving previous state
-        permissions[name] = selectedConfig
+        permissions[saveName] = selectedConfig
 
-        message.success("Saved current channel permissions, use `$fullName print $name` to print permissions!")
+        message.success("Saved current channel permissions, use `$name print $saveName` to print permissions!")
     }
 
     private suspend fun print(name: String, message: Message) {

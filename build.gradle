@@ -16,15 +16,14 @@ repositories {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation "com.github.Tea-Ayataka:Kordis:$bot_kordis_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$bot_kotlinx_coroutines_version"
-    implementation "com.google.code.gson:gson:$bot_gson_version"
-    implementation "io.ktor:ktor-client-okhttp:$bot_ktor_version"
-    implementation "com.neovisionaries:nv-websocket-client:$bot_nv_websocket_version"
-    implementation "com.mojang:brigadier:$bot_brigadier_version"
-    implementation "org.slf4j:slf4j-simple:$bot_slf4j_version"
-    implementation "com.github.ronmamo:reflections:$bot_reflections_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile "com.github.Tea-Ayataka:Kordis:$bot_kordis_version"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$bot_kotlinx_coroutines_version"
+    compile "com.google.code.gson:gson:$bot_gson_version"
+    compile "io.ktor:ktor-client-okhttp:$bot_ktor_version"
+    compile "com.neovisionaries:nv-websocket-client:$bot_nv_websocket_version"
+    compile "org.slf4j:slf4j-simple:$bot_slf4j_version"
+    compile "com.github.ronmamo:reflections:$bot_reflections_version"
 }
 
 sourceSets.main.java {

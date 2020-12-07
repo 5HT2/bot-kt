@@ -1,38 +1,51 @@
 package org.kamiblue.botkt.command.commands
 
-import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.Main
+import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.utils.Colors
 
-object HelpCommand : CommandOld("help-mod") {
+object HelpCommand : BotCommand(
+    name = "help",
+    alias = arrayOf("command", "commands", "cmd", "cmds"),
+    description = "Get a list of commands or get help for a command"
+) {
     init {
-        string("command") {
-            doesLater { context ->
-                val userCommand: String = context arg "command"
-                if (CommandManagerOld.isCommand(userCommand)) {
-                    val command = CommandManagerOld.getCommand(userCommand)!!
-                    message.channel.send {
-                        embed {
-                            title = userCommand.toLowerCase()
-                            description = command.getHelpUsage()
-                            color = Colors.PRIMARY.color
+        string("command name") { commandNameArg ->
+            execute {
+                val command = commandManager.getCommand(commandNameArg.value)
+                val alias = command.alias.joinToString()
+                val syntax = command.printArgHelp()
+                    .lines()
+                    .joinToString("\n") {
+                        if (it.isNotBlank() && !it.startsWith("    - ")) {
+                            "`${Main.prefix}${command.name} $it`"
+                        } else {
+                            it
                         }
                     }
-                } else {
-                    message.channel.send {
-                        embed {
-                            title = "Error"
-                            description = "Command `$userCommand` not found!"
-                            color = Colors.ERROR.color
-                        }
+
+                message.channel.send {
+                    embed {
+                        title = "Help for `${Main.prefix}${command.name}`"
+                        field("Description:", command.description)
+                        field("Aliases:", if (alias.isEmpty()) "No aliases" else alias)
+                        field("Syntax:", syntax)
+                        color = Colors.PRIMARY.color
                     }
                 }
             }
         }
-    }
 
-    override fun getHelpUsage(): String {
-        return "Gives usage examples for commands.\n\n" +
-            "Usage:\n" +
-            "`$fullName <command name>`"
+        execute {
+            message.channel.send {
+                embed {
+                    title = "List of available commands:"
+                    description = commandManager.getCommands().joinToString("\n") {
+                        "`${Main.prefix}${it.name}` - ${it.description}"
+                    }
+                    color = Colors.PRIMARY.color
+                }
+            }
+        }
     }
 }

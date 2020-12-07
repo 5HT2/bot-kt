@@ -1,6 +1,8 @@
 package org.kamiblue.botkt.command.commands
 
-import net.ayataka.kordis.entity.channel.TextChannel
+import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.server.channel.announcement.AnnouncementChannel
+import net.ayataka.kordis.entity.server.channel.text.ServerTextChannel
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
@@ -16,8 +18,13 @@ object SayCommand : BotCommand(
                 string("title") { titleArg ->
                     greedy("content") { contentArg ->
                         executeIfHas(PermissionTypes.SAY) {
-                            val channel = channelArg.getChannelOrNull() as? TextChannel? ?: run {
-                                message.error("Error sending message! The text channel does not exist.")
+                            var channel = channelArg.getSendableChannelOrNull() ?: run {
+                                message.channelError()
+                                return@executeIfHas
+                            }
+
+                            channel = server?.textChannels?.find(channel.id) ?: server?.announcementChannels?.find(channel.id) ?: run {
+                                message.channelError()
                                 return@executeIfHas
                             }
 
@@ -44,14 +51,21 @@ object SayCommand : BotCommand(
                     string("title") { titleArg ->
                         greedy("content") { contentArg ->
                             executeIfHas(PermissionTypes.SAY) {
-                                val channel = channelArg.getChannelOrNull() as? TextChannel? ?: run {
-                                    message.error("Error sending message! The text channel does not exist.")
+                                var channel = channelArg.getSendableChannelOrNull() ?: run {
+                                    message.channelError()
                                     return@executeIfHas
                                 }
 
-                                val message = channel.getMessage(messageArg.value) ?: run {
-                                    message.error("Error editing message! The message does not exist.")
+                                channel = server?.textChannels?.find(channel.id) ?: server?.announcementChannels?.find(channel.id) ?: run {
+                                    message.channelError()
                                     return@executeIfHas
+                                }
+
+                                val message = (channel as? ServerTextChannel)?.getMessage(messageArg.value) ?: run {
+                                    (channel as? AnnouncementChannel)?.getMessage(messageArg.value) ?: run {
+                                        message.error("Error editing message! The message ID could not be found in ${channel.id}")
+                                        return@executeIfHas
+                                    }
                                 }
 
                                 if (message.embeds.isNullOrEmpty()) {
@@ -69,5 +83,9 @@ object SayCommand : BotCommand(
                 }
             }
         }
+    }
+
+    private suspend fun Message.channelError() {
+        this.error("Error finding channel! Make sure the ID / # is correct, and it is a Text or Announcement channel")
     }
 }
