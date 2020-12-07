@@ -27,9 +27,9 @@ object HelpCommand : BotCommand(
                 message.channel.send {
                     embed {
                         title = "Help for `${Main.prefix}${command.name}`"
-                        field("alias:", alias)
-                        field("description:", command.description)
-                        field("syntax:", syntax)
+                        field("Description:", command.description)
+                        field("Aliases:", alias)
+                        field("Syntax:", syntax)
                         color = Colors.PRIMARY.color
                     }
                 }
