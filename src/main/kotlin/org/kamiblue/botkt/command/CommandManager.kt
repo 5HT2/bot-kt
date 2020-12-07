@@ -108,15 +108,12 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
         e: SubCommandNotFoundException
     ) {
         val bestCommand = e.command.finalArgs.maxByOrNull { it.countArgs(args) }
-        val prediction = bestCommand?.let { best ->
-            "`${Main.prefix}${e.command.name} ${best.printArgHelp()}`"
-        }
 
         val syntax = e.command.printArgHelp()
             .lines()
             .joinToString("\n") {
-                if (it.isNotBlank() && !it.startsWith("    - ")) {
-                    "`${Main.prefix}${e.command.name} $it`"
+                if (it.isNotBlank() && !it.startsWith("- ")) {
+                    "`${Main.prefix}$it`"
                 } else {
                     it
                 }
@@ -124,8 +121,9 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
         event.message.channel.send {
             embed {
-                title = "Invalid Syntax: ${Main.prefix}${string}"
-                prediction?.let { prediction ->
+                title = "Invalid Syntax: \"${Main.prefix}${string}\""
+                if (bestCommand != null) {
+                    val prediction = "`${Main.prefix}${bestCommand.printArgHelp()}`"
                     field("Did you mean?", prediction)
                 }
                 field("Available arguments:", syntax.flat(1024))
