@@ -58,57 +58,12 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
             try {
                 invoke(MessageExecuteEvent(args, event))
             } catch (e: CommandNotFoundException) {
-                if (ConfigManager.readConfigSafe<UserConfig>(
-                        ConfigType.USER,
-                        false
-                    )?.unknownCommandError == true
-                ) {
-                    event.message.channel.send {
-                        embed {
-                            title = "Unknown Command"
-                            description = "todo"//TODO() // reference help command
-                            color = Colors.ERROR.color
-                        }
-                    }
-                }
+                handleCommandNotFoundException(event, e)
             } catch (e: SubCommandNotFoundException) {
-                val bestCommand = e.command.finalArgs.maxByOrNull { it.countArgs(args) }
-                val prediction = bestCommand?.let { best ->
-                    "`${Main.prefix}${e.command.name} ${best.printArgHelp()}`"
-                }
-
-                val syntax = e.command.printArgHelp()
-                    .lines()
-                    .joinToString("\n") {
-                        if (it.isNotBlank() && !it.startsWith("    - ")) {
-                            "`${Main.prefix}${e.command.name} $it`"
-                        } else {
-                            it
-                        }
-                    }
-
-                event.message.channel.send {
-                    embed {
-                        title = "Invalid Syntax: ${Main.prefix}${string}"
-                        prediction?.let { prediction ->
-                            field("Did you mean?", prediction)
-                        }
-                        field("Available arguments:", syntax.flat(1024))
-                        color = Colors.ERROR.color
-                    }
-                }
+                handleSubCommandNotFoundException(event, string, args, e)
             }
         } catch (e: Exception) {
-            ExceptionCommand.addException(e)
-            event.message.channel.send {
-                embed {
-                    title = "Command Exception Occurred"
-                    description = "The command `${args.first().toLowerCase()}` threw an exception." +
-                        "\nUse the `${Main.prefix}exception` command to view the full stacktrace."
-                    field("Exception Message", e.message.toString())
-                    color = Colors.ERROR.color
-                }
-            }
+            handleExceptions(event, args, e)
         }
     }
 
@@ -126,5 +81,75 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
         }
         null
     }
+
+    private suspend fun handleCommandNotFoundException(
+        event: MessageReceiveEvent,
+        e: CommandNotFoundException
+    ) {
+        if (ConfigManager.readConfigSafe<UserConfig>(
+                ConfigType.USER,
+                false
+            )?.unknownCommandError == true
+        ) {
+            event.message.channel.send {
+                embed {
+                    title = "Unknown Command"
+                    description = "${e.message} Use ${Main.prefix}help to get a list of available commands."
+                    color = Colors.ERROR.color
+                }
+            }
+        }
+    }
+
+    private suspend fun handleSubCommandNotFoundException(
+        event: MessageReceiveEvent,
+        string: String,
+        args: Array<String>,
+        e: SubCommandNotFoundException
+    ) {
+        val bestCommand = e.command.finalArgs.maxByOrNull { it.countArgs(args) }
+        val prediction = bestCommand?.let { best ->
+            "`${Main.prefix}${e.command.name} ${best.printArgHelp()}`"
+        }
+
+        val syntax = e.command.printArgHelp()
+            .lines()
+            .joinToString("\n") {
+                if (it.isNotBlank() && !it.startsWith("    - ")) {
+                    "`${Main.prefix}${e.command.name} $it`"
+                } else {
+                    it
+                }
+            }
+
+        event.message.channel.send {
+            embed {
+                title = "Invalid Syntax: ${Main.prefix}${string}"
+                prediction?.let { prediction ->
+                    field("Did you mean?", prediction)
+                }
+                field("Available arguments:", syntax.flat(1024))
+                color = Colors.ERROR.color
+            }
+        }
+    }
+
+    private suspend fun handleExceptions(
+        event: MessageReceiveEvent,
+        args: Array<String>,
+        e: Exception
+    ) {
+        ExceptionCommand.addException(e)
+        event.message.channel.send {
+            embed {
+                title = "Command Exception Occurred"
+                description = "The command `${args.first()}` threw an exception." +
+                    "\nUse the `${Main.prefix}exception` command to view the full stacktrace."
+                field("Exception Message", e.message.toString())
+                color = Colors.ERROR.color
+            }
+        }
+    }
+
 }
 
