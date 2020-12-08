@@ -12,5 +12,9 @@ enum class Category(
     INFO("Info"),
     MISC("Misc"),
     MODERATION("Moderation"),
-    SYSTEM("System")
+    SYSTEM("System");
+
+    override fun toString(): String {
+        return displayName
+    }
 }
