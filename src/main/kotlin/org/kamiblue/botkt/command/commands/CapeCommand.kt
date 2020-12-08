@@ -52,7 +52,7 @@ object CapeCommand : BotCommand(
         literal("create") {
             string("type") { typeArg ->
                 user("id") { userArg ->
-                    executeIfHas(PermissionTypes.AUTHORIZE_CAPES) {
+                    executeIfHas(PermissionTypes.AUTHORIZE_CAPES, "Create a Cape for a user") {
                         val user = userArg.value
                         val userCapeType = typeArg.value
 
@@ -88,7 +88,7 @@ object CapeCommand : BotCommand(
         literal("delete") {
             string(capeUUIDArgName) { uuidArg ->
                 user("user") { userArg ->
-                    executeIfHas(PermissionTypes.AUTHORIZE_CAPES) {
+                    executeIfHas(PermissionTypes.AUTHORIZE_CAPES, "Delete a Cape for a user") {
                         val capeUUID = uuidArg.value
                         val finalID = userArg.value.id
 
@@ -112,7 +112,7 @@ object CapeCommand : BotCommand(
 
         literal("list") {
             user("id") { userArg ->
-                execute {
+                execute("List Capes for a user") {
                     val userCapes = capeUserMap[userArg.value.id]?.capes ?: run {
                         message.error("User ${userArg.value.mention} does not have any capes!")
                         return@execute
@@ -130,7 +130,7 @@ object CapeCommand : BotCommand(
                 }
             }
 
-            execute {
+            execute("List your own Capes") {
                 val userCapes = message.getCapes() ?: return@execute
 
                 message.channel.send {
@@ -148,7 +148,7 @@ object CapeCommand : BotCommand(
         literal("attach") {
             string(capeUUIDArgName) { capeArg ->
                 greedy("username") { usernameArg ->
-                    execute {
+                    execute("Attach your Cape to a Minecraft user") {
                         val username = usernameArg.value
                         val capeUUID = capeArg.value
 
@@ -226,7 +226,7 @@ object CapeCommand : BotCommand(
 
         literal("detach") {
             string(capeUUIDArgName) { capeArg ->
-                execute {
+                execute("Detach your Cape from a Minecraft user") {
                     val capeUUID = capeArg.value
 
                     val capes = message.getCapes() ?: return@execute
@@ -251,7 +251,7 @@ object CapeCommand : BotCommand(
 
         literal("color") {
             string(capeUUIDArgName) { capeArg ->
-                execute {
+                execute("View the colors for a Cape") {
                     val capeUUID = capeArg.value
 
                     val capes = message.getCapes() ?: return@execute
@@ -277,7 +277,7 @@ object CapeCommand : BotCommand(
 
                 string("primary color") { colorPrimaryArg ->
                     string("border color") { colorBorderArg ->
-                        execute {
+                        execute("Set the colors for a Contest Cape") {
                             val capeUUID = capeArg.value
                             val colorPrimary = colorPrimaryArg.value
                             val colorBorder = colorBorderArg.value

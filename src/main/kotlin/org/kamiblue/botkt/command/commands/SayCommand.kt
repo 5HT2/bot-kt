@@ -17,7 +17,7 @@ object SayCommand : BotCommand(
             boolean("embed") { embedArg ->
                 string("title") { titleArg ->
                     greedy("content") { contentArg ->
-                        executeIfHas(PermissionTypes.SAY) {
+                        executeIfHas(PermissionTypes.SAY, "Say something in a channel") {
                             var channel = channelArg.getSendableChannelOrNull() ?: run {
                                 message.channelError()
                                 return@executeIfHas
@@ -50,7 +50,7 @@ object SayCommand : BotCommand(
                 long("message") { messageArg ->
                     string("title") { titleArg ->
                         greedy("content") { contentArg ->
-                            executeIfHas(PermissionTypes.SAY) {
+                            executeIfHas(PermissionTypes.SAY, "Edit an existing message in a channel") {
                                 var channel = channelArg.getSendableChannelOrNull() ?: run {
                                     message.channelError()
                                     return@executeIfHas

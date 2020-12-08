@@ -11,7 +11,7 @@ object HelpCommand : BotCommand(
 ) {
     init {
         string("command name") { commandNameArg ->
-            execute {
+            execute("Get help for a specific command") {
                 val command = commandManager.getCommand(commandNameArg.value)
                 val alias = command.alias.joinToString()
                 val syntax = command.printArgHelp()
@@ -36,7 +36,7 @@ object HelpCommand : BotCommand(
             }
         }
 
-        execute {
+        execute("List available commands") {
             message.channel.send {
                 embed {
                     title = "List of available commands:"
