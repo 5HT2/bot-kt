@@ -30,7 +30,7 @@ object ChannelCommand : BotCommand(
 
     init {
         literal("save") {
-            executeIfHas(MANAGE_CHANNELS) {
+            executeIfHas(MANAGE_CHANNELS, "Save a channel's permissions") {
                 val serverChannel = message.serverChannel(message) ?: return@executeIfHas
                 val name = serverChannel.name
 
@@ -38,7 +38,7 @@ object ChannelCommand : BotCommand(
             }
 
             string("name") { name ->
-                executeIfHas(MANAGE_CHANNELS) {
+                executeIfHas(MANAGE_CHANNELS, "Save a channel's permissions") {
                     val serverChannel = message.serverChannel(message) ?: return@executeIfHas
 
                     save(name.value, serverChannel, message)
@@ -47,7 +47,7 @@ object ChannelCommand : BotCommand(
         }
 
         literal("print") {
-            executeIfHas(MANAGE_CHANNELS) {
+            executeIfHas(MANAGE_CHANNELS, "Print the current channels permissions") {
                 val c = message.serverChannel(message) ?: return@executeIfHas
                 val name = c.name
 
@@ -55,7 +55,7 @@ object ChannelCommand : BotCommand(
             }
 
             string("name") { name ->
-                executeIfHas(MANAGE_CHANNELS) {
+                executeIfHas(MANAGE_CHANNELS, "Print a channels permissions") {
                     print(name.value, message)
                 }
             }
@@ -63,7 +63,7 @@ object ChannelCommand : BotCommand(
 
         literal("load") {
             string("name") { name ->
-                executeIfHas(MANAGE_CHANNELS) {
+                executeIfHas(MANAGE_CHANNELS, "Load a channels permissions from saved") {
                     load(name.value, message)
                 }
             }
@@ -71,7 +71,7 @@ object ChannelCommand : BotCommand(
 
         @Suppress("UNREACHABLE_CODE") // TODO: Doesn't work
         literal("undo") {
-            executeIfHas(MANAGE_CHANNELS) {
+            executeIfHas(MANAGE_CHANNELS, "Undo the last change to channels") {
                 message.error("Undo isn't fully supported yet!")
                 return@executeIfHas
 
@@ -81,14 +81,14 @@ object ChannelCommand : BotCommand(
 
         literal("sync") {
             literal("category") {
-                executeIfHas(MANAGE_CHANNELS) {
+                executeIfHas(MANAGE_CHANNELS, "Sync category permissions to channel permissions") {
                     val c = message.serverChannel(message) ?: return@executeIfHas
 
                     sync(true, message, c)
                 }
             }
 
-            executeIfHas(MANAGE_CHANNELS) {
+            executeIfHas(MANAGE_CHANNELS, "Sync channel permissions to category permissions") {
                 val c = message.serverChannel(message) ?: return@executeIfHas
 
                 sync(false, message, c)
@@ -96,7 +96,7 @@ object ChannelCommand : BotCommand(
         }
 
         literal("slow") {
-            executeIfHas(COUNCIL_MEMBER) {
+            executeIfHas(COUNCIL_MEMBER, "Remove slowmode for the current channel") {
                 message.serverChannel?.let {
                     it.edit {
                         rateLimitPerUser = 0
@@ -109,7 +109,7 @@ object ChannelCommand : BotCommand(
             }
 
             int("wait") { waitArg ->
-                executeIfHas(COUNCIL_MEMBER) {
+                executeIfHas(COUNCIL_MEMBER, "Set slowmode for the current channel") {
                     val wait = waitArg.value
 
                     message.serverChannel?.let {
@@ -127,10 +127,9 @@ object ChannelCommand : BotCommand(
         }
 
         literal("archive") {
-            executeIfHas(ARCHIVE_CHANNEL) {
+            executeIfHas(ARCHIVE_CHANNEL, "Archive the current channel") {
                 val c = message.serverChannel(message) ?: return@executeIfHas
-                val s = server
-                    ?: run { message.error("Server is null, are you running this from a DM?"); return@executeIfHas }
+                val s = server ?: run { message.error("Server is null, are you running this from a DM?"); return@executeIfHas }
                 val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
                 val oldName = c.name
 
@@ -151,24 +150,24 @@ object ChannelCommand : BotCommand(
 
         literal("lock") {
             literal("category") {
-                executeIfHas(COUNCIL_MEMBER) {
+                executeIfHas(COUNCIL_MEMBER, "Lock all channels in the category") {
                     lockOrUnlock(category = true, lock = true, message, server)
                 }
             }
 
-            executeIfHas(COUNCIL_MEMBER) {
+            executeIfHas(COUNCIL_MEMBER, "Lock the current channel") {
                 lockOrUnlock(category = false, lock = true, message, server)
             }
         }
 
         literal("unlock") {
             literal("category") {
-                executeIfHas(COUNCIL_MEMBER) {
+                executeIfHas(COUNCIL_MEMBER, "Unlock all the channels in the category") {
                     lockOrUnlock(category = true, lock = false, message, server)
                 }
             }
 
-            executeIfHas(COUNCIL_MEMBER) {
+            executeIfHas(COUNCIL_MEMBER, "Unlock the current channel") {
                 lockOrUnlock(category = false, lock = false, message, server)
             }
         }

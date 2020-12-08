@@ -4,7 +4,9 @@ import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.utils.Colors
 
 object ServerInfoCommand : BotCommand(
-    name = "serverinfo"
+    name = "serverinfo",
+    alias = arrayOf("info", "guildinfo", "guild"),
+    description = "Get information about a server"
 ) {
     init {
         execute {

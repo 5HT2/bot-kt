@@ -9,7 +9,8 @@ import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.pretty
 
 object RoleInfoCommand : BotCommand(
-    name = "roleinfo"
+    name = "roleinfo",
+    description = "Get information about a role"
 ) {
     init {
         long("id") { idArg ->

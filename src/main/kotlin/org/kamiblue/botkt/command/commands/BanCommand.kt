@@ -30,7 +30,7 @@ object BanCommand : BotCommand(
         literal("regex") {
             literal("confirm") {
                 greedy("userRegex") { userRegexArg ->
-                    executeIfHas(PermissionTypes.MASS_BAN) {
+                    executeIfHas(PermissionTypes.MASS_BAN, "Mass ban members by regex") {
                         val server = server ?: run { message.error("Server members are null, are you running this from a DM?"); return@executeIfHas }
 
                         val m = message.error("Banning [calculating] members...")
@@ -78,7 +78,7 @@ object BanCommand : BotCommand(
             }
 
             greedy("userRegex") { userRegexArg ->
-                executeIfHas(PermissionTypes.MASS_BAN) {
+                executeIfHas(PermissionTypes.MASS_BAN, "Preview mass banning by regex") {
                     val regex = userRegexArg.value.toRegex()
 
                     val members = server?.members ?: run {

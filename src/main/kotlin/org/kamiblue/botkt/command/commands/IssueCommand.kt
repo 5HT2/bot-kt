@@ -38,7 +38,7 @@ object IssueCommand : BotCommand(
         string("user") { user ->
             string("repoName") { repo ->
                 int("issueNum") { issueNum ->
-                    execute {
+                    execute("Fetch a Github issue / pull") {
                         val githubToken = GitHubUtils.getGithubToken(message) ?: return@execute // Error message is handled already
 
                         sendResponse(message, githubToken, user.value, repo.value, issueNum.value)
@@ -49,7 +49,7 @@ object IssueCommand : BotCommand(
 
         string("repoName") { repo ->
             int("issueNum") { issueNum ->
-                execute {
+                execute("Fetch a Github issue / pull") {
                     val githubToken = GitHubUtils.getGithubToken(message)
                         ?: return@execute // Error message is handled already
                     val user: String = GitHubUtils.getDefaultGithubUser(message) ?: return@execute
@@ -62,7 +62,7 @@ object IssueCommand : BotCommand(
         literal("create") {
             string("repo") { repoArg ->
                 greedy("contents") { contentsArg ->
-                    execute {
+                    execute("Create an issue ticket") {
                         val repo = repoArg.value
 
                         val split = contentsArg.value.split('-')

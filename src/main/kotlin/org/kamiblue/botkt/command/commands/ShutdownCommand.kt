@@ -6,7 +6,8 @@ import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.utils.Colors
 
 object ShutdownCommand : BotCommand(
-    name = "shutdown"
+    name = "shutdown",
+    description = "Shutdown the bot"
 ) {
     init {
         executeIfHas(PermissionTypes.REBOOT_BOT) {

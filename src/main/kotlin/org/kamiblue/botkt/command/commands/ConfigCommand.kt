@@ -21,7 +21,7 @@ object ConfigCommand : BotCommand(
     init {
         literal("print") {
             enum<ConfigType>("type") { typeArg ->
-                executeIfHas(PermissionTypes.MANAGE_CONFIG) {
+                executeIfHas(PermissionTypes.MANAGE_CONFIG, "Print a config by type") {
                     val configType = typeArg.value
 
                     ConfigManager.readConfig<Any>(configType, false)?.let {
@@ -32,7 +32,7 @@ object ConfigCommand : BotCommand(
         }
 
         literal("list") {
-            executeIfHas(PermissionTypes.MANAGE_CONFIG) {
+            executeIfHas(PermissionTypes.MANAGE_CONFIG, "List the config types") {
                 message.channel.send {
                     embed {
                         title = "Config Types"
@@ -45,7 +45,7 @@ object ConfigCommand : BotCommand(
 
         literal("reload") {
             enum<ConfigType>("type") { typeArg ->
-                executeIfHas(PermissionTypes.MANAGE_CONFIG) {
+                executeIfHas(PermissionTypes.MANAGE_CONFIG, "Reload a config by type") {
                     val configType = typeArg.value
 
                     val message = message.normal("Reloading the `${configType.name}` config")
@@ -67,7 +67,7 @@ object ConfigCommand : BotCommand(
         literal("download") {
             enum<ConfigType>("name") { typeArg ->
                 greedy("url") { urlArg ->
-                    executeIfHas(PermissionTypes.MANAGE_CONFIG) {
+                    executeIfHas(PermissionTypes.MANAGE_CONFIG, "Download a new config by type") {
                         val configType = typeArg.value
                         val url = urlArg.value
 

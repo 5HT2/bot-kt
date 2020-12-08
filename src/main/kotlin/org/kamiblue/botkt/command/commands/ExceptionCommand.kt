@@ -16,7 +16,7 @@ object ExceptionCommand : BotCommand(
 
     init {
         literal("list") {
-            executeIfHas(COUNCIL_MEMBER) {
+            executeIfHas(COUNCIL_MEMBER, "List saved exceptions") {
                 if (exceptions.isEmpty()) {
                     message.success("No exceptions caught recently!")
                 } else {
@@ -29,7 +29,7 @@ object ExceptionCommand : BotCommand(
 
         literal("view") {
             int("number") { number ->
-                executeIfHas(COUNCIL_MEMBER) {
+                executeIfHas(COUNCIL_MEMBER, "Print a saved exception") {
                     if (exceptions.isEmpty()) {
                         message.success("No exceptions caught recently!")
                     } else {

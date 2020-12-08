@@ -22,7 +22,7 @@ object UserInfoCommand : BotCommand(
     description = "Look up info for a Discord user"
 ) {
     init {
-        execute {
+        execute("Get info for yourself") {
             val username: String = message.author?.id?.toString() ?: run {
                 message.author?.tag ?: run {
                     message.error("Couldn't find your user, try using a direct ID!")
@@ -33,7 +33,7 @@ object UserInfoCommand : BotCommand(
         }
 
         greedy("name") { nameArg ->
-            execute {
+            execute("Find a user with their name, a ping or their ID") {
                 val name = nameArg.value
                 send(name, message)
             }

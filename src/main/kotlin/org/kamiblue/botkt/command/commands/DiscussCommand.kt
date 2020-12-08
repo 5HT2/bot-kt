@@ -14,7 +14,7 @@ object DiscussCommand : BotCommand(
     init {
         literal("addon") {
             greedy("idea") { idea ->
-                executeIfHas(PermissionTypes.COUNCIL_MEMBER) {
+                executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Add to an existing discussion") {
                     val name = "t-" + server!!.channels.find(message.channel.id)!!.name.substring(2)
                     val discussionTopic = server.textChannels.findByName(name)!!
 
@@ -39,7 +39,7 @@ object DiscussCommand : BotCommand(
 
         string("topic") { topicArg ->
             greedy("description") { description ->
-                executeIfHas(PermissionTypes.COUNCIL_MEMBER) {
+                executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Create a new discussion topic") {
                     val upperCouncil = server!!.roles.findByName("upper council")!!
                     val lowerCouncil = server.roles.findByName("lower council")!!
 
