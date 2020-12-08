@@ -17,8 +17,8 @@ object HelpCommand : BotCommand(
                 val syntax = command.printArgHelp()
                     .lines()
                     .joinToString("\n") {
-                        if (it.isNotBlank() && !it.startsWith("    - ")) {
-                            "`${Main.prefix}${command.name} $it`"
+                        if (it.isNotBlank() && !it.startsWith("- ")) {
+                            "`${Main.prefix}$it`"
                         } else {
                             it
                         }
