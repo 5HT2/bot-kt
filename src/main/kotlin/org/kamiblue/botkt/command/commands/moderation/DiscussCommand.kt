@@ -1,14 +1,16 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.moderation
 
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
+import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.utils.Colors
 
 // TODO: make this not hardcoded
 object DiscussCommand : BotCommand(
     name = "discuss",
+    category = Category.MODERATION,
     description = "Create and participate in Discussions"
 ) {
     init {

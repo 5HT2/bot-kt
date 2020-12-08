@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.github
 
 import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.message.Message
@@ -28,6 +28,7 @@ import java.awt.Color
  */
 object IssueCommand : BotCommand(
     name = "issue",
+    category = Category.GITHUB,
     description = "Fetch and create Github issues / pulls"
 ) {
     private val queuedIssues = HashMap<Long, QueuedIssue>()

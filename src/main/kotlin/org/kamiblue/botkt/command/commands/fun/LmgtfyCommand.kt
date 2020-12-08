@@ -1,10 +1,12 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.`fun`
 
 import org.kamiblue.botkt.command.BotCommand
+import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.utils.Colors
 
 object LmgtfyCommand : BotCommand(
     name = "lmgtfy",
+    category = Category.FUN,
     description = "Creates a LMGTFY link with a search term."
 ) {
     init {

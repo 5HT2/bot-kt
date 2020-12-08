@@ -1,11 +1,13 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.misc
 
 import org.kamiblue.botkt.command.BotCommand
+import org.kamiblue.botkt.command.Category
 
 object ExampleCommand : BotCommand(
-    "example",
-    arrayOf("ex"),
-    "Example Command for kami-blue.command"
+    name = "example",
+    alias = arrayOf("ex"),
+    category = Category.MISC,
+    description = "Example Command for kami-blue.command"
 ) {
     init {
         literal("kami") {

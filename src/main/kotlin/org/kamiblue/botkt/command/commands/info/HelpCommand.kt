@@ -1,12 +1,14 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.info
 
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.command.BotCommand
+import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.utils.Colors
 
 object HelpCommand : BotCommand(
     name = "help",
     alias = arrayOf("command", "commands", "cmd", "cmds"),
+    category = Category.INFO,
     description = "Get a list of commands or get help for a command"
 ) {
     init {
