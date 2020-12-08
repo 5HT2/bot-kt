@@ -54,14 +54,12 @@ object Main {
     }
 
     private fun CoroutineScope.runLooping(loopDelay: Long = 50L, block: suspend CoroutineScope.() -> Unit) = launch {
-        launch {
-            while (isActive) {
-                delay(loopDelay)
-                try {
-                    block.invoke(this)
-                } catch (e: Exception) {
-                    // this is fine, these are running in the background
-                }
+        while (isActive) {
+            delay(loopDelay)
+            try {
+                block.invoke(this)
+            } catch (e: Exception) {
+                // this is fine, these are running in the background
             }
         }
     }
