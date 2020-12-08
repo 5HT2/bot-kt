@@ -1,10 +1,11 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.system
 
 import com.google.gson.GsonBuilder
 import org.kamiblue.botkt.ConfigManager
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
+import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
@@ -14,6 +15,7 @@ import kotlin.math.min
 object ConfigCommand : BotCommand(
     name = "config",
     alias = arrayOf("cfg"),
+    category = Category.SYSTEM,
     description = "Manage bot configurations"
 ) {
     private val gson = GsonBuilder().setPrettyPrinting().create()

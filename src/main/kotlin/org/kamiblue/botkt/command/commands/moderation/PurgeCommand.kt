@@ -1,11 +1,13 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.moderation
 
 import net.ayataka.kordis.entity.deleteAll
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
+import org.kamiblue.botkt.command.Category
 
 object PurgeCommand : BotCommand(
     name = "purge",
+    category = Category.MODERATION,
     description = "Purges a number of messages in a channel based on parameters."
 ) {
     init {

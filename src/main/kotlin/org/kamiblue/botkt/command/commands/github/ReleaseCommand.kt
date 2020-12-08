@@ -1,12 +1,14 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.github
 
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
+import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 
 // TODO hardcoded, pending plugin support
 object ReleaseCommand : BotCommand(
-    name = "release"
+    name = "release",
+    category = Category.GITHUB,
 ) {
     init {
         literal("major") {

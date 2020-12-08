@@ -4,8 +4,8 @@ import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.command.CommandManager
-import org.kamiblue.botkt.command.commands.CapeCommand
-import org.kamiblue.botkt.command.commands.CounterCommand
+import org.kamiblue.botkt.command.commands.github.CounterCommand
+import org.kamiblue.botkt.command.commands.misc.CapeCommand
 import kotlin.system.exitProcess
 
 object Main {

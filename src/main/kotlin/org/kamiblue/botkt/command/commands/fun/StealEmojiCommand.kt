@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.`fun`
 
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.MessageSendUtils.error
@@ -7,6 +7,7 @@ import org.kamiblue.botkt.utils.StringUtils.readBytes
 
 object StealEmojiCommand : BotCommand(
     name = "stealemoji",
+    category = Category.FUN,
     description = "Emoji theif!"
 ) {
     init {

@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.system
 
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.channel.announcement.AnnouncementChannel
@@ -10,6 +10,7 @@ import org.kamiblue.botkt.utils.MessageSendUtils.error
 
 object SayCommand : BotCommand(
     name = "say",
+    category = Category.SYSTEM,
     description = "Say or edit messages via the bot"
 ) {
     init {

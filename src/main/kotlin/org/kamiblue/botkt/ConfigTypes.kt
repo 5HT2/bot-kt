@@ -1,6 +1,6 @@
 package org.kamiblue.botkt
 
-import org.kamiblue.botkt.command.commands.IssueCommand
+import org.kamiblue.botkt.command.commands.github.IssueCommand
 
 /**
  * [configPath] is the file name on disk, OR a remote URL. If it is a URL, it must be a valid URL which includes http/https as a prefix

@@ -1,19 +1,21 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.moderation
 
-import org.kamiblue.botkt.PermissionTypes.MANAGE_CHANNELS
+import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
+import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.StringUtils.flat
 
 object TopicCommand : BotCommand(
-    "topic",
+    name = "topic",
+    category = Category.MODERATION,
     description = "View and edit the channel topic"
 ) {
     init {
         literal("set") {
             greedy("topic") { topicArg ->
-                executeIfHas(MANAGE_CHANNELS, "Set the topic of the channel") {
+                executeIfHas(PermissionTypes.MANAGE_CHANNELS, "Set the topic of the channel") {
                     val setTopic = topicArg.value.flat(1024)
 
                     message.serverChannel?.edit {
@@ -27,7 +29,7 @@ object TopicCommand : BotCommand(
         }
 
         literal("clear") {
-            executeIfHas(MANAGE_CHANNELS, "Reset the topic of the channel to nothing") {
+            executeIfHas(PermissionTypes.MANAGE_CHANNELS, "Reset the topic of the channel to nothing") {
 
                 message.serverChannel?.edit {
                     topic = null

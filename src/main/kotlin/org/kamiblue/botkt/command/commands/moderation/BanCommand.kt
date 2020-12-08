@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.moderation
 
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.delay
@@ -21,6 +21,7 @@ import org.kamiblue.botkt.utils.checkPermission
 
 object BanCommand : BotCommand(
     name = "ban",
+    category = Category.MODERATION,
     description = "Ban a user or multiple users"
 ) {
     private const val banReason = "Ban Reason:"

@@ -8,7 +8,7 @@ import org.kamiblue.botkt.ConfigManager
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.UserConfig
-import org.kamiblue.botkt.command.commands.ExceptionCommand
+import org.kamiblue.botkt.command.commands.system.ExceptionCommand
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils
 import org.kamiblue.botkt.utils.StringUtils.flat
@@ -28,7 +28,8 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
         MessageSendUtils.log("Registering commands...")
 
         for (clazz in commandClasses) {
-            register(ClassUtils.getInstance(clazz))
+            val botCommand = ClassUtils.getInstance(clazz)
+            botCommand.category.commands.add(register(botCommand))
         }
 
         MessageSendUtils.log("Registered ${getCommands().size} commands!")

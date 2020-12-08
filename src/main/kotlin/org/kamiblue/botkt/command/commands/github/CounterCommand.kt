@@ -1,9 +1,10 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.github
 
 import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.command.BotCommand
+import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.success
@@ -13,6 +14,7 @@ import org.l1ving.api.download.Download
 
 object CounterCommand : BotCommand(
     name = "counter",
+    category = Category.GITHUB,
     description = "Count members and Github repo downloads"
 ) {
     init {
