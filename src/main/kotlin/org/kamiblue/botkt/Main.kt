@@ -37,9 +37,7 @@ object Main {
                 CommandManager.runQueued()
             },
 
-            runLooping {
-                val loopDelay = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)?.updateInterval ?: 600000L
-                delay(loopDelay)
+            runLooping(600000) {
                 CounterCommand.updateChannel()
             },
 

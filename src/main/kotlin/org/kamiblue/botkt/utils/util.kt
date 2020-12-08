@@ -50,16 +50,6 @@ inline fun <reified T> authenticatedRequest(authType: String, token: String, url
 }
 
 /**
- * Defaults to 10 minutes if null
- * @return update interval for member / download counters in milliseconds
- */
-fun configUpdateInterval(): Long {
-    val updateInterval = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)?.updateInterval
-        ?: return TimeUnit.MINUTES.toMillis(10)
-    return TimeUnit.MINUTES.toMillis(updateInterval)
-}
-
-/**
  * @return non-null bot authentication token
  */
 fun getAuthToken(): String {

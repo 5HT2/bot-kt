@@ -88,7 +88,6 @@ data class PermissionConfig(val councilMembers: HashMap<Long, List<PermissionTyp
  * [downloadStableUrl] is the main / stable repository in the format of kami-blue/bot-kt
  * [downloadNightlyUrl] is the alternate / nightly repository in the format of kami-blue/bot-kt
  * [perPage] is the max releases per page when using the Github API. Defaults to 200
- * [updateInterval] is the update interval in minutes, for the member / download counters. Omit from config to default to 10 minutes.
  */
 data class CounterConfig(
     val memberEnabled: Boolean?,
@@ -98,6 +97,5 @@ data class CounterConfig(
     val downloadChannelLatest: Long?,
     val downloadStableUrl: String?,
     val downloadNightlyUrl: String?,
-    val perPage: Int?,
-    val updateInterval: Long?
+    val perPage: Int?
 )
