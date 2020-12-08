@@ -74,8 +74,8 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
         event.message.channel.send {
             embed {
                 title = "Invalid input: ${Main.prefix}$string"
-                description = "${e.message}" +
-                    "\nUse the `${Main.prefix}exception` command to view the full stacktrace."
+                description = "${e.message}\n" +
+                    "Use the `${Main.prefix}exception` command to view the full stacktrace."
                 color = Colors.ERROR.color
             }
         }
@@ -94,7 +94,8 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
             event.message.channel.send {
                 embed {
                     title = "Unknown Command"
-                    description = "${e.message} Use ${Main.prefix}help to get a list of available commands."
+                    description = "Command not found: `${e.command}`\n" +
+                        "Use `${Main.prefix}help` to get a list of available commands."
                     color = Colors.ERROR.color
                 }
             }
@@ -121,7 +122,7 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
         event.message.channel.send {
             embed {
-                title = "Invalid Syntax: \"${Main.prefix}${string}\""
+                title = "Invalid Syntax: `${Main.prefix}${string}`"
                 if (bestCommand != null) {
                     val prediction = "`${Main.prefix}${bestCommand.printArgHelp()}`"
                     field("Did you mean?", prediction)
@@ -141,8 +142,8 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
         event.message.channel.send {
             embed {
                 title = "Command Exception Occurred"
-                description = "The command `${args.first()}` threw an exception." +
-                    "\nUse the `${Main.prefix}exception` command to view the full stacktrace."
+                description = "The command `${args.first()}` threw an exception.\n" +
+                    "Use the `${Main.prefix}exception` command to view the full stacktrace."
                 field("Exception Message", e.message.toString())
                 color = Colors.ERROR.color
             }
