@@ -24,7 +24,7 @@ object Main {
             }
         }
 
-    const val currentVersion = "v1.4.2"
+    const val currentVersion = "v1.4.4"
 
     @JvmStatic
     fun main(vararg args: String) = runBlocking {
@@ -37,9 +37,7 @@ object Main {
                 CommandManager.runQueued()
             },
 
-            runLooping {
-                val loopDelay = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)?.updateInterval ?: 600000L
-                delay(loopDelay)
+            runLooping(600000) {
                 CounterCommand.updateChannel()
             },
 
@@ -59,7 +57,11 @@ object Main {
         launch {
             while (isActive) {
                 delay(loopDelay)
-                block.invoke(this)
+                try {
+                    block.invoke(this)
+                } catch (e: Exception) {
+                    // this is fine, these are running in the background
+                }
             }
         }
     }

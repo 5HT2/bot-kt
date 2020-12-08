@@ -70,16 +70,14 @@ object ConfigCommand : BotCommand(
             enum<ConfigType>("name") { typeArg ->
                 greedy("url") { urlArg ->
                     executeIfHas(PermissionTypes.MANAGE_CONFIG, "Download a new config by type") {
-                        val configType = typeArg.value
-                        val url = urlArg.value
-
-                        val message = message.normal("Downloading `${configType.name}`...")
+                        val configName = typeArg.value.configPath.substring(7)
+                        val message = message.normal("Downloading `$configName`...")
 
                         try {
-                            val size = "config/$name".writeBytes(url)
+                            val size = typeArg.value.configPath.writeBytes(urlArg.value)
                             message.edit {
                                 color = Colors.SUCCESS.color
-                                description = "Successfully downloaded `$name` (${size / 1000.0}KB)!"
+                                description = "Successfully downloaded `$configName` (${size / 1000.0}KB)!"
                             }
                         } catch (e: Exception) {
                             val stackTrace = e.stackTrace.toList().run {
@@ -87,7 +85,7 @@ object ConfigCommand : BotCommand(
                             }
                             message.edit {
                                 color = Colors.ERROR.color
-                                description = "Failed to download `$name`\n" +
+                                description = "Failed to download `$configName`\n" +
                                     "```${stackTrace}```"
                             }
                         }
