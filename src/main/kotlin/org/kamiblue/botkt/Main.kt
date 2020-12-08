@@ -59,7 +59,11 @@ object Main {
         launch {
             while (isActive) {
                 delay(loopDelay)
-                block.invoke(this)
+                try {
+                    block.invoke(this)
+                } catch (e: Exception) {
+                    // this is fine, these are running in the background
+                }
             }
         }
     }
