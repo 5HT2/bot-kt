@@ -16,7 +16,7 @@ import org.kamiblue.command.utils.ExecuteBlock
 abstract class BotCommand(
     name: String,
     alias: Array<out String> = emptyArray(),
-    val category: Category ,
+    val category: Category,
     description: String = "No description",
 ) : CommandBuilder<MessageExecuteEvent>(name, alias, description) {
 

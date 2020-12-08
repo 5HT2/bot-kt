@@ -8,7 +8,7 @@ import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 // TODO hardcoded, pending plugin support
 object ReleaseCommand : BotCommand(
     name = "release",
-    category = Category.INFO,
+    category = Category.GITHUB,
 ) {
     init {
         literal("major") {
