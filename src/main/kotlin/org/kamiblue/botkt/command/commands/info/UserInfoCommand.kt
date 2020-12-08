@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.info
 
 import net.ayataka.kordis.entity.findByTag
 import net.ayataka.kordis.entity.message.Message
@@ -19,6 +19,7 @@ import java.time.temporal.ChronoUnit
 object UserInfoCommand : BotCommand(
     name = "userinfo",
     alias = arrayOf("whois"),
+    category = Category.INFO,
     description = "Look up info for a Discord user"
 ) {
     init {

@@ -1,7 +1,8 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.system
 
 import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
 import org.kamiblue.botkt.command.BotCommand
+import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.MessageSendUtils.success
@@ -10,6 +11,7 @@ import org.kamiblue.botkt.utils.StringUtils.flat
 object ExceptionCommand : BotCommand(
     name = "exception",
     alias = arrayOf("exc"),
+    category = Category.SYSTEM,
     description = "View recent exceptions caused in commands"
 ) {
     private val exceptions = ArrayList<Exception>()

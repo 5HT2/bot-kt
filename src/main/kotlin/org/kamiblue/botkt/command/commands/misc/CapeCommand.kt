@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.misc
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -35,6 +35,7 @@ import kotlin.collections.LinkedHashMap
 // TODO: this is pretty server specific. Will be removed in the future and changed to a plugin
 object CapeCommand : BotCommand(
     name = "cape",
+    category = Category.MISC,
     description = "Modify / view KAMI Blue Capes."
 ) {
     private val gson = GsonBuilder().setPrettyPrinting().create()

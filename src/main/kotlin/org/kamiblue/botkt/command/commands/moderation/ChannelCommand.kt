@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.moderation
 
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.message.Message
@@ -21,6 +21,7 @@ import kotlin.collections.set
 object ChannelCommand : BotCommand(
     name = "channel",
     alias = arrayOf("ch"),
+    category = Category.MODERATION,
     description = "Modify, copy, save, archive and slow channels"
 ) {
     private val permissions = HashMap<String, Collection<RolePermissionOverwrite>>()

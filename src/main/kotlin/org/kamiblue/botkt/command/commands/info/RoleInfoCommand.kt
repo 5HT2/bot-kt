@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.command.commands
+package org.kamiblue.botkt.command.commands.info
 
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.role.Role
@@ -10,6 +10,7 @@ import org.kamiblue.botkt.utils.pretty
 
 object RoleInfoCommand : BotCommand(
     name = "roleinfo",
+    category = Category.INFO,
     description = "Get information about a role"
 ) {
     init {
