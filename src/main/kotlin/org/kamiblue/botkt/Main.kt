@@ -24,7 +24,7 @@ object Main {
             }
         }
 
-    const val currentVersion = "v1.4.0"
+    const val currentVersion = "v1.4.1"
 
     @JvmStatic
     fun main(vararg args: String) = runBlocking {
