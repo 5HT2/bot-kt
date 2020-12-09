@@ -1,5 +1,6 @@
 package org.kamiblue.botkt.command.commands.`fun`
 
+import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
@@ -12,13 +13,13 @@ object StealEmojiCommand : BotCommand(
 ) {
     init {
         emoji("emoji") { emojiArg ->
-            execute {
+            executeIfHas(PermissionTypes.COUNCIL_MEMBER) {
                 val animatableEmoji = emojiArg.value
 
                 val foundEmoji = server?.emojis?.findByName(animatableEmoji.emoji.name)
                 if (foundEmoji != null) {
                     message.error("There is already an emoji with the name `${animatableEmoji.emoji.name}`!")
-                    return@execute
+                    return@executeIfHas
                 }
 
                 val extension = if (animatableEmoji.animated) "gif" else "png"
@@ -29,7 +30,7 @@ object StealEmojiCommand : BotCommand(
                     image = bytes
                 } ?: run {
                     message.error("Guild is null, make sure you're not running this from a DM!")
-                    return@execute
+                    return@executeIfHas
                 }
 
                 message.normal("Successfully stolen emoji `${emoji.name}`!")
