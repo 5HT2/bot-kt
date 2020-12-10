@@ -102,19 +102,19 @@ object BanCommand : BotCommand(
         user("user") { user ->
             boolean("delete messages") { deleteMsgs ->
                 greedy("reason") { reason ->
-                    executeIfHas(COUNCIL_MEMBER) {
+                    executeIfHas(COUNCIL_MEMBER, "Optionally delete messages, custom reason") {
                         ban(user.value, deleteMsgs.value, reason.value, server, message)
                     }
                 }
             }
 
             greedy("reason") { reason ->
-                executeIfHas(COUNCIL_MEMBER) {
+                executeIfHas(COUNCIL_MEMBER, "Don't delete messages, custom reason") {
                     ban(user.value, false, reason.value, server, message)
                 }
             }
 
-            executeIfHas(COUNCIL_MEMBER) {
+            executeIfHas(COUNCIL_MEMBER, "Don't delete messages, use default reason") {
                 ban(user.value, false, null, server, message)
             }
         }
