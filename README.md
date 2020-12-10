@@ -17,7 +17,7 @@ Why should you use this over other Kotlin bots:
 - Really easy to configure
 - Entirely modular, including config types and commands
 - Config types support providing a URL instead of a file name, allowing you to load configurations remotely
-- Command registration is automatic, just create an object which extends `BotCommand(name = "Example", description = "Example Command)`
+- Command registration is automatic, just create an object which extends `BotCommand(name = "Example", description = "Example Command")`
 - Has a DSL for our own Brigadier-like command system, making creating a command *as easy as just writing a few lambdas*
 - Has (optional) automatic updating
 
