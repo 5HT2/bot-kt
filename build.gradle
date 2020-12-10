@@ -4,6 +4,7 @@ buildscript {
 
 plugins {
     id "org.jetbrains.kotlin.jvm" version "$bot_kotlin_version"
+    id 'org.jetbrains.kotlin.plugin.serialization' version "$bot_plugin_serialization_version"
 }
 
 group 'org.kamiblue'
@@ -24,6 +25,7 @@ dependencies {
     implementation "com.neovisionaries:nv-websocket-client:$bot_nv_websocket_version"
     implementation "org.slf4j:slf4j-simple:$bot_slf4j_version"
     implementation "com.github.ronmamo:reflections:$bot_reflections_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:$bot_serialization_version"
 }
 
 sourceSets.main.java {

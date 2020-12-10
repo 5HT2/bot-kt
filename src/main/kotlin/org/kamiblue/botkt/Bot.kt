@@ -10,6 +10,10 @@ import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils
+import java.net.MalformedURLException
+import java.net.URLClassLoader
+import java.util.*
+
 
 /**
  * @author l1ving

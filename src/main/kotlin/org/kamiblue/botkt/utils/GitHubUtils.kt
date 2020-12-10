@@ -1,6 +1,5 @@
 package org.kamiblue.botkt.utils
 
-import com.google.gson.Gson
 import net.ayataka.kordis.entity.message.Message
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -12,6 +11,8 @@ import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.UserConfig
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.l1ving.api.issue.Issue
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 
 object GitHubUtils {
     /**
@@ -40,7 +41,7 @@ object GitHubUtils {
      */
     fun createGithubIssue(issue: Issue, user: String, repo: String, token: String) {
         val url = "https://api.github.com/repos/$user/$repo/issues"
-        val body = Gson().toJson(issue).toRequestBody("".toMediaTypeOrNull())
+        val body = Json.encodeToString(issue).toRequestBody("".toMediaTypeOrNull())
 
         val request = Request.Builder()
             .addHeader("Accept", "application/vnd.github.v3+json")

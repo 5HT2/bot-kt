@@ -16,10 +16,10 @@ import okhttp3.Request
 import org.kamiblue.botkt.AuthConfig
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.ConfigType
-import org.kamiblue.botkt.CounterConfig
 import org.kamiblue.botkt.utils.MessageSendUtils.log
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
-import java.util.concurrent.TimeUnit
+import kotlinx.serialization.json.*
+import kotlinx.serialization.*
 
 /**
  * @return a pretty formatted set of permissions, "None" if empty
@@ -35,7 +35,8 @@ inline fun <reified T> request(url: String): T {
     val request = Request.Builder().url(url).get().build()
     val response = OkHttpClient().newCall(request).execute()
 
-    return Gson().fromJson(response.body!!.string(), T::class.java)
+//    return Gson().fromJson(response.body!!.string(), T::class.java)
+    return Json.decodeFromString<T>(response.body.toString())
 }
 
 /**
@@ -46,7 +47,8 @@ inline fun <reified T> authenticatedRequest(authType: String, token: String, url
     val request = Request.Builder().addHeader("Authorization", "$authType $token").url(url).get().build()
     val response = OkHttpClient().newCall(request).execute()
 
-    return Gson().fromJson(response.body!!.string(), T::class.java)
+//    return Gson().fromJson(response.body!!.string(), T::class.java)
+    return Json.decodeFromString<T>(response.body!!.string())
 }
 
 /**

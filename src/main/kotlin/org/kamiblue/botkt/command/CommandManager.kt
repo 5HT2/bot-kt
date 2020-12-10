@@ -16,7 +16,13 @@ import org.kamiblue.command.AbstractCommandManager
 import org.kamiblue.command.utils.CommandNotFoundException
 import org.kamiblue.command.utils.SubCommandNotFoundException
 import org.kamiblue.commons.utils.ClassUtils
+import java.io.File
+import java.net.URL
+import java.net.URLClassLoader
+import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.jar.JarFile
+
 
 object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
@@ -24,6 +30,10 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
     fun init() {
         val commandClasses = ClassUtils.findClasses("org.kamiblue.botkt.command.commands", BotCommand::class.java)
+
+        val jarFile = File("plugin.jar")
+        importPlugin(jarFile)
+        val classes: List<Class<*>> = findJarClasses(jarFile)
 
         MessageSendUtils.log("Registering commands...")
 
@@ -84,13 +94,13 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
     }
 
     private suspend fun handleCommandNotFoundException(
-        event: MessageReceiveEvent,
-        e: CommandNotFoundException
+            event: MessageReceiveEvent,
+            e: CommandNotFoundException
     ) {
         if (ConfigManager.readConfigSafe<UserConfig>(
-                ConfigType.USER,
-                false
-            )?.unknownCommandError == true
+                        ConfigType.USER,
+                        false
+                )?.unknownCommandError == true
         ) {
             event.message.channel.send {
                 embed {
@@ -104,10 +114,10 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
     }
 
     private suspend fun handleSubCommandNotFoundException(
-        event: MessageReceiveEvent,
-        string: String,
-        args: Array<String>,
-        e: SubCommandNotFoundException
+            event: MessageReceiveEvent,
+            string: String,
+            args: Array<String>,
+            e: SubCommandNotFoundException
     ) {
         val bestCommand = e.command.finalArgs.maxByOrNull { it.countArgs(args) }
 
@@ -135,9 +145,9 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
     }
 
     private suspend fun handleExceptions(
-        event: MessageReceiveEvent,
-        args: Array<String>,
-        e: Exception
+            event: MessageReceiveEvent,
+            args: Array<String>,
+            e: Exception
     ) {
         ExceptionCommand.addException(e)
         event.message.channel.send {
@@ -151,5 +161,26 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
         }
     }
 
+    private fun importPlugin(file: File){
+        val addURL = URLClassLoader::class.java.getDeclaredMethod("addURL", URL::class.java)
+        addURL.isAccessible = true
+        addURL.invoke(URLClassLoader.getSystemClassLoader(), file.toURI().toURL())
+    }
+
+    private fun findJarClasses(file: File): List<Class<*>> {
+        val classes = ArrayList<Class<*>>()
+        val entries = JarFile(file).entries()
+
+        while (entries.hasMoreElements()) {
+            val entry = entries.nextElement()
+            var name = entry.name
+
+            if (name.endsWith(".class")) {
+                name = name.substring(0, name.lastIndexOf('.'))
+                classes.add(Class.forName(name))
+            }
+        }
+        return classes
+    }
 }
 
