@@ -17,13 +17,13 @@ Why should you use this over other Kotlin bots:
 - Really easy to configure
 - Entirely modular, including config types and commands
 - Config types support providing a URL instead of a file name, allowing you to load configurations remotely
-- Command registration is automatic, just create an object which extends `Command("commandName")`
+- Command registration is automatic, just create an object which extends `BotCommand(name = "Example", description = "Example Command")`
 - Has a DSL for our own Brigadier-like command system, making creating a command *as easy as just writing a few lambdas*
 - Has (optional) automatic updating
 
 ## Contributing
 
-0. `git clone --recurse-submodules git@github.com:kami-blue/bot-kt.git`
+0. `git clone --recurse-submodules https://github.com/kami-blue/bot-kt.git`
 1. In Intellij IDEA select `File -> New -> Project from existing sources`
 3. Import the `build.gradle` file
 4. Wait for the Gradle import to finish
