@@ -96,7 +96,7 @@ object MuteManager {
                 delay(30000L)
                 save()
             } catch (e: Exception) {
-
+                // this is fine
             }
         }
     }
