@@ -66,7 +66,7 @@ object MuteCommand : BotCommand(
         reason: String
     ) {
         if (server == null) {
-            message.error("Server members are null, are you running this from a DM?")
+            message.error("Server is null, are you running this from a DM?")
             return
         }
 

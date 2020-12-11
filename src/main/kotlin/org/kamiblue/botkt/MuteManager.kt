@@ -48,7 +48,7 @@ object MuteManager {
 
     class ServerMuteInfo(val server: Server) {
         val muteMap = ConcurrentHashMap<Long, Long>() // <Member ID, Unmute Time>
-        private val coroutineMap = HashMap<Long, Job>() // <Member ID, Coroutine Job>
+        val coroutineMap = HashMap<Long, Job>() // <Member ID, Coroutine Job>
 
         private var mutedRole: Role? = null
 
