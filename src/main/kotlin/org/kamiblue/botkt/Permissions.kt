@@ -49,5 +49,6 @@ enum class PermissionTypes {
     MASS_BAN,
     APPROVE_ISSUE_CREATION,
     AUTHORIZE_CAPES,
-    CREATE_RELEASE
+    CREATE_RELEASE,
+    PURGE_PROTECTED
 }

@@ -1,7 +1,7 @@
 package org.kamiblue.botkt.helpers
 
-import org.kamiblue.botkt.helpers.MathHelper.round
 import org.kamiblue.botkt.helpers.ShellHelper.bash
+import org.kamiblue.commons.utils.MathUtils
 import java.io.File
 
 object SystemHelper {
@@ -48,6 +48,6 @@ object SystemHelper {
             return null
         }
 
-        return round(freqInKHz / 1000000, 2)
+        return MathUtils.round(freqInKHz / 1000000, 2)
     }
 }
