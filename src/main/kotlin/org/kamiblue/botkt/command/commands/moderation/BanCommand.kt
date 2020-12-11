@@ -63,15 +63,13 @@ object BanCommand : BotCommand(
                         m.edit {
                             field(
                                 "$banned members were banned by:",
-                                message.author?.mention.toString(),
-                                false
+                                message.author?.mention.toString()
                             )
                             field(
                                 banReason,
-                                reason,
-                                false
+                                reason
                             )
-                            footer("ID: ${message.author?.id}", "https://cdn.discordapp.com/avatars/${message.author?.id}/${message.author?.avatar}.png")
+                            footer("ID: ${message.author?.id}", message.author?.avatar?.url)
                             color = Colors.ERROR.color
                         }
                     }
