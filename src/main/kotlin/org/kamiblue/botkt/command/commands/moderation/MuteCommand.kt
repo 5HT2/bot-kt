@@ -25,7 +25,7 @@ object MuteCommand : BotCommand(
     description = "Now stop talking!"
 ) {
 
-    private val serverMap = HashMap<Long, ServerMuteInfo>()
+    private val serverMap = HashMap<Long, ServerMuteInfo>() // <Server ID, ServerMuteInfo>
 
     init {
         user("user") { userArg ->
@@ -198,8 +198,8 @@ object MuteCommand : BotCommand(
     }
 
     class ServerMuteInfo(val server: Server) {
-        val muteMap: ConcurrentHashMap<Long, Long> = ConcurrentHashMap()
-        val coroutineMap: HashMap<Long, Job> = HashMap()
+        val muteMap = ConcurrentHashMap<Long, Long>() // <Member ID, Unmute Time>
+        val coroutineMap = HashMap<Long, Job>() // <Member ID, Coroutine Job>
 
         private var mutedRole: Role? = null
 
@@ -213,6 +213,7 @@ object MuteCommand : BotCommand(
 
         init {
             GlobalScope.launch {
+                delay(10000L)
                 while (isActive) {
                     for ((id, unmuteTime) in muteMap) {
                         delay(500L)
