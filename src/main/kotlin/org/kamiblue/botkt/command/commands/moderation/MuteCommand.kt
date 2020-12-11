@@ -70,6 +70,11 @@ object MuteCommand : BotCommand(
             return
         }
 
+        if (MuteManager.serverMap[server.id]?.muteMap?.contains(user.id) == true) {
+            message.error("${user.name}#${user.discriminator} was muted already")
+            return
+        }
+
         val convertedDuration = when (unit.toLowerCase()) {
             "s" -> duration * 1000L
             "m" -> duration * 60000L
