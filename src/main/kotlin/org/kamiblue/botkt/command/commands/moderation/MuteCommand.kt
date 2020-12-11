@@ -1,22 +1,17 @@
 package org.kamiblue.botkt.command.commands.moderation
 
-import kotlinx.coroutines.*
-import net.ayataka.kordis.entity.botUser
-import net.ayataka.kordis.entity.everyone
 import net.ayataka.kordis.entity.find
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.member.Member
-import net.ayataka.kordis.entity.server.permission.PermissionSet
-import net.ayataka.kordis.entity.server.role.Role
 import net.ayataka.kordis.entity.user.User
+import org.kamiblue.botkt.MuteManager
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
-import java.util.concurrent.ConcurrentHashMap
 
 object MuteCommand : BotCommand(
     name = "mute",
@@ -24,8 +19,6 @@ object MuteCommand : BotCommand(
     category = Category.MODERATION,
     description = "Now stop talking!"
 ) {
-
-    private val serverMap = HashMap<Long, ServerMuteInfo>() // <Server ID, ServerMuteInfo>
 
     init {
         user("user") { userArg ->
@@ -76,10 +69,11 @@ object MuteCommand : BotCommand(
             return
         }
 
-        serverMap.getOrPut(server.id) { ServerMuteInfo(server) }.mute(member, message, convertedDuration, reason)
+        MuteManager.serverMap.getOrPut(server.id) { MuteManager.ServerMuteInfo(server) }
+            .mute(member, message, convertedDuration, reason)
     }
 
-    private suspend fun ServerMuteInfo.mute(
+    private suspend fun MuteManager.ServerMuteInfo.mute(
         member: Member,
         message: Message,
         duration: Long,
@@ -180,50 +174,6 @@ object MuteCommand : BotCommand(
                 )
                 footer("ID: ${member.id}", member.avatar.url)
                 color = Colors.ERROR.color
-            }
-        }
-    }
-
-    private suspend fun ServerMuteInfo.startUnmuteCoroutine(
-        member: Member,
-        role: Role,
-        duration: Long
-    ) {
-        coroutineMap[member.id] = GlobalScope.launch {
-            delay(duration)
-            member.removeRole(role)
-            muteMap.remove(member.id)
-            coroutineMap.remove(member.id)
-        }
-    }
-
-    class ServerMuteInfo(val server: Server) {
-        val muteMap = ConcurrentHashMap<Long, Long>() // <Member ID, Unmute Time>
-        val coroutineMap = HashMap<Long, Job>() // <Member ID, Coroutine Job>
-
-        private var mutedRole: Role? = null
-
-        suspend fun getMutedRole() = mutedRole
-            ?: server.roles.findByName("Muted")
-            ?: server.createRole {
-                name = "Muted"
-                permissions = PermissionSet(server.roles.everyone.permissions.compile() and 68224001)
-                position = server.members.botUser.roles.map { it.position }.maxOrNull()!!
-            }
-
-        init {
-            GlobalScope.launch {
-                delay(10000L)
-                while (isActive) {
-                    for ((id, unmuteTime) in muteMap) {
-                        delay(500L)
-                        if (!coroutineMap.contains(id)) {
-                            val member = server.members.find(id) ?: continue
-                            val duration = unmuteTime - System.currentTimeMillis()
-                            startUnmuteCoroutine(member, getMutedRole(), duration)
-                        }
-                    }
-                }
             }
         }
     }
