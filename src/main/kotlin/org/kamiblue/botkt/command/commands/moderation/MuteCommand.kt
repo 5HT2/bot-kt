@@ -12,6 +12,7 @@ import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageSendUtils.success
 
 object MuteCommand : BotCommand(
     name = "mute",
@@ -21,6 +22,26 @@ object MuteCommand : BotCommand(
 ) {
 
     init {
+        try {
+            MuteManager.load()
+        } catch (e : Exception) {
+            e.printStackTrace()
+        }
+
+        literal("reload") {
+            executeIfHas(PermissionTypes.MANAGE_CONFIG) {
+                MuteManager.load()
+                message.success("Successfully reloaded mute config!")
+            }
+        }
+
+        literal("save") {
+            executeIfHas(PermissionTypes.MANAGE_CONFIG) {
+                MuteManager.save()
+                message.success("Successfully saved mute config!")
+            }
+        }
+
         user("user") { userArg ->
             long("duration") { durationArg ->
                 string("unit") { unitArg ->
