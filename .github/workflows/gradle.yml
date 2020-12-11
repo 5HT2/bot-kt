@@ -17,7 +17,7 @@ jobs:
 
     - name: Check out submodules
       run: git submodule update --init --recursive
-      
+
     - name: Set up JDK
       uses: actions/setup-java@v1
       with:
