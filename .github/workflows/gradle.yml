@@ -12,15 +12,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 1.8
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Check out submodules
+      run: git submodule update --init --recursive
+      
+    - name: Set up JDK
       uses: actions/setup-java@v1
       with:
-        java-version: 1.8
-    - name: Download and update submodules
-      run: git submodule update --init --recursive
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+       java-version: 1.8
 
+    - name: Gradle cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
+        restore-keys: ${{ runner.os }}-gradle-
+
+    - name: Gradle build
+      run: ./gradlew --build-cache build
+
+    - name: Archive artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifact
+        path: build/libs
