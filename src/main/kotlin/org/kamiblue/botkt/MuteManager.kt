@@ -141,9 +141,9 @@ object MuteManager {
                 while (isActive) {
                     for ((id, unmuteTime) in muteMap) {
                         delay(500L)
-                        if (!coroutineMap.contains(id)) {
-                            val member = server.members.find(id) ?: continue
+                        if (muteMap.containsKey(id) && !coroutineMap.containsKey(id)) {
                             val duration = unmuteTime - System.currentTimeMillis()
+                            val member = server.members.find(id) ?: continue
                             startUnmuteCoroutine(member, getMutedRole(), duration)
                         }
                     }
