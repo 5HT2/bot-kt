@@ -72,12 +72,9 @@ object MuteManager {
                 val mutedRole = serverMuteInfo.getMutedRole()
                 val duration = it - System.currentTimeMillis()
 
-
                 if (duration > 1000L) {
-                    serverMuteInfo.coroutineMap.remove(member.id)?.cancel()
                     try {
                         member.addRole(mutedRole)
-                        serverMuteInfo.startUnmuteCoroutine(member, mutedRole, duration)
                     } catch (e: Exception) {
                         // Ignore it
                     }
