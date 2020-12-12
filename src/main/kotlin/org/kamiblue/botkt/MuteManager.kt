@@ -105,8 +105,8 @@ object MuteManager {
             coroutineMap[member.id] = GlobalScope.launch {
                 delay(duration)
                 member.removeRole(role)
-                muteMap.remove(member.id)
                 coroutineMap.remove(member.id)
+                muteMap.remove(member.id) ?: return@launch
 
                 try {
                     val bot = Main.client.botUser
