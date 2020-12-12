@@ -101,6 +101,7 @@ object MuteManager {
             role: Role,
             duration: Long
         ) {
+            if (coroutineMap.containsKey(member.id)) return
             coroutineMap[member.id] = GlobalScope.launch {
                 delay(duration)
                 member.removeRole(role)
@@ -112,8 +113,8 @@ object MuteManager {
                     member.getPrivateChannel().send {
                         embed {
                             field(
-                                "You were unmuted by:",
-                                bot.mention
+                                "You were unmuted automatically by:",
+                                "${bot.mention}, in the guild `${server.name}`"
                             )
                             color = Colors.SUCCESS.color
                             footer("ID: ${bot.id}", bot.avatar.url)
