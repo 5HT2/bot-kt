@@ -1,15 +1,12 @@
 package org.kamiblue.botkt.command.commands.moderation
 
 import net.ayataka.kordis.entity.find
-import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.MuteManager
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
-import org.kamiblue.botkt.command.commands.system.ExceptionCommand
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.MessageSendUtils.success
 
 object UnmuteCommand : BotCommand(
     name = "unmute",
@@ -59,11 +56,23 @@ object UnmuteCommand : BotCommand(
                     message.channel.send {
                         embed {
                             field(
-                                "${member.name}#${member.discriminator} was unmute by:",
+                                "${member.tag} was unmuted by:",
                                 message.author?.mention ?: "Mute message author not found!"
                             )
                             footer("ID: ${member.id}", member.avatar.url)
                             color = Colors.SUCCESS.color
+                        }
+                    }
+                } else if (member.roles.any { it.name.equals("Muted", true) }) {
+                    message.channel.send {
+                        embed {
+                            description = "Warning: ${member.tag} was not muted using the bot, removed muted role."
+                            field(
+                                "${member.tag} was unmuted by:",
+                                message.author?.mention ?: "Mute message author not found!"
+                            )
+                            footer("ID: ${member.id}", member.avatar.url)
+                            color = Colors.WARN.color
                         }
                     }
                 } else {

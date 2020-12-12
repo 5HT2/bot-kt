@@ -77,7 +77,7 @@ object MuteCommand : BotCommand(
         }
 
         if (MuteManager.serverMap[server.id]?.muteMap?.containsKey(user.id) == true) {
-            message.error("${user.name}#${user.discriminator} is muted already")
+            message.error("${user.mention} is already muted")
             return
         }
 
@@ -197,7 +197,7 @@ object MuteCommand : BotCommand(
         message.channel.send {
             embed {
                 field(
-                    "${member.name}#${member.discriminator} was muted for $formattedDuration by:",
+                    "${member.tag} was muted for $formattedDuration by:",
                     message.author?.mention ?: "Mute message author not found!"
                 )
                 field(
