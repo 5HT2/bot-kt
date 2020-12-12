@@ -130,58 +130,9 @@ object BanCommand : BotCommand(
         val deleteMessageDays = if (deleteMsgs) 1 else 0
         val fixedReason = if (!reason.isNullOrBlank()) reason else readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultBanReason ?: "No Reason Specified"
 
+        if (!canBan(user, message, server)) return
 
-        when {
-            user.id.hasPermission(COUNCIL_MEMBER) -> {
-                message?.error("That user is protected, I can't do that.")
-                return
-            }
-
-            user.id == message?.author?.id -> {
-                message.error("You can't ban yourself!")
-                return
-            }
-
-            else -> {
-                try {
-                    checkPermission(Main.client as DiscordClientImpl, server, Permission.BAN_MEMBERS)
-                } catch (e: NotFoundException) {
-                    message?.error("Client is not fully initialized, member list not loaded!")
-                    return
-                }
-            }
-        }
-
-        message?.let { msg ->
-            try {
-                user.getPrivateChannel().send {
-                    embed {
-                        field(
-                            "You were banned by:",
-                            msg.author?.mention ?: "Ban message author not found!"
-                        )
-                        field(
-                            "In the guild:",
-                            server.name
-                        )
-                        field(
-                            banReason,
-                            fixedReason
-                        )
-                        color = Colors.ERROR.color
-                        footer("ID: ${msg.author?.id}", msg.author?.avatar?.url)
-                    }
-                }
-            } catch (e: Exception) {
-                msg.channel.send {
-                    embed {
-                        title = "Error"
-                        description = "I couldn't DM that user the ban reason, they might have had DMs disabled."
-                        color = Colors.ERROR.color
-                    }
-                }
-            }
-        }
+        messageReason(user, message, server, fixedReason)
 
         try {
             user.ban(
@@ -215,6 +166,63 @@ object BanCommand : BotCommand(
                     footer("ID: ${user.id}", user.avatar.url)
                     color = Colors.ERROR.color
                 }
+            }
+        }
+    }
+
+    private suspend fun messageReason(user: User, message: Message?, server: Server, fixedReason: String) {
+        message?.let { msg ->
+            try {
+                user.getPrivateChannel().send {
+                    embed {
+                        field(
+                            "You were banned by:",
+                            msg.author?.mention ?: "Ban message author not found!"
+                        )
+                        field(
+                            "In the guild:",
+                            server.name
+                        )
+                        field(
+                            banReason,
+                            fixedReason
+                        )
+                        color = Colors.ERROR.color
+                        footer("ID: ${msg.author?.id}", msg.author?.avatar?.url)
+                    }
+                }
+            } catch (e: Exception) {
+                msg.channel.send {
+                    embed {
+                        title = "Error"
+                        description = "I couldn't DM that user the ban reason, they might have had DMs disabled."
+                        color = Colors.ERROR.color
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun canBan(user: User, message: Message?, server: Server): Boolean {
+        when {
+            user.id.hasPermission(COUNCIL_MEMBER) -> {
+                message?.error("That user is protected, I can't do that.")
+                return false
+            }
+
+            user.id == message?.author?.id -> {
+                message.error("You can't ban yourself!")
+                return false
+            }
+
+            else -> {
+                try {
+                    checkPermission(Main.client as DiscordClientImpl, server, Permission.BAN_MEMBERS)
+                } catch (e: NotFoundException) {
+                    message?.error("Client is not fully initialized, member list not loaded!")
+                    return false
+                }
+                return true
             }
         }
     }
