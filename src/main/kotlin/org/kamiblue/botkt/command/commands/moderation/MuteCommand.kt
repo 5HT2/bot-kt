@@ -25,7 +25,7 @@ object MuteCommand : BotCommand(
     init {
         try {
             MuteManager.load()
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
 
@@ -160,7 +160,7 @@ object MuteCommand : BotCommand(
     }
 
     private fun grammar(long: Long, string: String, appendSpace: Boolean = true) =
-        (if (long > 1) "$long ${string}s" else "$long $string") + if (appendSpace) " " else ""
+        (if (long > 1 || long == 0L) "$long ${string}s" else "$long $string") + if (appendSpace) " " else ""
 
     private suspend fun sendMutedMessage(
         member: Member,
