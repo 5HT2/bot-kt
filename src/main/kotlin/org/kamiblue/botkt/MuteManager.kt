@@ -13,6 +13,7 @@ import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.server.user.UserJoinEvent
 import net.ayataka.kordis.event.events.server.user.UserRoleUpdateEvent
 import net.ayataka.kordis.utils.timer
+import org.kamiblue.botkt.utils.Colors
 import java.io.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -57,7 +58,7 @@ object MuteManager {
 
     @EventHandler
     suspend fun onUserUpdateRoles(event: UserRoleUpdateEvent) {
-        if (event.before.any { it.name.equals("Muted", true)}) {
+        if (event.before.any { it.name.equals("Muted", true) }) {
             reAdd(event.server, event.member)
         }
     }
@@ -105,6 +106,22 @@ object MuteManager {
                 member.removeRole(role)
                 muteMap.remove(member.id)
                 coroutineMap.remove(member.id)
+
+                try {
+                    val bot = Main.client.botUser
+                    member.getPrivateChannel().send {
+                        embed {
+                            field(
+                                "You were unmuted by:",
+                                bot.mention
+                            )
+                            color = Colors.SUCCESS.color
+                            footer("ID: ${bot.id}", bot.avatar.url)
+                        }
+                    }
+                } catch (e: Exception) {
+                    // this is fine
+                }
             }
         }
 
