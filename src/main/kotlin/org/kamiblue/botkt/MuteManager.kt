@@ -11,6 +11,7 @@ import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.role.Role
 import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.server.user.UserJoinEvent
+import net.ayataka.kordis.event.events.server.user.UserRoleUpdateEvent
 import net.ayataka.kordis.utils.timer
 import java.io.*
 import java.util.concurrent.ConcurrentHashMap
@@ -19,7 +20,7 @@ object MuteManager {
 
     val serverMap = HashMap<Long, ServerMuteInfo>() // <Server ID, ServerMuteInfo>
     private val gson = GsonBuilder().setPrettyPrinting().create()
-    private val type = object: TypeToken<LinkedHashMap<Long, Map<Long, Long>>>(){}.type
+    private val type = object : TypeToken<LinkedHashMap<Long, Map<Long, Long>>>() {}.type
     private val muteFile = File("config/mute.json")
 
     fun save() {
@@ -51,19 +52,30 @@ object MuteManager {
     @Suppress("UNUSED")
     @EventHandler
     suspend fun userJoinedListener(event: UserJoinEvent) {
-        serverMap[event.server.id]?.let { serverMuteInfo ->
-            serverMuteInfo.muteMap[event.member.id]?.let {
+        reAdd(event.server, event.member)
+    }
+
+    @EventHandler
+    suspend fun onUserUpdateRoles(event: UserRoleUpdateEvent) {
+        if (event.before.any { it.name.equals("Muted", true)}) {
+            reAdd(event.server, event.member)
+        }
+    }
+
+    private suspend fun reAdd(server: Server, member: Member) {
+        serverMap[server.id]?.let { serverMuteInfo ->
+            serverMuteInfo.muteMap[member.id]?.let {
                 val mutedRole = serverMuteInfo.getMutedRole()
                 val duration = System.currentTimeMillis() - it
                 if (duration > 1000L) {
                     try {
-                        event.member.addRole(mutedRole)
+                        member.addRole(mutedRole)
                     } catch (e: Exception) {
                         return
                     }
-                    serverMuteInfo.startUnmuteCoroutine(event.member, mutedRole, duration)
+                    serverMuteInfo.startUnmuteCoroutine(member, mutedRole, duration)
                 } else {
-                    serverMuteInfo.muteMap.remove(event.member.id)
+                    serverMuteInfo.muteMap.remove(member.id)
                 }
             }
         }
@@ -76,7 +88,7 @@ object MuteManager {
         private var mutedRole: Role? = null
 
         suspend fun getMutedRole() = mutedRole
-            ?: server.roles.findByName("Muted")
+            ?: server.roles.findByName("Muted", true)
             ?: server.createRole {
                 name = "Muted"
                 permissions = PermissionSet(server.roles.everyone.permissions.compile() and 68224001)
