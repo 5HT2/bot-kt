@@ -70,7 +70,7 @@ object MuteCommand : BotCommand(
             return
         }
 
-        if (MuteManager.serverMap[server.id]?.muteMap?.contains(user.id) == true) {
+        if (MuteManager.serverMap[server.id]?.muteMap?.containsKey(user.id) == true) {
             message.error("${user.name}#${user.discriminator} was muted already")
             return
         }
