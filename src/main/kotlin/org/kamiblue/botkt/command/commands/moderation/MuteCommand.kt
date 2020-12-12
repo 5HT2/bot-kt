@@ -174,7 +174,11 @@ object MuteCommand : BotCommand(
                 embed {
                     field(
                         "You were muted for $formattedDuration by:",
-                        "${message.author?.mention ?: "Mute message author not found!"}, in the guild `${server.name}`"
+                        message.author?.mention ?: "Mute message author not found!"
+                    )
+                    field(
+                        "In the guild:",
+                        server.name
                     )
                     field(
                         "Mute reason:",

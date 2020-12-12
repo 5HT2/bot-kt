@@ -35,7 +35,11 @@ object UnmuteCommand : BotCommand(
                             embed {
                                 field(
                                     "You were unmuted by:",
-                                    "${message.author?.mention ?: "Mute message author not found!"}, in the guild `${server.name}`"
+                                    message.author?.mention ?: "Mute message author not found!"
+                                )
+                                field(
+                                    "In the guild:",
+                                    server.name
                                 )
                                 color = Colors.SUCCESS.color
                                 footer("ID: ${message.author?.id}", message.author?.avatar?.url)

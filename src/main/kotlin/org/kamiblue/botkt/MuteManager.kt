@@ -114,7 +114,11 @@ object MuteManager {
                         embed {
                             field(
                                 "You were unmuted automatically by:",
-                                "${bot.mention}, in the guild `${server.name}`"
+                                bot.mention
+                            )
+                            field(
+                                "In the guild:",
+                                server.name
                             )
                             color = Colors.SUCCESS.color
                             footer("ID: ${bot.id}", bot.avatar.url)

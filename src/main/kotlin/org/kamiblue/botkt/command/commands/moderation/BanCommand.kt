@@ -158,7 +158,11 @@ object BanCommand : BotCommand(
                     embed {
                         field(
                             "You were banned by:",
-                            "${msg.author?.mention ?: "Ban message author not found!"}, in the guild `${server.name}`"
+                            msg.author?.mention ?: "Ban message author not found!"
+                        )
+                        field(
+                            "In the guild:",
+                            server.name
                         )
                         field(
                             banReason,
