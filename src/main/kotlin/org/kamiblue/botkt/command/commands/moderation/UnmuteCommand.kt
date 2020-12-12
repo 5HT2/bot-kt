@@ -1,9 +1,7 @@
 package org.kamiblue.botkt.command.commands.moderation
 
 import net.ayataka.kordis.entity.find
-import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.member.Member
-import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.kamiblue.botkt.MuteManager
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
@@ -32,13 +30,14 @@ object UnmuteCommand : BotCommand(
                 }
 
                 val serverMuteInfo = MuteManager.serverMap.getOrPut(server.id) { MuteManager.ServerMuteInfo(server) }
+                val mutedRole = serverMuteInfo.getMutedRole()
 
                 when {
                     serverMuteInfo.muteMap.remove(member.id) != null -> {
-                        sendUnMute(member)
-
+                        sendUnMuteDM(member)
                         serverMuteInfo.coroutineMap.remove(member.id)?.cancel()
-                        member.removeRole(serverMuteInfo.getMutedRole())
+                        member.removeRole(mutedRole)
+
                         message.channel.send {
                             embed {
                                 field(
@@ -51,8 +50,9 @@ object UnmuteCommand : BotCommand(
                         }
                     }
 
-                    member.roles.contains(server.roles.findByName("Muted", true)) -> { // todo no work
-                        sendUnMute(member)
+                    member.roles.contains(mutedRole) -> {
+                        sendUnMuteDM(member)
+                        member.removeRole(mutedRole)
 
                         message.channel.send {
                             embed {
@@ -75,7 +75,7 @@ object UnmuteCommand : BotCommand(
         }
     }
 
-    private suspend fun MessageExecuteEvent.sendUnMute(member: Member) {
+    private suspend fun MessageExecuteEvent.sendUnMuteDM(member: Member) {
         try {
             member.getPrivateChannel().send {
                 embed {

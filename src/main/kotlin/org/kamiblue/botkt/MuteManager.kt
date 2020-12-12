@@ -23,6 +23,7 @@ object MuteManager {
     private val gson = GsonBuilder().setPrettyPrinting().create()
     private val type = object : TypeToken<LinkedHashMap<Long, Map<Long, Long>>>() {}.type
     private val muteFile = File("config/mute.json")
+    private val muteManagerScope = CoroutineScope(Dispatchers.Default)
 
     fun save() {
         BufferedWriter(FileWriter(muteFile)).use {
@@ -53,35 +54,32 @@ object MuteManager {
     @Suppress("UNUSED")
     @EventHandler
     suspend fun userJoinedListener(event: UserJoinEvent) {
-        reAdd(event.server, event.member)
+        reAdd(event.member)
     }
 
+    @Suppress("UNUSED")
     @EventHandler
     suspend fun onUserUpdateRoles(event: UserRoleUpdateEvent) {
-        if (event.before.any { it.name.equals("Muted", true) }) {
-            reAdd(event.server, event.member)
+        val mutedRole = serverMap[event.server.id]?.getMutedRole() ?: return
+        if (event.before.contains(mutedRole) && !event.member.roles.contains(mutedRole)) {
+            reAdd(event.member)
         }
     }
 
-    private suspend fun reAdd(server: Server, member: Member) {
-        serverMap[server.id]?.let { serverMuteInfo ->
+    private suspend fun reAdd(member: Member) {
+        serverMap[member.server.id]?.let { serverMuteInfo ->
             serverMuteInfo.muteMap[member.id]?.let {
                 val mutedRole = serverMuteInfo.getMutedRole()
                 val duration = System.currentTimeMillis() - it
 
-                try {
-                    serverMuteInfo.coroutineMap.remove(member.id)?.cancel()
-                } catch (e: Exception) {
-                    // this is fine
-                }
-
                 if (duration > 1000L) {
+                    serverMuteInfo.coroutineMap.remove(member.id)?.cancel()
                     try {
                         member.addRole(mutedRole)
+                        serverMuteInfo.startUnmuteCoroutine(member, mutedRole, duration)
                     } catch (e: Exception) {
-                        return
+                        // Ignore it
                     }
-                    serverMuteInfo.startUnmuteCoroutine(member, mutedRole, duration)
                 } else {
                     serverMuteInfo.muteMap.remove(member.id)
                 }
@@ -108,7 +106,7 @@ object MuteManager {
             role: Role,
             duration: Long
         ) {
-            coroutineMap[member.id] = GlobalScope.launch {
+            coroutineMap[member.id] = muteManagerScope.launch {
                 delay(duration)
                 member.removeRole(role)
                 muteMap.remove(member.id)
@@ -138,7 +136,7 @@ object MuteManager {
         }
 
         init {
-            GlobalScope.launch {
+            muteManagerScope.launch {
                 delay(5000L)
                 while (isActive) {
                     for ((id, unmuteTime) in muteMap) {
@@ -155,7 +153,7 @@ object MuteManager {
     }
 
     init {
-        GlobalScope.timer(30000L) {
+        muteManagerScope.timer(30000L) {
             try {
                 delay(30000L)
                 save()
