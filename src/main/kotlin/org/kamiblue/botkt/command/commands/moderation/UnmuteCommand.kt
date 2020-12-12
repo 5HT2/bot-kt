@@ -66,7 +66,7 @@ object UnmuteCommand : BotCommand(
                 } else if (member.roles.any { it.name.equals("Muted", true) }) {
                     message.channel.send {
                         embed {
-                            description = "Warning: ${member.tag} was not muted using the bot, removed muted role."
+                            description = "Warning: ${member.mention} was not muted using the bot, removed muted role."
                             field(
                                 "${member.tag} was unmuted by:",
                                 message.author?.mention ?: "Mute message author not found!"

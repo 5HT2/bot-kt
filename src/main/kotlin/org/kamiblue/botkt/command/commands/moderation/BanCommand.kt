@@ -38,7 +38,7 @@ object BanCommand : BotCommand(
 
                         var banned = 0
                         val regex = userRegexArg.value.toRegex()
-                        val reason = "Mass ban by ${message.author?.name}#${message.author?.discriminator}"
+                        val reason = "Mass ban by ${message.author?.mention}"
                         val filtered = server.members.filter { it.name.contains(regex) }
 
                         if (filtered.isEmpty()) {
@@ -203,7 +203,7 @@ object BanCommand : BotCommand(
             msg.channel.send {
                 embed {
                     field(
-                        "${user.name}#${user.discriminator} was banned by:",
+                        "${user.tag} was banned by:",
                         msg.author?.mention ?: "Ban message author not found!"
                     )
                     field(
