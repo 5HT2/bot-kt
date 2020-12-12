@@ -106,10 +106,9 @@ object MuteManager {
         ) {
             coroutineMap[member.id] = muteManagerScope.launch {
                 delay(duration)
-                member.removeRole(role)
-                muteMap.remove(member.id)
 
                 try {
+                    member.removeRole(role)
                     val bot = Main.client.botUser
                     member.getPrivateChannel().send {
                         embed {
@@ -129,6 +128,7 @@ object MuteManager {
                     // this is fine
                 }
 
+                muteMap.remove(member.id)
                 coroutineMap.remove(member.id)
             }
         }
