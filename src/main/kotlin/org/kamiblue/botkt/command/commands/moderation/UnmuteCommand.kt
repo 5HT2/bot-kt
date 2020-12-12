@@ -29,58 +29,64 @@ object UnmuteCommand : BotCommand(
 
                 val serverMuteInfo = MuteManager.serverMap.getOrPut(server.id) { MuteManager.ServerMuteInfo(server) }
 
-                if (serverMuteInfo.muteMap.remove(member.id) != null) {
-                    try {
-                        member.getPrivateChannel().send {
-                            embed {
-                                field(
-                                    "You were unmuted by:",
-                                    message.author?.mention ?: "Mute message author not found!"
-                                )
-                                field(
-                                    "In the guild:",
-                                    server.name
-                                )
-                                color = Colors.SUCCESS.color
-                                footer("ID: ${message.author?.id}", message.author?.avatar?.url)
+                when {
+                    serverMuteInfo.muteMap.remove(member.id) != null -> {
+                        try {
+                            member.getPrivateChannel().send {
+                                embed {
+                                    field(
+                                        "You were unmuted by:",
+                                        message.author?.mention ?: "Mute message author not found!"
+                                    )
+                                    field(
+                                        "In the guild:",
+                                        server.name
+                                    )
+                                    color = Colors.SUCCESS.color
+                                    footer("ID: ${message.author?.id}", message.author?.avatar?.url)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            message.channel.send {
+                                embed {
+                                    title = "Error"
+                                    description = "I couldn't DM that user the unmute, they might have had DMs disabled."
+                                    color = Colors.ERROR.color
+                                }
                             }
                         }
-                    } catch (e: Exception) {
+
+                        serverMuteInfo.coroutineMap.remove(member.id)?.cancel()
+                        member.removeRole(serverMuteInfo.getMutedRole())
                         message.channel.send {
                             embed {
-                                title = "Error"
-                                description = "I couldn't DM that user the unmute, they might have had DMs disabled."
-                                color = Colors.ERROR.color
+                                field(
+                                    "${member.tag} was unmuted by:",
+                                    message.author?.mention ?: "Mute message author not found!"
+                                )
+                                footer("ID: ${member.id}", member.avatar.url)
+                                color = Colors.SUCCESS.color
                             }
                         }
                     }
 
-                    serverMuteInfo.coroutineMap.remove(member.id)?.cancel()
-                    member.removeRole(serverMuteInfo.getMutedRole())
-                    message.channel.send {
-                        embed {
-                            field(
-                                "${member.tag} was unmuted by:",
-                                message.author?.mention ?: "Mute message author not found!"
-                            )
-                            footer("ID: ${member.id}", member.avatar.url)
-                            color = Colors.SUCCESS.color
+                    member.roles.any { it.name.equals("Muted", true) } -> {
+                        message.channel.send {
+                            embed {
+                                description = "Warning: ${member.mention} was not muted using the bot, removed muted role."
+                                field(
+                                    "${member.tag} was unmuted by:",
+                                    message.author?.mention ?: "Mute message author not found!"
+                                )
+                                footer("ID: ${member.id}", member.avatar.url)
+                                color = Colors.WARN.color
+                            }
                         }
                     }
-                } else if (member.roles.any { it.name.equals("Muted", true) }) {
-                    message.channel.send {
-                        embed {
-                            description = "Warning: ${member.mention} was not muted using the bot, removed muted role."
-                            field(
-                                "${member.tag} was unmuted by:",
-                                message.author?.mention ?: "Mute message author not found!"
-                            )
-                            footer("ID: ${member.id}", member.avatar.url)
-                            color = Colors.WARN.color
-                        }
+
+                    else -> {
+                        message.error("${member.mention} is not muted")
                     }
-                } else {
-                    message.error("${member.mention} is not muted")
                 }
             }
         }
