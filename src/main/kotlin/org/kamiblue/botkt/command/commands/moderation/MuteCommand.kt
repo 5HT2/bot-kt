@@ -173,8 +173,12 @@ object MuteCommand : BotCommand(
             member.getPrivateChannel().send {
                 embed {
                     field(
-                        "You were muted for $formattedDuration by:",
+                        "You were muted by:",
                         message.author?.mention ?: "Mute message author not found!"
+                    )
+                    field(
+                        "Duration:",
+                        formattedDuration
                     )
                     field(
                         "In the guild:",
@@ -201,8 +205,12 @@ object MuteCommand : BotCommand(
         message.channel.send {
             embed {
                 field(
-                    "${member.tag} was muted for $formattedDuration by:",
+                    "${member.tag} was muted by:",
                     message.author?.mention ?: "Mute message author not found!"
+                )
+                field(
+                    "Duration:",
+                    formattedDuration
                 )
                 field(
                     "Mute reason:",

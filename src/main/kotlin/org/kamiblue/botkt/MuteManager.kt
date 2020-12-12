@@ -101,12 +101,10 @@ object MuteManager {
             role: Role,
             duration: Long
         ) {
-            if (coroutineMap.containsKey(member.id)) return
             coroutineMap[member.id] = GlobalScope.launch {
                 delay(duration)
                 member.removeRole(role)
-                coroutineMap.remove(member.id)
-                muteMap.remove(member.id) ?: return@launch
+                muteMap.remove(member.id)
 
                 try {
                     val bot = Main.client.botUser
@@ -127,6 +125,8 @@ object MuteManager {
                 } catch (e: Exception) {
                     // this is fine
                 }
+
+                coroutineMap.remove(member.id)
             }
         }
 
