@@ -54,28 +54,16 @@ object UnmuteCommand : BotCommand(
                         }
                     }
 
-                    try {
-                        serverMuteInfo.coroutineMap.remove(member.id)?.cancel()
-                        member.removeRole(serverMuteInfo.getMutedRole())
-                        message.channel.send {
-                            embed {
-                                field(
-                                    "${member.name}#${member.discriminator} was unmute by:",
-                                    message.author?.mention ?: "Mute message author not found!"
-                                )
-                                footer("ID: ${member.id}", member.avatar.url)
-                                color = Colors.SUCCESS.color
-                            }
-                        }
-                    } catch (e: Exception) {
-                        ExceptionCommand.addException(e)
-                        message.channel.send {
-                            embed {
-                                title = "Unable to unmute ${member.mention}"
-                                description = "${e.message}\n" +
-                                    "Use the `${Main.prefix}exception` command to view the full stacktrace."
-                                color = Colors.ERROR.color
-                            }
+                    serverMuteInfo.coroutineMap.remove(member.id)?.cancel()
+                    member.removeRole(serverMuteInfo.getMutedRole())
+                    message.channel.send {
+                        embed {
+                            field(
+                                "${member.name}#${member.discriminator} was unmute by:",
+                                message.author?.mention ?: "Mute message author not found!"
+                            )
+                            footer("ID: ${member.id}", member.avatar.url)
+                            color = Colors.SUCCESS.color
                         }
                     }
                 } else {

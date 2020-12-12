@@ -7,6 +7,7 @@ import net.ayataka.kordis.entity.server.member.Member
 import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.MuteManager
 import org.kamiblue.botkt.PermissionTypes
+import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
@@ -67,6 +68,11 @@ object MuteCommand : BotCommand(
     ) {
         if (server == null) {
             message.error("Server is null, are you running this from a DM?")
+            return
+        }
+
+        if (user.id.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
+            message.error("That user is protected, I can't do that.")
             return
         }
 
