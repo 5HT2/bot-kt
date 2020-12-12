@@ -9,6 +9,8 @@ import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.member.Member
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.role.Role
+import net.ayataka.kordis.event.EventHandler
+import net.ayataka.kordis.event.events.server.user.UserJoinEvent
 import net.ayataka.kordis.utils.timer
 import java.io.*
 import java.util.concurrent.ConcurrentHashMap
@@ -41,6 +43,27 @@ object MuteManager {
                 }.apply {
                     muteMap.clear()
                     muteMap.putAll(cacheMuteMap)
+                }
+            }
+        }
+    }
+
+    @Suppress("UNUSED")
+    @EventHandler
+    suspend fun userJoinedListener(event: UserJoinEvent) {
+        serverMap[event.server.id]?.let { serverMuteInfo ->
+            serverMuteInfo.muteMap[event.member.id]?.let {
+                val mutedRole = serverMuteInfo.getMutedRole()
+                val duration = System.currentTimeMillis() - it
+                if (duration > 1000L) {
+                    try {
+                        event.member.addRole(mutedRole)
+                    } catch (e: Exception) {
+                        return
+                    }
+                    serverMuteInfo.startUnmuteCoroutine(event.member, mutedRole, duration)
+                } else {
+                    serverMuteInfo.muteMap.remove(event.member.id)
                 }
             }
         }
@@ -99,6 +122,8 @@ object MuteManager {
                 // this is fine
             }
         }
+
+        Main.client.addListener(this)
     }
 
 }
