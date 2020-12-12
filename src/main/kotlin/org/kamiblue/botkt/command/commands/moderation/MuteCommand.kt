@@ -177,16 +177,16 @@ object MuteCommand : BotCommand(
                         message.author?.mention ?: "Mute message author not found!"
                     )
                     field(
+                        "Mute reason:",
+                        reason
+                    )
+                    field(
                         "Duration:",
                         formattedDuration
                     )
                     field(
                         "In the guild:",
                         server.name
-                    )
-                    field(
-                        "Mute reason:",
-                        reason
                     )
                     color = Colors.ERROR.color
                     footer("ID: ${message.author?.id}", message.author?.avatar?.url)
@@ -209,12 +209,12 @@ object MuteCommand : BotCommand(
                     message.author?.mention ?: "Mute message author not found!"
                 )
                 field(
-                    "Duration:",
-                    formattedDuration
-                )
-                field(
                     "Mute reason:",
                     reason
+                )
+                field(
+                    "Duration:",
+                    formattedDuration
                 )
                 footer("ID: ${member.id}", member.avatar.url)
                 color = Colors.ERROR.color
