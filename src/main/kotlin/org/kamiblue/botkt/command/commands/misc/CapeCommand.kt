@@ -353,6 +353,8 @@ object CapeCommand : BotCommand(
 
     private fun load() {
         if (!File(capesFile).exists()) return
+        if (readConfigSafe<UserConfig>(ConfigType.USER, false)?.capeCommit != true) return
+
         try {
             Files.newBufferedReader(Paths.get(capesFile)).use { bufferedReader ->
                 val cacheList = Gson().fromJson<List<CapeUser>>(bufferedReader, object : TypeToken<List<CapeUser>>() {}.type)
@@ -366,6 +368,8 @@ object CapeCommand : BotCommand(
     }
 
     fun save() {
+        if (readConfigSafe<UserConfig>(ConfigType.USER, false)?.capeCommit != true) return
+
         val capeUsers = capeUserMap.values.toList()
         val file = File(capesFile)
         if (!file.exists()) file.createNewFile()
