@@ -28,14 +28,14 @@ object MuteCommand : BotCommand(
             e.printStackTrace()
         }
 
-        literal("reload") {
+        literal("reload", "Reload mute config") {
             executeIfHas(PermissionTypes.MANAGE_CONFIG) {
                 MuteManager.load()
                 message.success("Successfully reloaded mute config!")
             }
         }
 
-        literal("save") {
+        literal("save", "Force save mute config") {
             executeIfHas(PermissionTypes.MANAGE_CONFIG) {
                 MuteManager.save()
                 message.success("Successfully saved mute config!")
@@ -46,12 +46,12 @@ object MuteCommand : BotCommand(
             long("duration") { durationArg ->
                 string("unit") { unitArg ->
                     greedy("reason") { reasonArg ->
-                        executeIfHas(PermissionTypes.COUNCIL_MEMBER) {
+                        executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Mute user with reason") {
                             handleMute(userArg.value, durationArg.value, unitArg.value, reasonArg.value)
                         }
                     }
 
-                    executeIfHas(PermissionTypes.COUNCIL_MEMBER) {
+                    executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Mute user without reason") {
                         handleMute(userArg.value, durationArg.value, unitArg.value, "No reason provided")
                     }
                 }
