@@ -1,9 +1,16 @@
 package org.kamiblue.botkt.command.commands.moderation
 
+import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.deleteAll
-import org.kamiblue.botkt.PermissionTypes
+import net.ayataka.kordis.entity.message.Message
+import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
+import org.kamiblue.botkt.PermissionTypes.PURGE_PROTECTED
+import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 
 object PurgeCommand : BotCommand(
     name = "purge",
@@ -12,26 +19,63 @@ object PurgeCommand : BotCommand(
 ) {
     init {
         int("amount") { numberArg ->
-            executeIfHas(PermissionTypes.COUNCIL_MEMBER) {
-                val number = numberArg.value + 1
-                message.channel.getMessages(number).deleteAll()
+            executeIfHas(COUNCIL_MEMBER, "Purge X messages, excluding protected") {
+                val msgs = message.channel
+                    .getMessages()
+                    .filter { it.author?.id?.hasPermission(COUNCIL_MEMBER) == false && it.author?.bot == false }
+                    .take(numberArg.value)
+
+                purge(msgs, message)
             }
 
-            greedy("user") { userArg ->
-                executeIfHas(PermissionTypes.COUNCIL_MEMBER) {
-                    val number = numberArg.value + 1
-                    val user = userArg.value
+            boolean("delete protected msgs") { protected ->
+                executeIfHas(PURGE_PROTECTED, "Purge X messages, including council & bot") {
+                    val msgs = message.channel
+                        .getMessages()
+                        .filter { protected.value || it.author?.id?.hasPermission(COUNCIL_MEMBER) == false && it.author?.bot == false }
+                        .take(numberArg.value)
 
-                    val search = if (number < 1000) number * 2 + 50 else number
-                    message.channel.getMessages(search)
-                        .filter {
-                            it.author?.id.toString() == user
-                                || it.author?.mention == user
-                                || it.author?.tag == user
-                        }
-                        .take(number).deleteAll()
+                    purge(msgs, message)
+                }
+            }
+
+            user("purge this user") { userArg ->
+                executeIfHas(COUNCIL_MEMBER, "Purge X messages sent by a user") {
+                    val user = userArg.value
+                    if (message.author?.id?.hasPermission(PURGE_PROTECTED) != true && user.id.hasPermission(COUNCIL_MEMBER) || user.bot) {
+                        message.error("Sorry, but you're missing the " +
+                            "'${PURGE_PROTECTED.name.toHumanReadable()}'" +
+                            " permission, which is required to purge " +
+                            "'${COUNCIL_MEMBER.name.toHumanReadable()}'" +
+                            " messages / bot messages")
+                        return@executeIfHas
+                    }
+
+                    val msgs = message.channel
+                        .getMessages()
+                        .filter { it.author?.id == user.id }
+                        .take(numberArg.value)
+
+                    purge(msgs, message)
                 }
             }
         }
+    }
+
+    private suspend fun purge(msgs: Collection<Message>, message: Message) {
+        val response = message.channel.send {
+            embed {
+                field(
+                    "${msgs.size} messages were purged by:",
+                    message.author?.mention.toString()
+                )
+                footer("ID: ${message.author?.id}", message.author?.avatar?.url)
+                color = Colors.ERROR.color
+            }
+        }
+
+        msgs.deleteAll()
+        delay(5000)
+        response.delete()
     }
 }

@@ -14,7 +14,7 @@ object ExceptionCommand : BotCommand(
     category = Category.SYSTEM,
     description = "View recent exceptions caused in commands"
 ) {
-    private val exceptions = ArrayList<Exception>()
+    private val exceptions = ArrayDeque<Exception>(16)
 
     init {
         literal("list") {
@@ -30,15 +30,15 @@ object ExceptionCommand : BotCommand(
         }
 
         literal("view") {
-            int("number") { number ->
+            int("index") { indexArg ->
                 executeIfHas(COUNCIL_MEMBER, "Print a saved exception") {
                     if (exceptions.isEmpty()) {
                         message.success("No exceptions caught recently!")
                     } else {
-                        exceptions.getOrNull(number.value)?.let {
+                        exceptions.getOrNull(indexArg.value)?.let {
                             message.channel.send("```\n" + it.stackTraceToString().flat(1992) + "\n```")
                         } ?: run {
-                            message.error("Exception with number `${number.value}` is not stored!")
+                            message.error("Exception with index `${indexArg.value}` is not stored!")
                         }
                     }
                 }
@@ -47,7 +47,7 @@ object ExceptionCommand : BotCommand(
     }
 
     fun addException(e: Exception) {
-        if (exceptions.size >= 10) {
+        while (exceptions.size >= 10) {
             exceptions.removeFirstOrNull()
         }
         exceptions.add(e)

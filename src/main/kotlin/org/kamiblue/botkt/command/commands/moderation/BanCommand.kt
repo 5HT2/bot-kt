@@ -63,15 +63,13 @@ object BanCommand : BotCommand(
                         m.edit {
                             field(
                                 "$banned members were banned by:",
-                                message.author?.mention.toString(),
-                                false
+                                message.author?.mention.toString()
                             )
                             field(
                                 banReason,
-                                reason,
-                                false
+                                reason
                             )
-                            footer("ID: ${message.author?.id}", "https://cdn.discordapp.com/avatars/${message.author?.id}/${message.author?.avatar}.png")
+                            footer("ID: ${message.author?.id}", message.author?.avatar?.url)
                             color = Colors.ERROR.color
                         }
                     }
@@ -102,19 +100,19 @@ object BanCommand : BotCommand(
         user("user") { user ->
             boolean("delete messages") { deleteMsgs ->
                 greedy("reason") { reason ->
-                    executeIfHas(COUNCIL_MEMBER) {
+                    executeIfHas(COUNCIL_MEMBER, "Optionally delete messages, custom reason") {
                         ban(user.value, deleteMsgs.value, reason.value, server, message)
                     }
                 }
             }
 
             greedy("reason") { reason ->
-                executeIfHas(COUNCIL_MEMBER) {
+                executeIfHas(COUNCIL_MEMBER, "Don't delete messages, custom reason") {
                     ban(user.value, false, reason.value, server, message)
                 }
             }
 
-            executeIfHas(COUNCIL_MEMBER) {
+            executeIfHas(COUNCIL_MEMBER, "Don't delete messages, use default reason") {
                 ban(user.value, false, null, server, message)
             }
         }

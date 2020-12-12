@@ -11,7 +11,6 @@ import org.kamiblue.botkt.*
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.UUIDManager.UUIDFormatException
 import org.kamiblue.botkt.command.*
-import org.kamiblue.botkt.helpers.MathHelper
 import org.kamiblue.botkt.helpers.ShellHelper.bash
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 import org.kamiblue.botkt.utils.Colors
@@ -22,6 +21,7 @@ import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.maxEmojiSlots
 import org.kamiblue.capeapi.*
+import org.kamiblue.commons.utils.MathUtils
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -487,7 +487,7 @@ object CapeCommand : BotCommand(
             return null
         }
 
-        return MathHelper.round((900000 - difference) / 60000.0, 2) // / convert ms to minutes, with 2 decimal places
+        return MathUtils.round((900000 - difference) / 60000.0, 2) // / convert ms to minutes, with 2 decimal places
     }
 
     private val server
