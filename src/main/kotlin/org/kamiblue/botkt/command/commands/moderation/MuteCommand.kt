@@ -182,7 +182,7 @@ object MuteCommand : BotCommand(
             message.channel.send {
                 embed {
                     title = "Error"
-                    description = "I couldn't DM that user the ban reason, they might have had DMs disabled."
+                    description = "I couldn't DM that user the mute reason, they might have had DMs disabled."
                     color = Colors.ERROR.color
                 }
             }

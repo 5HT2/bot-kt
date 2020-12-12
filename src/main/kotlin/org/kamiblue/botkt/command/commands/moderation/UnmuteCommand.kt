@@ -17,7 +17,7 @@ object UnmuteCommand : BotCommand(
 ) {
     init {
         user("user") { userArg ->
-            executeIfHas(PermissionTypes.COUNCIL_MEMBER) {
+            executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Unmute user") {
                 if (server == null) {
                     message.error("Server is null, are you running this from a DM?")
                     return@executeIfHas
