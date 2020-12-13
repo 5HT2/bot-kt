@@ -38,6 +38,11 @@ object MuteManager {
     }
 
     fun load() {
+        if (!muteFile.exists()) {
+            save()
+            return
+        }
+
         BufferedReader(FileReader(muteFile)).use { reader ->
             val cacheMap = gson.fromJson<LinkedHashMap<Long, Map<Long, Long>>>(reader, type)
             for ((id, cacheMuteMap) in cacheMap) {
