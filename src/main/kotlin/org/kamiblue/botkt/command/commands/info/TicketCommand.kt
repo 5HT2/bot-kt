@@ -74,7 +74,6 @@ object TicketCommand : BotCommand(
                     name = "ticket-${tickets.size}"
                     topic = "${author?.id} ${Instant.now().prettyFormat()}"
                     category = ticketCategory
-                    rateLimitPerUser = 300
                 }
 
                 ticket.edit {
