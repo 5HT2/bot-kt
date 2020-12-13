@@ -9,6 +9,7 @@ import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.member.Member
 import net.ayataka.kordis.entity.server.permission.Permission
 import net.ayataka.kordis.entity.server.permission.PermissionSet
+import net.ayataka.kordis.entity.user.User
 import net.ayataka.kordis.exception.MissingPermissionsException
 import net.ayataka.kordis.exception.NotFoundException
 import okhttp3.OkHttpClient
@@ -16,10 +17,10 @@ import okhttp3.Request
 import org.kamiblue.botkt.AuthConfig
 import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.ConfigType
-import org.kamiblue.botkt.CounterConfig
 import org.kamiblue.botkt.utils.MessageSendUtils.log
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
-import java.util.concurrent.TimeUnit
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 /**
  * @return a pretty formatted set of permissions, "None" if empty
@@ -97,6 +98,10 @@ fun checkPermission(client: DiscordClientImpl, server: Server, permission: Permi
 
 // Bot users can not have one or fewer roles. If so, this means the server roles are not initialized yet.
 private fun isNotInitialized(myself: Member) = myself.roles.size < 2
+
+fun User.accountAge(chronoUnit: ChronoUnit = ChronoUnit.DAYS): Long {
+    return timestamp.until(Instant.now(), chronoUnit)
+}
 
 data class AnimatableEmoji(
     val animated: Boolean = false,
