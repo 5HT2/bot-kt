@@ -15,7 +15,8 @@ class MessageExecuteEvent(
 
     fun ArgIdentifier<Long>.getTextChannelOrNull(): TextChannel? =
         server?.let {
-            it.channels.find(this.value) as? TextChannel?
+            it.textChannels.find(this.value)
+                ?: it.announcementChannels.find(this.value)
         }
 
 }
