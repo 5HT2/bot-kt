@@ -118,7 +118,7 @@ object BanCommand : BotCommand(
         }
     }
 
-    private suspend fun ban(
+    suspend fun ban(
         user: User,
         deleteMsgs: Boolean, // if we should delete the past day of their messages or not
         reason: String?, // reason why they were banned. tries to dm before banning
@@ -170,34 +170,33 @@ object BanCommand : BotCommand(
         }
     }
 
-    private suspend fun messageReason(user: User, message: Message?, server: Server, fixedReason: String) {
-        message?.let { msg ->
-            try {
-                user.getPrivateChannel().send {
-                    embed {
-                        field(
-                            "You were banned by:",
-                            msg.author?.mention ?: "Ban message author not found!"
-                        )
-                        field(
-                            "In the guild:",
-                            server.name
-                        )
-                        field(
-                            banReason,
-                            fixedReason
-                        )
-                        color = Colors.ERROR.color
-                        footer("ID: ${msg.author?.id}", msg.author?.avatar?.url)
-                    }
+    private suspend fun messageReason(bannedUser: User, message: Message?, server: Server, fixedReason: String) {
+        val user = message?.author ?: Main.client.botUser
+        try {
+            bannedUser.getPrivateChannel().send {
+                embed {
+                    field(
+                        "You were banned by:",
+                        user.mention
+                    )
+                    field(
+                        "In the guild:",
+                        server.name
+                    )
+                    field(
+                        banReason,
+                        fixedReason
+                    )
+                    color = Colors.ERROR.color
+                    footer("ID: ${user.id}", user.avatar.url)
                 }
-            } catch (e: Exception) {
-                msg.channel.send {
-                    embed {
-                        title = "Error"
-                        description = "I couldn't DM that user the ban reason, they might have had DMs disabled."
-                        color = Colors.ERROR.color
-                    }
+            }
+        } catch (e: Exception) {
+            message?.channel?.send {
+                embed {
+                    title = "Error"
+                    description = "I couldn't DM that user the ban reason, they might have had DMs disabled."
+                    color = Colors.ERROR.color
                 }
             }
         }

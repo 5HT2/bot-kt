@@ -11,6 +11,7 @@ import org.kamiblue.botkt.utils.SnowflakeHelper.prettyFormat
 import org.kamiblue.botkt.utils.SnowflakeHelper.toInstant
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.StringUtils.toUserID
+import org.kamiblue.botkt.utils.accountAge
 import org.kamiblue.botkt.utils.authenticatedRequest
 import org.kamiblue.botkt.utils.getAuthToken
 import java.time.Instant
@@ -57,7 +58,7 @@ object UserInfoCommand : BotCommand(
                     field("Created Account:", it.timestamp.prettyFormat())
                     field("Joined Guild:", it.joinedAt.prettyFormat())
                     field("Join Age:", it.joinedAt.until(Instant.now(), ChronoUnit.DAYS).toString() + " days")
-                    field("Account Age:", it.timestamp.until(Instant.now(), ChronoUnit.DAYS).toString() + " days")
+                    field("Account Age:", it.accountAge().toString() + " days")
                     field("Mention:", it.mention)
                     field("ID:", "`${it.id}`")
                     field("Status:", it.status.name.toHumanReadable())
