@@ -66,6 +66,12 @@ object Main {
 
     fun exit() {
         processes.forEach { it.cancel() }
+        try {
+            CapeCommand.save()
+            MuteManager.save()
+        } catch (e: Exception) {
+            // this is fine
+        }
         exitProcess(0)
     }
 }
