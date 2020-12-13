@@ -14,6 +14,7 @@ import net.ayataka.kordis.event.events.server.user.UserJoinEvent
 import net.ayataka.kordis.event.events.server.user.UserLeaveEvent
 import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.command.commands.moderation.BanCommand
+import org.kamiblue.botkt.event.KordisEventProcessor
 import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils
@@ -62,6 +63,7 @@ object Bot {
 
         sendStartupMessage(userConfig, initMessage)
 
+        Main.client.addListener(KordisEventProcessor)
         Main.ready = true
         MessageSendUtils.log(initMessage)
     }
