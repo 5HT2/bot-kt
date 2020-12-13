@@ -45,8 +45,6 @@ object Bot {
 
         Main.client = Kordis.create {
             token = config.botToken
-            // Annotation based Event Listener
-            addListener(this@Bot)
         }
 
         CommandManager.init()
@@ -102,15 +100,6 @@ object Bot {
                 }
             }
         }
-    }
-
-    @EventHandler
-    suspend fun onMessageReceive(event: MessageReceiveEvent) {
-        if (!Main.ready || event.message.content.isEmpty()) return // message can be empty on images, embeds and other attachments
-
-        val string = if (event.message.content[0] == Main.prefix) event.message.content.substring(1) else return
-
-        CommandManager.submit(event, string)
     }
 
     private val joins = HashMap<Long, Int>()
