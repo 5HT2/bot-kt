@@ -13,7 +13,8 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
     USER("config/user.json"),
     PERMISSION("config/permissions.json"),
     COUNTER("config/counters.json"),
-    JOIN_LEAVE("config/joinleave.json")
+    JOIN_LEAVE("config/joinleave.json"),
+    TICKET("config/tickets.json")
 }
 
 /**
@@ -113,4 +114,15 @@ data class JoinLeaveConfig(
     val embed: Boolean?,
     val kickTooNew: Boolean?,
     val banRepeatedJoin: Boolean?
+)
+
+/**
+ * @param ticketCategory channel category of where to create tickets, required
+ * @param ticketCreateChannel channel where people can create tickets, required
+ * @param ticketPingRole role to ping when new ticket created, optional
+ */
+data class TicketConfig(
+    val ticketCategory: Long?,
+    val ticketCreateChannel: Long?,
+    val ticketPingRole: Long?
 )
