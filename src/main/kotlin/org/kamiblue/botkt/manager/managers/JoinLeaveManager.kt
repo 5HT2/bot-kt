@@ -3,7 +3,6 @@ package org.kamiblue.botkt.manager.managers
 import net.ayataka.kordis.entity.channel.TextChannel
 import net.ayataka.kordis.entity.server.member.Member
 import net.ayataka.kordis.entity.user.User
-import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.server.user.UserBanEvent
 import net.ayataka.kordis.event.events.server.user.UserJoinEvent
 import net.ayataka.kordis.event.events.server.user.UserLeaveEvent
@@ -15,84 +14,84 @@ import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.SnowflakeHelper.prettyFormat
 import org.kamiblue.botkt.utils.accountAge
+import org.kamiblue.event.listener.asyncListener
 
 object JoinLeaveManager : Manager {
     private val joins = HashMap<Long, Int>()
 
-    @EventHandler
-    suspend fun onMemberBan(event: UserBanEvent) {
-        if (!Main.ready) return
+    init {
+        asyncListener<UserBanEvent> {
+            val cfg = ConfigManager.readConfigSafe<JoinLeaveConfig>(ConfigType.JOIN_LEAVE, false)
 
-        val cfg = ConfigManager.readConfigSafe<JoinLeaveConfig>(ConfigType.JOIN_LEAVE, false)
-
-        cfg?.banChannel?.let { banChannel ->
-            val channel = event.server.channels.find(banChannel) as? TextChannel ?: return
-            sendJoinLeave("Member Banned", cfg.embed, channel, event.user)
-        }
-    }
-
-    @EventHandler
-    suspend fun onMemberLeave(event: UserLeaveEvent) {
-        if (!Main.ready) return
-
-        if (event.member.server.bans().any { it.user.id == event.member.id }) return
-        val cfg = ConfigManager.readConfigSafe<JoinLeaveConfig>(ConfigType.JOIN_LEAVE, false)
-
-        cfg?.leaveChannel?.let { leaveChannel ->
-            val channel = event.server.channels.find(leaveChannel) as? TextChannel ?: return
-            sendJoinLeave("Member Left", cfg.embed, channel, event.member, event.member)
-        }
-    }
-
-    @EventHandler
-    suspend fun onMemberJoin(event: UserJoinEvent) {
-        if (!Main.ready) return
-
-        val cfg = ConfigManager.readConfigSafe<JoinLeaveConfig>(ConfigType.JOIN_LEAVE, false)
-        val member = event.member
-        val self = Main.client.botUser
-
-        joins[member.id]?.let {
-            if (it > 3 && cfg?.banRepeatedJoin == true) {
-                BanCommand.ban(
-                    member,
-                    false,
-                    "Automated ban due to rejoining too many times while account too new.",
-                    member.server,
-                    null
-                )
-                joins.remove(member.id)
-                return
+            cfg?.banChannel?.let { banChannel ->
+                val channel = it.server.channels.find(banChannel) as? TextChannel ?: return@asyncListener
+                sendJoinLeave("Member Banned", cfg.embed, channel, it.user)
             }
         }
 
-        if (cfg?.kickTooNew == true && member.accountAge() < 1) {
-            joins[member.id] = joins.getOrDefault(member.id, 0) + 1
-            try {
-                member.getPrivateChannel().send {
-                    embed {
-                        field(
-                            "Account too new!",
-                            "You were automatically kicked because your account is less than 24 hours old. Rejoin once your account is older."
-                        )
-                        color = Colors.ERROR.color
-                        footer("ID: ${self.id}", self.avatar.url)
-                    }
+        asyncListener<UserLeaveEvent> { event ->
+            if (event.member.server.bans().any { it.user.id == event.member.id }) return@asyncListener
+            val cfg = ConfigManager.readConfigSafe<JoinLeaveConfig>(ConfigType.JOIN_LEAVE, false)
+
+            cfg?.leaveChannel?.let { leaveChannel ->
+                val channel = event.server.channels.find(leaveChannel) as? TextChannel ?: return@asyncListener
+                sendJoinLeave("Member Left", cfg.embed, channel, event.member, event.member)
+            }
+        }
+
+        asyncListener<UserJoinEvent> { event ->
+            val cfg = ConfigManager.readConfigSafe<JoinLeaveConfig>(ConfigType.JOIN_LEAVE, false)
+            val member = event.member
+            val self = Main.client.botUser
+
+            joins[member.id]?.let {
+                if (it > 3 && cfg?.banRepeatedJoin == true) {
+                    BanCommand.ban(
+                        member,
+                        false,
+                        "Automated ban due to rejoining too many times while account too new.",
+                        member.server,
+                        null
+                    )
+                    joins.remove(member.id)
+                    return@asyncListener
                 }
-                member.kick()
-            } catch (e: Exception) {
-                // this is fine
             }
-            return
-        }
 
-        cfg?.joinChannel?.let { joinChannel ->
-            val channel = event.server.channels.find(joinChannel) as? TextChannel ?: return
-            sendJoinLeave("Member Joined", cfg.embed, channel, member, member)
+            if (cfg?.kickTooNew == true && member.accountAge() < 1) {
+                joins[member.id] = joins.getOrDefault(member.id, 0) + 1
+                try {
+                    member.getPrivateChannel().send {
+                        embed {
+                            field(
+                                "Account too new!",
+                                "You were automatically kicked because your account is less than 24 hours old. Rejoin once your account is older."
+                            )
+                            color = Colors.ERROR.color
+                            footer("ID: ${self.id}", self.avatar.url)
+                        }
+                    }
+                    member.kick()
+                } catch (e: Exception) {
+                    // this is fine
+                }
+                return@asyncListener
+            }
+
+            cfg?.joinChannel?.let { joinChannel ->
+                val channel = event.server.channels.find(joinChannel) as? TextChannel ?: return@asyncListener
+                sendJoinLeave("Member Joined", cfg.embed, channel, member, member)
+            }
         }
     }
 
-    private suspend fun sendJoinLeave(msgDescription: String, embed: Boolean?, channel: TextChannel, user: User, member: Member? = null) {
+    private suspend fun sendJoinLeave(
+        msgDescription: String,
+        embed: Boolean?,
+        channel: TextChannel,
+        user: User,
+        member: Member? = null
+    ) {
         if (embed == false) {
             channel.send(
                 "$msgDescription\n" +
@@ -117,9 +116,5 @@ object JoinLeaveManager : Manager {
                 }
             }
         }
-    }
-
-    init {
-        Main.client.addListener(this)
     }
 }

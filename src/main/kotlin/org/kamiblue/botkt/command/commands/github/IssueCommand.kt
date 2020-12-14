@@ -109,11 +109,9 @@ object IssueCommand : BotCommand(
                 }
             }
         }
-    }
 
-    init {
         asyncListener<ReactionAddEvent> {
-            if (!Main.ready || it.reaction.member?.bot == true) return@asyncListener
+            if (it.reaction.member?.bot == true) return@asyncListener
             if (!it.reaction.userId.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return@asyncListener
 
             val form = queuedIssues[it.reaction.messageId] ?: return@asyncListener
@@ -181,7 +179,7 @@ object IssueCommand : BotCommand(
         }
 
         asyncListener<MessageReceiveEvent> { event ->
-            if (!Main.ready || event.message.author?.bot == true) return@asyncListener
+            if (event.message.author?.bot == true) return@asyncListener
 
             if (event.message.author?.id?.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION) == true) return@asyncListener
 
