@@ -2,17 +2,18 @@ package org.kamiblue.botkt
 
 import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.command.commands.github.CounterCommand
 import org.kamiblue.botkt.command.commands.misc.CapeCommand
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.manager.managers.MuteManager
-import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
 object Main {
 
-    val logger = LoggerFactory.getLogger("Bot-Kt")
+    val logger: Logger = LogManager.getLogger("Bot-kt")
 
     lateinit var client: DiscordClient
     var ready = false

@@ -40,21 +40,24 @@ object Bot {
         CommandManager.init()
         ManagerLoader.load()
 
-        val initMessage = "Initialized bot!\n" +
-            "Running on ${Main.currentVersion}\n" +
-            "Startup took ${System.currentTimeMillis() - started}ms"
-
         val userConfig = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
 
         updateStatus(userConfig)
 
         delay(2000) // Discord API is really stupid and doesn't give you the information you need right away, hence delay needed
 
+
+        val initMessage = "Initialized bot!\n" +
+            "Running on ${Main.currentVersion}\n" +
+            "Startup took ${System.currentTimeMillis() - started}ms"
         sendStartupMessage(userConfig, initMessage)
+
+        Main.logger.info("Initialized bot!")
+        Main.logger.info("Running on ${Main.currentVersion}")
+        Main.logger.info("Startup took ${System.currentTimeMillis() - started}ms")
 
         Main.client.addListener(KordisEventProcessor)
         Main.ready = true
-        Main.logger.info(initMessage)
     }
 
     private fun updateStatus(userConfig: UserConfig?) {
