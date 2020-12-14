@@ -2,7 +2,7 @@
 <Configuration status="WARN" monitorInterval="5">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n"/>
+            <PatternLayout disableAnsi="false" pattern="%highlight{[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n}{FATAL=bright red, ERROR=red, WARN=yellow, INFO=reset, DEBUG=reset, TRACE=blue}"/>
         </Console>
 
         <File name="LatestLog" fileName="logs/latest.log" append="false">
