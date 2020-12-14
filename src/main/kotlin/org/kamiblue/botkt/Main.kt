@@ -13,7 +13,7 @@ import kotlin.system.exitProcess
 
 object Main {
 
-    val logger: Logger = LogManager.getLogger("Bot-kt")
+    val logger: Logger = LogManager.getLogger("bot-kt")
 
     lateinit var client: DiscordClient
     var ready = false
