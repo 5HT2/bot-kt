@@ -54,10 +54,15 @@ object TicketCommand : BotCommand(
             val server = event.message.server
             val author = event.message.author
 
-            if (author?.bot == true || author?.id?.hasPermission(PermissionTypes.COUNCIL_MEMBER) == true) return@asyncListener
+            if (author?.id?.hasPermission(PermissionTypes.COUNCIL_MEMBER) == true) return@asyncListener
 
             config?.ticketCreateChannel?.let {
                 if (event.message.channel.id != it) return@asyncListener
+
+                if (author?.bot == true && author.id != Main.client.botUser.id) {
+                    event.message.delete()
+                    return@asyncListener
+                }
 
                 val everyone = event.message.server?.id?.let { serverId -> event.message.server?.roles?.find(serverId) }
                     ?: return@asyncListener
