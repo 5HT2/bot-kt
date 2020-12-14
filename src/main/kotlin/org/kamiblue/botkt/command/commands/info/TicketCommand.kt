@@ -23,7 +23,7 @@ object TicketCommand : BotCommand(
     description = "Manage tickets",
     category = Category.INFO
 ) {
-    private val config = ConfigManager.readConfig<TicketConfig>(ConfigType.TICKET, false)
+    private val config = ConfigManager.readConfigSafe<TicketConfig>(ConfigType.TICKET, false)
 
     init {
         literal("close") {
