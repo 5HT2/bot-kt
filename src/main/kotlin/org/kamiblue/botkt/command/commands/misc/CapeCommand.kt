@@ -454,7 +454,7 @@ object CapeCommand : BotCommand(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Main.logger.warn("Failed to make emoji from hex", e)
                 null
             }
         }

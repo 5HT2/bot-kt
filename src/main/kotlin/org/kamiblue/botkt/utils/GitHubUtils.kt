@@ -8,6 +8,7 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.AuthConfig
 import org.kamiblue.botkt.ConfigType
+import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.UserConfig
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.MessageSendUtils.error
@@ -49,6 +50,6 @@ object GitHubUtils {
 
         val response = OkHttpClient().newCall(request).execute()
 
-        println(response.body?.string())
+        Main.logger.debug(response.body?.string())
     }
 }

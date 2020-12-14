@@ -44,6 +44,7 @@ object Main {
 
             runLooping(600000) {
                 CounterCommand.updateChannel()
+                logger.debug("Updated counter channels")
             },
 
             runLooping(30000) {
@@ -52,7 +53,7 @@ object Main {
                     delay(30000)
                     CapeCommand.commit()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logger.warn("Failed to save/commit capes", e)
                 }
             }
         )
