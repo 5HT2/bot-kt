@@ -4,12 +4,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.kamiblue.botkt.ConfigManager
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.UserConfig
 import org.kamiblue.botkt.command.commands.system.ExceptionCommand
 import org.kamiblue.botkt.event.BotEventBus
+import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils
 import org.kamiblue.botkt.utils.StringUtils.flat

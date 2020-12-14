@@ -1,4 +1,4 @@
-package org.kamiblue.botkt
+package org.kamiblue.botkt.manager.managers
 
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -13,11 +13,13 @@ import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.server.user.UserJoinEvent
 import net.ayataka.kordis.event.events.server.user.UserRoleUpdateEvent
 import net.ayataka.kordis.utils.timer
+import org.kamiblue.botkt.Main
+import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.Colors
 import java.io.*
 import java.util.concurrent.ConcurrentHashMap
 
-object MuteManager {
+object MuteManager : Manager {
 
     val serverMap = HashMap<Long, ServerMuteInfo>() // <Server ID, ServerMuteInfo>
     private val gson = GsonBuilder().setPrettyPrinting().create()

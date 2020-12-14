@@ -10,6 +10,7 @@ import org.kamiblue.botkt.*
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.event.BotEventBus
+import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error

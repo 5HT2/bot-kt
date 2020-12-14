@@ -1,6 +1,8 @@
-package org.kamiblue.botkt
+package org.kamiblue.botkt.manager.managers
 
 import com.google.gson.Gson
+import org.kamiblue.botkt.ConfigType
+import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.StringUtils.isUrl
 import java.io.File
 import java.net.URL
@@ -11,7 +13,7 @@ import java.nio.file.Paths
  * @author l1ving
  * @since 2020/08/16 19:48
  */
-object ConfigManager {
+object ConfigManager : Manager {
 
 /*    fun writeConfig(configType: ConfigType) {
         TODO: implement lol

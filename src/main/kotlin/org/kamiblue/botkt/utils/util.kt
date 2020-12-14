@@ -15,8 +15,8 @@ import net.ayataka.kordis.exception.NotFoundException
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.kamiblue.botkt.AuthConfig
-import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.ConfigType
+import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.MessageSendUtils.log
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import java.time.Instant
