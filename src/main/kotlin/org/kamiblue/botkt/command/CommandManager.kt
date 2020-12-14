@@ -11,7 +11,6 @@ import org.kamiblue.botkt.command.commands.system.ExceptionCommand
 import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageSendUtils
 import org.kamiblue.botkt.utils.StringUtils.flat
 import org.kamiblue.command.AbstractCommandManager
 import org.kamiblue.command.utils.CommandNotFoundException
@@ -39,14 +38,12 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
     fun init() {
         val commandClasses = ClassUtils.findClasses("org.kamiblue.botkt.command.commands", BotCommand::class.java)
 
-        MessageSendUtils.log("Registering commands...")
-
         for (clazz in commandClasses) {
             val botCommand = ClassUtils.getInstance(clazz)
             botCommand.category.commands.add(register(botCommand))
         }
 
-        MessageSendUtils.log("Registered ${getCommands().size} commands!")
+        Main.logger.info("Registered ${getCommands().size} commands!")
 
         BotEventBus.subscribe(this)
     }

@@ -10,7 +10,6 @@ import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.manager.ManagerLoader
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageSendUtils
 
 /**
  * @author l1ving
@@ -21,7 +20,7 @@ object Bot {
     suspend fun start() {
         val started = System.currentTimeMillis()
 
-        MessageSendUtils.log("Starting bot!")
+        Main.logger.info("Starting bot!")
 
         UpdateHelper.writeVersion(Main.currentVersion)
         UpdateHelper.updateCheck()
@@ -29,7 +28,7 @@ object Bot {
         val config = ConfigManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, false)
 
         if (config?.botToken == null) {
-            MessageSendUtils.log("Bot token not found, make sure your file is formatted correctly!. \nExiting...")
+            Main.logger.error("Bot token not found, exiting. Make sure your file is formatted correctly!")
             Main.exit()
             return
         }
@@ -55,7 +54,7 @@ object Bot {
 
         Main.client.addListener(KordisEventProcessor)
         Main.ready = true
-        MessageSendUtils.log(initMessage)
+        Main.logger.info(initMessage)
     }
 
     private fun updateStatus(userConfig: UserConfig?) {

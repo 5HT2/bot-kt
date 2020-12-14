@@ -7,14 +7,15 @@ import org.kamiblue.botkt.command.commands.github.CounterCommand
 import org.kamiblue.botkt.command.commands.misc.CapeCommand
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.manager.managers.MuteManager
+import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
 
 object Main {
-    private lateinit var processes: Array<Job>
+
+    val logger = LoggerFactory.getLogger("Bot-Kt")
 
     lateinit var client: DiscordClient
     var ready = false
-
     var prefix: Char? = null
         private set
         get() {
@@ -24,6 +25,8 @@ object Main {
                 }
             }
         }
+
+    private lateinit var processes: Array<Job>
 
     const val currentVersion = "v1.5.0"
 
