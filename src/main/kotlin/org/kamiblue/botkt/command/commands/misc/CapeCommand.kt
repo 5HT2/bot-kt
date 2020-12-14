@@ -8,11 +8,12 @@ import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.emoji.Emoji
 import org.kamiblue.botkt.*
-import org.kamiblue.botkt.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.UUIDManager.UUIDFormatException
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.helpers.ShellHelper.bash
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash
+import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.manager.managers.UUIDManager
+import org.kamiblue.botkt.manager.managers.UUIDManager.UUIDFormatException
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.log

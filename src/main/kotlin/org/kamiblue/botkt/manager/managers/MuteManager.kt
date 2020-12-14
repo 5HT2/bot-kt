@@ -1,4 +1,4 @@
-package org.kamiblue.botkt
+package org.kamiblue.botkt.manager.managers
 
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -9,15 +9,17 @@ import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.member.Member
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.role.Role
-import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.server.user.UserJoinEvent
 import net.ayataka.kordis.event.events.server.user.UserRoleUpdateEvent
 import net.ayataka.kordis.utils.timer
+import org.kamiblue.botkt.Main
+import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.event.listener.asyncListener
 import java.io.*
 import java.util.concurrent.ConcurrentHashMap
 
-object MuteManager {
+object MuteManager : Manager {
 
     val serverMap = HashMap<Long, ServerMuteInfo>() // <Server ID, ServerMuteInfo>
     private val gson = GsonBuilder().setPrettyPrinting().create()
@@ -56,18 +58,16 @@ object MuteManager {
         }
     }
 
-    @Suppress("UNUSED")
-    @EventHandler
-    suspend fun userJoinedListener(event: UserJoinEvent) {
-        reAdd(event.member)
-    }
+    init {
+        asyncListener<UserJoinEvent> {
+            reAdd(it.member)
+        }
 
-    @Suppress("UNUSED")
-    @EventHandler
-    suspend fun onUserUpdateRoles(event: UserRoleUpdateEvent) {
-        val mutedRole = serverMap[event.server.id]?.getMutedRole() ?: return
-        if (event.before.contains(mutedRole) && !event.member.roles.contains(mutedRole)) {
-            reAdd(event.member)
+        asyncListener<UserRoleUpdateEvent> {
+            val mutedRole = serverMap[it.server.id]?.getMutedRole() ?: return@asyncListener
+            if (it.before.contains(mutedRole) && !it.member.roles.contains(mutedRole)) {
+                reAdd(it.member)
+            }
         }
     }
 
@@ -164,8 +164,6 @@ object MuteManager {
                 // this is fine
             }
         }
-
-        Main.client.addListener(this)
     }
 
 }

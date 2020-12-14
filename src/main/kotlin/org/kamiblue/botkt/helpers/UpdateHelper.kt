@@ -1,6 +1,10 @@
 package org.kamiblue.botkt.helpers
 
-import org.kamiblue.botkt.*
+import org.kamiblue.botkt.ConfigType
+import org.kamiblue.botkt.Main
+import org.kamiblue.botkt.UserConfig
+import org.kamiblue.botkt.VersionConfig
+import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.MessageSendUtils.log
 import java.io.File
 import java.io.FileWriter

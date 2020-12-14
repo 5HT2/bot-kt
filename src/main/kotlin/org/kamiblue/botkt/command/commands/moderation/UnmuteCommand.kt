@@ -2,11 +2,11 @@ package org.kamiblue.botkt.command.commands.moderation
 
 import net.ayataka.kordis.entity.find
 import net.ayataka.kordis.entity.server.member.Member
-import org.kamiblue.botkt.MuteManager
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
+import org.kamiblue.botkt.manager.managers.MuteManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 

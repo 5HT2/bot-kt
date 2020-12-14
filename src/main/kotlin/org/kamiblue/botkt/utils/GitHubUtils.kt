@@ -7,9 +7,9 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.AuthConfig
-import org.kamiblue.botkt.ConfigManager
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.UserConfig
+import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.l1ving.api.issue.Issue
 
