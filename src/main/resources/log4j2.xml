@@ -34,7 +34,7 @@
     <Loggers>
         <Root level="all">
             <AppenderRef ref="Console" level="${sys:log.console_level:-info}"/>
-            <AppenderRef ref="LatestLog" level="info"/>
+            <AppenderRef ref="LatestLog" level="${sys:log.console_level:-info}"/>
             <AppenderRef ref="DebugLog" level="debug"/>
             <AppenderRef ref="ErrorLog" level="warn"/>
         </Root>
