@@ -49,7 +49,9 @@ object HelpCommand : BotCommand(
                     embed {
                         title = "Help for `${Main.prefix}${command.name}`"
                         field("Description:", command.description)
-                        if (alias.isNotEmpty()) { field("Aliases:",  alias) }
+                        if (alias.isNotEmpty()) {
+                            field("Aliases:", alias)
+                        }
                         field("Syntax:", syntax)
                         color = Colors.PRIMARY.color
                     }
