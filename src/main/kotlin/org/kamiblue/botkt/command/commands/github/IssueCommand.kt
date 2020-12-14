@@ -4,12 +4,12 @@ import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.message.embed.EmbedBuilder
 import net.ayataka.kordis.entity.server.member.Member
-import net.ayataka.kordis.event.EventHandler
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import net.ayataka.kordis.event.events.message.ReactionAddEvent
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error
@@ -18,6 +18,7 @@ import org.kamiblue.botkt.utils.ReactionUtils.addReaction
 import org.kamiblue.botkt.utils.StringUtils.flat
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.authenticatedRequest
+import org.kamiblue.event.listener.asyncListener
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.pull.PullRequest
 import java.awt.Color
@@ -34,8 +35,6 @@ object IssueCommand : BotCommand(
     private val queuedIssues = HashMap<Long, QueuedIssue>()
 
     init {
-        Main.client.addListener(this)
-
         string("user") { user ->
             string("repoName") { repo ->
                 int("issueNum") { issueNum ->
@@ -111,96 +110,98 @@ object IssueCommand : BotCommand(
         }
     }
 
-    @EventHandler
-    suspend fun onReact(event: ReactionAddEvent) {
-        if (!Main.ready || event.reaction.member?.bot == true) return
-        if (!event.reaction.userId.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return
+    init {
+        asyncListener<ReactionAddEvent> {
+            if (!Main.ready || it.reaction.member?.bot == true) return@asyncListener
+            if (!it.reaction.userId.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return@asyncListener
 
-        val form = queuedIssues[event.reaction.messageId] ?: return
+            val form = queuedIssues[it.reaction.messageId] ?: return@asyncListener
 
-        if (event.reaction.emoji.name == "✅") {
-            var message = form.formMessage
+            if (it.reaction.emoji.name == "✅") {
+                var message = form.formMessage
 
-            val token = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)?.githubToken ?: run {
-                message.error("Github Token is not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
-                return
-            }
-
-            val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
-                message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
-                return
-            }
-
-            GitHubUtils.createGithubIssue(form.issue, user, form.repo, token)
-
-            form.creator?.getPrivateChannel()?.send {
-                embed {
-                    title = form.issue.title
-                    description = "Your suggestion / bug was accepted!"
-                    field("Description:", form.issue.body ?: "")
-                    field("Repository:", "$user/${form.repo}")
-                    color = Colors.SUCCESS.color
+                val token = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)?.githubToken ?: run {
+                    message.error("Github Token is not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
+                    return@asyncListener
                 }
 
-            }
-
-            form.formMessage.delete()
-
-            message = message.success("Successfully created issue `${form.issue.title}`!")
-
-            delay(5000)
-
-            message.delete()
-        } else if (event.reaction.emoji.name == "⛔") {
-            val message = form.formMessage
-
-            val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
-                message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
-                return
-            }
-
-            form.creator?.getPrivateChannel()?.send {
-                embed {
-                    title = form.issue.title
-                    description = "Your suggestion / bug was rejected!"
-                    field("Description:", form.issue.body ?: "")
-                    field("Repository:", "$user/${form.repo}")
-                    color = Colors.ERROR.color
+                val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
+                    message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                    return@asyncListener
                 }
+
+                GitHubUtils.createGithubIssue(form.issue, user, form.repo, token)
+
+                form.creator?.getPrivateChannel()?.send {
+                    embed {
+                        title = form.issue.title
+                        description = "Your suggestion / bug was accepted!"
+                        field("Description:", form.issue.body ?: "")
+                        field("Repository:", "$user/${form.repo}")
+                        color = Colors.SUCCESS.color
+                    }
+
+                }
+
+                form.formMessage.delete()
+
+                message = message.success("Successfully created issue `${form.issue.title}`!")
+
+                delay(5000)
+
+                message.delete()
+            } else if (it.reaction.emoji.name == "⛔") {
+                val message = form.formMessage
+
+                val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
+                    message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                    return@asyncListener
+                }
+
+                form.creator?.getPrivateChannel()?.send {
+                    embed {
+                        title = form.issue.title
+                        description = "Your suggestion / bug was rejected!"
+                        field("Description:", form.issue.body ?: "")
+                        field("Repository:", "$user/${form.repo}")
+                        color = Colors.ERROR.color
+                    }
+                }
+
+                val feedback = message.error("Issue `${form.issue.title}` rejected!")
+
+
+                delay(5000)
+                message.delete()
+                delay(5000)
+                feedback.delete()
+                queuedIssues.remove(it.reaction.messageId)
+            }
+        }
+
+        asyncListener<MessageReceiveEvent> { event ->
+            if (!Main.ready || event.message.author?.bot == true) return@asyncListener
+
+            if (event.message.author?.id?.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION) == true) return@asyncListener
+
+            val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
+            issueChannel?.issueCreationChannel?.let {
+                if (it != event.message.channel.id) return@asyncListener // only run the following code on messages in the issue channel
+            } ?: run {
+                return@asyncListener // issues are allowed inside any channel
             }
 
-            val feedback = message.error("Issue `${form.issue.title}` rejected!")
+            if (event.message.content.isEmpty() || !event.message.content.startsWith("$name create")) {
+                val reply = event.message.error("You need to use the `$name create` command to create an issue!")
 
-            delay(5000)
-            message.delete()
-            delay(5000)
-            feedback.delete()
-            queuedIssues.remove(event.reaction.messageId)
+                event.message.delete()
+                delay(5000)
+                reply.delete()
+                return@asyncListener
+            }
         }
 
-    }
-
-    @EventHandler
-    suspend fun onMessageReceive(event: MessageReceiveEvent) {
-        if (!Main.ready || event.message.author?.bot == true) return
-
-        if (event.message.author?.id?.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION) == true) return
-
-        val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
-        issueChannel?.issueCreationChannel?.let {
-            if (it != event.message.channel.id) return // only run the following code on messages in the issue channel
-        } ?: run {
-            return // issues are allowed inside any channel
-        }
-
-        if (event.message.content.isEmpty() || !event.message.content.startsWith("$name create")) {
-            val reply = event.message.error("You need to use the `$name create` command to create an issue!")
-
-            event.message.delete()
-            delay(5000)
-            reply.delete()
-            return
-        }
+        BotEventBus.subscribe(this)
     }
 
     private suspend fun sendResponse(
