@@ -2,9 +2,9 @@ package org.kamiblue.botkt.command.commands.github
 
 import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.*
-import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.success

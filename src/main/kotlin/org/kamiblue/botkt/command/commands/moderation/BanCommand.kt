@@ -9,10 +9,10 @@ import net.ayataka.kordis.entity.server.permission.Permission
 import net.ayataka.kordis.entity.user.User
 import net.ayataka.kordis.exception.NotFoundException
 import org.kamiblue.botkt.*
-import org.kamiblue.botkt.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal

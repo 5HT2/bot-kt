@@ -1,10 +1,10 @@
 package org.kamiblue.botkt.command.commands.info
 
-import org.kamiblue.botkt.ConfigManager
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.RulesConfig
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 
 object RulesCommand : BotCommand(

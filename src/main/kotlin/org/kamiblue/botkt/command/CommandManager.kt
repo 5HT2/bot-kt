@@ -4,11 +4,12 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.kamiblue.botkt.ConfigManager
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.UserConfig
 import org.kamiblue.botkt.command.commands.system.ExceptionCommand
+import org.kamiblue.botkt.event.BotEventBus
+import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils
 import org.kamiblue.botkt.utils.StringUtils.flat
@@ -16,11 +17,24 @@ import org.kamiblue.command.AbstractCommandManager
 import org.kamiblue.command.utils.CommandNotFoundException
 import org.kamiblue.command.utils.SubCommandNotFoundException
 import org.kamiblue.commons.utils.ClassUtils
+import org.kamiblue.event.listener.asyncListener
 import java.util.concurrent.ConcurrentLinkedQueue
 
 object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
     private val executeQueue = ConcurrentLinkedQueue<suspend () -> Unit>()
+
+    init {
+        asyncListener<MessageReceiveEvent> {
+            // message can be empty on images, embeds and other attachments
+            if (it.message.content.isEmpty()) return@asyncListener
+
+            val string = if (it.message.content[0] == Main.prefix) it.message.content.substring(1)
+            else return@asyncListener
+
+            submit(it, string)
+        }
+    }
 
     fun init() {
         val commandClasses = ClassUtils.findClasses("org.kamiblue.botkt.command.commands", BotCommand::class.java)
@@ -33,6 +47,8 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
         }
 
         MessageSendUtils.log("Registered ${getCommands().size} commands!")
+
+        BotEventBus.subscribe(this)
     }
 
     suspend fun submit(event: MessageReceiveEvent, string: String) {
