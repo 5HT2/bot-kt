@@ -42,8 +42,8 @@ object KordisEventProcessor {
     fun reactionRemoveEventListener(event: ReactionRemoveEvent) {
         BotEventBus.post(event)
     }
-    
-    
+
+
     /* Server */
     @EventHandler
     fun serverReadyEventListener(event: ServerReadyEvent) {
@@ -59,8 +59,8 @@ object KordisEventProcessor {
     fun serverUpdateEventListener(event: ServerUpdateEvent) {
         BotEventBus.post(event)
     }
-    
-    
+
+
     /* Channel */
     @EventHandler
     fun channelCreateEventListener(event: ChannelCreateEvent) {
@@ -77,14 +77,14 @@ object KordisEventProcessor {
         BotEventBus.post(event)
     }
 
-    
+
     /* Emoji */
     @EventHandler
     fun emojiUpdateEventListener(event: EmojiUpdateEvent) {
         BotEventBus.post(event)
     }
 
-    
+
     /* Role */
     @EventHandler
     fun roleCreateEventListener(event: RoleCreateEvent) {
@@ -101,7 +101,7 @@ object KordisEventProcessor {
         BotEventBus.post(event)
     }
 
-    
+
     /* User */
     @EventHandler
     fun userBanEventListener(event: UserBanEvent) {
