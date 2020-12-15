@@ -13,9 +13,11 @@ import net.ayataka.kordis.event.events.server.user.UserJoinEvent
 import net.ayataka.kordis.event.events.server.user.UserRoleUpdateEvent
 import net.ayataka.kordis.utils.timer
 import org.kamiblue.botkt.Main
+import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.event.listener.asyncListener
+import org.kamiblue.event.listener.listener
 import java.io.*
 import java.util.concurrent.ConcurrentHashMap
 
@@ -68,6 +70,10 @@ object MuteManager : Manager {
             if (it.before.contains(mutedRole) && !it.member.roles.contains(mutedRole)) {
                 reAdd(it.member)
             }
+        }
+
+        listener<ShutdownEvent> {
+            save()
         }
     }
 

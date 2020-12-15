@@ -9,6 +9,7 @@ import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.emoji.Emoji
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.helpers.ShellHelper.bash
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
@@ -22,6 +23,7 @@ import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.maxEmojiSlots
 import org.kamiblue.capeapi.*
 import org.kamiblue.commons.utils.MathUtils
+import org.kamiblue.event.listener.listener
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -349,6 +351,10 @@ object CapeCommand : BotCommand(
         }
 
         load()
+
+        listener<ShutdownEvent> {
+            save()
+        }
     }
 
     private fun load() {
