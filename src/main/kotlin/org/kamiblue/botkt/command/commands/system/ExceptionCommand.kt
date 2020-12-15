@@ -30,17 +30,15 @@ object ExceptionCommand : BotCommand(
             }
         }
 
-        literal("view") {
-            int("index") { indexArg ->
-                executeIfHas(COUNCIL_MEMBER, "Print a saved exception") {
-                    if (exceptions.isEmpty()) {
-                        message.success("No exceptions caught recently!")
-                    } else {
-                        exceptions.getOrNull(indexArg.value)?.let {
-                            message.channel.send("```\n" + it.stackTraceToString().flat(1992) + "\n```")
-                        } ?: run {
-                            message.error("Exception with index `${indexArg.value}` is not stored!")
-                        }
+        int("index") { indexArg ->
+            executeIfHas(COUNCIL_MEMBER, "Print a saved exception") {
+                if (exceptions.isEmpty()) {
+                    message.success("No exceptions caught recently!")
+                } else {
+                    exceptions.getOrNull(indexArg.value)?.let {
+                        message.channel.send("```\n" + it.stackTraceToString().flat(1992) + "\n```")
+                    } ?: run {
+                        message.error("Exception with index `${indexArg.value}` is not stored!")
                     }
                 }
             }
