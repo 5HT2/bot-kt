@@ -7,8 +7,9 @@ import org.apache.logging.log4j.Logger
 import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.command.commands.github.CounterCommand
 import org.kamiblue.botkt.command.commands.misc.CapeCommand
+import org.kamiblue.botkt.event.BotEventBus
+import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.manager.managers.MuteManager
 import kotlin.system.exitProcess
 
 object Main {
@@ -32,31 +33,38 @@ object Main {
     const val currentVersion = "v1.5.0"
 
     @JvmStatic
-    fun main(vararg args: String) = runBlocking {
-        processes = arrayOf(
-            launch {
-                Bot.start()
-            },
+    fun main(vararg args: String) {
+        Runtime.getRuntime().addShutdownHook(Thread({
+            logger.info("Bot shutting down, posting ShutdownEvent")
+            BotEventBus.post(ShutdownEvent)
+        }, "Bot Shutdown Hook"))
 
-            runLooping(50) {
-                CommandManager.runQueued()
-            },
+        runBlocking {
+            processes = arrayOf(
+                launch {
+                    Bot.start()
+                },
 
-            runLooping(600000) {
-                CounterCommand.updateChannel()
-                logger.debug("Updated counter channels")
-            },
+                runLooping(50) {
+                    CommandManager.runQueued()
+                },
 
-            runLooping(30000) {
-                try {
-                    CapeCommand.save()
-                    delay(30000)
-                    CapeCommand.commit()
-                } catch (e: Exception) {
-                    logger.warn("Failed to save/commit capes", e)
+                runLooping(600000) {
+                    CounterCommand.updateChannel()
+                    logger.debug("Updated counter channels")
+                },
+
+                runLooping(30000) {
+                    try {
+                        CapeCommand.save()
+                        delay(30000)
+                        CapeCommand.commit()
+                    } catch (e: Exception) {
+                        logger.warn("Failed to save/commit capes", e)
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 
     private fun CoroutineScope.runLooping(loopDelay: Long = 50L, block: suspend CoroutineScope.() -> Unit) = launch {
@@ -72,12 +80,6 @@ object Main {
 
     fun exit() {
         processes.forEach { it.cancel() }
-        try {
-            CapeCommand.save()
-            MuteManager.save()
-        } catch (e: Exception) {
-            // this is fine
-        }
         exitProcess(0)
     }
 }
