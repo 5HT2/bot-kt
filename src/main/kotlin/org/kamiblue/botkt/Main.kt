@@ -34,10 +34,7 @@ object Main {
 
     @JvmStatic
     fun main(vararg args: String) {
-        Runtime.getRuntime().addShutdownHook(Thread({
-            logger.info("Bot shutting down, posting ShutdownEvent")
-            BotEventBus.post(ShutdownEvent)
-        }, "Bot Shutdown Hook"))
+        addShutdownHook()
 
         runBlocking {
             processes = arrayOf(
@@ -65,6 +62,13 @@ object Main {
                 }
             )
         }
+    }
+
+    private fun addShutdownHook(){
+        Runtime.getRuntime().addShutdownHook(Thread({
+            logger.info("Bot shutting down, posting ShutdownEvent")
+            BotEventBus.post(ShutdownEvent)
+        }, "Bot Shutdown Hook"))
     }
 
     private fun CoroutineScope.runLooping(loopDelay: Long = 50L, block: suspend CoroutineScope.() -> Unit) = launch {
