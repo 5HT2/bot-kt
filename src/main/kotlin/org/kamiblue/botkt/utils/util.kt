@@ -16,8 +16,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.kamiblue.botkt.AuthConfig
 import org.kamiblue.botkt.ConfigType
+import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.utils.MessageSendUtils.log
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import java.time.Instant
 import java.time.temporal.ChronoUnit
@@ -71,8 +71,7 @@ fun Server.maxEmojiSlots(): Int {
     val premiumTier = try {
         jsonObject?.get("premium_tier")?.asInt
     } catch (e: Exception) {
-        log("Error getting premium tier")
-        e.printStackTrace()
+        Main.logger.warn("Error getting premium tier", e)
         0
     }
 

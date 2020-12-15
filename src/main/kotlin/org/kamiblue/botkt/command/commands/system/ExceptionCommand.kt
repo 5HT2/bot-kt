@@ -1,5 +1,6 @@
 package org.kamiblue.botkt.command.commands.system
 
+import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
@@ -47,6 +48,7 @@ object ExceptionCommand : BotCommand(
     }
 
     fun addException(e: Exception) {
+        Main.logger.warn("Exception caught by ${javaClass.simpleName}", e)
         while (exceptions.size >= 10) {
             exceptions.removeFirstOrNull()
         }

@@ -16,7 +16,6 @@ import org.kamiblue.botkt.manager.managers.UUIDManager
 import org.kamiblue.botkt.manager.managers.UUIDManager.UUIDFormatException
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.MessageSendUtils.log
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
@@ -363,8 +362,7 @@ object CapeCommand : BotCommand(
                 capeUserMap.putAll(cacheList.associateBy { it.id })
             }
         } catch (e: Exception) {
-            log("Error loading capes!")
-            e.printStackTrace()
+            Main.logger.warn("Error loading capes!", e)
         }
     }
 
@@ -456,7 +454,7 @@ object CapeCommand : BotCommand(
                     }
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Main.logger.warn("Failed to make emoji from hex", e)
                 null
             }
         }
