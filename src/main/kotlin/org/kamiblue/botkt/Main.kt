@@ -34,10 +34,10 @@ object Main {
 
     @JvmStatic
     fun main(vararg args: String) {
-        Runtime.getRuntime().addShutdownHook(Thread{
+        Runtime.getRuntime().addShutdownHook(Thread({
             logger.info("Bot shutting down, posting ShutdownEvent")
             BotEventBus.post(ShutdownEvent)
-        })
+        }, "Bot Shutdown Hook"))
 
         runBlocking {
             processes = arrayOf(
