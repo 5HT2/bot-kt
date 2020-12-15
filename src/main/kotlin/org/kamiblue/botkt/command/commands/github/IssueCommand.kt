@@ -9,7 +9,6 @@ import net.ayataka.kordis.event.events.message.ReactionAddEvent
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.*
-import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.GitHubUtils
@@ -196,11 +195,8 @@ object IssueCommand : BotCommand(
                 event.message.delete()
                 delay(5000)
                 reply.delete()
-                return@asyncListener
             }
         }
-
-        BotEventBus.subscribe(this)
     }
 
     private suspend fun sendResponse(
