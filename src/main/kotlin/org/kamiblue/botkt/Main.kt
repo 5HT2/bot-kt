@@ -2,6 +2,8 @@ package org.kamiblue.botkt
 
 import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.command.commands.github.CounterCommand
 import org.kamiblue.botkt.command.commands.misc.CapeCommand
@@ -10,11 +12,11 @@ import org.kamiblue.botkt.manager.managers.MuteManager
 import kotlin.system.exitProcess
 
 object Main {
-    private lateinit var processes: Array<Job>
+
+    val logger: Logger = LogManager.getLogger("bot-kt")
 
     lateinit var client: DiscordClient
     var ready = false
-
     var prefix: Char? = null
         private set
         get() {
@@ -24,6 +26,8 @@ object Main {
                 }
             }
         }
+
+    private lateinit var processes: Array<Job>
 
     const val currentVersion = "v1.5.0"
 
@@ -40,6 +44,7 @@ object Main {
 
             runLooping(600000) {
                 CounterCommand.updateChannel()
+                logger.debug("Updated counter channels")
             },
 
             runLooping(30000) {
@@ -48,7 +53,7 @@ object Main {
                     delay(30000)
                     CapeCommand.commit()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    logger.warn("Failed to save/commit capes", e)
                 }
             }
         )

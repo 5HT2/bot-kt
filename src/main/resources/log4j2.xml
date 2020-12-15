@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="5">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout disableAnsi="false" pattern="%highlight{[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n}{FATAL=bright red, ERROR=red, WARN=yellow, INFO=reset, DEBUG=reset, TRACE=blue}"/>
+        </Console>
+
+        <File name="LatestLog" fileName="logs/latest.log" append="false">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n"/>
+        </File>
+
+        <RollingRandomAccessFile name="DebugLog" fileName="logs/debug/debug.log" filePattern="logs/debug/debug-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+                <OnStartupTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="${sys:log.debug_max:-10}"/>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="ErrorLog" fileName="logs/error/error.log" filePattern="logs/error/error-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1"/>
+                <SizeBasedTriggeringPolicy size="20 MB"/>
+                <OnStartupTriggeringPolicy/>
+            </Policies>
+            <DefaultRolloverStrategy max="${sys:log.error_max:-20}"/>
+        </RollingRandomAccessFile>
+
+    </Appenders>
+
+    <Loggers>
+        <Root level="all">
+            <AppenderRef ref="Console" level="${sys:log.console_level:-info}"/>
+            <AppenderRef ref="LatestLog" level="${sys:log.console_level:-info}"/>
+            <AppenderRef ref="DebugLog" level="debug"/>
+            <AppenderRef ref="ErrorLog" level="warn"/>
+        </Root>
+    </Loggers>
+</Configuration>

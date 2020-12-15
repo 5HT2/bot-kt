@@ -5,7 +5,6 @@ import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.UserConfig
 import org.kamiblue.botkt.VersionConfig
 import org.kamiblue.botkt.manager.managers.ConfigManager
-import org.kamiblue.botkt.utils.MessageSendUtils.log
 import java.io.File
 import java.io.FileWriter
 import java.net.URL
@@ -22,16 +21,18 @@ object UpdateHelper {
             ConfigManager.readConfigFromUrl<VersionConfig>("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json")
 
         if (versionConfig?.version == null) {
-            log("Couldn't access remote version when checking for update")
+            Main.logger.info("Couldn't access remote version when checking for update")
             return
         }
 
         if (versionConfig.version != Main.currentVersion) {
-            log("Not up to date:\nCurrent version: ${Main.currentVersion}\nLatest Version: ${versionConfig.version}")
+            Main.logger.info("Not up to date:")
+            Main.logger.info("Current version: ${Main.currentVersion}")
+            Main.logger.info("Latest Version: ${versionConfig.version}")
 
             updateBot(versionConfig.version)
         } else {
-            log("Up to date! Running on ${Main.currentVersion}")
+            Main.logger.info("Up to date! Running on ${Main.currentVersion}")
         }
     }
 
@@ -52,24 +53,24 @@ object UpdateHelper {
         }
 
         if (deleted.isNotEmpty()) {
-            log("Auto Update - Deleted the following files:\n" + deleted.joinToString { it })
+            Main.logger.info("Auto Update - Deleted the following files:\n" + deleted.joinToString())
         }
 
         val bytes =
             URL("https://github.com/kami-blue/bot-kt/releases/download/$version/bot-kt-$version.jar").readBytes()
 
-        log("Auto Update - Downloaded bot-kt-$version.jar ${bytes.size / 1000000}MB")
+        Main.logger.info("Auto Update - Downloaded bot-kt-$version.jar ${bytes.size / 1000000}MB")
         val appendSlash = if (path.endsWith("/")) "" else "/"
         val targetFile = path.toString() + appendSlash + "bot-kt-$version.jar"
         File(targetFile).writeBytes(bytes)
 
         writeVersion(version)
 
-        log("Auto Update - Finished updating to $version")
+        Main.logger.info("Auto Update - Finished updating to $version")
 
         userConfig.autoUpdateRestart?.let {
             if (it) {
-                log("Auto Update - Restarting bot")
+                Main.logger.info("Auto Update - Restarting bot")
                 Main.exit()
             }
         }

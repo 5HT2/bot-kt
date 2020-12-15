@@ -2,6 +2,7 @@ package org.kamiblue.botkt.manager.managers
 
 import com.google.gson.Gson
 import org.kamiblue.botkt.ConfigType
+import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.StringUtils.isUrl
 import java.io.File
@@ -71,7 +72,7 @@ object ConfigManager : Manager {
                 Gson().fromJson(it, T::class.java)
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Main.logger.warn("Failed reading ${configType.name} config from file", e)
             null
         }
     }
@@ -86,7 +87,7 @@ object ConfigManager : Manager {
         return try {
             Gson().fromJson(URL(configType.configPath).readText(Charsets.UTF_8), T::class.java)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Main.logger.warn("Failed reading ${configType.name} config from url", e)
             null
         }
     }
@@ -98,7 +99,7 @@ object ConfigManager : Manager {
         return try {
             Gson().fromJson(URL(url).readText(Charsets.UTF_8), T::class.java)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Main.logger.warn("Failed reading config from url $url", e)
             null
         }
     }

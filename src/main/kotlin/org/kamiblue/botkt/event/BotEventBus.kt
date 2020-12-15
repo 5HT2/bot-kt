@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.kamiblue.botkt.Main
 import org.kamiblue.event.eventbus.AbstractAsyncEventBus
 import org.kamiblue.event.listener.AsyncListener
 import org.kamiblue.event.listener.Listener
@@ -29,7 +30,7 @@ object BotEventBus : AbstractAsyncEventBus() {
                     @Suppress("UNCHECKED_CAST") // IDE meme
                     (it as AsyncListener<Any>).function.invoke(event)
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Main.logger.error("Error occur during event ${event.javaClass.simpleName}", e)
                 }
             }
         }
@@ -39,7 +40,7 @@ object BotEventBus : AbstractAsyncEventBus() {
                 @Suppress("UNCHECKED_CAST") // IDE meme
                 (it as Listener<Any>).function.invoke(event)
             } catch (e: Exception) {
-                e.printStackTrace()
+                Main.logger.error("Error occur during event ${event.javaClass.simpleName}", e)
             }
         }
     }

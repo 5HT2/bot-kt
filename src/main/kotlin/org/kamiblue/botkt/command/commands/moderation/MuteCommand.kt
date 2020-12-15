@@ -5,6 +5,7 @@ import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.member.Member
 import net.ayataka.kordis.entity.user.User
+import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.BotCommand
@@ -26,7 +27,7 @@ object MuteCommand : BotCommand(
         try {
             MuteManager.load()
         } catch (e: Exception) {
-            e.printStackTrace()
+            Main.logger.warn("Failed to load mute config", e)
         }
 
         literal("reload", "Reload mute config") {
