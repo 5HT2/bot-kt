@@ -6,7 +6,7 @@ import net.ayataka.kordis.utils.TimerScope
 import net.ayataka.kordis.utils.timer
 
 @Suppress("EXPERIMENTAL_API_USAGE")
-object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThreadPoolContext(2, "bot-kt Background")) {
+object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThreadPoolContext(2, "Bot-kt Background")) {
 
     private val list = ArrayList<Triple<Long, String?, suspend TimerScope.() -> Unit>>()
     private var started = false
