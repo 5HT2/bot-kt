@@ -228,10 +228,6 @@ object IssueCommand : BotCommand(
 
                     commonFields(issue)
 
-                    field("Lines", "+${pullRequest.additions} / - ${pullRequest.deletions}", false)
-                    field("Commits", pullRequest.commits ?: -1, false)
-                    field("Changed Files", pullRequest.changed_files ?: -1, false)
-
                     url = pullRequest.html_url
                 }
             }
@@ -247,15 +243,23 @@ object IssueCommand : BotCommand(
 
         field(
             "Labels",
-            issue.labels?.mapNotNull { it.name }?.joinToString() ?: "None",
+            nullOrBlankCheck(issue.labels?.mapNotNull { it.name }?.joinToString()),
             false
         )
 
         field(
             "Assignees",
-            issue.assignees?.mapNotNull { it.login }?.joinToString() ?: "None",
+            nullOrBlankCheck(issue.assignees?.mapNotNull { it.login }?.joinToString()),
             false
         )
+    }
+
+    private fun nullOrBlankCheck(string: String?): String { // I just wanted to inline it lol
+        return if (string.isNullOrBlank() || string.isNullOrEmpty()) {
+            "None"
+        } else {
+            string
+        }
     }
 
     private fun getPullRequestColor(pullRequest: PullRequest): Color {
