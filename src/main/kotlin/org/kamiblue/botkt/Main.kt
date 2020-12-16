@@ -6,7 +6,6 @@ import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.channel.TextChannel
 import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
-import net.ayataka.kordis.utils.timer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.kamiblue.botkt.command.CommandManager
@@ -44,10 +43,6 @@ object Main {
         addShutdownHook()
         start()
         BackgroundScope.start()
-
-        mainScope.timer(10) {
-            CommandManager.runQueued()
-        }
     }
 
     fun exit() {
