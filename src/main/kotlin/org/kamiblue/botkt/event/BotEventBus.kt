@@ -21,7 +21,7 @@ object BotEventBus : AbstractAsyncEventBus() {
     override val subscribedListenersAsync = ConcurrentHashMap<Class<*>, MutableSet<AsyncListener<*>>>()
     override val newSetAsync: MutableSet<AsyncListener<*>> get() = Collections.newSetFromMap(ConcurrentHashMap())
 
-    private val dispatcher = CoroutineScope(Dispatchers.Default + CoroutineName("BotEventBus"))
+    private val dispatcher = CoroutineScope(Dispatchers.Default + CoroutineName("Bot-kt EventBus"))
 
     override fun post(event: Any) {
         subscribedListenersAsync[event.javaClass]?.forEach {

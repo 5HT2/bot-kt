@@ -11,7 +11,7 @@ import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.role.Role
 import net.ayataka.kordis.event.events.server.user.UserJoinEvent
 import net.ayataka.kordis.event.events.server.user.UserRoleUpdateEvent
-import net.ayataka.kordis.utils.timer
+import org.kamiblue.botkt.BackgroundScope
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.manager.Manager
@@ -27,7 +27,6 @@ object MuteManager : Manager {
     private val gson = GsonBuilder().setPrettyPrinting().create()
     private val type = object : TypeToken<LinkedHashMap<Long, Map<Long, Long>>>() {}.type
     private val muteFile = File("config/mute.json")
-    private val muteManagerScope = CoroutineScope(Dispatchers.Default)
 
     fun save() {
         BufferedWriter(FileWriter(muteFile)).use {
@@ -115,7 +114,7 @@ object MuteManager : Manager {
             role: Role,
             duration: Long
         ) {
-            coroutineMap[member.id] = muteManagerScope.launch {
+            coroutineMap[member.id] = BackgroundScope.launch {
                 delay(duration)
 
                 try {
@@ -145,16 +144,13 @@ object MuteManager : Manager {
         }
 
         init {
-            muteManagerScope.launch {
-                delay(5000L)
-                while (isActive) {
-                    for ((id, unmuteTime) in muteMap) {
-                        delay(500L)
-                        if (muteMap.containsKey(id) && !coroutineMap.containsKey(id)) {
-                            val duration = unmuteTime - System.currentTimeMillis()
-                            val member = server.members.find(id) ?: continue
-                            startUnmuteCoroutine(member, getMutedRole(), duration)
-                        }
+            BackgroundScope.add(5000L) {
+                for ((id, unmuteTime) in muteMap) {
+                    delay(500L)
+                    if (muteMap.containsKey(id) && !coroutineMap.containsKey(id)) {
+                        val duration = unmuteTime - System.currentTimeMillis()
+                        val member = server.members.find(id) ?: continue
+                        startUnmuteCoroutine(member, getMutedRole(), duration)
                     }
                 }
             }
@@ -162,13 +158,9 @@ object MuteManager : Manager {
     }
 
     init {
-        muteManagerScope.timer(30000L) {
-            try {
-                delay(30000L)
-                save()
-            } catch (e: Exception) {
-                // this is fine
-            }
+        BackgroundScope.add(30000L, "Failed to save mute to json") {
+            delay(30000L)
+            save()
         }
     }
 

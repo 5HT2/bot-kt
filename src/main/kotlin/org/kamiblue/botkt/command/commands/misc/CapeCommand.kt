@@ -355,6 +355,14 @@ object CapeCommand : BotCommand(
         listener<ShutdownEvent> {
             save()
         }
+
+        BackgroundScope.add(300000, "Failed to save/commit capes") {
+            save()
+            Main.logger.debug("Saved capes")
+            delay(300000)
+            commit()
+            Main.logger.debug("Commit capes")
+        }
     }
 
     private fun load() {
@@ -372,7 +380,7 @@ object CapeCommand : BotCommand(
         }
     }
 
-    fun save() {
+    private fun save() {
         if (readConfigSafe<UserConfig>(ConfigType.USER, false)?.capeCommit != true) return
 
         val capeUsers = capeUserMap.values.toList()
@@ -384,7 +392,7 @@ object CapeCommand : BotCommand(
         }
     }
 
-    suspend fun commit() { // TODO: hardcoded and a hack. I'm embarrassed to push this, but this is waiting for me to add plugin support
+    private suspend fun commit() { // TODO: hardcoded and a hack. I'm embarrassed to push this, but this is waiting for me to add plugin support
         if (readConfigSafe<UserConfig>(ConfigType.USER, false)?.capeCommit != true) return
 
         val assets = "/home/mika/projects/cape-api"
