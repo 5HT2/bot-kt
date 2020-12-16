@@ -11,10 +11,10 @@ import org.kamiblue.botkt.command.commands.system.ExceptionCommand
 import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.StringUtils.flat
 import org.kamiblue.command.AbstractCommandManager
 import org.kamiblue.command.utils.CommandNotFoundException
 import org.kamiblue.command.utils.SubCommandNotFoundException
+import org.kamiblue.commons.extension.max
 import org.kamiblue.commons.utils.ClassUtils
 import org.kamiblue.event.listener.asyncListener
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -144,7 +144,7 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
                     val prediction = "`${Main.prefix}${bestCommand.printArgHelp()}`"
                     field("Did you mean?", prediction)
                 }
-                field("Available arguments:", syntax.flat(1024))
+                field("Available arguments:", syntax.max(1024))
                 color = Colors.ERROR.color
             }
         }

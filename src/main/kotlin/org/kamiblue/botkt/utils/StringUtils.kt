@@ -17,8 +17,6 @@ object StringUtils {
 
     fun String.trim(last: Int) = this.substring(0, this.length - last)
 
-    fun String.flat(max: Int) = this.substring(0, this.length.coerceAtMost(max))
-
     fun String.readBytes() = URL(this).readBytes()
 
     fun String.uriEncode(): String = URLEncoder.encode(this, "utf-8")

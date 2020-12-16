@@ -15,9 +15,9 @@ import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.success
 import org.kamiblue.botkt.utils.ReactionUtils.addReaction
-import org.kamiblue.botkt.utils.StringUtils.flat
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.authenticatedRequest
+import org.kamiblue.commons.extension.max
 import org.kamiblue.event.listener.asyncListener
 import org.l1ving.api.issue.Issue
 import org.l1ving.api.pull.PullRequest
@@ -244,7 +244,7 @@ object IssueCommand : BotCommand(
     }
 
     private fun EmbedBuilder.commonFields(issue: Issue) {
-        description = issue.body.defaultFromNull("No Description").flat(2048)
+        description = issue.body.defaultFromNull("No Description").max(2048)
 
         field("Milestone", issue.milestone?.title ?: "No Milestone", false)
 
