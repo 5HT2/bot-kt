@@ -1,8 +1,9 @@
 package org.kamiblue.botkt.command
 
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
@@ -17,21 +18,19 @@ import org.kamiblue.command.utils.SubCommandNotFoundException
 import org.kamiblue.commons.extension.max
 import org.kamiblue.commons.utils.ClassUtils
 import org.kamiblue.event.listener.asyncListener
-import java.util.concurrent.ConcurrentLinkedQueue
 
 object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
-    private val executeQueue = ConcurrentLinkedQueue<suspend () -> Unit>()
+    private val commandScope = CoroutineScope(Dispatchers.Default + CoroutineName("Bot-kt Command"))
 
     init {
         asyncListener<MessageReceiveEvent> {
-            // message can be empty on images, embeds and other attachments
-            if (it.message.content.isEmpty()) return@asyncListener
-
-            val string = if (it.message.content[0] == Main.prefix) it.message.content.substring(1)
-            else return@asyncListener
-
-            submit(it, string)
+            val message = it.message.content
+            if (message.isNotBlank() && message.first() == Main.prefix) {
+                commandScope.launch {
+                    runCommand(it, it.message.content.substring(1))
+                }
+            }
         }
     }
 
@@ -49,23 +48,6 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
         Main.logger.info("Registered ${getCommands().size} commands!")
 
         BotEventBus.subscribe(this)
-    }
-
-    suspend fun submit(event: MessageReceiveEvent, string: String) {
-        executeQueue.add {
-            runCommand(event, string)
-        }
-    }
-
-    suspend fun runQueued() = coroutineScope {
-        if (executeQueue.isNotEmpty()) {
-            executeQueue.map {
-                async {
-                    it()
-                }
-            }.awaitAll()
-            executeQueue.clear()
-        }
     }
 
     private suspend fun runCommand(event: MessageReceiveEvent, string: String) {
