@@ -48,8 +48,6 @@ object CounterCommand : BotCommand(
      * @since 9/22/2020
      */
     suspend fun updateChannel(): Boolean {
-        if (!Main.ready) return false
-
         val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false) ?: return false
 
         val server = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {

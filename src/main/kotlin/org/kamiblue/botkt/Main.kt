@@ -6,6 +6,8 @@ import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.channel.TextChannel
 import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
+import net.ayataka.kordis.utils.TimerScope
+import net.ayataka.kordis.utils.timer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.kamiblue.botkt.command.CommandManager
@@ -22,10 +24,16 @@ import kotlin.system.exitProcess
 
 object Main {
 
-    val logger: Logger = LogManager.getLogger("bot-kt")
+    const val currentVersion = "v1.5.0"
 
-    lateinit var client: DiscordClient
-    var ready = false
+    @Suppress("EXPERIMENTAL_API_USAGE")
+    val mainScope = CoroutineScope(newSingleThreadContext("Bot-kt Main"))
+    @Suppress("EXPERIMENTAL_API_USAGE")
+    val backgroundScope = CoroutineScope(newFixedThreadPoolContext(2, "Bot-kt Background"))
+    val logger: Logger = LogManager.getLogger("Bot-kt")
+
+    lateinit var client: DiscordClient; private set
+    var ready = false; private set
     var prefix: Char? = null
         private set
         get() {
@@ -36,44 +44,35 @@ object Main {
             }
         }
 
-    private lateinit var processes: Array<Job>
-
-    const val currentVersion = "v1.5.0"
-
     @JvmStatic
     fun main(vararg args: String) {
         addShutdownHook()
 
         runBlocking {
-            processes = arrayOf(
-                launch {
-                    start()
-                },
+            start()
 
-                runLooping(50) {
-                    CommandManager.runQueued()
-                },
-
-                runLooping(600000) {
+            backgroundScope.run {
+                background(600000, "Failed to updated counter channels") {
                     CounterCommand.updateChannel()
                     logger.debug("Updated counter channels")
-                },
-
-                runLooping(30000) {
-                    try {
-                        CapeCommand.save()
-                        delay(30000)
-                        CapeCommand.commit()
-                    } catch (e: Exception) {
-                        logger.warn("Failed to save/commit capes", e)
-                    }
                 }
-            )
+
+                background(600000, "Failed to save/commit capes") {
+                    CapeCommand.save()
+                    logger.debug("Saved capes")
+                    delay(300000)
+                    CapeCommand.commit()
+                    logger.debug("Commit capes")
+                }
+            }
+
+            mainScope.timer(10) {
+                CommandManager.runQueued()
+            }
         }
     }
 
     fun exit() {
-        processes.forEach { it.cancel() }
         exitProcess(0)
     }
 
@@ -84,15 +83,35 @@ object Main {
         }, "Bot Shutdown Hook"))
     }
 
-
     private suspend fun start() {
         val started = System.currentTimeMillis()
 
         logger.info("Starting bot!")
+        login()
 
         UpdateHelper.writeVersion(currentVersion)
         UpdateHelper.updateCheck()
 
+        val userConfig = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
+        updateStatus(userConfig)
+
+        CommandManager.init()
+        ManagerLoader.load()
+
+        client.addListener(KordisEventProcessor)
+        ready = true
+
+        val initMessage = "Initialized bot!\n" +
+            "Running on $currentVersion\n" +
+            "Startup took ${System.currentTimeMillis() - started}ms"
+
+        initMessage.lines().forEach { logger.info(it) }
+        mainScope.launch {
+            sendStartupMessageToServers(userConfig, initMessage)
+        }
+    }
+
+    private suspend fun login() {
         val config = ConfigManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, false)
 
         if (config?.botToken == null) {
@@ -104,25 +123,6 @@ object Main {
         client = Kordis.create {
             token = config.botToken
         }
-
-        CommandManager.init()
-        ManagerLoader.load()
-
-        val userConfig = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
-
-        updateStatus(userConfig)
-
-        delay(2000) // Discord API is really stupid and doesn't give you the information you need right away, hence delay needed
-
-        client.addListener(KordisEventProcessor)
-        ready = true
-
-        val initMessage = "Initialized bot!\n" +
-            "Running on $currentVersion\n" +
-            "Startup took ${System.currentTimeMillis() - started - 2000}ms"
-
-        initMessage.lines().forEach { logger.info(it) }
-        sendStartupMessageToServers(userConfig, initMessage)
     }
 
     private fun updateStatus(userConfig: UserConfig?) {
@@ -156,14 +156,14 @@ object Main {
         }
     }
 
-    private fun CoroutineScope.runLooping(loopDelay: Long = 50L, block: suspend CoroutineScope.() -> Unit) = launch {
-        while (isActive) {
-            delay(loopDelay)
+    private fun CoroutineScope.background(delay: Long, errorMessage: String, block: suspend TimerScope.() -> Unit) {
+        timer(delay) {
             try {
-                block.invoke(this)
+                block()
             } catch (e: Exception) {
-                // this is fine, these are running in the background
+                logger.warn(errorMessage, e)
             }
         }
     }
+
 }
