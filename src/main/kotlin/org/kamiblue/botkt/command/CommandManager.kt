@@ -1,5 +1,6 @@
 package org.kamiblue.botkt.command
 
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -20,7 +21,7 @@ import org.kamiblue.event.listener.asyncListener
 
 object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
-    private val commandScope = CoroutineScope(Dispatchers.Default)
+    private val commandScope = CoroutineScope(Dispatchers.Default + CoroutineName("Bot-kt Command"))
 
     init {
         asyncListener<MessageReceiveEvent> {
