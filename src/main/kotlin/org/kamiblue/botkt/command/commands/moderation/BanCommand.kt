@@ -16,8 +16,8 @@ import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
-import org.kamiblue.botkt.utils.StringUtils.flat
 import org.kamiblue.botkt.utils.checkPermission
+import org.kamiblue.commons.extension.max
 
 object BanCommand : BotCommand(
     name = "ban",
@@ -86,7 +86,7 @@ object BanCommand : BotCommand(
                     }
 
                     val filtered = members.filter { it.name.contains(regex) }.joinToString(separator = "\n") { it.mention }
-                    val final = if (filtered.length > 2048) filtered.flat(1998) + "\nNot all users are shown, due to size limitations." else filtered
+                    val final = if (filtered.length > 2048) filtered.max(1998) + "\nNot all users are shown, due to size limitations." else filtered
 
                     if (members.isEmpty()) {
                         message.error("Couldn't find any members that match the regex `$regex`!")
@@ -145,7 +145,7 @@ object BanCommand : BotCommand(
                 embed {
                     title = "Error"
                     description = "That user's role is higher then mine, I can't ban them!"
-                    field("Stacktrace:", "```${e.message}\n${e.stackTraceToString().flat(256)}```")
+                    field("Stacktrace:", "```${e.message}\n${e.stackTraceToString().max(256)}```")
                     color = Colors.ERROR.color
                 }
             }

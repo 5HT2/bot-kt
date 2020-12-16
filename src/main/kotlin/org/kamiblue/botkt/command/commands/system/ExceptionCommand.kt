@@ -7,7 +7,7 @@ import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.MessageSendUtils.normal
 import org.kamiblue.botkt.utils.MessageSendUtils.success
-import org.kamiblue.botkt.utils.StringUtils.flat
+import org.kamiblue.commons.extension.max
 
 object ExceptionCommand : BotCommand(
     name = "exception",
@@ -36,7 +36,7 @@ object ExceptionCommand : BotCommand(
                     message.success("No exceptions caught recently!")
                 } else {
                     exceptions.getOrNull(indexArg.value)?.let {
-                        message.channel.send("```\n" + it.stackTraceToString().flat(1992) + "\n```")
+                        message.channel.send("```\n" + it.stackTraceToString().max(1992) + "\n```")
                     } ?: run {
                         message.error("Exception with index `${indexArg.value}` is not stored!")
                     }
