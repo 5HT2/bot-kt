@@ -6,7 +6,6 @@ import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.channel.TextChannel
 import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
-import net.ayataka.kordis.utils.TimerScope
 import net.ayataka.kordis.utils.timer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -28,8 +27,6 @@ object Main {
 
     @Suppress("EXPERIMENTAL_API_USAGE")
     val mainScope = CoroutineScope(newSingleThreadContext("Bot-kt Main"))
-    @Suppress("EXPERIMENTAL_API_USAGE")
-    val backgroundScope = CoroutineScope(newFixedThreadPoolContext(2, "Bot-kt Background"))
     val logger: Logger = LogManager.getLogger("Bot-kt")
 
     lateinit var client: DiscordClient; private set
@@ -51,19 +48,17 @@ object Main {
         runBlocking {
             start()
 
-            backgroundScope.run {
-                background(600000, "Failed to updated counter channels") {
-                    CounterCommand.updateChannel()
-                    logger.debug("Updated counter channels")
-                }
+            BackgroundScope.launch(600000, "Failed to updated counter channels") {
+                CounterCommand.updateChannel()
+                logger.debug("Updated counter channels")
+            }
 
-                background(600000, "Failed to save/commit capes") {
-                    CapeCommand.save()
-                    logger.debug("Saved capes")
-                    delay(300000)
-                    CapeCommand.commit()
-                    logger.debug("Commit capes")
-                }
+            BackgroundScope.launch(600000, "Failed to save/commit capes") {
+                CapeCommand.save()
+                logger.debug("Saved capes")
+                delay(300000)
+                CapeCommand.commit()
+                logger.debug("Commit capes")
             }
 
             mainScope.timer(10) {
@@ -76,7 +71,7 @@ object Main {
         exitProcess(0)
     }
 
-    private fun addShutdownHook(){
+    private fun addShutdownHook() {
         Runtime.getRuntime().addShutdownHook(Thread({
             logger.info("Bot shutting down, posting ShutdownEvent")
             BotEventBus.post(ShutdownEvent)
@@ -152,16 +147,6 @@ object Main {
                 title = "Startup"
                 description = initMessage
                 color = Colors.SUCCESS.color
-            }
-        }
-    }
-
-    private fun CoroutineScope.background(delay: Long, errorMessage: String, block: suspend TimerScope.() -> Unit) {
-        timer(delay) {
-            try {
-                block()
-            } catch (e: Exception) {
-                logger.warn(errorMessage, e)
             }
         }
     }
