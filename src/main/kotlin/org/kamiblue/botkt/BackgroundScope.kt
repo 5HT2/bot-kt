@@ -27,7 +27,7 @@ object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThreadPoolCont
     }
 
     private fun launch(delay: Long, errorMessage: String? = null, block: suspend TimerScope.() -> Unit) {
-        timer(delay) {
+        timer(delay, false) {
             try {
                 block()
             } catch (e: Exception) {
