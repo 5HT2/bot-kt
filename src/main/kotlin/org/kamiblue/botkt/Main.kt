@@ -44,26 +44,23 @@ object Main {
     @JvmStatic
     fun main(vararg args: String) {
         addShutdownHook()
+        start()
 
-        runBlocking {
-            start()
+        BackgroundScope.launch(600000, "Failed to updated counter channels") {
+            CounterCommand.updateChannel()
+            logger.debug("Updated counter channels")
+        }
 
-            BackgroundScope.launch(600000, "Failed to updated counter channels") {
-                CounterCommand.updateChannel()
-                logger.debug("Updated counter channels")
-            }
+        BackgroundScope.launch(600000, "Failed to save/commit capes") {
+            CapeCommand.save()
+            logger.debug("Saved capes")
+            delay(300000)
+            CapeCommand.commit()
+            logger.debug("Commit capes")
+        }
 
-            BackgroundScope.launch(600000, "Failed to save/commit capes") {
-                CapeCommand.save()
-                logger.debug("Saved capes")
-                delay(300000)
-                CapeCommand.commit()
-                logger.debug("Commit capes")
-            }
-
-            mainScope.timer(10) {
-                CommandManager.runQueued()
-            }
+        mainScope.timer(10) {
+            CommandManager.runQueued()
         }
     }
 
@@ -78,31 +75,33 @@ object Main {
         }, "Bot Shutdown Hook"))
     }
 
-    private suspend fun start() {
-        val started = System.currentTimeMillis()
+    private fun start() {
+        runBlocking {
+            val started = System.currentTimeMillis()
 
-        logger.info("Starting bot!")
-        login()
+            logger.info("Starting bot!")
+            login()
 
-        UpdateHelper.writeVersion(currentVersion)
-        UpdateHelper.updateCheck()
+            UpdateHelper.writeVersion(currentVersion)
+            UpdateHelper.updateCheck()
 
-        val userConfig = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
-        updateStatus(userConfig)
+            val userConfig = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
+            updateStatus(userConfig)
 
-        CommandManager.init()
-        ManagerLoader.load()
+            CommandManager.init()
+            ManagerLoader.load()
 
-        client.addListener(KordisEventProcessor)
-        ready = true
+            client.addListener(KordisEventProcessor)
+            ready = true
 
-        val initMessage = "Initialized bot!\n" +
-            "Running on $currentVersion\n" +
-            "Startup took ${System.currentTimeMillis() - started}ms"
+            val initMessage = "Initialized bot!\n" +
+                "Running on $currentVersion\n" +
+                "Startup took ${System.currentTimeMillis() - started}ms"
 
-        initMessage.lines().forEach { logger.info(it) }
-        mainScope.launch {
-            sendStartupMessageToServers(userConfig, initMessage)
+            initMessage.lines().forEach { logger.info(it) }
+            mainScope.launch {
+                sendStartupMessageToServers(userConfig, initMessage)
+            }
         }
     }
 
