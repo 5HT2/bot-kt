@@ -41,13 +41,18 @@ object CounterCommand : BotCommand(
                 message.error("Failed to update counters. Make sure `$path` is configured correctly, and `primaryServerId` is set in `$userPath`!")
             }
         }
+
+        BackgroundScope.add(600000, "Failed to updated counter channels") {
+            updateChannel()
+            Main.logger.debug("Updated counter channels")
+        }
     }
 
     /**
      * @author sourTaste000
      * @since 9/22/2020
      */
-    suspend fun updateChannel(): Boolean {
+    private suspend fun updateChannel(): Boolean {
         val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false) ?: return false
 
         val server = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {

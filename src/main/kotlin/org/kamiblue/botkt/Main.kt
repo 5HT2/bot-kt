@@ -10,8 +10,6 @@ import net.ayataka.kordis.utils.timer
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.kamiblue.botkt.command.CommandManager
-import org.kamiblue.botkt.command.commands.github.CounterCommand
-import org.kamiblue.botkt.command.commands.misc.CapeCommand
 import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.event.KordisEventProcessor
 import org.kamiblue.botkt.event.events.ShutdownEvent
@@ -45,19 +43,7 @@ object Main {
     fun main(vararg args: String) {
         addShutdownHook()
         start()
-
-        BackgroundScope.launch(600000, "Failed to updated counter channels") {
-            CounterCommand.updateChannel()
-            logger.debug("Updated counter channels")
-        }
-
-        BackgroundScope.launch(600000, "Failed to save/commit capes") {
-            CapeCommand.save()
-            logger.debug("Saved capes")
-            delay(300000)
-            CapeCommand.commit()
-            logger.debug("Commit capes")
-        }
+        BackgroundScope.start()
 
         mainScope.timer(10) {
             CommandManager.runQueued()
