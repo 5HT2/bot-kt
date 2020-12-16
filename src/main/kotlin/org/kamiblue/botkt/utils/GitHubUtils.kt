@@ -19,9 +19,15 @@ object GitHubUtils {
      * Will send an error in the [message]?.channel if null.
      * @return the Github token, set in [AuthConfig]
      */
-    suspend fun getGithubToken(message: Message?): String? {
+    suspend fun getGithubToken(message: Message?, scope: String? = null): String? {
         val token = ConfigManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, false)?.githubToken
-        if (token == null) message?.error("Github token not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
+        if (token == null) {
+            message?.error("Github token not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
+        }
+
+        scope?.let {
+            Main.logger.debug("$scope called getGithubToken, token is ${if (token == null) "null" else "not null"}")
+        }
         return token
     }
 

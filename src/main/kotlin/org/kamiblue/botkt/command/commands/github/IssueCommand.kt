@@ -39,7 +39,7 @@ object IssueCommand : BotCommand(
             string("repoName") { repo ->
                 int("issueNum") { issueNum ->
                     execute("Fetch a Github issue / pull") {
-                        val githubToken = GitHubUtils.getGithubToken(message) ?: return@execute // Error message is handled already
+                        val githubToken = GitHubUtils.getGithubToken(message, "IssueCommand1") ?: return@execute // Error message is handled already
 
                         sendResponse(message, githubToken, user.value, repo.value, issueNum.value)
                     }
@@ -50,7 +50,7 @@ object IssueCommand : BotCommand(
         string("repoName") { repo ->
             int("issueNum") { issueNum ->
                 execute("Fetch a Github issue / pull") {
-                    val githubToken = GitHubUtils.getGithubToken(message)
+                    val githubToken = GitHubUtils.getGithubToken(message, "IssueCommand2")
                         ?: return@execute // Error message is handled already
                     val user: String = GitHubUtils.getDefaultGithubUser(message) ?: return@execute
 
@@ -118,10 +118,7 @@ object IssueCommand : BotCommand(
             if (it.reaction.emoji.name == "✅") {
                 var message = form.formMessage
 
-                val token = ConfigManager.readConfig<AuthConfig>(ConfigType.AUTH, false)?.githubToken ?: run {
-                    message.error("Github Token is not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
-                    return@asyncListener
-                }
+                val token = GitHubUtils.getGithubToken(message, "IssueCommand3") ?: return@asyncListener
 
                 val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
                     message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
