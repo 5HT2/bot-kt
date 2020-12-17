@@ -204,7 +204,7 @@ object BanCommand : BotCommand(
 
     private suspend fun canBan(user: User, message: Message?, server: Server): Boolean {
         when {
-            user.id.hasPermission(COUNCIL_MEMBER) -> {
+            user.hasPermission(COUNCIL_MEMBER) -> {
                 message?.error("That user is protected, I can't do that.")
                 return false
             }

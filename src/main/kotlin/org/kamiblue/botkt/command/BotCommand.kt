@@ -28,7 +28,7 @@ abstract class BotCommand(
         block: ExecuteBlock<MessageExecuteEvent>
     ) {
         val blockWithIf: ExecuteBlock<MessageExecuteEvent> = {
-            if (this.message is Console.FakeMessage || this.message.author!!.id.hasPermission(permission)) {
+            if (this.message is Console.FakeMessage || this.message.author.hasPermission(permission)) {
                 block.invoke(this)
             } else {
                 this.message.missingPermissions(permission)

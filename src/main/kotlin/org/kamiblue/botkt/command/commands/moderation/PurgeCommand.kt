@@ -22,7 +22,7 @@ object PurgeCommand : BotCommand(
             executeIfHas(COUNCIL_MEMBER, "Purge X messages, excluding protected") {
                 val msgs = message.channel
                     .getMessages()
-                    .filter { it.author?.id?.hasPermission(COUNCIL_MEMBER) == false && it.author?.bot == false }
+                    .filter { !it.author.hasPermission(COUNCIL_MEMBER) && it.author?.bot == false }
                     .take(numberArg.value)
 
                 purge(msgs, message)
@@ -32,7 +32,7 @@ object PurgeCommand : BotCommand(
                 executeIfHas(PURGE_PROTECTED, "Purge X messages, including council & bot") {
                     val msgs = message.channel
                         .getMessages()
-                        .filter { protected.value || it.author?.id?.hasPermission(COUNCIL_MEMBER) == false && it.author?.bot == false }
+                        .filter { protected.value || !it.author.hasPermission(COUNCIL_MEMBER) && it.author?.bot == false }
                         .take(numberArg.value)
 
                     purge(msgs, message)
@@ -42,7 +42,7 @@ object PurgeCommand : BotCommand(
             user("purge this user") { userArg ->
                 executeIfHas(COUNCIL_MEMBER, "Purge X messages sent by a user") {
                     val user = userArg.value
-                    if (message.author?.id?.hasPermission(PURGE_PROTECTED) != true && user.id.hasPermission(COUNCIL_MEMBER) || user.bot) {
+                    if (!message.author.hasPermission(PURGE_PROTECTED) && user.hasPermission(COUNCIL_MEMBER) || user.bot) {
                         message.error(
                             "Sorry, but you're missing the " +
                                 "'${PURGE_PROTECTED.name.toHumanReadable()}'" +
