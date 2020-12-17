@@ -9,7 +9,7 @@ import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 
 object PurgeCommand : BotCommand(
@@ -43,7 +43,7 @@ object PurgeCommand : BotCommand(
                 executeIfHas(COUNCIL_MEMBER, "Purge X messages sent by a user") {
                     val user = userArg.value
                     if (message.author?.id?.hasPermission(PURGE_PROTECTED) != true && user.id.hasPermission(COUNCIL_MEMBER) || user.bot) {
-                        message.error(
+                        message.channel.error(
                             "Sorry, but you're missing the " +
                                 "'${PURGE_PROTECTED.name.toHumanReadable()}'" +
                                 " permission, which is required to purge " +

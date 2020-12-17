@@ -13,8 +13,8 @@ import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
 import org.kamiblue.botkt.manager.managers.MuteManager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.MessageSendUtils.success
+import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.success
 
 object MuteCommand : BotCommand(
     name = "mute",
@@ -33,14 +33,14 @@ object MuteCommand : BotCommand(
         literal("reload", "Reload mute config") {
             executeIfHas(PermissionTypes.MANAGE_CONFIG) {
                 MuteManager.load()
-                message.success("Successfully reloaded mute config!")
+                message.channel.success("Successfully reloaded mute config!")
             }
         }
 
         literal("save", "Force save mute config") {
             executeIfHas(PermissionTypes.MANAGE_CONFIG) {
                 MuteManager.save()
-                message.success("Successfully saved mute config!")
+                message.channel.success("Successfully saved mute config!")
             }
         }
 
@@ -68,17 +68,17 @@ object MuteCommand : BotCommand(
         reason: String
     ) {
         if (server == null) {
-            message.error("Server is null, are you running this from a DM?")
+            message.channel.error("Server is null, are you running this from a DM?")
             return
         }
 
         if (user.id.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
-            message.error("That user is protected, I can't do that.")
+            message.channel.error("That user is protected, I can't do that.")
             return
         }
 
         if (MuteManager.serverMap[server.id]?.muteMap?.containsKey(user.id) == true) {
-            message.error("${user.mention} is already muted")
+            message.channel.error("${user.mention} is already muted")
             return
         }
 
@@ -88,17 +88,17 @@ object MuteCommand : BotCommand(
             "h" -> duration * 3600000L
             "d" -> duration * 86400000L
             else -> {
-                message.error("Invalid time unit input: $unit")
+                message.channel.error("Invalid time unit input: $unit")
                 return
             }
         }
 
         if (convertedDuration !in 1000L..2592000000L) {
-            message.error("Duration must be at least 1 second and not longer than 1 month!")
+            message.channel.error("Duration must be at least 1 second and not longer than 1 month!")
         }
 
         val member = server.members.find(user) ?: run {
-            message.error("Member not found!")
+            message.channel.error("Member not found!")
             return
         }
 

@@ -11,8 +11,8 @@ import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.MessageSendUtils.success
+import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.success
 import org.kamiblue.botkt.utils.SnowflakeHelper.prettyFormat
 import org.kamiblue.event.listener.asyncListener
 import java.time.Instant
@@ -29,7 +29,7 @@ object TicketCommand : BotCommand(
             int("ticket number") { ticketNum ->
                 executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Close a ticket") {
                     val ticket = message.server?.textChannels?.findByName("ticket-${ticketNum.value}") ?: run {
-                        message.error("Couldn't find a ticket named `ticket-${ticketNum.value}`!")
+                        message.channel.error("Couldn't find a ticket named `ticket-${ticketNum.value}`!")
                         return@executeIfHas
                     }
 
@@ -40,7 +40,7 @@ object TicketCommand : BotCommand(
 
             executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Close the current ticket") {
                 if (message.serverChannel?.name?.startsWith("ticket-") != true) {
-                    message.error("The ${message.serverChannel?.mention} channel is not a ticket!")
+                    message.channel.error("The ${message.serverChannel?.mention} channel is not a ticket!")
                     return@executeIfHas
                 }
 
@@ -105,7 +105,7 @@ object TicketCommand : BotCommand(
                         }
                     }
 
-                    val feedback = event.message.success("${author?.mention} Created ticket! Go to ${ticket.mention}!")
+                    val feedback = event.message.channel.success("${author?.mention} Created ticket! Go to ${ticket.mention}!")
                     delay(5000)
                     feedback.delete()
                     event.message.delete()

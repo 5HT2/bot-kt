@@ -7,8 +7,8 @@ import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.MessageSendUtils.normal
+import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.normal
 import org.kamiblue.botkt.utils.StringUtils.writeBytes
 import kotlin.math.min
 
@@ -28,7 +28,7 @@ object ConfigCommand : BotCommand(
 
                     ConfigManager.readConfig<Any>(configType, false)?.let {
                         message.channel.send("```json\n" + gson.toJson(it) + "\n```")
-                    } ?: message.error("Couldn't find config file, or config is in invalid format")
+                    } ?: message.channel.error("Couldn't find config file, or config is in invalid format")
                 }
             }
         }
@@ -50,7 +50,7 @@ object ConfigCommand : BotCommand(
                 executeIfHas(PermissionTypes.MANAGE_CONFIG, "Reload a config by type") {
                     val configType = typeArg.value
 
-                    val message = message.normal("Reloading the `${configType.name}` config")
+                    val message = message.channel.normal("Reloading the `${configType.name}` config")
 
                     /* unfortunately due to JVM limitations I cannot infer T, meaning it will not throw null if the format is invalid */
                     ConfigManager.readConfig<Any>(configType, true)?.let {
@@ -71,7 +71,7 @@ object ConfigCommand : BotCommand(
                 greedy("url") { urlArg ->
                     executeIfHas(PermissionTypes.MANAGE_CONFIG, "Download a new config by type") {
                         val configName = typeArg.value.configPath.substring(7)
-                        val message = message.normal("Downloading `$configName`...")
+                        val message = message.channel.normal("Downloading `$configName`...")
 
                         try {
                             val size = typeArg.value.configPath.writeBytes(urlArg.value)

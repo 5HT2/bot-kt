@@ -4,7 +4,7 @@ import net.ayataka.kordis.entity.message.Message
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.error
 
 object SayCommand : BotCommand(
     name = "say",
@@ -51,7 +51,7 @@ object SayCommand : BotCommand(
                                 }
 
                                 val message = channel.getMessage(messageArg.value) ?: run {
-                                    message.error("Error editing message! The message ID could not be found in ${channel.id}")
+                                    message.channel.error("Error editing message! The message ID could not be found in ${channel.id}")
                                     return@executeIfHas
                                 }
 
@@ -73,6 +73,6 @@ object SayCommand : BotCommand(
     }
 
     private suspend fun Message.channelError() {
-        this.error("Error finding channel! Make sure the ID / # is correct, and it is a Text or Announcement channel")
+        this.channel.error("Error finding channel! Make sure the ID / # is correct, and it is a Text or Announcement channel")
     }
 }

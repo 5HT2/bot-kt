@@ -14,8 +14,8 @@ import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.MessageSendUtils.normal
+import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.normal
 import org.kamiblue.botkt.utils.checkPermission
 import org.kamiblue.commons.extension.max
 
@@ -32,9 +32,9 @@ object BanCommand : BotCommand(
             literal("confirm") {
                 greedy("userRegex") { userRegexArg ->
                     executeIfHas(PermissionTypes.MASS_BAN, "Mass ban members by regex") {
-                        val server = server ?: run { message.error("Server members are null, are you running this from a DM?"); return@executeIfHas }
+                        val server = server ?: run { message.channel.error("Server members are null, are you running this from a DM?"); return@executeIfHas }
 
-                        val m = message.error("Banning [calculating] members...")
+                        val m = message.channel.error("Banning [calculating] members...")
 
                         var banned = 0
                         val regex = userRegexArg.value.toRegex()
@@ -81,7 +81,7 @@ object BanCommand : BotCommand(
                     val regex = userRegexArg.value.toRegex()
 
                     val members = server?.members ?: run {
-                        message.error("Server members are null, are you running this from a DM?")
+                        message.channel.error("Server members are null, are you running this from a DM?")
                         return@executeIfHas
                     }
 
@@ -89,9 +89,9 @@ object BanCommand : BotCommand(
                     val final = if (filtered.length > 2048) filtered.max(1998) + "\nNot all users are shown, due to size limitations." else filtered
 
                     if (members.isEmpty()) {
-                        message.error("Couldn't find any members that match the regex `$regex`!")
+                        message.channel.error("Couldn't find any members that match the regex `$regex`!")
                     } else {
-                        message.normal(final)
+                        message.channel.normal(final)
                     }
                 }
             }
@@ -125,7 +125,7 @@ object BanCommand : BotCommand(
         nullableServer: Server?,
         message: Message?
     ) {
-        val server = nullableServer ?: run { message?.error("Server is null, make sure you aren't running this from a DM!"); return }
+        val server = nullableServer ?: run { message?.channel?.error("Server is null, make sure you aren't running this from a DM!"); return }
 
         val deleteMessageDays = if (deleteMsgs) 1 else 0
         val fixedReason = if (!reason.isNullOrBlank()) reason else readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultBanReason ?: "No Reason Specified"
@@ -205,12 +205,12 @@ object BanCommand : BotCommand(
     private suspend fun canBan(user: User, message: Message?, server: Server): Boolean {
         when {
             user.id.hasPermission(COUNCIL_MEMBER) -> {
-                message?.error("That user is protected, I can't do that.")
+                message?.channel?.error("That user is protected, I can't do that.")
                 return false
             }
 
             user.id == message?.author?.id -> {
-                message.error("You can't ban yourself!")
+                message.channel.error("You can't ban yourself!")
                 return false
             }
 
@@ -218,7 +218,7 @@ object BanCommand : BotCommand(
                 try {
                     checkPermission(Main.client as DiscordClientImpl, server, Permission.BAN_MEMBERS)
                 } catch (e: NotFoundException) {
-                    message?.error("Client is not fully initialized, member list not loaded!")
+                    message?.channel?.error("Client is not fully initialized, member list not loaded!")
                     return false
                 }
                 return true

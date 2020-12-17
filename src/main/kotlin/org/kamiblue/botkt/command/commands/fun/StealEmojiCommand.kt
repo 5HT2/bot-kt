@@ -4,8 +4,8 @@ import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
 import org.kamiblue.botkt.command.*
-import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.MessageSendUtils.normal
+import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.normal
 import org.kamiblue.botkt.utils.StringUtils.readBytes
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import java.io.FileNotFoundException
@@ -35,7 +35,7 @@ object StealEmojiCommand : BotCommand(
                     } catch (e: FileNotFoundException) {
                         "https://cdn.discordapp.com/emojis/$id.gif".readBytes()
                     } catch (e: FileNotFoundException) {
-                        message.error("Couldn't find an emoji with the ID `$id`!")
+                        message.channel.error("Couldn't find an emoji with the ID `$id`!")
                         return@executeIfHas
                     }
 
@@ -48,12 +48,12 @@ object StealEmojiCommand : BotCommand(
                     val idUnchecked = try {
                         urlArg.value.substring(34, 52)
                     } catch (e: StringIndexOutOfBoundsException) {
-                        message.error("${urlArg.name.toHumanReadable()} is not valid format!")
+                        message.channel.error("${urlArg.name.toHumanReadable()} is not valid format!")
                         return@executeIfHas
                     }
 
                     val id = idUnchecked.toLongOrNull() ?: run {
-                        message.error("Emoji ID `$idUnchecked` could not be formatted to a Long!")
+                        message.channel.error("Emoji ID `$idUnchecked` could not be formatted to a Long!")
                         return@executeIfHas
                     }
 
@@ -62,7 +62,7 @@ object StealEmojiCommand : BotCommand(
                     } catch (e: FileNotFoundException) {
                         "https://cdn.discordapp.com/emojis/$id.gif".readBytes()
                     } catch (e: FileNotFoundException) {
-                        message.error("Couldn't find an emoji with the ID `$id`!")
+                        message.channel.error("Couldn't find an emoji with the ID `$id`!")
                         return@executeIfHas
                     }
 
@@ -75,7 +75,7 @@ object StealEmojiCommand : BotCommand(
     private suspend fun steal(emojiName: String, emojiImage: ByteArray, message: Message, server: Server?) {
         val foundEmoji = server?.emojis?.findByName(emojiName)
         if (foundEmoji != null) {
-            message.error("There is already an emoji with the name `$emojiName`!")
+            message.channel.error("There is already an emoji with the name `$emojiName`!")
             return
         }
 
@@ -83,10 +83,10 @@ object StealEmojiCommand : BotCommand(
             name = emojiName
             image = emojiImage
         } ?: run {
-            message.error("Guild is null, make sure you're not running this from a DM!")
+            message.channel.error("Guild is null, make sure you're not running this from a DM!")
             return
         }
 
-        message.normal("Successfully stolen emoji `${emoji.name}`!")
+        message.channel.normal("Successfully stolen emoji `${emoji.name}`!")
     }
 }

@@ -5,7 +5,7 @@ import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.member.Member
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.ReactionUtils.FakeUser
 import org.kamiblue.botkt.utils.SnowflakeHelper.prettyFormat
 import org.kamiblue.botkt.utils.SnowflakeHelper.toInstant
@@ -27,7 +27,7 @@ object UserInfoCommand : BotCommand(
         execute("Get info for yourself") {
             val username: String = message.author?.id?.toString() ?: run {
                 message.author?.tag ?: run {
-                    message.error("Couldn't find your user, try using a direct ID!")
+                    message.channel.error("Couldn't find your user, try using a direct ID!")
                     return@execute
                 }
             }
@@ -67,7 +67,7 @@ object UserInfoCommand : BotCommand(
 
         } ?: run {
             val id = username.toUserID() ?: run {
-                message.error("Couldn't find user nor a valid ID!")
+                message.channel.error("Couldn't find user nor a valid ID!")
                 return
             }
 
