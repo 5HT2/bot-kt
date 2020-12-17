@@ -1,23 +1,15 @@
 package org.kamiblue.botkt.command.commands.info
 
-import com.google.gson.JsonParser
-import net.ayataka.kordis.DiscordClientImpl
 import net.ayataka.kordis.entity.findByTag
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.member.Member
-import net.ayataka.kordis.entity.user.User
-import net.ayataka.kordis.entity.user.UserImpl
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.command.*
-import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.StringUtils.toUserID
-import org.kamiblue.botkt.utils.accountAge
-import org.kamiblue.botkt.utils.getAuthToken
-import org.kamiblue.botkt.utils.prettyFormat
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 object UserInfoCommand : BotCommand(
     name = "userinfo",
@@ -48,59 +40,32 @@ object UserInfoCommand : BotCommand(
     }
 
     private suspend fun send(username: String, message: Message) {
-        val member: Member? = username.toUserID()?.let {
-            message.server?.members?.find(it)
-        } ?: message.server?.members?.findByTag(username)
-        ?: message.server?.members?.findByName(username)
-
-        member?.let {
-            message.channel.send {
-                embed {
-                    title = it.tag
-                    color = Colors.PRIMARY.color
-                    thumbnailUrl = it.avatar.url
-
-                    field("Created Account:", it.timestamp.prettyFormat())
-                    field("Joined Guild:", it.joinedAt.prettyFormat())
-                    field("Join Age:", it.accountAge().toString() + " days")
-                    field("Account Age:", it.accountAge().toString() + " days")
-                    field("Mention:", it.mention)
-                    field("ID:", "`${it.id}`")
-                    field("Status:", it.status.name.toHumanReadable())
+        val user = username.toUserID()?.let { message.server?.members?.find(it) }
+            ?: message.server?.members?.findByTag(username)
+            ?: message.server?.members?.findByName(username)
+            ?: run {
+                val id = username.toUserID() ?: run {
+                    message.channel.error("Couldn't find user nor a valid ID!")
+                    return
                 }
+                requestUser(id)
             }
 
-        } ?: run {
-            val id = username.toUserID() ?: run {
-                message.channel.error("Couldn't find user nor a valid ID!")
-                return
-            }
+        message.channel.send {
+            embed {
+                title = user.tag
+                color = Colors.PRIMARY.color
+                thumbnailUrl = user.avatar.url
 
-            val user = requestUser(id)
-
-            message.channel.send {
-                embed {
-                    title = user.tag
-                    color = Colors.PRIMARY.color
-                    thumbnailUrl = user.avatar.url
-
-                    field("Created Account:", user.timestamp.prettyFormat())
-                    field("Joined Guild:", current)
-                    field("Join Age:", current)
-                    field("Account Age:", user.accountAge().toString() + " days")
-                    field("Mention:", user.mention)
-                    field("ID:", "`${user.id}`")
-                    field("Status:", current)
-                }
+                field("Created Account:", user.timestamp.prettyFormat())
+                field("Joined Guild:", if (user is Member) user.joinedAt.prettyFormat() else current)
+                field("Join Age:", if (user is Member) user.joinedAt.until(Instant.now(), ChronoUnit.DAYS).toString() + " days" else current)
+                field("Account Age:", user.accountAge().toString() + " days")
+                field("Mention:", user.mention)
+                field("ID:", "`${user.id}`")
+                field("Status:", if (user is Member) user.status.name.toHumanReadable() else current)
             }
         }
-    }
-
-    private fun requestUser(id : Long) : User {
-        val request = Request.Builder().addHeader("Authorization", "Bot ${getAuthToken()}").url("https://discord.com/api/v8/users/$id").get().build()
-        val response = OkHttpClient().newCall(request).execute()
-        val jsonObject = JsonParser.parseString(response.body?.string()).asJsonObject
-        return UserImpl(Main.client as DiscordClientImpl, jsonObject)
     }
 
 }

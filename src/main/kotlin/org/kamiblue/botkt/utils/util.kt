@@ -9,7 +9,6 @@ import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.member.Member
 import net.ayataka.kordis.entity.server.permission.Permission
 import net.ayataka.kordis.entity.server.permission.PermissionSet
-import net.ayataka.kordis.entity.user.User
 import net.ayataka.kordis.exception.MissingPermissionsException
 import net.ayataka.kordis.exception.NotFoundException
 import okhttp3.OkHttpClient
@@ -23,7 +22,6 @@ import java.time.Instant
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
 /**
  * @return a pretty formatted set of permissions, "None" if empty
@@ -100,10 +98,6 @@ fun checkPermission(client: DiscordClientImpl, server: Server, permission: Permi
 
 // Bot users can not have one or fewer roles. If so, this means the server roles are not initialized yet.
 private fun isNotInitialized(myself: Member) = myself.roles.size < 2
-
-fun User.accountAge(chronoUnit: ChronoUnit = ChronoUnit.DAYS): Long {
-    return timestamp.until(Instant.now(), chronoUnit)
-}
 
 private val formatter = DateTimeFormatter.ofPattern("yyyy-mm-dd HH:mm:ss").withZone(ZoneId.from(ZoneOffset.UTC))
 
