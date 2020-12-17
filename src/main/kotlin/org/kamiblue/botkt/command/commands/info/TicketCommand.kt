@@ -58,8 +58,10 @@ object TicketCommand : BotCommand(
             config?.ticketCreateChannel?.let {
                 if (event.message.channel.id != it) return@asyncListener
 
-                if (author?.bot == true && author.id != Main.client.botUser.id) {
-                    event.message.delete()
+                if (author?.bot == true) {
+                    if (author.id != Main.client.botUser.id) {
+                        event.message.delete() // we clean up our own messages later
+                    }
                     return@asyncListener
                 }
 
