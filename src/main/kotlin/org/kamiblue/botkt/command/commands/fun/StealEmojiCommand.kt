@@ -1,5 +1,8 @@
 package org.kamiblue.botkt.command.commands.`fun`
 
+import io.ktor.client.*
+import io.ktor.client.features.*
+import io.ktor.client.request.*
 import io.ktor.http.*
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
@@ -11,6 +14,7 @@ import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import java.io.FileNotFoundException
 import java.net.URL
 
+@Suppress("BlockingMethodInNonBlockingContext")
 object StealEmojiCommand : BotCommand(
     name = "stealemoji",
     category = Category.FUN,
@@ -21,9 +25,9 @@ object StealEmojiCommand : BotCommand(
             executeIfHas(COUNCIL_MEMBER) {
                 val emoji = emojiArg.value.emoji
                 val extension = if (emojiArg.value.animated) "gif" else "png"
-                val bytes = URL("https://cdn.discordapp.com/emojis/${emoji.id}.$extension").readBytes()
 
-                steal(emoji.name, bytes, message, server)
+                val bytes = URL("https://cdn.discordapp.com/emojis/${emoji.id}.$extension").readBytes()
+                addEmoji(emoji.name, bytes, message, server)
             }
         }
 
@@ -31,16 +35,8 @@ object StealEmojiCommand : BotCommand(
             long("emoji id") { idArg ->
                 executeIfHas(COUNCIL_MEMBER) {
                     val id = idArg.value
-                    val bytes = try {
-                        URL("https://cdn.discordapp.com/emojis/$id.png").readBytes()
-                    } catch (e: FileNotFoundException) {
-                        URL("https://cdn.discordapp.com/emojis/$id.gif").readBytes()
-                    } catch (e: FileNotFoundException) {
-                        message.channel.error("Couldn't find an emoji with the ID `$id`!")
-                        return@executeIfHas
-                    }
-
-                    steal(name.value, bytes, message, server)
+                    val bytes = downloadFromId(id) ?: return@executeIfHas
+                    addEmoji(name.value, bytes, message, server)
                 }
             }
 
@@ -58,22 +54,27 @@ object StealEmojiCommand : BotCommand(
                         return@executeIfHas
                     }
 
-                    val bytes = try {
-                        URL("https://cdn.discordapp.com/emojis/$id.png").readBytes()
-                    } catch (e: FileNotFoundException) {
-                        URL("https://cdn.discordapp.com/emojis/$id.gif").readBytes()
-                    } catch (e: FileNotFoundException) {
-                        message.channel.error("Couldn't find an emoji with the ID `$id`!")
-                        return@executeIfHas
-                    }
-
-                    steal(name.value, bytes, message, server)
+                    val bytes = downloadFromId(id) ?: return@executeIfHas
+                    addEmoji(name.value, bytes, message, server)
                 }
             }
         }
     }
 
-    private suspend fun steal(emojiName: String, emojiImage: ByteArray, message: Message, server: Server?) {
+    private suspend fun MessageExecuteEvent.downloadFromId(id: Long): ByteArray? {
+        return try {
+            try {
+                URL("https://cdn.discordapp.com/emojis/$id.png").readBytes()
+            } catch (e: FileNotFoundException) {
+                URL("https://cdn.discordapp.com/emojis/$id.gif").readBytes()
+            }
+        } catch (e: FileNotFoundException) {
+            message.channel.error("Couldn't find an emoji with the ID `$id`!")
+            null
+        }
+    }
+
+    private suspend fun addEmoji(emojiName: String, emojiImage: ByteArray, message: Message, server: Server?) {
         val foundEmoji = server?.emojis?.findByName(emojiName)
         if (foundEmoji != null) {
             message.channel.error("There is already an emoji with the name `$emojiName`!")
