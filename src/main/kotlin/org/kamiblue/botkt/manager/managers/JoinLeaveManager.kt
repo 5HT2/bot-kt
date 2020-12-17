@@ -12,8 +12,8 @@ import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.command.commands.moderation.BanCommand
 import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.SnowflakeHelper.prettyFormat
 import org.kamiblue.botkt.utils.accountAge
+import org.kamiblue.botkt.utils.prettyFormat
 import org.kamiblue.event.listener.asyncListener
 
 object JoinLeaveManager : Manager {

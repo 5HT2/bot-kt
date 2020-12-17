@@ -20,6 +20,9 @@ import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import java.time.Instant
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 /**
@@ -101,6 +104,10 @@ private fun isNotInitialized(myself: Member) = myself.roles.size < 2
 fun User.accountAge(chronoUnit: ChronoUnit = ChronoUnit.DAYS): Long {
     return timestamp.until(Instant.now(), chronoUnit)
 }
+
+private val formatter = DateTimeFormatter.ofPattern("yyyy-mm-dd HH:mm:ss").withZone(ZoneId.from(ZoneOffset.UTC))
+
+fun Instant.prettyFormat() = formatter.format(this)
 
 data class AnimatableEmoji(
     val animated: Boolean = false,

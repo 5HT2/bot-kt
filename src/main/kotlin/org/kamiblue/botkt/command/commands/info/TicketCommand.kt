@@ -13,7 +13,7 @@ import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.MessageUtils.success
-import org.kamiblue.botkt.utils.SnowflakeHelper.prettyFormat
+import org.kamiblue.botkt.utils.prettyFormat
 import org.kamiblue.event.listener.asyncListener
 import java.time.Instant
 

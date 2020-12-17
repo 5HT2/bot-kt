@@ -1,19 +1,22 @@
 package org.kamiblue.botkt.utils
 
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
-import com.google.gson.internal.LinkedTreeMap
-import com.google.gson.reflect.TypeToken
+import com.google.gson.JsonParser
+import net.ayataka.kordis.DiscordClientImpl
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.message.reaction.Reaction
+import net.ayataka.kordis.entity.message.reaction.ReactionImpl
 import net.ayataka.kordis.entity.user.User
+import net.ayataka.kordis.entity.user.UserImpl
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.utils.StringUtils.uriEncode
 
 @Suppress("UNUSED")
 object ReactionUtils {
+
     private const val contentLength = "Content-Length"
 
     /**
@@ -64,7 +67,7 @@ object ReactionUtils {
      * [emoji] is the emoji you want to return the reactions for
      * [encode] is if you want to URI encode your [emoji]
      */
-    fun Message.getReactions(emoji: Char, encode: Boolean = true): List<User>? {
+    fun Message.getReactionUsers(emoji: Char, encode: Boolean = true): List<User>? {
         val finalEmoji = if (encode) emoji.toString().uriEncode() else emoji.toString()
 
         val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}/reactions/$finalEmoji"
@@ -76,10 +79,13 @@ object ReactionUtils {
 
         val response = OkHttpClient().newCall(request).execute()
 
-        return Gson().fromJson(response.body?.string(), object : TypeToken<List<FakeUser>>() {}.type)
+        return JsonParser.parseString(response.body?.string())?.asJsonArray
+            ?.map {
+                UserImpl(Main.client as DiscordClientImpl, it.asJsonObject)
+            }
     }
 
-    fun Message.getReactions(): List<FakeReaction>? {
+    fun Message.getReactions(): List<Reaction>? {
         val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}"
 
         val request = Request.Builder()
@@ -89,27 +95,12 @@ object ReactionUtils {
 
         val response = OkHttpClient().newCall(request).execute()
 
-        val jsonObject = Gson().fromJson(response.body?.string(), Any::class.java) as LinkedTreeMap<*, *>
-        val reactions = jsonObject["reactions"]
+        val jsonObject = JsonParser.parseString(response.body?.string()).asJsonObject
+        val reactions = jsonObject.getAsJsonArray("reactions")
 
-        return Gson().fromJson(reactions.toString(), object : TypeToken<List<FakeReaction>>() {}.type)
+        return reactions?.map {
+            ReactionImpl(Main.client as DiscordClientImpl, it.asJsonObject, this.server)
+        }
     }
-
-    data class FakeUser(
-        val id: Long,
-        val username: String,
-        val avatar: String,
-        val discriminator: String,
-        @SerializedName("public_flags")
-        val publicFlags: Int,
-        val bot: Boolean
-    )
-
-    data class FakeReaction(
-        val emoji: Emoji,
-        val count: Int,
-        @SerializedName("me")
-        val selfReacted: Boolean
-    )
 
 }
