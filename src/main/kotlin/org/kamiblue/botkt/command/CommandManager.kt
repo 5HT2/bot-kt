@@ -39,10 +39,8 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
         for (clazz in commandClasses) {
             val botCommand = ClassUtils.getInstance(clazz)
-            with(register(botCommand)) {
-                botCommand.category.commands.add(this)
-                BotEventBus.subscribe(this)
-            }
+            BotEventBus.subscribe(botCommand)
+            botCommand.category.commands.add(register(botCommand))
         }
 
         Main.logger.info("Registered ${getCommands().size} commands!")
