@@ -22,8 +22,9 @@ class EmojiArg(
     override suspend fun convertToType(string: String?): Emoji? {
         string?: return null
 
-        if (string.length == 1 && string.matches(emojiRegex)) {
-            return Emoji.emoji(string.first())
+
+        if (string.matches(emojiRegex)) {
+            return Emoji.emoji(string)
         }
 
         val splitString = string
@@ -39,7 +40,7 @@ class EmojiArg(
     }
 
     private companion object {
-        val emojiRegex = "([\\u20a0-\\u32ff\\ud83c\\udc00-\\ud83d\\udeff\\udbb9\\udce5-\\udbb9\\udcee])".toRegex()
+        val emojiRegex = "([\\u2000-\\u3300]|[\\uD83C\\uD000-\\uD83C\\uDFFF]|[\\uD83D\\uD000-\\uD83D\\uDFFF]|[\\uD83E\\uD000-\\uD83E\\uDFFF])+".toRegex()
     }
 
 }

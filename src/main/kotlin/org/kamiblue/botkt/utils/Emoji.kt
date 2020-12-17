@@ -22,7 +22,7 @@ class Emoji private constructor(
     }
 
     companion object {
-        fun emoji(emoji: Char) = Emoji(null, emoji.toString(), false)
+        fun emoji(emoji: String) = Emoji(null, emoji, false)
 
         fun customEmoji(id: Long, name: String, animated: Boolean) = Emoji(id, name, animated)
     }
