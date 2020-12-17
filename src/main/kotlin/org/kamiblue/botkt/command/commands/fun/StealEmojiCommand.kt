@@ -1,14 +1,15 @@
 package org.kamiblue.botkt.command.commands.`fun`
 
+import io.ktor.http.*
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.MessageUtils.normal
-import org.kamiblue.botkt.utils.StringUtils.readBytes
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import java.io.FileNotFoundException
+import java.net.URL
 
 object StealEmojiCommand : BotCommand(
     name = "stealemoji",
@@ -20,7 +21,7 @@ object StealEmojiCommand : BotCommand(
             executeIfHas(COUNCIL_MEMBER) {
                 val emoji = emojiArg.value.emoji
                 val extension = if (emojiArg.value.animated) "gif" else "png"
-                val bytes = "https://cdn.discordapp.com/emojis/${emoji.id}.$extension".readBytes()
+                val bytes = URL("https://cdn.discordapp.com/emojis/${emoji.id}.$extension").readBytes()
 
                 steal(emoji.name, bytes, message, server)
             }
@@ -31,9 +32,9 @@ object StealEmojiCommand : BotCommand(
                 executeIfHas(COUNCIL_MEMBER) {
                     val id = idArg.value
                     val bytes = try {
-                        "https://cdn.discordapp.com/emojis/$id.png".readBytes()
+                        URL("https://cdn.discordapp.com/emojis/$id.png").readBytes()
                     } catch (e: FileNotFoundException) {
-                        "https://cdn.discordapp.com/emojis/$id.gif".readBytes()
+                        URL("https://cdn.discordapp.com/emojis/$id.gif").readBytes()
                     } catch (e: FileNotFoundException) {
                         message.channel.error("Couldn't find an emoji with the ID `$id`!")
                         return@executeIfHas
@@ -58,9 +59,9 @@ object StealEmojiCommand : BotCommand(
                     }
 
                     val bytes = try {
-                        "https://cdn.discordapp.com/emojis/$id.png".readBytes()
+                        URL("https://cdn.discordapp.com/emojis/$id.png").readBytes()
                     } catch (e: FileNotFoundException) {
-                        "https://cdn.discordapp.com/emojis/$id.gif".readBytes()
+                        URL("https://cdn.discordapp.com/emojis/$id.gif").readBytes()
                     } catch (e: FileNotFoundException) {
                         message.channel.error("Couldn't find an emoji with the ID `$id`!")
                         return@executeIfHas

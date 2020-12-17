@@ -9,7 +9,8 @@ import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.MessageUtils.normal
-import org.kamiblue.botkt.utils.StringUtils.writeBytes
+import java.io.File
+import java.net.URL
 import kotlin.math.min
 
 object ConfigCommand : BotCommand(
@@ -74,7 +75,10 @@ object ConfigCommand : BotCommand(
                         val message = message.channel.normal("Downloading `$configName`...")
 
                         try {
-                            val size = typeArg.value.configPath.writeBytes(urlArg.value)
+                            val bytes = URL(urlArg.value).readBytes()
+                            val size = bytes.size
+                            File(typeArg.value.configPath).writeBytes(bytes)
+
                             message.edit {
                                 color = Colors.SUCCESS.color
                                 description = "Successfully downloaded `$configName` (${size / 1000.0}KB)!"
