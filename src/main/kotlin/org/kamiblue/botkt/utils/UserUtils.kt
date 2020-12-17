@@ -7,7 +7,6 @@ import net.ayataka.kordis.entity.user.UserImpl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.kamiblue.botkt.Main
-import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 fun requestUser(id : Long) : User {
@@ -18,5 +17,5 @@ fun requestUser(id : Long) : User {
 }
 
 fun User.accountAge(unit: ChronoUnit = ChronoUnit.DAYS): Long {
-    return timestamp.until(Instant.now(), unit)
+    return timestamp.untilNow(unit)
 }

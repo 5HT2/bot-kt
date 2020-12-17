@@ -18,10 +18,6 @@ import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
-import java.time.Instant
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 
 /**
  * @return a pretty formatted set of permissions, "None" if empty
@@ -98,10 +94,6 @@ fun checkPermission(client: DiscordClientImpl, server: Server, permission: Permi
 
 // Bot users can not have one or fewer roles. If so, this means the server roles are not initialized yet.
 private fun isNotInitialized(myself: Member) = myself.roles.size < 2
-
-private val formatter = DateTimeFormatter.ofPattern("yyyy-mm-dd HH:mm:ss").withZone(ZoneId.from(ZoneOffset.UTC))
-
-fun Instant.prettyFormat() = formatter.format(this)
 
 data class AnimatableEmoji(
     val animated: Boolean = false,
