@@ -23,7 +23,12 @@ object StealEmojiCommand : BotCommand(
     init {
         emoji("emoji") { emojiArg ->
             executeIfHas(COUNCIL_MEMBER) {
-                val emoji = emojiArg.value.emoji
+                val emoji = emojiArg.value
+
+                if (!emoji.isCustom) {
+                    message.channel.error("Emoji must be a custom emoji")
+                }
+
                 val extension = if (emojiArg.value.animated) "gif" else "png"
 
                 val bytes = URL("https://cdn.discordapp.com/emojis/${emoji.id}.$extension").readBytes()

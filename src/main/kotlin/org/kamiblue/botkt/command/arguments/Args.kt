@@ -2,11 +2,10 @@ package org.kamiblue.botkt.command.arguments
 
 import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.Main
-import org.kamiblue.botkt.utils.AnimatableEmoji
 import org.kamiblue.botkt.utils.Emoji
 import org.kamiblue.command.AbstractArg
 
-class DiscordChannelArg(
+class ChannelArg(
     override val name: String
 ) : AbstractArg<Long>() {
 
@@ -16,12 +15,16 @@ class DiscordChannelArg(
 
 }
 
-class DiscordEmojiArg(
+class EmojiArg(
     override val name: String
-) : AbstractArg<AnimatableEmoji>() {
+) : AbstractArg<Emoji>() {
 
-    override suspend fun convertToType(string: String?): AnimatableEmoji? {
-        if (string == null) return null
+    override suspend fun convertToType(string: String?): Emoji? {
+        string?: return null
+
+        if (string.length == 1 && string.matches(emojiRegex)) {
+            return Emoji.emoji(string.first())
+        }
 
         val splitString = string
             .removeSurrounding("<", ">")
@@ -32,12 +35,16 @@ class DiscordEmojiArg(
         val id = splitString.getOrNull(2)?.toLongOrNull()
 
         return if (name == null || id == null) null
-        else AnimatableEmoji(animated, Emoji(id, name))
+        else Emoji.customEmoji(id, name, animated)
+    }
+
+    private companion object {
+        val emojiRegex = "([\\u20a0-\\u32ff\\ud83c\\udc00-\\ud83d\\udeff\\udbb9\\udce5-\\udbb9\\udcee])".toRegex()
     }
 
 }
 
-class DiscordUserArg(
+class UserArg(
     override val name: String
 ) : AbstractArg<User>() {
 

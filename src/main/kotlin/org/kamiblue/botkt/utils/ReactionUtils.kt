@@ -12,7 +12,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.Main
-import org.kamiblue.botkt.utils.StringUtils.uriEncode
+import org.kamiblue.botkt.utils.StringUtils.urlEncode
 
 @Suppress("UNUSED")
 object ReactionUtils {
@@ -24,7 +24,7 @@ object ReactionUtils {
      * [encode] is if you want to URI encode your [emoji]
      */
     fun Message.addReaction(emoji: Char, encode: Boolean = true) {
-        val finalEmoji = if (encode) emoji.toString().uriEncode() else emoji.toString()
+        val finalEmoji = if (encode) emoji.toString().urlEncode() else emoji.toString()
 
         val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}/reactions/$finalEmoji/@me"
         val body = "".toRequestBody("".toMediaTypeOrNull())
@@ -45,7 +45,7 @@ object ReactionUtils {
      * [encode] is if you want to URI encode your [emoji]
      */
     fun Message.removeReactions(allReactions: Boolean = true, userID: Long? = null, emoji: Char? = null, encode: Boolean = true) {
-        val finalEmoji = if (emoji == null) null else if (encode) emoji.toString().uriEncode() else emoji.toString()
+        val finalEmoji = if (emoji == null) null else if (encode) emoji.toString().urlEncode() else emoji.toString()
 
         val reaction = if (allReactions && finalEmoji == null) "" // delete all reactions
         else if (allReactions && finalEmoji != null) "/$finalEmoji" // delete all reactions for a specific emoji
@@ -68,7 +68,7 @@ object ReactionUtils {
      * [encode] is if you want to URI encode your [emoji]
      */
     fun Message.getReactionUsers(emoji: Char, encode: Boolean = true): List<User>? {
-        val finalEmoji = if (encode) emoji.toString().uriEncode() else emoji.toString()
+        val finalEmoji = if (encode) emoji.toString().urlEncode() else emoji.toString()
 
         val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}/reactions/$finalEmoji"
 

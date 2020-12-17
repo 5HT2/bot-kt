@@ -15,7 +15,7 @@ object StringUtils {
 
     fun String.trim(last: Int) = this.substring(0, this.length - last)
 
-    fun String.uriEncode(): String = URLEncoder.encode(this, "utf-8")
+    fun String.urlEncode(): String = URLEncoder.encode(this, "utf-8")
 
     fun String.firstInSentence() = this.split(" ").firstOrNull() ?: this
 
