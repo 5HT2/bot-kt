@@ -1,5 +1,9 @@
 package org.kamiblue.botkt
 
+import io.ktor.client.*
+import io.ktor.client.features.*
+import io.ktor.client.features.json.*
+import io.ktor.client.request.*
 import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
@@ -27,6 +31,8 @@ object Main {
     val logger: Logger = LogManager.getLogger("Bot-kt")
 
     lateinit var client: DiscordClient; private set
+    lateinit var discordHttp: HttpClient; private set
+
     var ready = false; private set
     var prefix: Char? = null
         private set
@@ -71,6 +77,7 @@ object Main {
 
             CommandManager.init()
             ManagerLoader.load()
+            initHttpClients()
 
             client.addListener(KordisEventProcessor)
             ready = true
@@ -82,6 +89,18 @@ object Main {
             initMessage.lines().forEach { logger.info(it) }
             mainScope.launch {
                 sendStartupMessageToServers(userConfig, initMessage)
+            }
+        }
+    }
+
+    private fun initHttpClients() {
+        val authToken = ConfigManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, false)!!.botToken
+        discordHttp = HttpClient {
+            install(JsonFeature) {
+                serializer = defaultSerializer()
+            }
+            defaultRequest {
+                header("Authorization", "Bot $authToken")
             }
         }
     }
