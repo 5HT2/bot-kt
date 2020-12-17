@@ -15,6 +15,7 @@ import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.SnowflakeHelper.prettyFormat
 import org.kamiblue.botkt.utils.accountAge
 import org.kamiblue.event.listener.asyncListener
+import java.awt.Color
 
 object JoinLeaveManager : Manager {
     private val joins = HashMap<Long, Int>()
@@ -25,7 +26,7 @@ object JoinLeaveManager : Manager {
 
             cfg?.banChannel?.let { banChannel ->
                 val channel = it.server.channels.find(banChannel) as? TextChannel ?: return@asyncListener
-                sendJoinLeave("Member Banned", cfg.embed, channel, it.user)
+                sendJoinLeave("Member Banned", cfg.embed, channel, it.user, Colors.WARN.color)
             }
         }
 
@@ -35,7 +36,7 @@ object JoinLeaveManager : Manager {
 
             cfg?.leaveChannel?.let { leaveChannel ->
                 val channel = event.server.channels.find(leaveChannel) as? TextChannel ?: return@asyncListener
-                sendJoinLeave("Member Left", cfg.embed, channel, event.member, event.member)
+                sendJoinLeave("Member Left", cfg.embed, channel, event.member, Colors.ERROR.color)
             }
         }
 
@@ -80,7 +81,7 @@ object JoinLeaveManager : Manager {
 
             cfg?.joinChannel?.let { joinChannel ->
                 val channel = event.server.channels.find(joinChannel) as? TextChannel ?: return@asyncListener
-                sendJoinLeave("Member Joined", cfg.embed, channel, member, member)
+                sendJoinLeave("Member Joined", cfg.embed, channel, member, Colors.SUCCESS.color)
             }
         }
     }
@@ -90,7 +91,7 @@ object JoinLeaveManager : Manager {
         embed: Boolean?,
         channel: TextChannel,
         user: User,
-        member: Member? = null
+        colorIn: Color
     ) {
         if (embed == false) {
             channel.send(
@@ -105,11 +106,11 @@ object JoinLeaveManager : Manager {
                 embed {
                     title = user.tag
                     description = msgDescription
-                    color = Colors.PRIMARY.color
+                    color = colorIn
                     thumbnailUrl = user.avatar.url
 
                     field("Created Account:", user.timestamp.prettyFormat())
-                    member?.let { field("Joined Guild:", it.joinedAt.prettyFormat()) }
+                    if (user is Member) field("Joined Guild:", user.joinedAt.prettyFormat())
                     field("Account Age:", user.accountAge().toString() + " days")
                     field("Mention:", user.mention)
                     field("ID:", "`${user.id}`")
