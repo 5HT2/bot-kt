@@ -2,6 +2,7 @@ package org.kamiblue.botkt.manager.managers
 
 import net.ayataka.kordis.entity.channel.TextChannel
 import net.ayataka.kordis.event.events.message.ReactionAddEvent
+import org.kamiblue.botkt.BackgroundScope
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.StartBoardConfig
@@ -53,6 +54,10 @@ object StartBoardManager : Manager {
         }
 
         listener<ShutdownEvent> {
+            ConfigManager.writeConfig(ConfigType.STAR_BOARD)
+        }
+
+        BackgroundScope.add(300000L, "Failed to save starboard config") {
             ConfigManager.writeConfig(ConfigType.STAR_BOARD)
         }
     }
