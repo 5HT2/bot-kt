@@ -6,15 +6,14 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
+import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.MessageUtils.normal
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import java.io.FileNotFoundException
-import java.net.URL
 
-@Suppress("BlockingMethodInNonBlockingContext")
 object StealEmojiCommand : BotCommand(
     name = "stealemoji",
     category = Category.FUN,
@@ -32,7 +31,10 @@ object StealEmojiCommand : BotCommand(
 
                 val extension = if (emojiArg.value.animated) "gif" else "png"
 
-                val bytes = URL("https://cdn.discordapp.com/emojis/${emoji.id}.$extension").readBytes()
+                val bytes = Main.discordHttp.get<ByteArray> {
+                    url("https://cdn.discordapp.com/emojis/${emoji.id}.$extension")
+                }
+
                 addEmoji(emoji.name, bytes, message, server)
             }
         }
@@ -70,9 +72,13 @@ object StealEmojiCommand : BotCommand(
     private suspend fun MessageExecuteEvent.downloadFromId(id: Long): ByteArray? {
         return try {
             try {
-                URL("https://cdn.discordapp.com/emojis/$id.png").readBytes()
+                Main.discordHttp.get<ByteArray> {
+                    url("https://cdn.discordapp.com/emojis/$id.png")
+                }
             } catch (e: FileNotFoundException) {
-                URL("https://cdn.discordapp.com/emojis/$id.gif").readBytes()
+                Main.discordHttp.get<ByteArray> {
+                    url("https://cdn.discordapp.com/emojis/$id.gif")
+                }
             }
         } catch (e: FileNotFoundException) {
             message.channel.error("Couldn't find an emoji with the ID `$id`!")
