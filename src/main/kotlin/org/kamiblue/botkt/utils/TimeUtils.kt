@@ -6,7 +6,7 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-private val formatter = DateTimeFormatter.ofPattern("yyyy-mm-dd HH:mm:ss").withZone(ZoneId.from(ZoneOffset.UTC))
+private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.from(ZoneOffset.UTC))
 
 fun Instant.prettyFormat(): String = formatter.format(this)
 
