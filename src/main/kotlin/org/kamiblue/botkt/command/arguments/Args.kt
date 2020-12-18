@@ -2,7 +2,7 @@ package org.kamiblue.botkt.command.arguments
 
 import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.Main
-import org.kamiblue.botkt.utils.Emoji
+import org.kamiblue.botkt.entity.Emoji
 import org.kamiblue.command.AbstractArg
 
 class ChannelArg(
@@ -24,7 +24,7 @@ class EmojiArg(
 
 
         if (string.matches(emojiRegex)) {
-            return Emoji.emoji(string)
+            return Emoji(string)
         }
 
         val splitString = string
@@ -36,7 +36,7 @@ class EmojiArg(
         val id = splitString.getOrNull(2)?.toLongOrNull()
 
         return if (name == null || id == null) null
-        else Emoji.customEmoji(id, name, animated)
+        else Emoji(id, name, animated)
     }
 
     private companion object {

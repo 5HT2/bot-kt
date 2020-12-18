@@ -9,13 +9,14 @@ import net.ayataka.kordis.event.events.message.ReactionAddEvent
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.entity.Emoji
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.GitHubUtils
 import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.MessageUtils.success
-import org.kamiblue.botkt.utils.ReactionUtils.addReaction
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
+import org.kamiblue.botkt.utils.addReaction
 import org.kamiblue.botkt.utils.authenticatedRequest
 import org.kamiblue.commons.extension.max
 import org.kamiblue.event.listener.asyncListener
@@ -99,9 +100,9 @@ object IssueCommand : BotCommand(
                         message.delete()
 
                         delay(500)
-                        form.addReaction("✅")
+                        form.addReaction(Emoji("✅"))
                         delay(500)
-                        form.addReaction("⛔")
+                        form.addReaction(Emoji("⛔"))
 
                         queuedIssues[form.id] = QueuedIssue(form, issue, message.member, repo)
                     }

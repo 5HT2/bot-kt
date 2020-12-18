@@ -7,7 +7,7 @@ import org.kamiblue.botkt.Permissions.missingPermissions
 import org.kamiblue.botkt.command.arguments.ChannelArg
 import org.kamiblue.botkt.command.arguments.EmojiArg
 import org.kamiblue.botkt.command.arguments.UserArg
-import org.kamiblue.botkt.utils.Emoji
+import org.kamiblue.botkt.entity.Emoji
 import org.kamiblue.command.AbstractArg
 import org.kamiblue.command.CommandBuilder
 import org.kamiblue.command.utils.BuilderBlock
