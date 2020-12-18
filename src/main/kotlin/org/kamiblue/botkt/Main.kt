@@ -49,6 +49,7 @@ object Main {
         addShutdownHook()
         start()
         BackgroundScope.start()
+        Console.start()
     }
 
     fun exit() {

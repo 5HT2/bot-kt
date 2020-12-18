@@ -112,7 +112,7 @@ object IssueCommand : BotCommand(
 
         asyncListener<ReactionAddEvent> {
             if (it.reaction.member?.bot == true) return@asyncListener
-            if (!it.reaction.userId.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return@asyncListener
+            if (!it.reaction.author.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return@asyncListener
 
             val form = queuedIssues[it.reaction.messageId] ?: return@asyncListener
 
@@ -178,7 +178,7 @@ object IssueCommand : BotCommand(
         asyncListener<MessageReceiveEvent> { event ->
             if (event.message.author?.bot == true) return@asyncListener
 
-            if (event.message.author?.id?.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION) == true) return@asyncListener
+            if (event.message.author.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return@asyncListener
 
             val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
             issueChannel?.issueCreationChannel?.let {
