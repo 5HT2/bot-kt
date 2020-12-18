@@ -19,5 +19,5 @@ object StringUtils {
 
     fun String.firstInSentence() = this.split(" ").firstOrNull() ?: this
 
-    fun String.toUserID() = this.filter { it.isDigit() }.toLongOrNull()
+    fun String.toUserID() = this.replace("[<@!>]".toRegex(), "").toLongOrNull()
 }
