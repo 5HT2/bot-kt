@@ -14,7 +14,8 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
     PERMISSION("config/permissions.json"),
     COUNTER("config/counters.json"),
     JOIN_LEAVE("config/joinleave.json"),
-    TICKET("config/tickets.json")
+    TICKET("config/tickets.json"),
+    STAR_BOARD("config/starboard.json")
 }
 
 /**
@@ -125,4 +126,15 @@ data class TicketConfig(
     val ticketCategory: Long?,
     val ticketCreateChannel: Long?,
     val ticketPingRole: Long?
+)
+
+/**
+ * @param channels <Server ID, Channel ID> Star board channel for each server
+ * @param messages <Message ID> Messages added to the star board
+ * @param threshold Amount Star emoji reactions to be added to star board
+ */
+class StarBoardConfig(
+    val channels: HashMap<Long, Long>,
+    val messages: HashSet<Long>,
+    val threshold: Int
 )
