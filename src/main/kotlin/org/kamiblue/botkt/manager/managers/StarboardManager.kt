@@ -50,10 +50,11 @@ object StarboardManager : Manager {
                     (server.channels.find(starBoardChannel) as TextChannel).send {
                         embed {
                             author(
-                                message.author?.name,
-                                "https://discord.com/channels/${server.id}/${channel.id}/${message.id}",
-                                message.author?.avatar?.url
+                                name = message.author?.name,
+                                url = null,
+                                iconUrl = message.author?.avatar?.url
                             )
+                            title = "https://discord.com/channels/${server.id}/${channel.id}/${message.id}"
                             description = message.content
                             imageUrl = image
                             color = Color(255, 172, 51)
