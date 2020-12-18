@@ -1,6 +1,7 @@
 package org.kamiblue.botkt.manager.managers
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.manager.Manager
@@ -16,9 +17,19 @@ import java.nio.file.Paths
  */
 object ConfigManager : Manager {
 
-/*    fun writeConfig(configType: ConfigType) {
-        TODO: implement lol
-    }*/
+    private val gson = GsonBuilder().setPrettyPrinting().create()
+
+    fun writeConfig(configType: ConfigType) {
+        val data = configType.data?: return
+        val file = File(configType.configPath)
+        try {
+            file.bufferedWriter().use {
+                gson.toJson(data, it)
+            }
+        } catch (e: Exception) {
+            Main.logger.warn("Failed to safe config ${configType.name}", e)
+        }
+    }
 
     /**
      * Safely returns [readConfig] without worrying if the file exists.
