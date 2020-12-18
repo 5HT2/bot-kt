@@ -9,8 +9,6 @@ object StringUtils {
 
     fun String.isUrl() = urlRegex.matches(this)
 
-    fun String.isCdnUrl() = urlRegex.matches(this)
-
     fun String.toHumanReadable() = this.toLowerCase().replace(humanReadableRegex, " ").capitalizeWords()
 
     fun String.capitalizeWords(): String = split(" ").joinToString(" ") { it.capitalize() }
