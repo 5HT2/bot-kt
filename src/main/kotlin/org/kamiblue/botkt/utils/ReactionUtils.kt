@@ -1,16 +1,15 @@
 package org.kamiblue.botkt.utils
 
 import com.google.gson.JsonParser
+import io.ktor.client.request.*
 import net.ayataka.kordis.DiscordClientImpl
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.message.reaction.Reaction
 import net.ayataka.kordis.entity.message.reaction.ReactionImpl
 import net.ayataka.kordis.entity.user.User
 import net.ayataka.kordis.entity.user.UserImpl
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.utils.StringUtils.urlEncode
 
@@ -19,22 +18,16 @@ object ReactionUtils {
 
     private const val contentLength = "Content-Length"
 
-    /**
-     * [emoji] is the single unicode Char you want to react with
-     * [encode] is if you want to URI encode your [emoji]
-     */
-    fun Message.addReaction(emoji: Char, encode: Boolean = true) {
-        val finalEmoji = if (encode) emoji.toString().urlEncode() else emoji.toString()
+    suspend fun Message.addReaction(emoji: String) {
+        Main.discordHttp.put<Unit> {
+            url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions/${emoji.urlEncode()}/@me")
+        }
+    }
 
-        val url = "https://discord.com/api/v6/channels/${this.channel.id}/messages/${this.id}/reactions/$finalEmoji/@me"
-        val body = "".toRequestBody("".toMediaTypeOrNull())
-
-        val request = Request.Builder()
-            .addHeader(contentLength, "0")
-            .addHeader("Authorization", "Bot ${getAuthToken()}")
-            .url(url).put(body).build()
-
-        OkHttpClient().newCall(request).execute()
+    suspend fun Message.addReaction(emoji: Emoji) {
+        Main.discordHttp.put<Unit> {
+            url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions/${emoji.urlCoded}/@me")
+        }
     }
 
     /**

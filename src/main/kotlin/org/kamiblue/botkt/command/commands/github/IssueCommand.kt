@@ -99,9 +99,9 @@ object IssueCommand : BotCommand(
                         message.delete()
 
                         delay(500)
-                        form.addReaction('✅')
+                        form.addReaction("✅")
                         delay(500)
-                        form.addReaction('⛔')
+                        form.addReaction("⛔")
 
                         queuedIssues[form.id] = QueuedIssue(form, issue, message.member, repo)
                     }
