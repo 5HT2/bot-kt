@@ -1,29 +1,17 @@
 package org.kamiblue.botkt
 
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageSendUtils.error
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 
 object Permissions {
-    suspend fun Message.hasPermission(permission: PermissionTypes): Boolean {
-        return this.author?.let {
-            return if (!it.id.hasPermission(permission)) {
-                this.missingPermissions(permission)
-                false
-            } else {
-                true
-            }
-        } ?: run {
-            this.error("Message `${this.id}` author was null")
-            false
-        }
-    }
 
-    fun Long.hasPermission(permission: PermissionTypes): Boolean {
+    fun User?.hasPermission(permission: PermissionTypes): Boolean {
+        if (this == null) return false
         return ConfigManager.readConfigSafe<PermissionConfig>(ConfigType.PERMISSION, false)?.let {
-            it.councilMembers[this]?.contains(permission)
+            it.councilMembers[this.id]?.contains(permission)
         } ?: false
     }
 
@@ -36,6 +24,7 @@ object Permissions {
             }
         }
     }
+
 }
 
 @Suppress("UNUSED")

@@ -27,9 +27,7 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
         asyncListener<MessageReceiveEvent> {
             val message = it.message.content
             if (message.isNotBlank() && message.first() == Main.prefix) {
-                commandScope.launch {
-                    runCommand(it, it.message.content.substring(1))
-                }
+                runCommand(it, it.message.content.substring(1))
             }
         }
     }
@@ -48,19 +46,21 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
         BotEventBus.subscribe(this)
     }
 
-    private suspend fun runCommand(event: MessageReceiveEvent, string: String) {
-        val args = tryParseArgument(event, string) ?: return
+    fun runCommand(event: MessageReceiveEvent, string: String) {
+        commandScope.launch {
+            val args = tryParseArgument(event, string) ?: return@launch
 
-        try {
             try {
-                invoke(MessageExecuteEvent(args, event))
-            } catch (e: CommandNotFoundException) {
-                handleCommandNotFoundException(event, e)
-            } catch (e: SubCommandNotFoundException) {
-                handleSubCommandNotFoundException(event, string, args, e)
+                try {
+                    invoke(MessageExecuteEvent(args, event))
+                } catch (e: CommandNotFoundException) {
+                    handleCommandNotFoundException(event, e)
+                } catch (e: SubCommandNotFoundException) {
+                    handleSubCommandNotFoundException(event, string, args, e)
+                }
+            } catch (e: Exception) {
+                handleExceptions(event, args, e)
             }
-        } catch (e: Exception) {
-            handleExceptions(event, args, e)
         }
     }
 

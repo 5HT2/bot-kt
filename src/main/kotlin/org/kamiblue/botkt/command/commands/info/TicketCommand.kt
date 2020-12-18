@@ -53,7 +53,7 @@ object TicketCommand : BotCommand(
             val server = event.message.server
             val author = event.message.author
 
-            if (author?.id?.hasPermission(PermissionTypes.COUNCIL_MEMBER) == true) return@asyncListener
+            if (author.hasPermission(PermissionTypes.COUNCIL_MEMBER)) return@asyncListener
 
             config?.ticketCreateChannel?.let {
                 if (event.message.channel.id != it) return@asyncListener
