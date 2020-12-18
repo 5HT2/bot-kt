@@ -5,7 +5,7 @@ import net.ayataka.kordis.entity.server.role.Role
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.pretty
 
 object RoleInfoCommand : BotCommand(
@@ -19,7 +19,7 @@ object RoleInfoCommand : BotCommand(
                 val id = idArg.value
 
                 val role = message.server?.roles?.find(id) ?: run {
-                    message.error("Role ID not found! Does this role exist?")
+                    message.channel.error("Role ID not found! Does this role exist?")
                     return@execute
                 }
 
@@ -32,7 +32,7 @@ object RoleInfoCommand : BotCommand(
                 val name = nameArg.value
 
                 val role = message.server?.roles?.findByName(name) ?: run {
-                    message.error("Role name not found! Try using the role ID.")
+                    message.channel.error("Role name not found! Try using the role ID.")
                     return@execute
                 }
 

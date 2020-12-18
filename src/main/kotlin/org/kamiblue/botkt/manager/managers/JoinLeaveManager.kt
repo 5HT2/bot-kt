@@ -12,8 +12,8 @@ import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.command.commands.moderation.BanCommand
 import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.SnowflakeHelper.prettyFormat
 import org.kamiblue.botkt.utils.accountAge
+import org.kamiblue.botkt.utils.prettyFormat
 import org.kamiblue.event.listener.asyncListener
 import java.awt.Color
 
@@ -98,8 +98,8 @@ object JoinLeaveManager : Manager {
                 "$msgDescription\n" +
                     "**Tag:** ${user.tag}\n" +
                     "**Mention:** ${user.mention}\n" +
-                    "**ID:** ${user.id}\n" +
-                    "**Account Age:** ${user.accountAge()} days\n"
+                    "**Account Age:** ${user.accountAge()} days\n" +
+                    "**ID:** ${user.id}\n"
             )
         } else {
             channel.send {
@@ -109,11 +109,11 @@ object JoinLeaveManager : Manager {
                     color = colorIn
                     thumbnailUrl = user.avatar.url
 
-                    field("Created Account:", user.timestamp.prettyFormat())
-                    if (user is Member) field("Joined Guild:", user.joinedAt.prettyFormat())
-                    field("Account Age:", user.accountAge().toString() + " days")
                     field("Mention:", user.mention)
-                    field("ID:", "`${user.id}`")
+                    field("Created Account:", user.timestamp.prettyFormat())
+                    field("Account Age:", user.accountAge().toString() + " days")
+                    if (user is Member) field("Joined Guild:", user.joinedAt.prettyFormat())
+                    footer("ID: ${user.id}", user.avatar.url)
                 }
             }
         }

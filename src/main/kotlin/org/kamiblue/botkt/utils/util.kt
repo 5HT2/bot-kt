@@ -9,7 +9,6 @@ import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.member.Member
 import net.ayataka.kordis.entity.server.permission.Permission
 import net.ayataka.kordis.entity.server.permission.PermissionSet
-import net.ayataka.kordis.entity.user.User
 import net.ayataka.kordis.exception.MissingPermissionsException
 import net.ayataka.kordis.exception.NotFoundException
 import okhttp3.OkHttpClient
@@ -19,8 +18,6 @@ import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 /**
  * @return a pretty formatted set of permissions, "None" if empty
@@ -97,26 +94,3 @@ fun checkPermission(client: DiscordClientImpl, server: Server, permission: Permi
 
 // Bot users can not have one or fewer roles. If so, this means the server roles are not initialized yet.
 private fun isNotInitialized(myself: Member) = myself.roles.size < 2
-
-fun User.accountAge(chronoUnit: ChronoUnit = ChronoUnit.DAYS): Long {
-    return timestamp.until(Instant.now(), chronoUnit)
-}
-
-data class AnimatableEmoji(
-    val animated: Boolean = false,
-    val emoji: Emoji
-) {
-    override fun toString(): String {
-        val a = if (animated) "a" else ""
-        return "<$a:${emoji.name}:${emoji.id}>"
-    }
-}
-
-data class Emoji(
-    val id: Long,
-    val name: String
-) {
-    override fun toString(): String {
-        return "<:$name:$id>"
-    }
-}

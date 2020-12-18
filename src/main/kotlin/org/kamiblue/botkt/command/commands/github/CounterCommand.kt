@@ -6,8 +6,8 @@ import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.GitHubUtils
-import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.MessageSendUtils.success
+import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.success
 import org.kamiblue.botkt.utils.authenticatedRequest
 import org.kamiblue.botkt.utils.request
 import org.l1ving.api.download.Download
@@ -25,20 +25,20 @@ object CounterCommand : BotCommand(
 
             when {
                 config?.downloadEnabled != true && config?.memberEnabled != true -> {
-                    message.error("Counters are not configured / enabled!")
+                    message.channel.error("Counters are not configured / enabled!")
                 }
                 config.downloadEnabled != true -> {
-                    message.error("Download counter is not enabled in the `$path` config!")
+                    message.channel.error("Download counter is not enabled in the `$path` config!")
                 }
                 config.memberEnabled != true -> {
-                    message.error("Member counter is not enabled in the `$path` config!")
+                    message.channel.error("Member counter is not enabled in the `$path` config!")
                 }
             }
 
             if (updateChannel()) {
-                message.success("Successfully updated counters!")
+                message.channel.success("Successfully updated counters!")
             } else {
-                message.error("Failed to update counters. Make sure `$path` is configured correctly, and `primaryServerId` is set in `$userPath`!")
+                message.channel.error("Failed to update counters. Make sure `$path` is configured correctly, and `primaryServerId` is set in `$userPath`!")
             }
         }
 

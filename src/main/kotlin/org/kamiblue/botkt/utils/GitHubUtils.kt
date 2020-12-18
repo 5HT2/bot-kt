@@ -11,7 +11,7 @@ import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.UserConfig
 import org.kamiblue.botkt.manager.managers.ConfigManager
-import org.kamiblue.botkt.utils.MessageSendUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.error
 import org.l1ving.api.issue.Issue
 
 object GitHubUtils {
@@ -22,7 +22,7 @@ object GitHubUtils {
     suspend fun getGithubToken(message: Message?, scope: String? = null): String? {
         val token = ConfigManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, false)?.githubToken
         if (token == null) {
-            message?.error("Github token not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
+            message?.channel?.error("Github token not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
         }
 
         scope?.let {
@@ -37,7 +37,7 @@ object GitHubUtils {
      */
     suspend fun getDefaultGithubUser(message: Message?): String? {
         val repo = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
-        if (repo == null) message?.error("Default user / org not set in `${ConfigType.USER.configPath.substring(7)}`!")
+        if (repo == null) message?.channel?.error("Default user / org not set in `${ConfigType.USER.configPath.substring(7)}`!")
         return repo
     }
 
