@@ -11,14 +11,14 @@ object RickRollCommand : BotCommand(
     category = Category.FUN,
     description = "Never gonna give you up, Never gonna let you down..."
 ) {
-    private val cdnRegex = "https://cdn.discordapp.com/attachments/(\\d{18})/(\\d{18})/(.*\$)".toRegex()
+    private val cdnRegex = "https://cdn.discordapp.com/attachments/(\\d{18})/(\\d{18})/(.*$)".toRegex()
     private const val urlPrefix = "https://cdn.dircordapp.com/attachments"
 
     init {
         string("url") { urlArg ->
             execute {
                 val url = urlArg.value
-                if (!url.isUrl()) {
+                if (!url.isUrl() || !url.matches(cdnRegex)) {
                     message.channel.error("Invalid url!")
                     return@execute
                 }
