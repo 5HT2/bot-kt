@@ -73,11 +73,11 @@ object StealEmojiCommand : BotCommand(
         return try {
             try {
                 Main.discordHttp.get<ByteArray> {
-                    url("https://cdn.discordapp.com/emojis/$id.png")
+                    url("https://cdn.discordapp.com/emojis/$id.gif")
                 }
             } catch (e: FileNotFoundException) {
                 Main.discordHttp.get<ByteArray> {
-                    url("https://cdn.discordapp.com/emojis/$id.gif")
+                    url("https://cdn.discordapp.com/emojis/$id.png")
                 }
             }
         } catch (e: FileNotFoundException) {
