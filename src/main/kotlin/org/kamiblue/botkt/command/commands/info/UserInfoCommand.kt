@@ -7,6 +7,7 @@ import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.StringUtils.toUserID
 
 object UserInfoCommand : BotCommand(
@@ -39,14 +40,16 @@ object UserInfoCommand : BotCommand(
 
     private suspend fun send(username: String, message: Message) {
         val members = message.server?.members
-        val user = username.toUserID()?.let {
-            members?.find(it) ?: Main.client.getUser(it)
-        } ?: members?.findByTag(username, true)
-        ?: members?.findByName(username, true)
-        ?: run {
-            message.channel.error("Couldn't find user nor a valid ID!")
-            return
-        }
+        val id = username.toUserID()
+
+        val user = id?.let { members?.find(it) }
+            ?: members?.findByTag(username, true)
+            ?: members?.findByName(username, true)
+            ?: id?.let { Main.client.getUser(it) }
+            ?: run {
+                message.channel.error("Couldn't find user nor a valid ID!")
+                return
+            }
 
         message.channel.send {
             embed {
@@ -59,6 +62,7 @@ object UserInfoCommand : BotCommand(
                 field("Account Age:", "${user.accountAge()} days")
                 field("Joined Guild:", if (user is Member) user.joinedAt.prettyFormat() else current)
                 field("Join Age:", if (user is Member) "${user.joinedAt.untilNow()} days" else current)
+                field("Status:", if (user is Member) user.status.name.toHumanReadable() else current)
                 footer("ID: ${user.id}", user.avatar.url)
             }
         }
