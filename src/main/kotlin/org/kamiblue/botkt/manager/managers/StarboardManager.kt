@@ -10,7 +10,6 @@ import org.kamiblue.botkt.StarBoardConfig
 import org.kamiblue.botkt.entity.Emoji
 import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.manager.Manager
-import org.kamiblue.botkt.utils.StringUtils.isBlankOrEmpty
 import org.kamiblue.botkt.utils.StringUtils.isUrl
 import org.kamiblue.botkt.utils.getReactions
 import org.kamiblue.event.listener.asyncListener
@@ -41,7 +40,7 @@ object StarboardManager : Manager {
                 }
 
                 if (starBoardChannel == it.reaction.channelId) return@asyncListener
-                if (message.content.isBlankOrEmpty()) return@asyncListener
+                if (message.content.isBlank()) return@asyncListener
 
                 val reactionUsers = message.getReactions(Emoji("⭐"))
                 Main.logger.debug("Star received, message ${message.id} now has ${reactionUsers.size} star")
