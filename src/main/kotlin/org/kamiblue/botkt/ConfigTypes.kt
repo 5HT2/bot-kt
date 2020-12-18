@@ -133,7 +133,7 @@ data class TicketConfig(
  * @param messages <Message ID> Messages added to the star board
  * @param threshold Amount Star emoji reactions to be added to star board
  */
-class StartBoardConfig(
+class StarBoardConfig(
     val channels: HashMap<Long, Long>,
     val messages: HashSet<Long>,
     val threshold: Int

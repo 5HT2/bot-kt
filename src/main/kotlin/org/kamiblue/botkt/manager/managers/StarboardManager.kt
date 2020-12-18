@@ -6,7 +6,7 @@ import net.ayataka.kordis.event.events.message.ReactionAddEvent
 import org.kamiblue.botkt.BackgroundScope
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
-import org.kamiblue.botkt.StartBoardConfig
+import org.kamiblue.botkt.StarBoardConfig
 import org.kamiblue.botkt.entity.Emoji
 import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.manager.Manager
@@ -17,10 +17,10 @@ import org.kamiblue.event.listener.asyncListener
 import org.kamiblue.event.listener.listener
 import java.awt.Color
 
-object StartBoardManager : Manager {
+object StarboardManager : Manager {
 
-    private val startBoardConfig
-        get() = ConfigManager.readConfigSafe<StartBoardConfig>(ConfigType.STAR_BOARD, false)
+    private val starBoard
+        get() = ConfigManager.readConfigSafe<StarBoardConfig>(ConfigType.STAR_BOARD, false)
 
     private val imageExtensionRegex = ".*\\.(jpg|png|gif)".toRegex()
 
@@ -30,24 +30,24 @@ object StartBoardManager : Manager {
                 val server = it.server ?: return@asyncListener
                 val channel = server.channels.find(it.reaction.channelId) as? TextChannel? ?: return@asyncListener
                 val message = channel.getMessage(it.reaction.messageId) ?: return@asyncListener
-                val cfg = startBoardConfig ?: run {
+                val cfg = starBoard ?: run {
                     Main.logger.warn("Starboard config not found")
                     return@asyncListener
                 }
 
-                val startBoardChannel = cfg.channels[server.id] ?: run {
+                val starBoardChannel = cfg.channels[server.id] ?: run {
                     Main.logger.info("Starboard channel not found for server ${server.id}")
                     return@asyncListener
                 }
 
-                if (startBoardChannel == it.reaction.channelId) return@asyncListener
+                if (starBoardChannel == it.reaction.channelId) return@asyncListener
                 if (message.content.isBlankOrEmpty()) return@asyncListener
 
                 val reactionUsers = message.getReactions(Emoji("⭐"))
                 Main.logger.debug("Star received, message ${message.id} now has ${reactionUsers.size} star")
 
                 if (reactionUsers.size >= cfg.threshold && !cfg.messages.contains(message.id)) {
-                    (server.channels.find(startBoardChannel) as TextChannel).send {
+                    (server.channels.find(starBoardChannel) as TextChannel).send {
                         embed {
                             author(
                                 message.author?.name,
