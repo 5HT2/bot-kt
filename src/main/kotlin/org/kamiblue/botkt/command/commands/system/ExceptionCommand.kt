@@ -4,9 +4,9 @@ import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
-import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.MessageSendUtils.normal
-import org.kamiblue.botkt.utils.MessageSendUtils.success
+import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.normal
+import org.kamiblue.botkt.utils.MessageUtils.success
 import org.kamiblue.commons.extension.max
 
 object ExceptionCommand : BotCommand(
@@ -21,9 +21,9 @@ object ExceptionCommand : BotCommand(
         literal("list") {
             executeIfHas(COUNCIL_MEMBER, "List saved exceptions") {
                 if (exceptions.isEmpty()) {
-                    message.success("No exceptions caught recently!")
+                    message.channel.success("No exceptions caught recently!")
                 } else {
-                    message.normal(
+                    message.channel.normal(
                         exceptions.withIndex().joinToString(separator = "\n") { "`${it.index}`: `${it.value.message}`" }
                     )
                 }
@@ -33,12 +33,12 @@ object ExceptionCommand : BotCommand(
         int("index") { indexArg ->
             executeIfHas(COUNCIL_MEMBER, "Print a saved exception") {
                 if (exceptions.isEmpty()) {
-                    message.success("No exceptions caught recently!")
+                    message.channel.success("No exceptions caught recently!")
                 } else {
                     exceptions.getOrNull(indexArg.value)?.let {
                         message.channel.send("```\n" + it.stackTraceToString().max(1992) + "\n```")
                     } ?: run {
-                        message.error("Exception with index `${indexArg.value}` is not stored!")
+                        message.channel.error("Exception with index `${indexArg.value}` is not stored!")
                     }
                 }
             }

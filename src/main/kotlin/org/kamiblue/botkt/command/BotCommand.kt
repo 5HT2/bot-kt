@@ -5,10 +5,10 @@ import org.kamiblue.botkt.Console
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.Permissions.missingPermissions
-import org.kamiblue.botkt.command.arguments.DiscordChannelArg
-import org.kamiblue.botkt.command.arguments.DiscordEmojiArg
-import org.kamiblue.botkt.command.arguments.DiscordUserArg
-import org.kamiblue.botkt.utils.AnimatableEmoji
+import org.kamiblue.botkt.command.arguments.ChannelArg
+import org.kamiblue.botkt.command.arguments.EmojiArg
+import org.kamiblue.botkt.command.arguments.UserArg
+import org.kamiblue.botkt.entity.Emoji
 import org.kamiblue.command.AbstractArg
 import org.kamiblue.command.CommandBuilder
 import org.kamiblue.command.utils.BuilderBlock
@@ -42,15 +42,15 @@ abstract class BotCommand(
         name: String,
         block: BuilderBlock<Long>
     ) {
-        arg(DiscordChannelArg(name), block)
+        arg(ChannelArg(name), block)
     }
 
     @CommandBuilder
     protected fun AbstractArg<*>.emoji(
         name: String,
-        block: BuilderBlock<AnimatableEmoji>
+        block: BuilderBlock<Emoji>
     ) {
-        arg(DiscordEmojiArg(name), block)
+        arg(EmojiArg(name), block)
     }
 
     @CommandBuilder
@@ -58,7 +58,7 @@ abstract class BotCommand(
         name: String,
         block: BuilderBlock<User>
     ) {
-        arg(DiscordUserArg(name), block)
+        arg(UserArg(name), block)
     }
 
 }

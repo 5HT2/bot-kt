@@ -9,13 +9,14 @@ import net.ayataka.kordis.event.events.message.ReactionAddEvent
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.entity.Emoji
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.GitHubUtils
-import org.kamiblue.botkt.utils.MessageSendUtils.error
-import org.kamiblue.botkt.utils.MessageSendUtils.success
-import org.kamiblue.botkt.utils.ReactionUtils.addReaction
+import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.success
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
+import org.kamiblue.botkt.utils.addReaction
 import org.kamiblue.botkt.utils.authenticatedRequest
 import org.kamiblue.commons.extension.max
 import org.kamiblue.event.listener.asyncListener
@@ -75,14 +76,14 @@ object IssueCommand : BotCommand(
                         val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
                         issueChannel?.issueCreationChannel?.let {
                             if (it != message.channel.id) {
-                                message.error("You're only allowed to create issues in <#$it>!")
+                                message.channel.error("You're only allowed to create issues in <#$it>!")
                                 return@execute
                             }
                         }
 
                         val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
                             ?: run {
-                                message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                                message.channel.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
                                 return@execute
                             }
 
@@ -99,9 +100,9 @@ object IssueCommand : BotCommand(
                         message.delete()
 
                         delay(500)
-                        form.addReaction('✅')
+                        form.addReaction(Emoji("✅"))
                         delay(500)
-                        form.addReaction('⛔')
+                        form.addReaction(Emoji("⛔"))
 
                         queuedIssues[form.id] = QueuedIssue(form, issue, message.member, repo)
                     }
@@ -121,7 +122,7 @@ object IssueCommand : BotCommand(
                 val token = GitHubUtils.getGithubToken(message, "IssueCommand3") ?: return@asyncListener
 
                 val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
-                    message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                    message.channel.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
                     return@asyncListener
                 }
 
@@ -140,7 +141,7 @@ object IssueCommand : BotCommand(
 
                 form.formMessage.delete()
 
-                message = message.success("Successfully created issue `${form.issue.title}`!")
+                message = message.channel.success("Successfully created issue `${form.issue.title}`!")
 
                 delay(5000)
 
@@ -149,7 +150,7 @@ object IssueCommand : BotCommand(
                 val message = form.formMessage
 
                 val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
-                    message.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                    message.channel.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
                     return@asyncListener
                 }
 
@@ -163,7 +164,7 @@ object IssueCommand : BotCommand(
                     }
                 }
 
-                val feedback = message.error("Issue `${form.issue.title}` rejected!")
+                val feedback = message.channel.error("Issue `${form.issue.title}` rejected!")
 
 
                 delay(5000)
@@ -187,7 +188,7 @@ object IssueCommand : BotCommand(
             }
 
             if (event.message.content.isEmpty() || !event.message.content.startsWith("$name create")) {
-                val reply = event.message.error("You need to use the `$name create` command to create an issue!")
+                val reply = event.message.channel.error("You need to use the `$name create` command to create an issue!")
 
                 event.message.delete()
                 delay(5000)
@@ -232,7 +233,7 @@ object IssueCommand : BotCommand(
                 }
             }
         } else {
-            message.error("Issue / pull `#$issueNum` in `$user/$repoName` could not be found!")
+            message.channel.error("Issue / pull `#$issueNum` in `$user/$repoName` could not be found!")
         }
     }
 
