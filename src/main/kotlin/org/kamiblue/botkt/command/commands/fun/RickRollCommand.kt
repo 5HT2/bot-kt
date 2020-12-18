@@ -12,6 +12,7 @@ object RickRollCommand : BotCommand(
     description = "Never gonna give you up, Never gonna let you down..."
 ) {
     private val cdnRegex = "https://cdn.discordapp.com/attachments/(\\d{18})/(\\d{18})/(.*\$)".toRegex()
+    private const val urlPrefix = "https://cdn.dircordapp.com/attachments"
 
     init {
         string("url") { urlArg ->
@@ -21,7 +22,7 @@ object RickRollCommand : BotCommand(
                     message.channel.error("Invalid url!")
                     return@execute
                 }
-                val redirectLink = url.replace(cdnRegex, "https://cdn.dircordapp.com/attachments/$1/$2/$3")
+                val redirectLink = url.replace(cdnRegex, "$urlPrefix/$1/$2/$3")
                 message.delete()
                 message.channel.send(redirectLink)
             }
