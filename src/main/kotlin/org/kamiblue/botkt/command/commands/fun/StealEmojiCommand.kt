@@ -27,6 +27,7 @@ object StealEmojiCommand : BotCommand(
 
                 if (!emoji.isCustom) {
                     message.channel.error("Emoji must be a custom emoji")
+                    return@executeIfHas
                 }
 
                 val extension = if (emojiArg.value.animated) "gif" else "png"
