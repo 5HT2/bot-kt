@@ -24,11 +24,51 @@ object ReactionUtils {
         }
     }
 
+    /**
+     * Add [emoji] reaction
+     */
     suspend fun Message.addReaction(emoji: Emoji) {
         Main.discordHttp.put<Unit> {
             url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions/${emoji.urlCoded}/@me")
         }
     }
+
+    /**
+     * Remove [emoji] reaction from bot itself
+     */
+    suspend fun Message.removeReaction(emoji: Emoji) {
+        Main.discordHttp.delete<Unit> {
+            url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions/${emoji.urlCoded}/@me")
+        }
+    }
+
+    /**
+     * Remove [emoji] reaction from [user]
+     */
+    suspend fun Message.removeReaction(user: User, emoji: Emoji) {
+        Main.discordHttp.delete<Unit> {
+            url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions/${emoji.urlCoded}/${user.id}")
+        }
+    }
+
+    /**
+     * Clear all [emoji] reactions
+     */
+    suspend fun Message.clearReaction(emoji: Emoji) {
+        Main.discordHttp.delete<Unit> {
+            url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions/${emoji.urlCoded}")
+        }
+    }
+
+    /**
+     * Clear all reactions
+     */
+    suspend fun Message.clearReaction() {
+        Main.discordHttp.delete<Unit> {
+            url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions")
+        }
+    }
+
 
     /**
      * [allReactions] will remove all reactions on a message
