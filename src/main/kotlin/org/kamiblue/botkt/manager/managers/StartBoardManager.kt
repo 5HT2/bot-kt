@@ -31,12 +31,12 @@ object StartBoardManager : Manager {
                 val channel = server.channels.find(it.reaction.channelId) as? TextChannel? ?: return@asyncListener
                 val message = channel.getMessage(it.reaction.messageId) ?: return@asyncListener
                 val cfg = startBoardConfig ?: run {
-                    Main.logger.warn("Star board config not found")
+                    Main.logger.warn("Starboard config not found")
                     return@asyncListener
                 }
 
                 val startBoardChannel = cfg.channels[server.id] ?: run {
-                    Main.logger.info("Star board channel not found for server ${server.id}")
+                    Main.logger.info("Starboard channel not found for server ${server.id}")
                     return@asyncListener
                 }
 
