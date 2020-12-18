@@ -29,6 +29,7 @@ object StarboardManager : Manager {
                 val server = it.server ?: return@asyncListener
                 val channel = server.channels.find(it.reaction.channelId) as? TextChannel? ?: return@asyncListener
                 val message = channel.getMessage(it.reaction.messageId) ?: return@asyncListener
+                val image = message.getAttachedImageUrl()
                 val cfg = starBoard ?: run {
                     Main.logger.warn("Starboard config not found")
                     return@asyncListener
@@ -39,8 +40,8 @@ object StarboardManager : Manager {
                     return@asyncListener
                 }
 
-                if (starBoardChannel == it.reaction.channelId) return@asyncListener
-                if (message.content.isBlank()) return@asyncListener
+                if (starBoardChannel == channel.id) return@asyncListener
+                if (image == null && message.content.isBlank()) return@asyncListener
 
                 val reactionUsers = message.getReactions(Emoji("⭐"))
                 Main.logger.debug("Star received, message ${message.id} now has ${reactionUsers.size} star")
@@ -54,7 +55,7 @@ object StarboardManager : Manager {
                                 message.author?.avatar?.url
                             )
                             description = message.content
-                            imageUrl = message.getAttachedImageUrl()
+                            imageUrl = image
                             color = Color(255, 172, 51)
                             footer("Message ID: ${message.id}")
                             timestamp = message.timestamp
