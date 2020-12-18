@@ -72,7 +72,7 @@ object MuteCommand : BotCommand(
             return
         }
 
-        if (user.id.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
+        if (user.hasPermission(PermissionTypes.COUNCIL_MEMBER)) {
             message.error("That user is protected, I can't do that.")
             return
         }
