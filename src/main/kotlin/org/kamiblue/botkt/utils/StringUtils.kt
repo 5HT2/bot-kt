@@ -15,6 +15,4 @@ object StringUtils {
     fun String.urlEncode(): String = URLEncoder.encode(this, "utf-8")
 
     fun String.toUserID() = this.replace("[<@!>]".toRegex(), "").toLongOrNull()
-
-    fun String.isBlankOrEmpty() = this.isBlank() || this.isEmpty()
 }
