@@ -16,7 +16,7 @@ object UUIDManager : AbstractUUIDManager("cache/uuid.json"), Manager {
 
         listener<ShutdownEvent> {
             try {
-                load()
+                save()
             } catch (e :Exception) {
                 Main.logger.warn("Failed to save UUID cache", e)
             }
