@@ -15,6 +15,7 @@ import org.kamiblue.botkt.manager.managers.MuteManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.MessageUtils.success
+import org.kamiblue.botkt.utils.formatDuration
 
 object MuteCommand : BotCommand(
     name = "mute",
@@ -132,36 +133,6 @@ object MuteCommand : BotCommand(
         sendMutedMessage(member, message, server, formattedDuration, reason)
         startUnmuteCoroutine(member, mutedRole, duration)
     }
-
-    private fun formatDuration(duration: Long): String {
-        val day = duration / 86400000L
-        val hour = duration / 3600000L % 24L
-        val minute = duration / 60000L % 60L
-        val second = duration / 1000L % 60L
-
-        return StringBuilder(4).apply {
-            var added = false
-
-            if (added || day != 0L) {
-                append(grammar(day, "day"))
-                added = true
-            }
-
-            if (added || hour != 0L) {
-                append(grammar(hour, "hour"))
-                added = true
-            }
-
-            if (added || minute != 0L) {
-                append(grammar(minute, "minute"))
-            }
-
-            append(grammar(second, "second", false))
-        }.toString()
-    }
-
-    private fun grammar(long: Long, string: String, appendSpace: Boolean = true) =
-        (if (long > 1 || long == 0L) "$long ${string}s" else "$long $string") + if (appendSpace) " " else ""
 
     private suspend fun sendMutedMessage(
         member: Member,

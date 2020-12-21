@@ -20,12 +20,14 @@ import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.manager.ManagerLoader
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
+import java.time.Instant
 import kotlin.system.exitProcess
 
 object Main {
 
     const val currentVersion = "v1.5.6"
 
+    val startUpTime: Instant = Instant.now()
     @Suppress("EXPERIMENTAL_API_USAGE")
     val mainScope = CoroutineScope(newSingleThreadContext("Bot-kt Main"))
     val logger: Logger = LogManager.getLogger("Bot-kt")
