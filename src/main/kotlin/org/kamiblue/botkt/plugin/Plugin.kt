@@ -5,6 +5,7 @@ import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.commons.interfaces.Nameable
+import org.kamiblue.event.ListenerManager
 
 abstract class Plugin(
     override val name: String,
@@ -26,12 +27,21 @@ abstract class Plugin(
     fun unregister() {
         managers.forEach {
             BotEventBus.unsubscribe(it)
+            ListenerManager.unregister(it)
         }
         commands.forEach {
             CommandManager.unregister(it)
+            ListenerManager.unregister(it)
         }
     }
 
     abstract fun onLoad()
     abstract fun onUnload()
+
+    override fun equals(other: Any?) = this === other
+        || (other is Plugin
+        && name == other.name)
+
+    override fun hashCode() = name.hashCode()
+
 }
