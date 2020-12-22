@@ -1,6 +1,7 @@
 package org.kamiblue.botkt.plugin
 
 import org.kamiblue.botkt.BackgroundJob
+import org.kamiblue.botkt.BackgroundScope
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.event.BotEventBus
@@ -24,6 +25,9 @@ abstract class Plugin(
         commands.forEach {
             CommandManager.register(it)
         }
+        backgroundJobs.forEach {
+            BackgroundScope.launchLooping(it)
+        }
     }
 
     internal fun unregister() {
@@ -34,6 +38,9 @@ abstract class Plugin(
         commands.forEach {
             CommandManager.unregister(it)
             ListenerManager.unregister(it)
+        }
+        backgroundJobs.forEach {
+            BackgroundScope.cancel(it)
         }
     }
 

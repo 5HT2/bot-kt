@@ -20,11 +20,14 @@ internal object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThrea
     }
 
     fun launchLooping(name: String, delay: Long, block: suspend TimerScope.() -> Unit) {
-        val job = BackgroundJob(name, delay, block)
+        launchLooping(BackgroundJob(name, delay, block))
+    }
+
+    fun launchLooping(job: BackgroundJob) {
         if (!started) {
             jobs[job] = null
         } else {
-            startJob(job)
+            jobs[job] = startJob(job)
         }
     }
 
