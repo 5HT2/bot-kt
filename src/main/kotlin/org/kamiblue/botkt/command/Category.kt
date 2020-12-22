@@ -5,7 +5,7 @@ import org.kamiblue.commons.interfaces.DisplayEnum
 
 enum class Category(
     override val displayName: String,
-    val commands: ArrayList<Command<MessageExecuteEvent>> = ArrayList()
+    val commands: LinkedHashSet<Command<MessageExecuteEvent>> = LinkedHashSet()
 ) : DisplayEnum {
     FUN("Fun"),
     GITHUB("Github"),

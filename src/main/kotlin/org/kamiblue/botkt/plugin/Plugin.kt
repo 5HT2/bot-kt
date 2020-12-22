@@ -7,7 +7,9 @@ import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.commons.interfaces.Nameable
 
 abstract class Plugin(
-    override val name: String
+    override val name: String,
+    val author: String,
+    val version: String
 ) : Nameable {
     val managers = ArrayList<Manager>()
     val commands = ArrayList<BotCommand>()
@@ -18,7 +20,6 @@ abstract class Plugin(
         }
         commands.forEach {
             CommandManager.register(it)
-            BotEventBus.subscribe(it)
         }
     }
 
@@ -28,7 +29,6 @@ abstract class Plugin(
         }
         commands.forEach {
             CommandManager.unregister(it)
-            BotEventBus.unsubscribe(it)
         }
     }
 
