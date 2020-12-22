@@ -15,7 +15,7 @@ abstract class Plugin(
     val managers = ArrayList<Manager>()
     val commands = ArrayList<BotCommand>()
 
-    fun register() {
+    internal fun register() {
         managers.forEach {
             BotEventBus.subscribe(it)
         }
@@ -24,7 +24,7 @@ abstract class Plugin(
         }
     }
 
-    fun unregister() {
+    internal fun unregister() {
         managers.forEach {
             BotEventBus.unsubscribe(it)
             ListenerManager.unregister(it)

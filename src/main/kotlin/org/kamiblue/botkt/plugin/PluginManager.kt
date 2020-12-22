@@ -4,15 +4,15 @@ import org.kamiblue.botkt.Main
 import org.kamiblue.commons.collections.NameableSet
 import java.io.File
 
-object PluginManager {
+internal object PluginManager {
 
-    internal val loadedPlugins = NameableSet<Plugin>()
-    internal val pluginLoaderMap = HashMap<Plugin, PluginLoader>()
-    internal val pluginPath = "plugins/"
+    val loadedPlugins = NameableSet<Plugin>()
+    val pluginLoaderMap = HashMap<Plugin, PluginLoader>()
+    val pluginPath = "plugins/"
 
     private val lockObject = Any()
 
-    internal fun preLoad(): List<PluginLoader> {
+    fun preLoad(): List<PluginLoader> {
         // Create directory if not exist
         val dir = File(pluginPath)
         if (!dir.exists()) dir.mkdir()
@@ -36,7 +36,7 @@ object PluginManager {
         return plugins
     }
 
-    internal fun loadAll(plugins: List<PluginLoader>) {
+    fun loadAll(plugins: List<PluginLoader>) {
         synchronized(lockObject) {
             plugins.forEach {
                 val plugin = it.load()
@@ -49,7 +49,7 @@ object PluginManager {
         Main.logger.info("Loaded ${loadedPlugins.size} plugins!")
     }
 
-    internal fun load(loader: PluginLoader) {
+    fun load(loader: PluginLoader) {
         val plugin = synchronized(lockObject) {
             val plugin = loader.load()
             plugin.onLoad()
@@ -61,7 +61,7 @@ object PluginManager {
         Main.logger.info("Loaded plugin ${plugin.name}")
     }
 
-    internal fun unloadAll() {
+    fun unloadAll() {
         synchronized(lockObject) {
             loadedPlugins.forEach {
                 it.unregister()
@@ -73,7 +73,7 @@ object PluginManager {
         Main.logger.info("Unloaded all plugins!")
     }
 
-    internal fun unload(plugin: Plugin) {
+    fun unload(plugin: Plugin) {
         synchronized(lockObject) {
             if (loadedPlugins.remove(plugin)) {
                 plugin.unregister()

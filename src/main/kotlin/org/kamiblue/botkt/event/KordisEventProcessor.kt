@@ -15,7 +15,7 @@ import net.ayataka.kordis.event.events.server.role.RoleUpdateEvent
 import net.ayataka.kordis.event.events.server.user.*
 
 @Suppress("UNUSED")
-object KordisEventProcessor {
+internal object KordisEventProcessor {
 
     /* Message */
     @EventHandler

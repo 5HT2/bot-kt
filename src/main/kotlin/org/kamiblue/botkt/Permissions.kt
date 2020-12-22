@@ -15,7 +15,7 @@ object Permissions {
         } ?: false
     }
 
-    suspend fun Message.missingPermissions(permission: PermissionTypes) {
+    internal suspend fun Message.missingPermissions(permission: PermissionTypes) {
         this.channel.send {
             embed {
                 title = "Missing permission"

@@ -4,7 +4,7 @@ import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.commons.utils.ClassUtils
 
-object ManagerLoader {
+internal object ManagerLoader {
 
     fun load() {
         val managerClasses = ClassUtils.findClasses("org.kamiblue.botkt.manager.managers", Manager::class.java)

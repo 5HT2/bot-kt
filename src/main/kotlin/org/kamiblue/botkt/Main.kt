@@ -53,7 +53,7 @@ object Main {
         Console.start()
     }
 
-    fun exit() {
+    internal fun exit() {
         exitProcess(0)
     }
 

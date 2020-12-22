@@ -21,7 +21,7 @@ import org.kamiblue.commons.extension.max
 import org.kamiblue.commons.utils.ClassUtils
 import org.kamiblue.event.listener.asyncListener
 
-object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
+internal object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
     private val commandScope = CoroutineScope(Dispatchers.Default + CoroutineName("Bot-kt Command"))
 

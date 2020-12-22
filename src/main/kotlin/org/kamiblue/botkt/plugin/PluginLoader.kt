@@ -10,7 +10,7 @@ import java.net.URLClassLoader
 import java.security.MessageDigest
 import java.util.jar.JarInputStream
 
-class PluginLoader(
+internal class PluginLoader(
     val file: File
 ) {
 
