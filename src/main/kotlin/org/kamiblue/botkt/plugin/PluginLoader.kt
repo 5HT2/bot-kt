@@ -11,7 +11,7 @@ import java.security.MessageDigest
 import java.util.jar.JarInputStream
 
 class PluginLoader(
-    private val file: File
+    val file: File
 ) {
 
     private val url = file.toURI().toURL()

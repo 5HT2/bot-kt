@@ -7,10 +7,10 @@ import java.io.File
 object PluginManager {
 
     internal val loadedPlugins = NameableSet<Plugin>()
-    private val pluginLoaderMap = HashMap<Plugin, PluginLoader>()
+    internal val pluginLoaderMap = HashMap<Plugin, PluginLoader>()
+    internal val pluginPath = "plugins/"
 
     private val lockObject = Any()
-    private val pluginPath = "plugins/"
 
     internal fun preLoad(): List<PluginLoader> {
         // Create directory if not exist
