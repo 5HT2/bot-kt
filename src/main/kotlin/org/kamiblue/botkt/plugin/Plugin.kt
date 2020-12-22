@@ -1,5 +1,6 @@
 package org.kamiblue.botkt.plugin
 
+import org.kamiblue.botkt.BackgroundJob
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.event.BotEventBus
@@ -14,6 +15,7 @@ abstract class Plugin(
 ) : Nameable {
     val managers = ArrayList<Manager>()
     val commands = ArrayList<BotCommand>()
+    val backgroundJobs = ArrayList<BackgroundJob>()
 
     internal fun register() {
         managers.forEach {

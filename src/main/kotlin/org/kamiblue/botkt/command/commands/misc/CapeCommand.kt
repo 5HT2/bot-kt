@@ -356,7 +356,7 @@ object CapeCommand : BotCommand(
             save()
         }
 
-        BackgroundScope.add(300000, "Failed to save/commit capes") {
+        BackgroundScope.launchLooping("Capes saving", 300000) {
             save()
             Main.logger.debug("Saved capes")
             delay(300000)

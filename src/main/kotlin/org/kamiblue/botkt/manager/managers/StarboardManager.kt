@@ -71,7 +71,7 @@ object StarboardManager : Manager {
             ConfigManager.writeConfig(ConfigType.STAR_BOARD)
         }
 
-        BackgroundScope.add(300000L, "Failed to save starboard config") {
+        BackgroundScope.launchLooping("Star board config", 300000L) {
             ConfigManager.writeConfig(ConfigType.STAR_BOARD)
         }
     }
