@@ -3,11 +3,12 @@ package org.kamiblue.botkt.plugin
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.kamiblue.botkt.Main
+import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileNotFoundException
 import java.lang.reflect.Type
 import java.net.URLClassLoader
 import java.security.MessageDigest
+import java.util.jar.JarInputStream
 
 class PluginLoader(
     private val file: File
@@ -15,12 +16,41 @@ class PluginLoader(
 
     private val url = file.toURI().toURL()
     private val loader = URLClassLoader(arrayOf(url), this.javaClass.classLoader)
-    private val mainClassPath: String = loader.getResourceAsStream("plugin.info")
-        ?.use { stream ->
-            stream.reader().use {
-                it.readText()
+    private val mainClassPath: String
+
+    init {
+        mainClassPath = readClassPath()
+            ?:scanForPath()
+                ?: throw ClassNotFoundException("Plugin main class not found in jar ${file.name}")
+    }
+
+    private fun readClassPath(): String? {
+        return loader.getResourceAsStream("plugin.info")?.use { stream ->
+            ByteArrayOutputStream().use { result ->
+                stream.copyTo(result)
+                result.toString("UTF-8")
             }
-        } ?: throw FileNotFoundException("plugin.info is not found under jar ${file.name}")
+        }
+    }
+
+    private fun scanForPath(): String? {
+        Main.logger.warn("plugin.info is not found under jar ${file.name}, scanning for main class")
+        file.inputStream().use { stream ->
+            JarInputStream(stream).use {
+                var entry = it.nextJarEntry
+                while (entry != null) {
+                    if (!entry.isDirectory && entry.name.endsWith(".class")) {
+                        val pack = entry.name.removeSuffix(".class")
+                            .replace('/', '.')
+                        val clazz = Class.forName(pack, false, loader)
+                        if (pluginClass.isAssignableFrom(clazz)) return pack
+                    }
+                    entry = it.nextJarEntry
+                }
+            }
+        }
+        return null
+    }
 
     fun verify(): Boolean {
         val bytes = file.inputStream().use {
@@ -49,6 +79,7 @@ class PluginLoader(
     }
 
     private companion object {
+        val pluginClass = Plugin::class.java
         val sha256: MessageDigest = MessageDigest.getInstance("SHA-256")
         val type: Type = object : TypeToken<HashSet<String>>() {}.type
         val checksumSets = runCatching<HashSet<String>> {

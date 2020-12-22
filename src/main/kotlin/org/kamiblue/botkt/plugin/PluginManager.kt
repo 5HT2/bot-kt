@@ -3,7 +3,6 @@ package org.kamiblue.botkt.plugin
 import org.kamiblue.botkt.Main
 import org.kamiblue.commons.collections.NameableSet
 import java.io.File
-import java.io.FileNotFoundException
 
 object PluginManager {
 
@@ -27,7 +26,7 @@ object PluginManager {
                 val loader = PluginLoader(it)
                 loader.verify()
                 plugins.add(loader)
-            } catch (e: FileNotFoundException) {
+            } catch (e: ClassNotFoundException) {
                 Main.logger.info("${it.name} is not a valid plugin, skipping")
             } catch (e: Exception) {
                 Main.logger.error("Failed to prepare plugin ${it.name}", e)
