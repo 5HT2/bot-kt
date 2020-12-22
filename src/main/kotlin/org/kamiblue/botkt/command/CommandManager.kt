@@ -48,16 +48,20 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
     }
 
     override fun register(builder: CommandBuilder<MessageExecuteEvent>): Command<MessageExecuteEvent> {
-        BotEventBus.subscribe(builder)
-        return super.register(builder).also {
-            (builder as BotCommand).category.commands.add(it)
+        synchronized(lockObject) {
+            BotEventBus.subscribe(builder)
+            return super.register(builder).also {
+                (builder as BotCommand).category.commands.add(it)
+            }
         }
     }
 
     override fun unregister(builder: CommandBuilder<MessageExecuteEvent>): Command<MessageExecuteEvent>? {
-        BotEventBus.unsubscribe(builder)
-        return super.unregister(builder)?.also {
-            (builder as BotCommand).category.commands.remove(it)
+        synchronized(lockObject) {
+            BotEventBus.unsubscribe(builder)
+            return super.unregister(builder)?.also {
+                (builder as BotCommand).category.commands.remove(it)
+            }
         }
     }
 
