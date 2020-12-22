@@ -6,7 +6,7 @@ import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.manager.Manager
-import org.kamiblue.botkt.utils.CloseableList
+import org.kamiblue.commons.collections.CloseableList
 import org.kamiblue.commons.interfaces.Nameable
 import org.kamiblue.event.ListenerManager
 
