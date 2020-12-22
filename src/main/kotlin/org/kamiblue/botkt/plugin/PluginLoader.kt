@@ -15,13 +15,12 @@ class PluginLoader(
 
     private val url = file.toURI().toURL()
     private val loader = URLClassLoader(arrayOf(url), this.javaClass.classLoader)
-    private val mainClassPath: String
-
-    init {
-        val stream = loader.getResourceAsStream("plugin.info")
-            ?: throw FileNotFoundException("plugin.info is not found under jar ${file.name}")
-        mainClassPath = stream.reader().readText()
-    }
+    private val mainClassPath: String = loader.getResourceAsStream("plugin.info")
+        ?.use { stream ->
+            stream.reader().use {
+                it.readText()
+            }
+        } ?: throw FileNotFoundException("plugin.info is not found under jar ${file.name}")
 
     fun verify(): Boolean {
         val bytes = file.inputStream().use {
@@ -45,10 +44,16 @@ class PluginLoader(
         return clazz.newInstance() as Plugin
     }
 
+    fun close() {
+        loader.close()
+    }
+
     private companion object {
         val sha256: MessageDigest = MessageDigest.getInstance("SHA-256")
         val type: Type = object : TypeToken<HashSet<String>>() {}.type
-        val checksumSets: HashSet<String> = Gson().fromJson(File("verify.json").bufferedReader(), type)
+        val checksumSets = runCatching<HashSet<String>> {
+            Gson().fromJson(File("verify.json").bufferedReader(), type)
+        }.getOrElse { HashSet() }
     }
 
 }

@@ -8,51 +8,58 @@ import java.io.FileNotFoundException
 object PluginManager {
 
     internal val loadedPlugins = NameableSet<Plugin>()
+    private val pluginLoaderMap = HashMap<Plugin, PluginLoader>()
 
     private val lockObject = Any()
     private val pluginPath = "plugins/"
 
-    internal fun preLoad(): List<Plugin> {
+    internal fun preLoad(): List<PluginLoader> {
         // Create directory if not exist
         val dir = File(pluginPath)
         if (!dir.exists()) dir.mkdir()
 
         val files = dir.listFiles() ?: return emptyList()
         val jarFiles = files.filter { it.extension.equals("jar", true) }
-        val plugins = ArrayList<Plugin>()
+        val plugins = ArrayList<PluginLoader>()
 
         jarFiles.forEach {
             try {
                 val loader = PluginLoader(it)
-                plugins.add(loader.load())
+                loader.verify()
+                plugins.add(loader)
             } catch (e: FileNotFoundException) {
                 Main.logger.info("${it.name} is not a valid plugin, skipping")
             } catch (e: Exception) {
-                Main.logger.error("Failed to load plugin ${it.name}", e)
+                Main.logger.error("Failed to prepare plugin ${it.name}", e)
             }
         }
 
         return plugins
     }
 
-    internal fun loadAll(plugins: List<Plugin>) {
+    internal fun loadAll(plugins: List<PluginLoader>) {
         synchronized(lockObject) {
             plugins.forEach {
-                it.onLoad()
-                it.register()
-                loadedPlugins.add(it)
+                val plugin = it.load()
+                plugin.onLoad()
+                plugin.register()
+                loadedPlugins.add(plugin)
+                pluginLoaderMap[plugin] = it
             }
         }
         Main.logger.info("Loaded ${loadedPlugins.size} plugins!")
     }
 
-    internal fun load(plugin: Plugin) {
-        synchronized(lockObject) {
+    internal fun load(loader: PluginLoader) {
+        val plugin = synchronized(lockObject) {
+            val plugin = loader.load()
             plugin.onLoad()
             plugin.register()
             loadedPlugins.add(plugin)
+            pluginLoaderMap[plugin] = loader
+            plugin
         }
-        Main.logger.info("Loaded plugin $plugin")
+        Main.logger.info("Loaded plugin ${plugin.name}")
     }
 
     internal fun unloadAll() {
@@ -60,6 +67,7 @@ object PluginManager {
             loadedPlugins.forEach {
                 it.unregister()
                 it.onUnload()
+                pluginLoaderMap[it]?.close()
             }
             loadedPlugins.clear()
         }
@@ -71,6 +79,7 @@ object PluginManager {
             if (loadedPlugins.remove(plugin)) {
                 plugin.unregister()
                 plugin.onUnload()
+                pluginLoaderMap[plugin]?.close()
             }
         }
     }
