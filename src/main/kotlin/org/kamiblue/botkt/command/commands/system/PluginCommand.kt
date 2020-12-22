@@ -25,7 +25,7 @@ object PluginCommand : BotCommand(
                     }
 
                     val time = System.currentTimeMillis()
-                    val message = message.channel.send("Loading plugins $name...")
+                    val message = message.channel.send("Loading plugin $name...")
 
                     val loader = PluginLoader(file)
                     val plugin = loader.load()
@@ -53,7 +53,7 @@ object PluginCommand : BotCommand(
                     }
 
                     val time = System.currentTimeMillis()
-                    val message = message.channel.send("Reloading plugins $name...")
+                    val message = message.channel.send("Reloading plugin $name...")
 
                     val file = PluginManager.pluginLoaderMap[plugin]!!.file
                     PluginManager.unload(plugin)
@@ -88,7 +88,7 @@ object PluginCommand : BotCommand(
                     }
 
                     val time = System.currentTimeMillis()
-                    val message = message.channel.send("Unloading plugins $name...")
+                    val message = message.channel.send("Unloading plugin $name...")
 
                     PluginManager.unload(plugin)
 
