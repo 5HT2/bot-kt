@@ -6,6 +6,7 @@ import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.manager.Manager
+import org.kamiblue.botkt.utils.CloseableList
 import org.kamiblue.commons.interfaces.Nameable
 import org.kamiblue.event.ListenerManager
 
@@ -14,11 +15,15 @@ abstract class Plugin(
     val author: String,
     val version: String
 ) : Nameable {
-    val managers = ArrayList<Manager>()
-    val commands = ArrayList<BotCommand>()
-    val backgroundJobs = ArrayList<BackgroundJob>()
+    val managers = CloseableList<Manager>()
+    val commands = CloseableList<BotCommand>()
+    val backgroundJobs = CloseableList<BackgroundJob>()
 
     internal fun register() {
+        managers.close()
+        commands.close()
+        backgroundJobs.close()
+
         managers.forEach {
             BotEventBus.subscribe(it)
         }
