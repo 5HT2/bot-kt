@@ -19,6 +19,7 @@ import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.manager.ManagerLoader
 import org.kamiblue.botkt.manager.managers.ConfigManager
+import org.kamiblue.botkt.plugin.PluginManager
 import org.kamiblue.botkt.utils.Colors
 import kotlin.system.exitProcess
 
@@ -68,6 +69,7 @@ object Main {
             val started = System.currentTimeMillis()
 
             logger.info("Starting bot!")
+            val deferred = mainScope.async { PluginManager.preLoad() }
             login()
 
             UpdateHelper.writeVersion(currentVersion)
@@ -78,6 +80,7 @@ object Main {
 
             CommandManager.init()
             ManagerLoader.load()
+            PluginManager.loadAll(deferred.await())
             initHttpClients()
 
             client.addListener(KordisEventProcessor)
