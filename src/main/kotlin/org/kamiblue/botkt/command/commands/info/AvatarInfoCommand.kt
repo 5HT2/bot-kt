@@ -31,7 +31,7 @@ object AvatarInfoCommand : BotCommand(
         }
 
         user("user") { userArg ->
-            execute("Show the users avatar in an embed") {
+            execute("Send the users avatar in an embed") {
                 message.sendAvatar(userArg.value)
             }
         }
