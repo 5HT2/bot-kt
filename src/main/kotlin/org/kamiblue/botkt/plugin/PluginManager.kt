@@ -8,7 +8,7 @@ internal object PluginManager {
 
     val loadedPlugins = NameableSet<Plugin>()
     val pluginLoaderMap = HashMap<Plugin, PluginLoader>()
-    val pluginPath = "plugins/"
+    const val pluginPath = "plugins/"
 
     private val lockObject = Any()
 
@@ -27,9 +27,9 @@ internal object PluginManager {
                 loader.verify()
                 plugins.add(loader)
             } catch (e: ClassNotFoundException) {
-                Main.logger.info("${it.name} is not a valid plugin, skipping")
+                Main.logger.info("${it.name} is not a valid plugin, skipping.")
             } catch (e: Exception) {
-                Main.logger.error("Failed to prepare plugin ${it.name}", e)
+                Main.logger.error("Failed to prepare plugin ${it.name}!", e)
             }
         }
 
@@ -39,11 +39,7 @@ internal object PluginManager {
     fun loadAll(plugins: List<PluginLoader>) {
         synchronized(lockObject) {
             plugins.forEach {
-                val plugin = it.load()
-                plugin.onLoad()
-                plugin.register()
-                loadedPlugins.add(plugin)
-                pluginLoaderMap[plugin] = it
+                load(it)
             }
         }
         Main.logger.info("Loaded ${loadedPlugins.size} plugins!")
@@ -58,7 +54,7 @@ internal object PluginManager {
             pluginLoaderMap[plugin] = loader
             plugin
         }
-        Main.logger.info("Loaded plugin ${plugin.name}")
+        Main.logger.info("Loaded plugin ${plugin.name}!")
     }
 
     fun unloadAll() {
@@ -81,6 +77,7 @@ internal object PluginManager {
                 pluginLoaderMap[plugin]?.close()
             }
         }
+        Main.logger.info("Unloaded plugin ${plugin.name}!")
     }
 
 }
