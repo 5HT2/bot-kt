@@ -12,6 +12,7 @@ class MessageExecuteEvent(
 ) : ExecuteEvent(CommandManager, args), MessageEvent by event {
 
     val message by event::message
+    val channel = message.channel
 
     fun ArgIdentifier<Long>.getTextChannelOrNull(): TextChannel? =
         server?.let {
