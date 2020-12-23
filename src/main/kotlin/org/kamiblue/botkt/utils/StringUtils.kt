@@ -8,11 +8,13 @@ object StringUtils {
 
     fun String.isUrl() = urlRegex.matches(this)
 
-    fun String.toHumanReadable() = this.toLowerCase().replace(humanReadableRegex, " ").capitalizeWords()
+    fun String.toHumanReadable() = toLowerCase().replace(humanReadableRegex, " ").capitalizeWords()
 
     fun String.capitalizeWords(): String = split(" ").joinToString(" ") { it.capitalize() }
 
     fun String.urlEncode(): String = URLEncoder.encode(this, "utf-8")
 
-    fun String.toUserID() = this.replace("[<@!>]".toRegex(), "").toLongOrNull()
+    fun String.toUserID() = replace("[<@!>]".toRegex(), "").toLongOrNull()
+
+    fun String.elseEmpty(alternate: String) = if (isEmpty()) alternate else this
 }
