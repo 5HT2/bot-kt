@@ -50,15 +50,16 @@ object TicketCommand : BotCommand(
         }
 
         asyncListener<MessageReceiveEvent> { event ->
-            val server = event.message.server
-            val author = event.message.author
+            val server = event.message.server ?: return@asyncListener
+            val author = event.message.author ?: return@asyncListener
+            val ticketCategory = config?.ticketCategory?.let { server.channelCategories.find(it) } ?: return@asyncListener
 
             if (author.hasPermission(PermissionTypes.COUNCIL_MEMBER)) return@asyncListener
 
-            config?.ticketCreateChannel?.let {
+            config.ticketCreateChannel?.let {
                 if (event.message.channel.id != it) return@asyncListener
 
-                if (author?.bot == true) {
+                if (author.bot) {
                     if (author.id != Main.client.botUser.id) {
                         event.message.delete() // we clean up our own messages later
                     }
@@ -68,48 +69,45 @@ object TicketCommand : BotCommand(
                 val everyone = event.message.server?.id?.let { serverId -> event.message.server?.roles?.find(serverId) }
                     ?: return@asyncListener
 
-                config.ticketCategory?.let { configTicketCategory ->
-                    val ticketCategory = server?.channelCategories?.find(configTicketCategory) ?: return@asyncListener
-                    val tickets = server.textChannels.filter { channels -> channels.category == ticketCategory }
+                val tickets = server.textChannels.filter { channels -> channels.category == ticketCategory }
 
-                    val ticket = server.createTextChannel {
-                        name = "ticket-${tickets.size}"
-                        topic = "${author?.id} ${Instant.now().prettyFormat()}"
-                        category = ticketCategory
-                    }
-
-                    ticket.edit {
-                        userPermissionOverwrites.add(UserPermissionOverwrite(author!!, PermissionSet(117760)))
-                        rolePermissionOverwrites.add(
-                            RolePermissionOverwrite(
-                                everyone,
-                                PermissionSet(0),
-                                PermissionSet(3072)
-                            )
-                        )
-                    }
-
-                    ticket.send(
-                        "${author?.mention} "
-                            + config.ticketPingRole?.let { role ->
-                            "<@&$role>"
-                        }
-                    )
-
-                    ticket.send {
-                        embed {
-                            title = "Ticket Created!"
-                            description = event.message.content
-                            color = Colors.SUCCESS.color
-                            footer("ID: ${author?.id}", author?.avatar?.url)
-                        }
-                    }
-
-                    val feedback = event.message.channel.success("${author?.mention} Created ticket! Go to ${ticket.mention}!")
-                    delay(5000)
-                    feedback.delete()
-                    event.message.delete()
+                val ticket = server.createTextChannel {
+                    name = "ticket-${tickets.size}"
+                    topic = "${author.id} ${Instant.now().prettyFormat()}"
+                    category = ticketCategory
                 }
+
+                ticket.edit {
+                    userPermissionOverwrites.add(UserPermissionOverwrite(author, PermissionSet(117760)))
+                    rolePermissionOverwrites.add(
+                        RolePermissionOverwrite(
+                            everyone,
+                            PermissionSet(0),
+                            PermissionSet(3072)
+                        )
+                    )
+                }
+
+                ticket.send(
+                    "${author.mention} "
+                        + config.ticketPingRole?.let { role ->
+                        "<@&$role>"
+                    }
+                )
+
+                ticket.send {
+                    embed {
+                        title = "Ticket Created!"
+                        description = event.message.content
+                        color = Colors.SUCCESS.color
+                        footer("ID: ${author.id}", author.avatar.url)
+                    }
+                }
+
+                val feedback = event.message.channel.success("${author.mention} Created ticket! Go to ${ticket.mention}!")
+                delay(5000)
+                feedback.delete()
+                event.message.delete()
             }
         }
     }
