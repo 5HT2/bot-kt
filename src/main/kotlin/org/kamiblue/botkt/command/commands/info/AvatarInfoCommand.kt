@@ -44,7 +44,7 @@ object AvatarInfoCommand : BotCommand(
         }
 
         if (full) {
-            channel.send(user.avatar.url)
+            channel.send(user.avatar.url + "?size=2048")
         } else {
             channel.send {
                 embed {
