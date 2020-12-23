@@ -176,19 +176,25 @@ object IssueCommand : BotCommand(
         }
 
         asyncListener<MessageReceiveEvent> { event ->
-            if (event.message.author?.bot == true) return@asyncListener
+            if (event.message.author?.bot == true && queuedIssues[event.message.id] == null) {
+                delay(5000)
+                event.message.delete()
+                return@asyncListener
+            }
 
-            if (event.message.author.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return@asyncListener
+            if (event.message.author.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) {
+                return@asyncListener
+            }
 
             val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
             issueChannel?.issueCreationChannel?.let {
                 if (it != event.message.channel.id) return@asyncListener // only run the following code on messages in the issue channel
             } ?: run {
-                return@asyncListener // issues are allowed inside any channel
+                return@asyncListener // no config, issues are allowed inside any channel
             }
 
-            if (event.message.content.isEmpty() || !event.message.content.startsWith("$name create")) {
-                val reply = event.message.channel.error("You need to use the `$name create` command to create an issue!")
+            if (event.message.content.isEmpty() || !event.message.content.startsWith("${Main.prefix}issue create")) {
+                val reply = event.message.channel.error("You need to use the `${Main.prefix}issue create` command to create an issue!")
 
                 event.message.delete()
                 delay(5000)
