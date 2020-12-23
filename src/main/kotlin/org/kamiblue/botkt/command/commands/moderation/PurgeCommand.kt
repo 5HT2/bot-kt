@@ -79,5 +79,6 @@ object PurgeCommand : BotCommand(
         msgs.deleteAll()
         delay(5000)
         response.delete()
+        message.delete()
     }
 }
