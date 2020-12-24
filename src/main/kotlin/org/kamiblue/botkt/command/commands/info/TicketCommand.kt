@@ -37,6 +37,7 @@ object TicketCommand : BotCommand(
     init {
         literal("saveall") {
             executeIfHas(COUNCIL_MEMBER, "Saves the last 100 messages. Do not use on new tickets.") {
+                val serverTextChannel = (channel as? ServerTextChannel)?: return@executeIfHas
                 val msgs = channel.getMessages().reversed()
                 val response = channel.normal("Saving `${msgs.size}` messages...")
 
@@ -44,7 +45,7 @@ object TicketCommand : BotCommand(
                     delay(100) // my poor ssd
                     logTicket(
                         timeAndAuthor(it.author, it.timestamp) + it.content.elseEmpty(messageEmpty),
-                        it.serverChannel,
+                        serverTextChannel,
                         it.author
                     )
                 }
@@ -232,18 +233,16 @@ object TicketCommand : BotCommand(
     private suspend fun closeTicket(message: Message, channel: ServerTextChannel) {
         logTicket(
             "${timeAndAuthor(message.author, message.timestamp)}Closed ticket `${channel.topic}`",
-            message.serverChannel
+            channel
         )
         channel.delete()
     }
 
-    private fun logTicket(content: String, channel: ServerTextChannel?, author: User? = null) {
-        if (channel?.topic.isNullOrBlank()) {
-            Main.logger.error("Cannot log message from ticket ${channel?.mention} / ${channel?.name} due to missing channel topic")
+    private fun logTicket(content: String, channel: ServerTextChannel, author: User? = null) {
+        if (channel.topic.isNullOrBlank()) {
+            Main.logger.error("Cannot log message from ticket ${channel.mention} / ${channel.name} due to missing channel topic")
             return
         }
-
-        channel ?: return
 
         val ticketName = if (channel.id == config?.ticketCreateChannel) channel.name
         else channel.topic!!.replace(" ", "_").replace(":", ".")
