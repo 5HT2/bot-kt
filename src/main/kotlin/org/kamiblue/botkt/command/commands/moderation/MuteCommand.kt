@@ -13,8 +13,8 @@ import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
 import org.kamiblue.botkt.manager.managers.MuteManager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageUtils.error
-import org.kamiblue.botkt.utils.MessageUtils.success
+import org.kamiblue.botkt.utils.error
+import org.kamiblue.botkt.utils.success
 
 object MuteCommand : BotCommand(
     name = "mute",

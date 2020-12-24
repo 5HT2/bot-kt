@@ -15,12 +15,8 @@ import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.manager.managers.UUIDManager
 import org.kamiblue.botkt.manager.managers.UUIDManager.UUIDFormatException
-import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageUtils.error
-import org.kamiblue.botkt.utils.MessageUtils.normal
-import org.kamiblue.botkt.utils.MessageUtils.success
+import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
-import org.kamiblue.botkt.utils.maxEmojiSlots
 import org.kamiblue.capeapi.*
 import org.kamiblue.commons.utils.MathUtils
 import org.kamiblue.event.listener.listener

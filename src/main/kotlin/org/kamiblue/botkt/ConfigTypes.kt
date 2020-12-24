@@ -121,13 +121,11 @@ data class JoinLeaveConfig(
  * @param ticketCategory channel category of where to create tickets, required
  * @param ticketCreateChannel channel where people can create tickets, required
  * @param ticketPingRole role to ping when new ticket created, optional
- * @param ticketUploadChannel webhook url
  */
 data class TicketConfig(
     val ticketCategory: Long?,
     val ticketCreateChannel: Long?,
-    val ticketPingRole: Long?,
-    val ticketUploadChannel: String?
+    val ticketPingRole: Long?
 )
 
 /**

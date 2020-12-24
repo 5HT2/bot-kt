@@ -2,8 +2,8 @@ package org.kamiblue.botkt.command.commands.`fun`
 
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
-import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.StringUtils.isUrl
+import org.kamiblue.botkt.utils.error
 
 object RickRollCommand : BotCommand(
     name = "rickroll",

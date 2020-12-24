@@ -4,9 +4,9 @@ import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
-import org.kamiblue.botkt.utils.MessageUtils.error
-import org.kamiblue.botkt.utils.MessageUtils.normal
-import org.kamiblue.botkt.utils.MessageUtils.success
+import org.kamiblue.botkt.utils.error
+import org.kamiblue.botkt.utils.normal
+import org.kamiblue.botkt.utils.success
 import org.kamiblue.commons.extension.max
 
 object ExceptionCommand : BotCommand(

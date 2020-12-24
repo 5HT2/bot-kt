@@ -6,7 +6,6 @@ import net.ayataka.kordis.entity.server.member.Member
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.*
-import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.StringUtils.toUserID
 

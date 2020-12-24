@@ -15,21 +15,15 @@ import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
-import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 import org.kamiblue.botkt.manager.managers.ConfigManager
-import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageUtils.error
-import org.kamiblue.botkt.utils.MessageUtils.normal
-import org.kamiblue.botkt.utils.MessageUtils.success
+import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.StringUtils.elseEmpty
-import org.kamiblue.botkt.utils.prettyFormat
 import org.kamiblue.commons.extension.max
 import org.kamiblue.event.listener.asyncListener
 import java.io.File
 import java.io.FileNotFoundException
 import java.time.Instant
 
-@Suppress("BlockingMethodInNonBlockingContext")
 object TicketCommand : BotCommand(
     name = "ticket",
     description = "Manage tickets",
@@ -65,17 +59,13 @@ object TicketCommand : BotCommand(
         literal("upload") {
             int("index") { indexArg ->
                 executeIfHas(COUNCIL_MEMBER, "Upload a closed ticket file") {
+                    val index = indexArg.value
                     try {
-                        getTickets().getOrNull(indexArg.value)?.let { // TODO: switch to proper file uploading when switching to JDA
-                            config?.ticketUploadChannel?.let { webhook ->
-                                "curl -F content=@\"${it.path}\" \"$webhook\"".systemBash()
-                                channel.success("Uploaded ticket with index `${indexArg.value}`")
-                            } ?: run {
-                                channel.error("`ticketUploadChannel` is not set")
-                            }
-                        }
+                        channel.upload(getTickets()[index])
+                    } catch (e: IndexOutOfBoundsException) {
+                        indexNotFound(index)
                     } catch (e: FileNotFoundException) {
-                        indexNotFound(indexArg.value)
+                        indexNotFound(index)
                     }
                 }
             }
@@ -104,7 +94,10 @@ object TicketCommand : BotCommand(
                             channel.send {
                                 embed {
                                     formatted.withIndex().forEach { contents ->
-                                        field("${contents.index + 1} / ${formatted.size}", contents.value.elseEmpty("Empty"))
+                                        field(
+                                            "${contents.index + 1} / ${formatted.size}",
+                                            contents.value.elseEmpty("Empty")
+                                        )
                                     }
                                     color = Colors.PRIMARY.color
                                 }
@@ -164,7 +157,8 @@ object TicketCommand : BotCommand(
             val server = message.server ?: return@asyncListener
             val author = message.author ?: return@asyncListener
             val channel = message.serverChannel ?: return@asyncListener
-            val ticketCategory = config?.ticketCategory?.let { server.channelCategories.find(it) } ?: return@asyncListener
+            val ticketCategory =
+                config?.ticketCategory?.let { server.channelCategories.find(it) } ?: return@asyncListener
 
             if (ticketCategory == channel.category) {
                 logTicket(
@@ -208,7 +202,10 @@ object TicketCommand : BotCommand(
                     )
                 }
 
-                logTicket("${timeAndAuthor(author, message.timestamp)}Created ticket: `${message.content}`".max(2048), ticket)
+                logTicket(
+                    "${timeAndAuthor(author, message.timestamp)}Created ticket: `${message.content}`".max(2048),
+                    ticket
+                )
 
                 ticket.send(
                     "${author.mention} "
@@ -233,7 +230,10 @@ object TicketCommand : BotCommand(
     }
 
     private suspend fun closeTicket(message: Message, channel: ServerTextChannel) {
-        logTicket("${timeAndAuthor(message.author, message.timestamp)}Closed ticket `${channel.topic}`", message.serverChannel)
+        logTicket(
+            "${timeAndAuthor(message.author, message.timestamp)}Closed ticket `${channel.topic}`",
+            message.serverChannel
+        )
         channel.delete()
     }
 

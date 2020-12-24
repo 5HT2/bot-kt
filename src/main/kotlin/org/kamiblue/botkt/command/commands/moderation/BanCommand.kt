@@ -14,9 +14,9 @@ import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageUtils.error
-import org.kamiblue.botkt.utils.MessageUtils.normal
 import org.kamiblue.botkt.utils.checkPermission
+import org.kamiblue.botkt.utils.error
+import org.kamiblue.botkt.utils.normal
 import org.kamiblue.commons.extension.max
 
 object BanCommand : BotCommand(
