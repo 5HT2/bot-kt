@@ -1,7 +1,10 @@
 package org.kamiblue.botkt.command.commands.info
 
 import kotlinx.coroutines.delay
+import net.ayataka.kordis.entity.everyone
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.server.Server
+import net.ayataka.kordis.entity.server.channel.category.ChannelCategory
 import net.ayataka.kordis.entity.server.channel.text.ServerTextChannel
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
@@ -30,7 +33,8 @@ object TicketCommand : BotCommand(
     category = Category.INFO
 ) {
 
-    private val config = ConfigManager.readConfigSafe<TicketConfig>(ConfigType.TICKET, false)
+    private val config
+        get() = ConfigManager.readConfigSafe<TicketConfig>(ConfigType.TICKET, false)
     private val ticketFolder = File("ticket_logs")
     private const val messageEmpty = "Message was empty!"
 
@@ -154,10 +158,10 @@ object TicketCommand : BotCommand(
         }
 
         asyncListener<MessageReceiveEvent> { event ->
+            val server = event.server ?: return@asyncListener
+            val channel = event.message.serverChannel ?: return@asyncListener
             val message = event.message
-            val server = message.server ?: return@asyncListener
             val author = message.author ?: return@asyncListener
-            val channel = message.serverChannel ?: return@asyncListener
             val ticketCategory =
                 config?.ticketCategory?.let { server.channelCategories.find(it) } ?: return@asyncListener
 
@@ -169,64 +173,67 @@ object TicketCommand : BotCommand(
                 )
             }
 
-            if (author.hasPermission(COUNCIL_MEMBER)) return@asyncListener
-
-            config.ticketCreateChannel?.let {
-                if (message.channel.id != it) return@asyncListener
-
+            if (!author.hasPermission(COUNCIL_MEMBER) && channel.id == config?.ticketCreateChannel) {
                 if (author.bot) {
-                    if (author.id != Main.client.botUser.id) {
-                        message.delete() // we clean up our own messages later
-                    }
+                    // We clean up our own messages later
+                    if (author.id != Main.client.botUser.id) message.delete()
                     return@asyncListener
                 }
 
-                val everyone = message.server?.id?.let { serverId -> message.server?.roles?.find(serverId) }
-                    ?: return@asyncListener
-
-                val tickets = server.textChannels.filter { channels -> channels.category == ticketCategory }
-
-                val ticket = server.createTextChannel {
-                    name = "ticket-${tickets.size}"
-                    topic = "${Instant.now().prettyFormat()} ${author.id}"
-                    category = ticketCategory
-                }
-
-                ticket.edit {
-                    userPermissionOverwrites.add(UserPermissionOverwrite(author, PermissionSet(117760)))
-                    rolePermissionOverwrites.add(
-                        RolePermissionOverwrite(
-                            everyone,
-                            PermissionSet(0),
-                            PermissionSet(3072)
-                        )
-                    )
-                }
-
-                logTicket(
-                    "${timeAndAuthor(author, message.timestamp)}Created ticket: `${message.content}`".max(2048),
-                    ticket
-                )
-
-                ticket.send(
-                    "${author.mention} "
-                        + "<@&${config.ticketPingRole}>"
-                )
-
-                ticket.send {
-                    embed {
-                        title = "Ticket Created!"
-                        description = message.content
-                        color = Colors.SUCCESS.color
-                        footer("ID: ${author.id}", author.avatar.url)
-                    }
-                }
-
-                val feedback = channel.success("${author.mention} Created ticket! Go to ${ticket.mention}!")
-                delay(5000)
-                feedback.delete()
-                message.delete()
+                createTicket(server, channel, message, author, ticketCategory)
             }
+        }
+    }
+
+    private suspend fun createTicket(
+        server: Server,
+        channel: ServerTextChannel,
+        message: Message,
+        author: User,
+        ticketCategory: ChannelCategory
+    ) {
+        val tickets = server.textChannels.filter { it.category == ticketCategory }
+
+        val ticket = server.createTextChannel {
+            name = "ticket-${tickets.size}"
+            topic = "${Instant.now().prettyFormat()} ${author.id}"
+            category = ticketCategory
+        }
+
+        ticket.setPermissions(author)
+
+        logTicket(
+            "${timeAndAuthor(author, message.timestamp)}Created ticket: `${message.content}`".max(2048),
+            ticket
+        )
+
+        ticket.send("${author.mention} <@&${config?.ticketPingRole}>")
+
+        ticket.send {
+            embed {
+                title = "Ticket Created!"
+                description = message.content
+                color = Colors.SUCCESS.color
+                footer("ID: ${author.id}", author.avatar.url)
+            }
+        }
+
+        val feedback = channel.success("${author.mention} Created ticket! Go to ${ticket.mention}!")
+        delay(5000)
+        feedback.delete()
+        message.delete()
+    }
+
+    private suspend fun ServerTextChannel.setPermissions(author: User) {
+        edit {
+            userPermissionOverwrites.add(UserPermissionOverwrite(author, PermissionSet(117760)))
+            rolePermissionOverwrites.add(
+                RolePermissionOverwrite(
+                    server.roles.everyone,
+                    PermissionSet(0),
+                    PermissionSet(3072)
+                )
+            )
         }
     }
 
