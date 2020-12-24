@@ -19,6 +19,7 @@ import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.MessageUtils.normal
 import org.kamiblue.botkt.utils.MessageUtils.success
 import org.kamiblue.botkt.utils.StringUtils.elseEmpty
 import org.kamiblue.botkt.utils.prettyFormat
@@ -37,11 +38,32 @@ object TicketCommand : BotCommand(
     private val config = ConfigManager.readConfigSafe<TicketConfig>(ConfigType.TICKET, false)
     private val fileExtension = Regex(".txt$")
     private val ticketFolder = File("ticket_logs")
+    private const val messageEmpty = "Message was empty!"
 
     init {
+        literal("saveall") {
+            executeIfHas(COUNCIL_MEMBER, "Saves the last 100 messages. Do not use on new tickets.") {
+                val msgs = channel.getMessages().reversed()
+                val response = channel.normal("Saving `${msgs.size}` messages...")
+
+                msgs.forEach {
+                    delay(100) // my poor ssd
+                    logTicket(
+                        timeAndAuthor(it.author, it.timestamp) + it.content.elseEmpty(messageEmpty),
+                        it.serverChannel,
+                        it.author
+                    )
+                }
+
+                response.edit {
+                    description = "Saved `${msgs.size}` messages for ticket `${message.serverChannel?.topic}`!"
+                }
+            }
+        }
+
         literal("upload") {
             int("index") { indexArg ->
-                executeIfHas(COUNCIL_MEMBER) {
+                executeIfHas(COUNCIL_MEMBER, "Upload a closed ticket file") {
                     try {
                         getTickets().getOrNull(indexArg.value)?.let { // TODO: switch to proper file uploading when switching to JDA
                             config?.ticketUploadChannel?.let { webhook ->
@@ -60,7 +82,7 @@ object TicketCommand : BotCommand(
 
         literal("delete") {
             int("index") { indexArg ->
-                executeIfHas(PURGE_PROTECTED) {
+                executeIfHas(PURGE_PROTECTED, "Delete a closed ticket entirely") {
                     try {
                         getTickets().getOrNull(indexArg.value)?.delete()
                         channel.success("Deleted ticket with index `${indexArg.value}`")
@@ -145,8 +167,7 @@ object TicketCommand : BotCommand(
 
             if (ticketCategory == channel.category) {
                 logTicket(
-                     timeAndAuthor(author, message.timestamp) +
-                        message.content.elseEmpty("Message was empty!"),
+                    timeAndAuthor(author, message.timestamp) + message.content.elseEmpty(messageEmpty),
                     channel,
                     author
                 )
@@ -228,7 +249,7 @@ object TicketCommand : BotCommand(
 
         val file = File("${ticketFolder.name}/$ticketName.txt")
 
-        if (author?.id == Main.client.botUser.id && content.endsWith("Message was empty!")) return
+        if (author?.id == Main.client.botUser.id && content.endsWith(messageEmpty)) return
 
         if (!file.exists()) {
             ticketFolder.mkdir()
