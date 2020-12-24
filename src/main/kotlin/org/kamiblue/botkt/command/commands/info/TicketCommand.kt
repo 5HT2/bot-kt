@@ -94,24 +94,18 @@ object TicketCommand : BotCommand(
         literal("view") {
             int("index") { indexArg ->
                 executeIfHas(COUNCIL_MEMBER, "View a closed ticket") {
+                    val index = indexArg.value
                     try {
-                        getTickets().getOrNull(indexArg.value)?.let {
-                            val formatted = it.readLines().joinToString("\n").chunked(1024)
-
-                            channel.send {
-                                embed {
-                                    formatted.withIndex().forEach { contents ->
-                                        field(
-                                            "${contents.index + 1} / ${formatted.size}",
-                                            contents.value.elseEmpty("Empty")
-                                        )
-                                    }
-                                    color = Colors.PRIMARY.color
-                                }
+                        channel.send {
+                            embed {
+                                joinToFields(getTickets()[index].readLines(), "\n")
+                                color = Colors.PRIMARY.color
                             }
                         }
+                    } catch (e: IndexOutOfBoundsException) {
+                        indexNotFound(index)
                     } catch (e: FileNotFoundException) {
-                        indexNotFound(indexArg.value)
+                        indexNotFound(index)
                     }
                 }
             }
@@ -119,15 +113,10 @@ object TicketCommand : BotCommand(
 
         literal("list") {
             executeIfHas(COUNCIL_MEMBER, "List closed tickets") {
-                val tickets = getTickets().withIndex()
-                val ticketNames = tickets.joinToString("\n") {
-                    if (it.value.name == ticketFolder.name) "" else "`${it.index}`: " + it.value.name.formatName()
-                }.chunked(1024)
-
                 channel.send {
                     embed {
-                        ticketNames.withIndex().forEach { contents ->
-                            field("${contents.index + 1} / ${ticketNames.size}", contents.value.elseEmpty("Empty"))
+                        joinToFields(getTickets().withIndex(), "\n") {
+                            "`${it.index}`: ${it.value.name.formatName()}\n"
                         }
                         color = Colors.PRIMARY.color
                     }
