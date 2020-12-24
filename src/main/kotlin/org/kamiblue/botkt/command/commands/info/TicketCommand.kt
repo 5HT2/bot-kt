@@ -29,8 +29,8 @@ object TicketCommand : BotCommand(
     description = "Manage tickets",
     category = Category.INFO
 ) {
+
     private val config = ConfigManager.readConfigSafe<TicketConfig>(ConfigType.TICKET, false)
-    private val fileExtension = Regex(".txt$")
     private val ticketFolder = File("ticket_logs")
     private const val messageEmpty = "Message was empty!"
 
@@ -261,9 +261,9 @@ object TicketCommand : BotCommand(
     }
 
     private fun String.formatName(): String {
-        if (length < 38) return this.replace(fileExtension, "")
+        if (length < 38) return this.removeSuffix(".txt")
 
-        val id = substring(20, 38).toLongOrNull() ?: return this.replace(fileExtension, "")
+        val id = substring(20, 38).toLongOrNull() ?: return this.removeSuffix(".txt")
         val time = substring(0, 19).replace("_", " ").replace(".", ":")
 
         return "$time <@!$id>"
