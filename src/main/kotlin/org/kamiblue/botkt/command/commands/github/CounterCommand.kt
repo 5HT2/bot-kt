@@ -5,11 +5,7 @@ import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
-import org.kamiblue.botkt.utils.GitHubUtils
-import org.kamiblue.botkt.utils.MessageUtils.error
-import org.kamiblue.botkt.utils.MessageUtils.success
-import org.kamiblue.botkt.utils.authenticatedRequest
-import org.kamiblue.botkt.utils.request
+import org.kamiblue.botkt.utils.*
 import org.l1ving.api.download.Download
 
 object CounterCommand : BotCommand(

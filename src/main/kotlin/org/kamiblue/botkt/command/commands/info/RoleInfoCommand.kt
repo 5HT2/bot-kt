@@ -5,7 +5,7 @@ import net.ayataka.kordis.entity.server.role.Role
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.error
 import org.kamiblue.botkt.utils.pretty
 
 object RoleInfoCommand : BotCommand(
