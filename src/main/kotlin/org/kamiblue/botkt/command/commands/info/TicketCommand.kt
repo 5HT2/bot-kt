@@ -184,7 +184,7 @@ object TicketCommand : BotCommand(
             }
         }
 
-        BackgroundScope.add(600000L) {
+        BackgroundScope.add(1800000L) {
             saveAll()
         }
 
