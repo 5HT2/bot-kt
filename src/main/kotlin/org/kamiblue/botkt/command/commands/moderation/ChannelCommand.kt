@@ -181,12 +181,12 @@ object ChannelCommand : BotCommand(
         // make sure to run this AFTER saving previous state
         permissions[saveName] = selectedConfig
 
-        channel.success("Saved current channel permissions, use `$name print $saveName` to print permissions!")
+        message.channel.success("Saved current channel permissions, use `$name print $saveName` to print permissions!")
     }
 
     private suspend fun print(name: String, message: Message) {
         val selectedChannel = permissions[name] ?: run {
-            channel.error("Couldn't find `$name` in saved channel presets!")
+            message.channel.error("Couldn't find `$name` in saved channel presets!")
             return
         }
 
@@ -199,13 +199,13 @@ object ChannelCommand : BotCommand(
         permissions[name] = selectedChannel
 
         if (string.isBlank()) {
-            channel.error("No saved permissions for `$name`!")
-        } else channel.normal(string)
+            message.channel.error("No saved permissions for `$name`!")
+        } else message.channel.normal(string)
     }
 
     private suspend fun load(name: String, message: Message) {
         val selectedChannel = permissions[name] ?: run {
-            channel.error("Couldn't find `$name` in saved channel presets!")
+            message.channel.error("Couldn't find `$name` in saved channel presets!")
             return
         }
 
@@ -214,11 +214,11 @@ object ChannelCommand : BotCommand(
 
         serverChannel.setPermissions(selectedChannel)
 
-        channel.success("Loaded channel permissions from `$name`!")
+        message.channel.success("Loaded channel permissions from `$name`!")
     }
 
     private suspend fun undo(message: Message) {
-        val m = channel.normal("Attempting to undo last change...")
+        val m = message.channel.normal("Attempting to undo last change...")
 
         previousChange?.let {
             m.edit {
@@ -263,29 +263,29 @@ object ChannelCommand : BotCommand(
     private suspend fun sync(reverse: Boolean, message: Message, serverChannel: ServerChannel) {
         val category = message.serverChannel?.category
         val perms = category?.rolePermissionOverwrites ?: run {
-            channel.error("Channel category is null! Are you running this from a DM?")
+            message.channel.error("Channel category is null! Are you running this from a DM?")
             return
         }
 
         if (reverse) {
             category.setPermissions(perms)
-            channel.success("Synchronized category permissions to the `${serverChannel.name.toHumanReadable()}` channel!")
+            message.channel.success("Synchronized category permissions to the `${serverChannel.name.toHumanReadable()}` channel!")
         } else {
             serverChannel.setPermissions(perms)
-            channel.success("Synchronized channel permissions to the `${category.name.toHumanReadable()}` category!")
+            message.channel.success("Synchronized channel permissions to the `${category.name.toHumanReadable()}` category!")
         }
     }
 
     private suspend fun lockOrUnlock(category: Boolean, lock: Boolean, message: Message, server: Server?) {
         if (server == null) {
-            channel.error("Server is null, are you running this from a DM?")
+            message.channel.error("Server is null, are you running this from a DM?")
             return
         }
 
         val everyone = server.roles.find(server.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
 
         val channel = (if (category) message.serverChannel?.category else message.serverChannel)
-            ?: run { channel.error("${if (category) "Category" else "Server channel"} was null, was you running this from a DM?"); return }
+            ?: run { message.channel.error("${if (category) "Category" else "Server channel"} was null, was you running this from a DM?"); return }
 
         val perm = RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(2048))
 
@@ -298,14 +298,14 @@ object ChannelCommand : BotCommand(
             channel.edit {
                 rolePermissionOverwrites.add(perm)
             }
-            channel.success("Locked ${if (category) "category" else "channel"}!")
+            message.channel.success("Locked ${if (category) "category" else "channel"}!")
         } else {
             channel.tryGetPrevPerm()?.let {
                 channel.setPermissions(it)
             } ?: channel.edit {
                 rolePermissionOverwrites.remove(perm)
             }
-            channel.success("Unlocked ${if (category) "category" else "channel"}!")
+            message.channel.success("Unlocked ${if (category) "category" else "channel"}!")
         }
 
     }

@@ -89,7 +89,7 @@ object StealEmojiCommand : BotCommand(
     private suspend fun addEmoji(emojiName: String, emojiImage: ByteArray, message: Message, server: Server?) {
         val foundEmoji = server?.emojis?.findByName(emojiName)
         if (foundEmoji != null) {
-            channel.error("There is already an emoji with the name `$emojiName`!")
+            message.channel.error("There is already an emoji with the name `$emojiName`!")
             return
         }
 
@@ -97,10 +97,10 @@ object StealEmojiCommand : BotCommand(
             name = emojiName
             image = emojiImage
         } ?: run {
-            channel.error("Guild is null, make sure you're not running this from a DM!")
+            message.channel.error("Guild is null, make sure you're not running this from a DM!")
             return
         }
 
-        channel.normal("Successfully stolen emoji `${emoji.name}`!")
+        message.channel.normal("Successfully stolen emoji `${emoji.name}`!")
     }
 }
