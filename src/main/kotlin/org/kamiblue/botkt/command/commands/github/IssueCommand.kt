@@ -122,7 +122,7 @@ object IssueCommand : BotCommand(
                 val token = GitHubUtils.getGithubToken(message, "IssueCommand3") ?: return@asyncListener
 
                 val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
-                    channel.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                    message.channel.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
                     return@asyncListener
                 }
 
@@ -141,7 +141,7 @@ object IssueCommand : BotCommand(
 
                 form.formMessage.delete()
 
-                message = channel.success("Successfully created issue `${form.issue.title}`!")
+                message = message.channel.success("Successfully created issue `${form.issue.title}`!")
 
                 delay(5000)
 
@@ -150,7 +150,7 @@ object IssueCommand : BotCommand(
                 val message = form.formMessage
 
                 val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser ?: run {
-                    channel.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                    message.channel.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
                     return@asyncListener
                 }
 
@@ -164,7 +164,7 @@ object IssueCommand : BotCommand(
                     }
                 }
 
-                val feedback = channel.error("Issue `${form.issue.title}` rejected!")
+                val feedback = message.channel.error("Issue `${form.issue.title}` rejected!")
 
 
                 delay(5000)
@@ -194,7 +194,7 @@ object IssueCommand : BotCommand(
             }
 
             if (event.message.content.isEmpty() || !event.message.content.startsWith("${Main.prefix}issue create")) {
-                val reply = event.channel.error("You need to use the `${Main.prefix}issue create` command to create an issue!")
+                val reply = event.message.channel.error("You need to use the `${Main.prefix}issue create` command to create an issue!")
 
                 event.message.delete()
                 delay(5000)
@@ -239,7 +239,7 @@ object IssueCommand : BotCommand(
                 }
             }
         } else {
-            channel.error("Issue / pull `#$issueNum` in `$user/$repoName` could not be found!")
+            message.channel.error("Issue / pull `#$issueNum` in `$user/$repoName` could not be found!")
         }
     }
 

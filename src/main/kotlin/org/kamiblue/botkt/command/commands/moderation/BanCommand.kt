@@ -209,7 +209,7 @@ object BanCommand : BotCommand(
             }
 
             user.id == message?.author?.id -> {
-                channel.error("You can't ban yourself!")
+                message.channel.error("You can't ban yourself!")
                 return false
             }
 

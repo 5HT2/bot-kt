@@ -150,7 +150,7 @@ object TicketCommand : BotCommand(
                 val channel = message.serverChannel
 
                 if (channel?.name?.startsWith("ticket-") != true) {
-                    channel.error("The ${message.serverChannel?.mention} channel is not a ticket!")
+                    channel?.error("The ${message.serverChannel?.mention} channel is not a ticket!")
                     return@executeIfHas
                 }
 

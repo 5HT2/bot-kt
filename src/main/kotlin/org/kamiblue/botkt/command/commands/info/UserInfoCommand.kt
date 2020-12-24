@@ -47,7 +47,7 @@ object UserInfoCommand : BotCommand(
             ?: members?.findByName(username, true)
             ?: id?.let { Main.client.getUser(it) }
             ?: run {
-                channel.error("Couldn't find user nor a valid ID!")
+                message.channel.error("Couldn't find user nor a valid ID!")
                 return
             }
 
