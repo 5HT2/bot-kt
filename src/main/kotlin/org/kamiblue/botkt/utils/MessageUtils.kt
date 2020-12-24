@@ -55,6 +55,29 @@ suspend fun TextChannel.stackTrace(e: Exception) = send {
     }
 }
 
+suspend fun TextChannel.upload(files: Collection<File>) : Message = if (files.isEmpty()) {
+    throw IllegalArgumentException("files can not be empty!")
+} else {
+    Main.discordHttp.post<JsonObject> {
+        url("https://discord.com/api/v8/channels/${id}/messages")
+        header("Accept", ContentType.MultiPart.FormData)
+        body = MultiPartFormDataContent(
+            formData {
+                files.forEach {
+                    appendInput(
+                        key = it.absolutePath,
+                        headers = Headers.build { append(HttpHeaders.ContentDisposition, "filename=${it.name}") },
+                        size = it.length(),
+                        block = {
+                            buildPacket { writeFully(it.readBytes()) }
+                        }
+                    )
+                }
+            }
+        )
+    }.toMessage(this)
+}
+
 suspend fun TextChannel.upload(file: File) : Message = Main.discordHttp.post<JsonObject> {
     url("https://discord.com/api/v8/channels/${id}/messages")
     header("Accept", ContentType.MultiPart.FormData)
@@ -70,6 +93,7 @@ suspend fun TextChannel.upload(file: File) : Message = Main.discordHttp.post<Jso
             )
         }
     )
-}.let {
-    MessageImpl(Main.client as DiscordClientImpl, it, (this as? ServerChannel?)?.server)
-}
+}.toMessage(this)
+
+private fun JsonObject.toMessage(channel: TextChannel) =
+    MessageImpl(Main.client as DiscordClientImpl, this, (channel as? ServerChannel?)?.server)
