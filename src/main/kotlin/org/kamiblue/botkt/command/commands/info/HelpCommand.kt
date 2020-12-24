@@ -20,7 +20,7 @@ object HelpCommand : BotCommand(
                 if (index in Category.values().indices) {
                     printHelpForCategory(Category.values()[index])
                 } else {
-                    message.channel.error("Invalid page number")
+                    channel.error("Invalid page number")
                 }
             }
         }

@@ -25,7 +25,7 @@ object StealEmojiCommand : BotCommand(
                 val emoji = emojiArg.value
 
                 if (!emoji.isCustom) {
-                    message.channel.error("Emoji must be a custom emoji")
+                    channel.error("Emoji must be a custom emoji")
                     return@executeIfHas
                 }
 
@@ -53,12 +53,12 @@ object StealEmojiCommand : BotCommand(
                     val idUnchecked = try {
                         urlArg.value.substring(34, 52)
                     } catch (e: StringIndexOutOfBoundsException) {
-                        message.channel.error("${urlArg.name.toHumanReadable()} is not valid format!")
+                        channel.error("${urlArg.name.toHumanReadable()} is not valid format!")
                         return@executeIfHas
                     }
 
                     val id = idUnchecked.toLongOrNull() ?: run {
-                        message.channel.error("Emoji ID `$idUnchecked` could not be formatted to a Long!")
+                        channel.error("Emoji ID `$idUnchecked` could not be formatted to a Long!")
                         return@executeIfHas
                     }
 
@@ -81,7 +81,7 @@ object StealEmojiCommand : BotCommand(
                 }
             }
         } catch (e: FileNotFoundException) {
-            message.channel.error("Couldn't find an emoji with the ID `$id`!")
+            channel.error("Couldn't find an emoji with the ID `$id`!")
             null
         }
     }
@@ -89,7 +89,7 @@ object StealEmojiCommand : BotCommand(
     private suspend fun addEmoji(emojiName: String, emojiImage: ByteArray, message: Message, server: Server?) {
         val foundEmoji = server?.emojis?.findByName(emojiName)
         if (foundEmoji != null) {
-            message.channel.error("There is already an emoji with the name `$emojiName`!")
+            channel.error("There is already an emoji with the name `$emojiName`!")
             return
         }
 
@@ -97,10 +97,10 @@ object StealEmojiCommand : BotCommand(
             name = emojiName
             image = emojiImage
         } ?: run {
-            message.channel.error("Guild is null, make sure you're not running this from a DM!")
+            channel.error("Guild is null, make sure you're not running this from a DM!")
             return
         }
 
-        message.channel.normal("Successfully stolen emoji `${emoji.name}`!")
+        channel.normal("Successfully stolen emoji `${emoji.name}`!")
     }
 }

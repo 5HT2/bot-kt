@@ -51,7 +51,7 @@ object SayCommand : BotCommand(
                                 }
 
                                 val message = channel.getMessage(messageArg.value) ?: run {
-                                    message.channel.error("Error editing message! The message ID could not be found in ${channel.id}")
+                                    channel.error("Error editing message! The message ID could not be found in ${channel.id}")
                                     return@executeIfHas
                                 }
 

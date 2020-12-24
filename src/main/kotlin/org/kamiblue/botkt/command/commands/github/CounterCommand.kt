@@ -25,20 +25,20 @@ object CounterCommand : BotCommand(
 
             when {
                 config?.downloadEnabled != true && config?.memberEnabled != true -> {
-                    message.channel.error("Counters are not configured / enabled!")
+                    channel.error("Counters are not configured / enabled!")
                 }
                 config.downloadEnabled != true -> {
-                    message.channel.error("Download counter is not enabled in the `$path` config!")
+                    channel.error("Download counter is not enabled in the `$path` config!")
                 }
                 config.memberEnabled != true -> {
-                    message.channel.error("Member counter is not enabled in the `$path` config!")
+                    channel.error("Member counter is not enabled in the `$path` config!")
                 }
             }
 
             if (updateChannel()) {
-                message.channel.success("Successfully updated counters!")
+                channel.success("Successfully updated counters!")
             } else {
-                message.channel.error("Failed to update counters. Make sure `$path` is configured correctly, and `primaryServerId` is set in `$userPath`!")
+                channel.error("Failed to update counters. Make sure `$path` is configured correctly, and `primaryServerId` is set in `$userPath`!")
             }
         }
 

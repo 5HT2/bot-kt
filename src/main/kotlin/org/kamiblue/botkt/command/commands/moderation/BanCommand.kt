@@ -32,9 +32,9 @@ object BanCommand : BotCommand(
             literal("confirm") {
                 greedy("userRegex") { userRegexArg ->
                     executeIfHas(PermissionTypes.MASS_BAN, "Mass ban members by regex") {
-                        val server = server ?: run { message.channel.error("Server members are null, are you running this from a DM?"); return@executeIfHas }
+                        val server = server ?: run { channel.error("Server members are null, are you running this from a DM?"); return@executeIfHas }
 
-                        val m = message.channel.error("Banning [calculating] members...")
+                        val m = channel.error("Banning [calculating] members...")
 
                         var banned = 0
                         val regex = userRegexArg.value.toRegex()
@@ -81,16 +81,16 @@ object BanCommand : BotCommand(
                     val regex = userRegexArg.value.toRegex()
 
                     val members = server?.members ?: run {
-                        message.channel.error("Server members are null, are you running this from a DM?")
+                        channel.error("Server members are null, are you running this from a DM?")
                         return@executeIfHas
                     }
 
                     val filtered = members.filter { it.name.contains(regex) }.joinToString(separator = "\n") { it.mention }
 
                     if (members.isEmpty()) {
-                        message.channel.error("Couldn't find any members that match the regex `$regex`!")
+                        channel.error("Couldn't find any members that match the regex `$regex`!")
                     } else {
-                        message.channel.normal(filtered.max(2048, "\nNot all users are shown, due to size limitations."))
+                        channel.normal(filtered.max(2048, "\nNot all users are shown, due to size limitations."))
                     }
                 }
             }
@@ -209,7 +209,7 @@ object BanCommand : BotCommand(
             }
 
             user.id == message?.author?.id -> {
-                message.channel.error("You can't ban yourself!")
+                channel.error("You can't ban yourself!")
                 return false
             }
 

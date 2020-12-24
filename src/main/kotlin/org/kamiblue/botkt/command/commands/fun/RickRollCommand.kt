@@ -19,7 +19,7 @@ object RickRollCommand : BotCommand(
             execute {
                 val url = urlArg.value
                 if (!url.isUrl() || !url.matches(cdnRegex)) {
-                    message.channel.error("Invalid url!")
+                    channel.error("Invalid url!")
                     return@execute
                 }
                 val redirectLink = url.replace(cdnRegex, "$urlPrefix/$1/$2/$3")
