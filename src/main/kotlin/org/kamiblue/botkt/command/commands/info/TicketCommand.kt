@@ -57,6 +57,7 @@ object TicketCommand : BotCommand(
 
                 response.edit {
                     description = "Saved `${msgs.size}` messages for ticket `${message.serverChannel?.topic}`!"
+                    color = Colors.SUCCESS.color
                 }
             }
         }
