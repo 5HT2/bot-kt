@@ -22,7 +22,7 @@ object TopicCommand : BotCommand(
                         topic = setTopic
                     }
 
-                    message.channel.success("Set Channel Topic to `$setTopic`!")
+                    channel.success("Set Channel Topic to `$setTopic`!")
                 }
             }
 
@@ -35,13 +35,13 @@ object TopicCommand : BotCommand(
                     topic = null
                 }
 
-                message.channel.success("Cleared Channel Topic!")
+                channel.success("Cleared Channel Topic!")
             }
         }
 
         execute("Print the topic of the channel") {
             val topic = message.serverChannel?.topic
-            message.channel.normal(
+            channel.normal(
                 if (topic.isNullOrEmpty()) "No topic set!" else topic,
                 "#" + message.serverChannel?.name
             )

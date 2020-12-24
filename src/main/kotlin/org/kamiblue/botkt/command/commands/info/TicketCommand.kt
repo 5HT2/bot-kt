@@ -138,7 +138,7 @@ object TicketCommand : BotCommand(
             int("ticket number") { ticketNum ->
                 executeIfHas(COUNCIL_MEMBER, "Close a ticket") {
                     val ticket = message.server?.textChannels?.findByName("ticket-${ticketNum.value}") ?: run {
-                        message.channel.error("Couldn't find a ticket named `ticket-${ticketNum.value}`!")
+                        channel.error("Couldn't find a ticket named `ticket-${ticketNum.value}`!")
                         return@executeIfHas
                     }
 
@@ -150,7 +150,7 @@ object TicketCommand : BotCommand(
                 val channel = message.serverChannel
 
                 if (channel?.name?.startsWith("ticket-") != true) {
-                    message.channel.error("The ${message.serverChannel?.mention} channel is not a ticket!")
+                    channel.error("The ${message.serverChannel?.mention} channel is not a ticket!")
                     return@executeIfHas
                 }
 
@@ -223,7 +223,7 @@ object TicketCommand : BotCommand(
                     }
                 }
 
-                val feedback = message.channel.success("${author.mention} Created ticket! Go to ${ticket.mention}!")
+                val feedback = channel.success("${author.mention} Created ticket! Go to ${ticket.mention}!")
                 delay(5000)
                 feedback.delete()
                 message.delete()

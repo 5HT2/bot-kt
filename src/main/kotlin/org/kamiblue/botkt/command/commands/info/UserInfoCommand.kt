@@ -23,7 +23,7 @@ object UserInfoCommand : BotCommand(
         execute("Get info for yourself") {
             val username: String = message.author?.id?.toString() ?: run {
                 message.author?.tag ?: run {
-                    message.channel.error("Couldn't find your user, try using a direct ID!")
+                    channel.error("Couldn't find your user, try using a direct ID!")
                     return@execute
                 }
             }
@@ -47,7 +47,7 @@ object UserInfoCommand : BotCommand(
             ?: members?.findByName(username, true)
             ?: id?.let { Main.client.getUser(it) }
             ?: run {
-                message.channel.error("Couldn't find user nor a valid ID!")
+                channel.error("Couldn't find user nor a valid ID!")
                 return
             }
 

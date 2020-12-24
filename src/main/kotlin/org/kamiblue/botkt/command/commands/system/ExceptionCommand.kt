@@ -21,9 +21,9 @@ object ExceptionCommand : BotCommand(
         literal("list") {
             executeIfHas(COUNCIL_MEMBER, "List saved exceptions") {
                 if (exceptions.isEmpty()) {
-                    message.channel.success("No exceptions caught recently!")
+                    channel.success("No exceptions caught recently!")
                 } else {
-                    message.channel.normal(
+                    channel.normal(
                         exceptions.withIndex().joinToString(separator = "\n") { "`${it.index}`: `${it.value.message}`" }
                     )
                 }
@@ -33,12 +33,12 @@ object ExceptionCommand : BotCommand(
         int("index") { indexArg ->
             executeIfHas(COUNCIL_MEMBER, "Print a saved exception") {
                 if (exceptions.isEmpty()) {
-                    message.channel.success("No exceptions caught recently!")
+                    channel.success("No exceptions caught recently!")
                 } else {
                     exceptions.getOrNull(indexArg.value)?.let {
                         message.channel.send("```\n" + it.stackTraceToString().max(1992) + "\n```")
                     } ?: run {
-                        message.channel.error("Exception with index `${indexArg.value}` is not stored!")
+                        channel.error("Exception with index `${indexArg.value}` is not stored!")
                     }
                 }
             }
