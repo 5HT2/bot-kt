@@ -55,19 +55,25 @@ suspend fun TextChannel.stackTrace(e: Exception) = send {
     }
 }
 
-suspend fun TextChannel.upload(files: Collection<File>, message: String = ""): Message = if (files.isEmpty()) {
-    throw IllegalArgumentException("files can not be empty!")
-} else {
-    Main.discordHttp.post<JsonObject> {
-        url("https://discord.com/api/v8/channels/${id}/messages")
-        header("Accept", ContentType.MultiPart.FormData)
-        body = MultiPartFormDataContent(
-            formData {
-                if (message.isNotBlank()) append("content", message)
-                files.forEach { appendFile(it) }
-            }
-        )
-    }.toMessage(this)
+suspend fun TextChannel.upload(files: Collection<File>, message: String = ""): Message = when {
+    files.isEmpty() -> {
+        throw IllegalArgumentException("files can not be empty!")
+    }
+    files.size > 10 -> {
+        throw IllegalArgumentException("Exceeded attachment limit: ${files.size}/10")
+    }
+    else -> {
+        Main.discordHttp.post<JsonObject> {
+            url("https://discord.com/api/v8/channels/${id}/messages")
+            header("Accept", ContentType.MultiPart.FormData)
+            body = MultiPartFormDataContent(
+                formData {
+                    if (message.isNotBlank()) append("content", message)
+                    files.forEach { appendFile(it) }
+                }
+            )
+        }.toMessage(this)
+    }
 }
 
 suspend fun TextChannel.upload(file: File, message: String = ""): Message = Main.discordHttp.post<JsonObject> {
