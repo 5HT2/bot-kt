@@ -24,6 +24,7 @@ import org.kamiblue.botkt.utils.StringUtils.elseEmpty
 import org.kamiblue.commons.extension.max
 import org.kamiblue.event.listener.asyncListener
 import java.io.File
+import java.io.FileFilter
 import java.io.FileNotFoundException
 import java.time.Instant
 
@@ -33,9 +34,10 @@ object TicketCommand : BotCommand(
     category = Category.INFO
 ) {
 
-    private val config
-        get() = ConfigManager.readConfigSafe<TicketConfig>(ConfigType.TICKET, false)
+    private val config get() = ConfigManager.readConfigSafe<TicketConfig>(ConfigType.TICKET, false)
     private val ticketFolder = File("ticket_logs")
+    private val ticketFileRegex = "\\d{4}-\\d{2}-\\d{2}_\\d{2}\\.\\d{2}\\.\\d{2}_\\d{18}\\.".toRegex()
+
     private const val messageEmpty = "Message was empty!"
 
     init {
@@ -277,7 +279,7 @@ object TicketCommand : BotCommand(
 
     private fun timeAndAuthor(author: User?, timestamp: Instant) = "[${timestamp.prettyFormat()}] [${author?.mention}] "
 
-    private fun getTickets() = ticketFolder.walkTopDown().sortedBy { it.name }.toList()
+    private fun getTickets() = ticketFolder.listFiles(FileFilter { it.isFile && it.name.matches(ticketFileRegex) })!!.toList()
 
     private suspend fun MessageExecuteEvent.indexNotFound(index: Int) {
         channel.error("Ticket with index `$index` could not be found")
