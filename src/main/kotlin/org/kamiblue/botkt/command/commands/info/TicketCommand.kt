@@ -13,10 +13,13 @@ import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.MessageUtils.success
+import org.kamiblue.botkt.utils.StringUtils.elseEmpty
 import org.kamiblue.botkt.utils.prettyFormat
 import org.kamiblue.event.listener.asyncListener
+import java.io.File
 import java.time.Instant
 
+@Suppress("BlockingMethodInNonBlockingContext")
 object TicketCommand : BotCommand(
     name = "ticket",
     description = "Manage tickets",
@@ -33,7 +36,6 @@ object TicketCommand : BotCommand(
                         return@executeIfHas
                     }
 
-                    message.delete() // audit log who ran the command
                     ticket.delete()
                 }
             }
@@ -44,29 +46,48 @@ object TicketCommand : BotCommand(
                     return@executeIfHas
                 }
 
-                message.delete() // audit log who ran the command
                 message.serverChannel?.delete()
             }
         }
 
         asyncListener<MessageReceiveEvent> { event ->
-            val server = event.message.server ?: return@asyncListener
-            val author = event.message.author ?: return@asyncListener
+            val message = event.message
+            val server = message.server ?: return@asyncListener
+            val author = message.author ?: return@asyncListener
+            val channel = message.serverChannel ?: return@asyncListener
             val ticketCategory = config?.ticketCategory?.let { server.channelCategories.find(it) } ?: return@asyncListener
+
+            if (ticketCategory == channel.category) {
+                if (channel.topic.isNullOrBlank()) {
+                    Main.logger.error("Cannot log message from ticket ${channel.mention} / ${channel.name} due to missing channel topic")
+                    return@asyncListener
+                }
+
+                val file = File("ticket_logs/" + channel.topic?.replace(" ", "_") + ".txt")
+                val text = "[${message.timestamp.prettyFormat()}] [${author.mention}] " + message.content.elseEmpty("Message was empty!")
+
+                if (!file.exists()) {
+                    File("ticket_logs").mkdir()
+                    file.createNewFile()
+                    file.bufferedWriter().use { text }
+                } else {
+                    file.appendText(text + "\n")
+                }
+            }
 
             if (author.hasPermission(PermissionTypes.COUNCIL_MEMBER)) return@asyncListener
 
             config.ticketCreateChannel?.let {
-                if (event.message.channel.id != it) return@asyncListener
+                if (message.channel.id != it) return@asyncListener
 
                 if (author.bot) {
                     if (author.id != Main.client.botUser.id) {
-                        event.message.delete() // we clean up our own messages later
+                        message.delete() // we clean up our own messages later
                     }
                     return@asyncListener
                 }
 
-                val everyone = event.message.server?.id?.let { serverId -> event.message.server?.roles?.find(serverId) }
+                val everyone = message.server?.id?.let { serverId -> message.server?.roles?.find(serverId) }
                     ?: return@asyncListener
 
                 val tickets = server.textChannels.filter { channels -> channels.category == ticketCategory }
@@ -98,16 +119,16 @@ object TicketCommand : BotCommand(
                 ticket.send {
                     embed {
                         title = "Ticket Created!"
-                        description = event.message.content
+                        description = message.content
                         color = Colors.SUCCESS.color
                         footer("ID: ${author.id}", author.avatar.url)
                     }
                 }
 
-                val feedback = event.message.channel.success("${author.mention} Created ticket! Go to ${ticket.mention}!")
+                val feedback = message.channel.success("${author.mention} Created ticket! Go to ${ticket.mention}!")
                 delay(5000)
                 feedback.delete()
-                event.message.delete()
+                message.delete()
             }
         }
     }
