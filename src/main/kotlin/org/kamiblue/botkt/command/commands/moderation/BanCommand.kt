@@ -86,12 +86,11 @@ object BanCommand : BotCommand(
                     }
 
                     val filtered = members.filter { it.name.contains(regex) }.joinToString(separator = "\n") { it.mention }
-                    val final = if (filtered.length > 2048) filtered.max(1998) + "\nNot all users are shown, due to size limitations." else filtered
 
                     if (members.isEmpty()) {
                         message.channel.error("Couldn't find any members that match the regex `$regex`!")
                     } else {
-                        message.channel.normal(final)
+                        message.channel.normal(filtered.max(2048, "\nNot all users are shown, due to size limitations."))
                     }
                 }
             }
