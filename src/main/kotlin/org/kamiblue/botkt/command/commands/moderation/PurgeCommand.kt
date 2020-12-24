@@ -9,8 +9,8 @@ import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
+import org.kamiblue.botkt.utils.error
 
 object PurgeCommand : BotCommand(
     name = "purge",

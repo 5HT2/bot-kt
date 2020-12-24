@@ -9,9 +9,9 @@ import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
 import org.kamiblue.botkt.command.*
-import org.kamiblue.botkt.utils.MessageUtils.error
-import org.kamiblue.botkt.utils.MessageUtils.normal
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
+import org.kamiblue.botkt.utils.error
+import org.kamiblue.botkt.utils.normal
 import java.io.FileNotFoundException
 
 object StealEmojiCommand : BotCommand(

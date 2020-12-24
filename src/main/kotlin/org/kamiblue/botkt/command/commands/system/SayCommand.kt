@@ -4,7 +4,7 @@ import net.ayataka.kordis.entity.message.Message
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.error
 
 object SayCommand : BotCommand(
     name = "say",

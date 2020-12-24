@@ -3,8 +3,8 @@ package org.kamiblue.botkt.command.commands.moderation
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
-import org.kamiblue.botkt.utils.MessageUtils.normal
-import org.kamiblue.botkt.utils.MessageUtils.success
+import org.kamiblue.botkt.utils.normal
+import org.kamiblue.botkt.utils.success
 import org.kamiblue.commons.extension.max
 
 object TopicCommand : BotCommand(
