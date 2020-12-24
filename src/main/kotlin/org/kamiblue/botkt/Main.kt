@@ -24,7 +24,7 @@ import kotlin.system.exitProcess
 
 object Main {
 
-    const val currentVersion = "v1.5.8"
+    const val currentVersion = "v1.5.9"
 
     @Suppress("EXPERIMENTAL_API_USAGE")
     val mainScope = CoroutineScope(newSingleThreadContext("Bot-kt Main"))
