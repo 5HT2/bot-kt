@@ -44,20 +44,18 @@ object TicketCommand : BotCommand(
         literal("saveall") {
             executeIfHas(COUNCIL_MEMBER, "Saves the last 100 messages. Do not use on new tickets.") {
                 val serverTextChannel = (channel as? ServerTextChannel)?: return@executeIfHas
-                val msgs = channel.getMessages().reversed()
-                val response = channel.normal("Saving `${msgs.size}` messages...")
+                val messages = channel.getMessages().reversed()
+                val response = channel.normal("Saving `${messages.size}` messages...")
 
-                msgs.forEach {
-                    delay(100) // my poor ssd
-                    logTicket(
-                        timeAndAuthor(it.author, it.timestamp) + it.content.elseEmpty(messageEmpty),
-                        serverTextChannel,
-                        it.author
-                    )
+
+                val formatted = channel.getMessages().reversed().joinToString("\n") {
+                    timeAndAuthor(it.author, it.timestamp) + it.content.elseEmpty(messageEmpty)
                 }
 
+                logTicket(formatted, serverTextChannel)
+
                 response.edit {
-                    description = "Saved `${msgs.size}` messages for ticket `${message.serverChannel?.topic}`!"
+                    description = "Saved `${messages.size}` messages for ticket `${message.serverChannel?.topic}`!"
                     color = Colors.SUCCESS.color
                 }
             }
@@ -159,8 +157,7 @@ object TicketCommand : BotCommand(
             if (ticketCategory == channel.category) {
                 logTicket(
                     timeAndAuthor(author, message.timestamp) + message.content.elseEmpty(messageEmpty),
-                    channel,
-                    author
+                    channel
                 )
             }
 
@@ -236,7 +233,7 @@ object TicketCommand : BotCommand(
         channel.delete()
     }
 
-    private fun logTicket(content: String, channel: ServerTextChannel, author: User? = null) {
+    private fun logTicket(content: String, channel: ServerTextChannel) {
         if (channel.topic.isNullOrBlank()) {
             Main.logger.error("Cannot log message from ticket ${channel.mention} / ${channel.name} due to missing channel topic")
             return
@@ -246,8 +243,6 @@ object TicketCommand : BotCommand(
         else channel.topic!!.replace(" ", "_").replace(":", ".")
 
         val file = File("${ticketFolder.name}/$ticketName.txt")
-
-        if (author?.id == Main.client.botUser.id && content.endsWith(messageEmpty)) return
 
         if (!file.exists()) {
             ticketFolder.mkdir()
