@@ -32,7 +32,7 @@ object ChannelCommand : BotCommand(
     init {
         literal("save") {
             executeIfHas(MANAGE_CHANNELS, "Save a channel's permissions") {
-                val serverChannel = message.serverChannel(message) ?: return@executeIfHas
+                val serverChannel = message.serverChannel() ?: return@executeIfHas
                 val name = serverChannel.name
 
                 save(name, serverChannel, message)
@@ -40,7 +40,7 @@ object ChannelCommand : BotCommand(
 
             string("name") { name ->
                 executeIfHas(MANAGE_CHANNELS, "Save a channel's permissions") {
-                    val serverChannel = message.serverChannel(message) ?: return@executeIfHas
+                    val serverChannel = message.serverChannel() ?: return@executeIfHas
 
                     save(name.value, serverChannel, message)
                 }
@@ -49,7 +49,7 @@ object ChannelCommand : BotCommand(
 
         literal("print") {
             executeIfHas(MANAGE_CHANNELS, "Print the current channels permissions") {
-                val c = message.serverChannel(message) ?: return@executeIfHas
+                val c = message.serverChannel() ?: return@executeIfHas
                 val name = c.name
 
                 print(name, message)
@@ -83,14 +83,14 @@ object ChannelCommand : BotCommand(
         literal("sync") {
             literal("category") {
                 executeIfHas(MANAGE_CHANNELS, "Sync category permissions to channel permissions") {
-                    val c = message.serverChannel(message) ?: return@executeIfHas
+                    val c = message.serverChannel() ?: return@executeIfHas
 
                     sync(true, message, c)
                 }
             }
 
             executeIfHas(MANAGE_CHANNELS, "Sync channel permissions to category permissions") {
-                val c = message.serverChannel(message) ?: return@executeIfHas
+                val c = message.serverChannel() ?: return@executeIfHas
 
                 sync(false, message, c)
             }
@@ -129,7 +129,7 @@ object ChannelCommand : BotCommand(
 
         literal("archive") {
             executeIfHas(ARCHIVE_CHANNEL, "Archive the current channel") {
-                val c = message.serverChannel(message) ?: return@executeIfHas
+                val c = message.serverChannel() ?: return@executeIfHas
                 val s = server ?: run { channel.error("Server is null, are you running this from a DM?"); return@executeIfHas }
                 val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
                 val oldName = c.name
@@ -209,7 +209,7 @@ object ChannelCommand : BotCommand(
             return
         }
 
-        val serverChannel = message.serverChannel(message) ?: return
+        val serverChannel = message.serverChannel() ?: return
         previousChange = Triple(Pair(ChangeType.LOAD, name), serverChannel, serverChannel.rolePermissionOverwrites)
 
         serverChannel.setPermissions(selectedChannel)
@@ -324,7 +324,7 @@ object ChannelCommand : BotCommand(
         }
     }
 
-    private suspend fun Message.serverChannel(message: Message): ServerChannel? {
+    private suspend fun Message.serverChannel(): ServerChannel? {
         val sc = this.server?.channels?.find(this.channel.id)
 
         if (sc == null) {
