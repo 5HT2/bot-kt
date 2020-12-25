@@ -162,7 +162,7 @@ object TicketCommand : BotCommand(
             val author = message.author ?: return@asyncListener
             val category = channel.category ?: return@asyncListener
 
-            if (category.id != config?.ticketCreateChannel) return@asyncListener
+            if (category.id != config?.ticketCategory) return@asyncListener
             if (message.content.isBlank() && author == Main.client.botUser) return@asyncListener
 
             logMessage(channel, message, message.content.elseEmpty(messageEmpty))
