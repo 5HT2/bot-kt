@@ -178,8 +178,9 @@ object TicketCommand : BotCommand(
             }
         }
 
-        BackgroundScope.add(1800000L) {
+        BackgroundScope.launchLooping("Ticket saving", 1800000L) {
             saveAll()
+            Main.logger.debug("Saved tickets")
         }
 
         listener<ShutdownEvent> {

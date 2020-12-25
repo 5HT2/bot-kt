@@ -6,7 +6,7 @@ import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.plugin.PluginLoader
 import org.kamiblue.botkt.plugin.PluginManager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.error
 import java.io.File
 
 object PluginCommand : BotCommand(
