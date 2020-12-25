@@ -54,10 +54,7 @@ object TicketCommand : BotCommand(
                 val response = this.channel.normal("Saving `${messages.size}` messages...")
 
                 messages.forEach {
-                    logTicket(
-                        channel,
-                        timeAndAuthor(it.author, it.timestamp) + it.content.elseEmpty(messageEmpty)
-                    )
+                    logMessage(channel, it, it.content.elseEmpty(messageEmpty))
                 }
 
                 cachedMessages.remove(channel)?.let {
@@ -163,15 +160,12 @@ object TicketCommand : BotCommand(
             val channel = event.message.serverChannel ?: return@asyncListener
             val message = event.message
             val author = message.author ?: return@asyncListener
-            val ticketCategory =
-                config?.ticketCategory?.let { server.channelCategories.find(it) } ?: return@asyncListener
+            val category = channel.category ?: return@asyncListener
 
-            if (ticketCategory == channel.category) {
-                logTicket(
-                    channel,
-                    timeAndAuthor(author, message.timestamp) + message.content.elseEmpty(messageEmpty)
-                )
-            }
+            if (category.id != config?.ticketCreateChannel) return@asyncListener
+            if (message.content.isBlank() && author == Main.client.botUser) return@asyncListener
+
+            logMessage(channel, message, message.content.elseEmpty(messageEmpty))
 
             if (!author.hasPermission(PermissionTypes.COUNCIL_MEMBER) && channel.id == config?.ticketCreateChannel) {
                 if (author.bot) {
@@ -180,7 +174,7 @@ object TicketCommand : BotCommand(
                     return@asyncListener
                 }
 
-                createTicket(server, channel, message, author, ticketCategory)
+                createTicket(server, channel, message, author, category)
             }
         }
 
@@ -203,8 +197,6 @@ object TicketCommand : BotCommand(
 
         return "$time <@!$id>"
     }
-
-    private fun timeAndAuthor(author: User?, timestamp: Instant) = "[${timestamp.prettyFormat()}] [${author?.mention}] "
 
     private fun getTickets() =
         ticketFolder.listFiles(FileFilter { it.isFile && it.name.matches(ticketFileRegex) })!!.toList()
@@ -230,10 +222,7 @@ object TicketCommand : BotCommand(
 
         ticketChannel.setPermissions(author)
 
-        logTicket(
-            ticketChannel,
-            "${timeAndAuthor(author, message.timestamp)}Created ticket: `${message.content}`".max(2048)
-        )
+        logMessage(ticketChannel, message, "Created ticket: `${message.content}`".max(2048))
 
         ticketChannel.send("${author.mention} <@&${config?.ticketPingRole}>")
 
@@ -266,23 +255,25 @@ object TicketCommand : BotCommand(
     }
 
     private suspend fun closeTicket(channel: ServerTextChannel, message: Message) {
-        logTicket(
-            channel,
-            "${timeAndAuthor(message.author, message.timestamp)}Closed ticket `${channel.topic}`"
-        )
+        logMessage(channel, message, "Closed ticket `${channel.topic}`")
         cachedMessages.remove(channel)?.let {
             ticketIOScope.launch { saveChanel(channel, it) }
         }
         channel.delete()
     }
 
-    private fun logTicket(channel: ServerTextChannel, content: String) {
+    private fun logMessage(channel: ServerTextChannel, message: Message, content: String) {
         if (channel.topic.isNullOrBlank()) {
             Main.logger.warn("Cannot log message from ticket ${channel.mention} / ${channel.name} due to missing channel topic")
         } else {
-            cachedMessages.getOrPut(channel, ::StringBuilder).appendLine(content)
+            cachedMessages.getOrPut(channel, ::StringBuilder).apply {
+                append(formatMessage(message))
+                appendLine(content)
+            }
         }
     }
+
+    private fun formatMessage(message: Message) = "[${message.timestamp.prettyFormat()}] [${message.author?.mention}] "
 
     private suspend fun saveAll() {
         val prev = cachedMessages
