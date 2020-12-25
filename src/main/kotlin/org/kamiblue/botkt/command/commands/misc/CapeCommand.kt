@@ -14,7 +14,6 @@ import org.kamiblue.botkt.helpers.ShellHelper.bash
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.manager.managers.UUIDManager
-import org.kamiblue.botkt.manager.managers.UUIDManager.UUIDFormatException
 import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.capeapi.*
@@ -158,13 +157,7 @@ object CapeCommand : BotCommand(
                             return@execute
                         }
 
-                        val profilePair: PlayerProfile?
-                        try {
-                            profilePair = UUIDManager.getByString(username)
-                        } catch (e: UUIDFormatException) {
-                            channel.error(e.message.toString() + "\nMake sure your UUID / username is correct")
-                            return@execute
-                        }
+                        val profilePair = UUIDManager.getByString(username)
 
                         val msg = if (profilePair != null) {
                             channel.normal("Found UUID to attach to Cape `$capeUUID` - verifying")
