@@ -3,8 +3,8 @@ package org.kamiblue.botkt.command.commands.moderation
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
-import org.kamiblue.botkt.utils.MessageUtils.normal
-import org.kamiblue.botkt.utils.MessageUtils.success
+import org.kamiblue.botkt.utils.normal
+import org.kamiblue.botkt.utils.success
 import org.kamiblue.commons.extension.max
 
 object TopicCommand : BotCommand(
@@ -22,7 +22,7 @@ object TopicCommand : BotCommand(
                         topic = setTopic
                     }
 
-                    message.channel.success("Set Channel Topic to `$setTopic`!")
+                    channel.success("Set Channel Topic to `$setTopic`!")
                 }
             }
 
@@ -35,13 +35,13 @@ object TopicCommand : BotCommand(
                     topic = null
                 }
 
-                message.channel.success("Cleared Channel Topic!")
+                channel.success("Cleared Channel Topic!")
             }
         }
 
         execute("Print the topic of the channel") {
             val topic = message.serverChannel?.topic
-            message.channel.normal(
+            channel.normal(
                 if (topic.isNullOrEmpty()) "No topic set!" else topic,
                 "#" + message.serverChannel?.name
             )
