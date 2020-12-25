@@ -11,9 +11,24 @@ import net.ayataka.kordis.DiscordClientImpl
 import net.ayataka.kordis.entity.channel.TextChannel
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.message.MessageImpl
+import net.ayataka.kordis.entity.message.embed.EmbedBuilder
 import net.ayataka.kordis.entity.server.channel.ServerChannel
 import org.kamiblue.botkt.Main
+import org.kamiblue.botkt.utils.StringUtils.elseEmpty
+import org.kamiblue.botkt.utils.StringUtils.joinToChunks
 import java.io.File
+
+fun <E> EmbedBuilder.joinToFields(
+    iterable: Iterable<E>,
+    separator: CharSequence = ", ",
+    lineTransformer: (E) -> String = { it.toString() }
+) {
+    val chunks = iterable.joinToChunks(separator, 1024, lineTransformer)
+
+    for ((index, chunk) in chunks.withIndex()) {
+        field("${index + 1} / ${chunks.size}", chunk.elseEmpty("Empty"))
+    }
+}
 
 suspend fun TextChannel.normal(description: String, title: String? = null) = send {
     embed {

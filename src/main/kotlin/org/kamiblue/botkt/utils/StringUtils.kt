@@ -17,4 +17,29 @@ object StringUtils {
     fun String.toUserID() = replace("[<@!>]".toRegex(), "").toLongOrNull()
 
     fun String.elseEmpty(alternate: String) = if (isEmpty()) alternate else this
+
+    fun <E> Iterable<E>.joinToChunks(
+        separator: CharSequence = ", ",
+        chunkSize: Int,
+        lineTransformer: (E) -> String = { it.toString() }
+    ): List<String> {
+        val fields = ArrayList<String>()
+        val stringBuilder = StringBuilder(chunkSize)
+
+        forEach {
+            val line = "${lineTransformer(it)}$separator"
+
+            if (stringBuilder.length + line.length < 1024) {
+                stringBuilder.append(line)
+            } else {
+                fields.add(stringBuilder.toString())
+                stringBuilder.clear()
+            }
+        }
+
+        if (stringBuilder.isNotEmpty()) fields.add(stringBuilder.toString())
+
+        return fields
+    }
+
 }
