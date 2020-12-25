@@ -1,7 +1,10 @@
 package org.kamiblue.botkt.command.commands.info
 
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
+import net.ayataka.kordis.entity.everyone
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.server.Server
+import net.ayataka.kordis.entity.server.channel.category.ChannelCategory
 import net.ayataka.kordis.entity.server.channel.text.ServerTextChannel
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
@@ -9,20 +12,23 @@ import net.ayataka.kordis.entity.server.permission.overwrite.UserPermissionOverw
 import net.ayataka.kordis.entity.user.User
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.kamiblue.botkt.*
-import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
-import org.kamiblue.botkt.PermissionTypes.PURGE_PROTECTED
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
+import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.StringUtils.elseEmpty
 import org.kamiblue.commons.extension.max
 import org.kamiblue.event.listener.asyncListener
+import org.kamiblue.event.listener.listener
 import java.io.File
+import java.io.FileFilter
 import java.io.FileNotFoundException
 import java.time.Instant
+import java.util.*
+import kotlin.collections.HashMap
 
 object TicketCommand : BotCommand(
     name = "ticket",
@@ -30,35 +36,43 @@ object TicketCommand : BotCommand(
     category = Category.INFO
 ) {
 
-    private val config = ConfigManager.readConfigSafe<TicketConfig>(ConfigType.TICKET, false)
+    private val config get() = ConfigManager.readConfigSafe<TicketConfig>(ConfigType.TICKET, false)
     private val ticketFolder = File("ticket_logs")
+    private val ticketFileRegex = "\\d{4}-\\d{2}-\\d{2}_\\d{2}\\.\\d{2}\\.\\d{2}_\\d{18}\\.".toRegex()
+    private val ticketIOScope = CoroutineScope(Dispatchers.IO + CoroutineName("Ticket IO"))
+    private var cachedMessages = HashMap<ServerTextChannel, StringBuilder>()
+
     private const val messageEmpty = "Message was empty!"
 
     init {
-        literal("saveall") {
-            executeIfHas(COUNCIL_MEMBER, "Saves the last 100 messages. Do not use on new tickets.") {
-                val msgs = channel.getMessages().reversed()
-                val response = channel.normal("Saving `${msgs.size}` messages...")
+        if (!ticketFolder.exists()) ticketFolder.mkdir()
 
-                msgs.forEach {
-                    delay(100) // my poor ssd
-                    logTicket(
-                        timeAndAuthor(it.author, it.timestamp) + it.content.elseEmpty(messageEmpty),
-                        it.serverChannel,
-                        it.author
-                    )
+        literal("saveall") {
+            executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Saves the last 100 messages. Do not use on new tickets.") {
+                val channel = (channel as? ServerTextChannel) ?: return@executeIfHas
+                val messages = this.channel.getMessages().reversed()
+                val response = this.channel.normal("Saving `${messages.size}` messages...")
+
+                messages.forEach {
+                    logMessage(channel, it, it.content.elseEmpty(messageEmpty))
                 }
 
-                response.edit {
-                    description = "Saved `${msgs.size}` messages for ticket `${message.serverChannel?.topic}`!"
-                    color = Colors.SUCCESS.color
+                cachedMessages.remove(channel)?.let {
+                    ticketIOScope.launch {
+                        saveChannel(channel, it)
+                        response.edit {
+                            description =
+                                "Saved `${messages.size}` messages for ticket `${message.serverChannel?.topic}`!"
+                            color = Colors.SUCCESS.color
+                        }
+                    }
                 }
             }
         }
 
         literal("upload") {
             int("index") { indexArg ->
-                executeIfHas(COUNCIL_MEMBER, "Upload a closed ticket file") {
+                executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Upload a closed ticket file") {
                     val index = indexArg.value
                     try {
                         channel.upload(getTickets()[index])
@@ -73,7 +87,7 @@ object TicketCommand : BotCommand(
 
         literal("delete") {
             int("index") { indexArg ->
-                executeIfHas(PURGE_PROTECTED, "Delete a closed ticket entirely") {
+                executeIfHas(PermissionTypes.PURGE_PROTECTED, "Delete a closed ticket entirely") {
                     try {
                         getTickets().getOrNull(indexArg.value)?.delete()
                         channel.success("Deleted ticket with index `${indexArg.value}`")
@@ -86,41 +100,30 @@ object TicketCommand : BotCommand(
 
         literal("view") {
             int("index") { indexArg ->
-                executeIfHas(COUNCIL_MEMBER, "View a closed ticket") {
+                executeIfHas(PermissionTypes.COUNCIL_MEMBER, "View a closed ticket") {
+                    val index = indexArg.value
                     try {
-                        getTickets().getOrNull(indexArg.value)?.let {
-                            val formatted = it.readLines().joinToString("\n").chunked(1024)
-
-                            channel.send {
-                                embed {
-                                    formatted.withIndex().forEach { contents ->
-                                        field(
-                                            "${contents.index + 1} / ${formatted.size}",
-                                            contents.value.elseEmpty("Empty")
-                                        )
-                                    }
-                                    color = Colors.PRIMARY.color
-                                }
+                        channel.send {
+                            embed {
+                                joinToFields(getTickets()[index].readLines(), "\n")
+                                color = Colors.PRIMARY.color
                             }
                         }
+                    } catch (e: IndexOutOfBoundsException) {
+                        indexNotFound(index)
                     } catch (e: FileNotFoundException) {
-                        indexNotFound(indexArg.value)
+                        indexNotFound(index)
                     }
                 }
             }
         }
 
         literal("list") {
-            executeIfHas(COUNCIL_MEMBER, "List closed tickets") {
-                val tickets = getTickets().withIndex()
-                val ticketNames = tickets.joinToString("\n") {
-                    if (it.value.name == ticketFolder.name) "" else "`${it.index}`: " + it.value.name.formatName()
-                }.chunked(1024)
-
+            executeIfHas(PermissionTypes.COUNCIL_MEMBER, "List closed tickets") {
                 channel.send {
                     embed {
-                        ticketNames.withIndex().forEach { contents ->
-                            field("${contents.index + 1} / ${ticketNames.size}", contents.value.elseEmpty("Empty"))
+                        joinToFields(getTickets().withIndex(), "\n") {
+                            "`${it.index}`: ${it.value.name.formatName()}\n"
                         }
                         color = Colors.PRIMARY.color
                     }
@@ -130,17 +133,17 @@ object TicketCommand : BotCommand(
 
         literal("close") {
             int("ticket number") { ticketNum ->
-                executeIfHas(COUNCIL_MEMBER, "Close a ticket") {
-                    val ticket = message.server?.textChannels?.findByName("ticket-${ticketNum.value}") ?: run {
+                executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Close a ticket") {
+                    val ticketChannel = message.server?.textChannels?.findByName("ticket-${ticketNum.value}") ?: run {
                         channel.error("Couldn't find a ticket named `ticket-${ticketNum.value}`!")
                         return@executeIfHas
                     }
 
-                    closeTicket(message, ticket)
+                    closeTicket(ticketChannel, message)
                 }
             }
 
-            executeIfHas(COUNCIL_MEMBER, "Close the current ticket") {
+            executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Close the current ticket") {
                 val channel = message.serverChannel
 
                 if (channel?.name?.startsWith("ticket-") != true) {
@@ -148,116 +151,42 @@ object TicketCommand : BotCommand(
                     return@executeIfHas
                 }
 
-                closeTicket(message, channel)
+                closeTicket(channel, message)
             }
         }
 
         asyncListener<MessageReceiveEvent> { event ->
+            val server = event.server ?: return@asyncListener
+            val channel = event.message.serverChannel ?: return@asyncListener
             val message = event.message
-            val server = message.server ?: return@asyncListener
             val author = message.author ?: return@asyncListener
-            val channel = message.serverChannel ?: return@asyncListener
-            val ticketCategory =
-                config?.ticketCategory?.let { server.channelCategories.find(it) } ?: return@asyncListener
+            val category = channel.category ?: return@asyncListener
 
-            if (ticketCategory == channel.category) {
-                logTicket(
-                    timeAndAuthor(author, message.timestamp) + message.content.elseEmpty(messageEmpty),
-                    channel,
-                    author
-                )
-            }
+            if (category.id != config?.ticketCreateChannel) return@asyncListener
+            if (message.content.isBlank() && author == Main.client.botUser) return@asyncListener
 
-            if (author.hasPermission(COUNCIL_MEMBER)) return@asyncListener
+            logMessage(channel, message, message.content.elseEmpty(messageEmpty))
 
-            config.ticketCreateChannel?.let {
-                if (message.channel.id != it) return@asyncListener
-
+            if (!author.hasPermission(PermissionTypes.COUNCIL_MEMBER) && channel.id == config?.ticketCreateChannel) {
                 if (author.bot) {
-                    if (author.id != Main.client.botUser.id) {
-                        message.delete() // we clean up our own messages later
-                    }
+                    // We clean up our own messages later
+                    if (author.id != Main.client.botUser.id) message.delete()
                     return@asyncListener
                 }
 
-                val everyone = message.server?.id?.let { serverId -> message.server?.roles?.find(serverId) }
-                    ?: return@asyncListener
-
-                val tickets = server.textChannels.filter { channels -> channels.category == ticketCategory }
-
-                val ticket = server.createTextChannel {
-                    name = "ticket-${tickets.size}"
-                    topic = "${Instant.now().prettyFormat()} ${author.id}"
-                    category = ticketCategory
-                }
-
-                ticket.edit {
-                    userPermissionOverwrites.add(UserPermissionOverwrite(author, PermissionSet(117760)))
-                    rolePermissionOverwrites.add(
-                        RolePermissionOverwrite(
-                            everyone,
-                            PermissionSet(0),
-                            PermissionSet(3072)
-                        )
-                    )
-                }
-
-                logTicket(
-                    "${timeAndAuthor(author, message.timestamp)}Created ticket: `${message.content}`".max(2048),
-                    ticket
-                )
-
-                ticket.send(
-                    "${author.mention} "
-                        + "<@&${config.ticketPingRole}>"
-                )
-
-                ticket.send {
-                    embed {
-                        title = "Ticket Created!"
-                        description = message.content
-                        color = Colors.SUCCESS.color
-                        footer("ID: ${author.id}", author.avatar.url)
-                    }
-                }
-
-                val feedback = channel.success("${author.mention} Created ticket! Go to ${ticket.mention}!")
-                delay(5000)
-                feedback.delete()
-                message.delete()
+                createTicket(server, channel, message, author, category)
             }
         }
-    }
 
-    private suspend fun closeTicket(message: Message, channel: ServerTextChannel) {
-        logTicket(
-            "${timeAndAuthor(message.author, message.timestamp)}Closed ticket `${channel.topic}`",
-            message.serverChannel
-        )
-        channel.delete()
-    }
-
-    private fun logTicket(content: String, channel: ServerTextChannel?, author: User? = null) {
-        if (channel?.topic.isNullOrBlank()) {
-            Main.logger.error("Cannot log message from ticket ${channel?.mention} / ${channel?.name} due to missing channel topic")
-            return
+        BackgroundScope.add(1800000L) {
+            saveAll()
         }
 
-        channel ?: return
-
-        val ticketName = if (channel.id == config?.ticketCreateChannel) channel.name
-        else channel.topic!!.replace(" ", "_").replace(":", ".")
-
-        val file = File("${ticketFolder.name}/$ticketName.txt")
-
-        if (author?.id == Main.client.botUser.id && content.endsWith(messageEmpty)) return
-
-        if (!file.exists()) {
-            ticketFolder.mkdir()
-            file.createNewFile()
+        listener<ShutdownEvent> {
+            runBlocking {
+                saveAll()
+            }
         }
-
-        file.appendText(content + "\n")
     }
 
     private fun String.formatName(): String {
@@ -269,11 +198,103 @@ object TicketCommand : BotCommand(
         return "$time <@!$id>"
     }
 
-    private fun timeAndAuthor(author: User?, timestamp: Instant) = "[${timestamp.prettyFormat()}] [${author?.mention}] "
-
-    private fun getTickets() = ticketFolder.walkTopDown().sortedBy { it.name }.toList()
+    private fun getTickets() =
+        ticketFolder.listFiles(FileFilter { it.isFile && it.name.matches(ticketFileRegex) })!!.toList()
 
     private suspend fun MessageExecuteEvent.indexNotFound(index: Int) {
         channel.error("Ticket with index `$index` could not be found")
     }
+
+    private suspend fun createTicket(
+        server: Server,
+        channel: ServerTextChannel,
+        message: Message,
+        author: User,
+        ticketCategory: ChannelCategory
+    ) {
+        val tickets = server.textChannels.filter { it.category == ticketCategory }
+
+        val ticketChannel = server.createTextChannel {
+            name = "ticket-${tickets.size}"
+            topic = "${Instant.now().prettyFormat()} ${author.id}"
+            category = ticketCategory
+        }
+
+        ticketChannel.setPermissions(author)
+
+        logMessage(ticketChannel, message, "Created ticket: `${message.content}`".max(2048))
+
+        ticketChannel.send("${author.mention} <@&${config?.ticketPingRole}>")
+
+        ticketChannel.send {
+            embed {
+                title = "Ticket Created!"
+                description = message.content
+                color = Colors.SUCCESS.color
+                footer("ID: ${author.id}", author.avatar.url)
+            }
+        }
+
+        val feedback = channel.success("${author.mention} Created ticket! Go to ${ticketChannel.mention}!")
+        delay(5000)
+        feedback.delete()
+        message.delete()
+    }
+
+    private suspend fun ServerTextChannel.setPermissions(author: User) {
+        edit {
+            userPermissionOverwrites.add(UserPermissionOverwrite(author, PermissionSet(117760)))
+            rolePermissionOverwrites.add(
+                RolePermissionOverwrite(
+                    server.roles.everyone,
+                    PermissionSet(0),
+                    PermissionSet(3072)
+                )
+            )
+        }
+    }
+
+    private suspend fun closeTicket(channel: ServerTextChannel, message: Message) {
+        logMessage(channel, message, "Closed ticket `${channel.topic}`")
+        cachedMessages.remove(channel)?.let {
+            ticketIOScope.launch { saveChannel(channel, it) }
+        }
+        channel.delete()
+    }
+
+    private fun logMessage(channel: ServerTextChannel, message: Message, content: String) {
+        if (channel.topic.isNullOrBlank()) {
+            Main.logger.warn("Cannot log message from ticket ${channel.mention} / ${channel.name} due to missing channel topic")
+        } else {
+            cachedMessages.getOrPut(channel, ::StringBuilder).apply {
+                append(formatMessage(message))
+                appendLine(content)
+            }
+        }
+    }
+
+    private fun formatMessage(message: Message) = "[${message.timestamp.prettyFormat()}] [${message.author?.mention}] "
+
+    private suspend fun saveAll() {
+        val prev = cachedMessages
+        cachedMessages = HashMap()
+
+        prev.map { (channel, stringBuilder) ->
+            ticketIOScope.async { saveChannel(channel, stringBuilder) }
+        }.awaitAll()
+    }
+
+    private fun saveChannel(channel: ServerTextChannel, stringBuilder: java.lang.StringBuilder) {
+        val ticketName = if (channel.id == config?.ticketCreateChannel) channel.name
+        else channel.topic!!.replace(" ", "_").replace(":", ".")
+
+        File("${ticketFolder.name}/$ticketName.txt").run {
+            if (!exists()) {
+                mkdir()
+                createNewFile()
+            }
+            appendText(stringBuilder.toString())
+        }
+    }
+
 }
