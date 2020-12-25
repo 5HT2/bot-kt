@@ -11,6 +11,7 @@ import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverw
 import net.ayataka.kordis.entity.server.permission.overwrite.UserPermissionOverwrite
 import net.ayataka.kordis.entity.user.User
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
+import net.ayataka.kordis.exception.NotFoundException
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.BotCommand
@@ -169,8 +170,16 @@ object TicketCommand : BotCommand(
 
             if (!author.hasPermission(PermissionTypes.COUNCIL_MEMBER) && channel.id == config?.ticketCreateChannel) {
                 if (author.bot) {
-                    // We clean up our own messages later
-                    if (author.id != Main.client.botUser.id) message.delete()
+                    if (author.id != Main.client.botUser.id) {
+                        message.delete() // remove other bot messages
+                    } else {
+                        delay(10000)
+                        try {
+                            message.delete()
+                        } catch (ignored: NotFoundException) {
+                            // clean up any error or accidental messages that we sent
+                        }
+                    }
                     return@asyncListener
                 }
 
