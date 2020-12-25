@@ -297,7 +297,13 @@ object TicketCommand : BotCommand(
         val ticketName = if (channel.id == config?.ticketCreateChannel) channel.name
         else channel.topic!!.replace(" ", "_").replace(":", ".")
 
-        File("${ticketFolder.name}/$ticketName.txt").appendText(stringBuilder.toString())
+        File("${ticketFolder.name}/$ticketName.txt").run {
+            if (!exists()) {
+                mkdir()
+                createNewFile()
+            }
+            appendText(stringBuilder.toString())
+        }
     }
 
 }
