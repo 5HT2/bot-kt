@@ -59,7 +59,7 @@ object TicketCommand : BotCommand(
 
                 cachedMessages.remove(channel)?.let {
                     ticketIOScope.launch {
-                        saveChanel(channel, it)
+                        saveChannel(channel, it)
                         response.edit {
                             description =
                                 "Saved `${messages.size}` messages for ticket `${message.serverChannel?.topic}`!"
@@ -257,7 +257,7 @@ object TicketCommand : BotCommand(
     private suspend fun closeTicket(channel: ServerTextChannel, message: Message) {
         logMessage(channel, message, "Closed ticket `${channel.topic}`")
         cachedMessages.remove(channel)?.let {
-            ticketIOScope.launch { saveChanel(channel, it) }
+            ticketIOScope.launch { saveChannel(channel, it) }
         }
         channel.delete()
     }
@@ -280,11 +280,11 @@ object TicketCommand : BotCommand(
         cachedMessages = HashMap()
 
         prev.map { (channel, stringBuilder) ->
-            ticketIOScope.async { saveChanel(channel, stringBuilder) }
+            ticketIOScope.async { saveChannel(channel, stringBuilder) }
         }.awaitAll()
     }
 
-    private fun saveChanel(channel: ServerTextChannel, stringBuilder: java.lang.StringBuilder) {
+    private fun saveChannel(channel: ServerTextChannel, stringBuilder: java.lang.StringBuilder) {
         val ticketName = if (channel.id == config?.ticketCreateChannel) channel.name
         else channel.topic!!.replace(" ", "_").replace(":", ".")
 
