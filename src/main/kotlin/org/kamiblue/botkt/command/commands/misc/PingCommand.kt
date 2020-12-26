@@ -22,8 +22,6 @@ object PingCommand : BotCommand(
                 description = "Pong! ${System.currentTimeMillis() - message.timestamp.toEpochMilli()}ms."
                 color = Colors.SUCCESS.color
             }
-
         }
-
     }
 }

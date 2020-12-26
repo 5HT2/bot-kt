@@ -19,5 +19,4 @@ class MessageExecuteEvent(
             it.textChannels.find(this.value)
                 ?: it.announcementChannels.find(this.value)
         }
-
 }

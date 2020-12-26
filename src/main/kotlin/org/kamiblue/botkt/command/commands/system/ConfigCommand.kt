@@ -13,6 +13,7 @@ import java.io.File
 import java.net.URL
 import kotlin.math.min
 
+@Suppress("BlockingMethodInNonBlockingContext")
 object ConfigCommand : BotCommand(
     name = "config",
     alias = arrayOf("cfg"),
@@ -90,7 +91,7 @@ object ConfigCommand : BotCommand(
                             message.edit {
                                 color = Colors.ERROR.color
                                 description = "Failed to download `$configName`\n" +
-                                    "```${stackTrace}```"
+                                    "```$stackTrace```"
                             }
                         }
                     }

@@ -36,7 +36,6 @@ object RulesCommand : BotCommand(
                         }
                     }
                 }
-
             }
         }
     }

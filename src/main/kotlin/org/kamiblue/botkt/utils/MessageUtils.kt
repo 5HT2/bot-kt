@@ -79,7 +79,7 @@ suspend fun TextChannel.upload(files: Collection<File>, message: String = ""): M
     }
     else -> {
         Main.discordHttp.post<JsonObject> {
-            url("https://discord.com/api/v8/channels/${id}/messages")
+            url("https://discord.com/api/v8/channels/$id/messages")
             header("Accept", ContentType.MultiPart.FormData)
             body = MultiPartFormDataContent(
                 formData {
@@ -92,7 +92,7 @@ suspend fun TextChannel.upload(files: Collection<File>, message: String = ""): M
 }
 
 suspend fun TextChannel.upload(file: File, message: String = ""): Message = Main.discordHttp.post<JsonObject> {
-    url("https://discord.com/api/v8/channels/${id}/messages")
+    url("https://discord.com/api/v8/channels/$id/messages")
     header("Accept", ContentType.MultiPart.FormData)
     body = MultiPartFormDataContent(
         formData {

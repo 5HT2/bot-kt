@@ -57,10 +57,15 @@ object Main {
     }
 
     private fun addShutdownHook() {
-        Runtime.getRuntime().addShutdownHook(Thread({
-            logger.info("Bot shutting down, posting ShutdownEvent")
-            BotEventBus.post(ShutdownEvent)
-        }, "Bot Shutdown Hook"))
+        Runtime.getRuntime().addShutdownHook(
+            Thread(
+                {
+                    logger.info("Bot shutting down, posting ShutdownEvent")
+                    BotEventBus.post(ShutdownEvent)
+                },
+                "Bot Shutdown Hook"
+            )
+        )
     }
 
     private fun start() {
@@ -150,5 +155,4 @@ object Main {
             }
         }
     }
-
 }

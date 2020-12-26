@@ -305,5 +305,4 @@ object TicketCommand : BotCommand(
             appendText(stringBuilder.toString())
         }
     }
-
 }
