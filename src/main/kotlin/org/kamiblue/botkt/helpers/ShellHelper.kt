@@ -31,7 +31,6 @@ object ShellHelper {
         this.process(dir).systemProcess().start()
     }
 
-
     /**
      * Run a command but return the output
      * // TODO: stderr does not return

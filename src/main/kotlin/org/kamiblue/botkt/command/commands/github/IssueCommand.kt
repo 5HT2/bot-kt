@@ -131,7 +131,6 @@ object IssueCommand : BotCommand(
                         field("Repository:", "$user/${form.repo}")
                         color = Colors.SUCCESS.color
                     }
-
                 }
 
                 form.formMessage.delete()
@@ -160,7 +159,6 @@ object IssueCommand : BotCommand(
                 }
 
                 val feedback = message.channel.error("Issue `${form.issue.title}` rejected!")
-
 
                 delay(5000)
                 message.delete()

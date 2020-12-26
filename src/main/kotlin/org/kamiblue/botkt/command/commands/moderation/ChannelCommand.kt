@@ -119,7 +119,6 @@ object ChannelCommand : BotCommand(
                         channel.error("Server channel is null, are you running this from a DM?")
                     }
                 }
-
             }
         }
 
@@ -141,7 +140,6 @@ object ChannelCommand : BotCommand(
                 }
 
                 channel.success("Changed name from `$oldName` to `archived-$totalArchived`")
-
             }
         }
 
@@ -303,7 +301,6 @@ object ChannelCommand : BotCommand(
             }
             message.channel.success("Unlocked ${if (category) "category" else "channel"}!")
         }
-
     }
 
     private fun ServerChannel.tryGetPrevPerm(): Collection<RolePermissionOverwrite>? {

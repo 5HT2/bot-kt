@@ -55,5 +55,4 @@ object RoleInfoCommand : BotCommand(
             }
         }
     }
-
 }

@@ -119,7 +119,7 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
         event.message.channel.send {
             embed {
-                title = "Invalid Syntax: `${Main.prefix}${string}`"
+                title = "Invalid Syntax: `${Main.prefix}$string`"
                 if (bestCommand != null) {
                     val prediction = "`${Main.prefix}${bestCommand.printArgHelp()}`"
                     field("Did you mean?", prediction)
@@ -146,6 +146,4 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
             }
         }
     }
-
 }
-

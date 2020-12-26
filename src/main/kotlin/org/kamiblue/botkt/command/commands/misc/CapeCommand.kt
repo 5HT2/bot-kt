@@ -282,7 +282,7 @@ object CapeCommand : BotCommand(
                             }
 
                             if (cape.type != CapeType.CONTEST) {
-                                channel.error("You're only able to change the colors of Contest Capes, `${capeUUID}` is a ${cape.type.realName} Cape!")
+                                channel.error("You're only able to change the colors of Contest Capes, `$capeUUID` is a ${cape.type.realName} Cape!")
                                 return@execute
                             }
 
@@ -415,7 +415,7 @@ object CapeCommand : BotCommand(
         }
     }
 
-    private suspend fun Message.getCapes(): ArrayList<Cape>? {
+    private fun Message.getCapes(): ArrayList<Cape>? {
         return author?.let { author ->
             capeUserMap[author.id]?.capes.also {
                 if (it == null) error("User ${author.mention} does not have any capes!")
@@ -426,10 +426,10 @@ object CapeCommand : BotCommand(
     private suspend fun CapeColor.toEmoji(): String {
         return StringBuilder(4).run {
             append(makeEmojiFromHex(primary)?.let { "<:${it.name}:${it.id}> " } ?: missingTexture)
-            append("Primary (#${primary})\n")
+            append("Primary (#$primary)\n")
 
             append(makeEmojiFromHex(border)?.let { "<:${it.name}:${it.id}> " } ?: missingTexture)
-            append("Border (#${border})")
+            append("Border (#$border)")
 
             toString()
         }

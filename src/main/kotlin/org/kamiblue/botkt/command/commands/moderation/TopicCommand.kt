@@ -25,7 +25,6 @@ object TopicCommand : BotCommand(
                     channel.success("Set Channel Topic to `$setTopic`!")
                 }
             }
-
         }
 
         literal("clear") {
