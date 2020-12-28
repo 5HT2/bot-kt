@@ -13,7 +13,7 @@ object SystemHelper {
         val speeds = arrayListOf<String>()
 
         for (i in 0 until cpus.size) {
-            speeds.add("**[$i]** ${getCpuUsage(i).toString()}GHz")
+            speeds.add("**[$i]** ${getCpuUsage(i)}GHz")
         }
 
         val cpuInfo = "**${cpus.size}x** ${cpus[0]}\n"
