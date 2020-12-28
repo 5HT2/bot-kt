@@ -28,9 +28,13 @@ Why should you use this over other Kotlin bots:
 3. Import the `build.gradle` file
 4. Wait for the Gradle import to finish
 
-Note: If you forget the `--recurse-submodules` flag or cloned in an IDE, you can do `git submodule update --init --recursive` after.
+### Or without an IDE
 
-Note: To upgrade submodules, execute this command: `git submodule foreach git pull origin master`
+0. `git clone https://github.com/kami-blue/bot-kt.git`
+1. `cd bot-kt`
+2. `./completeBuild.sh`
+
+Note: `compileKotlin.sh` has the optional `-s` (silent) and `--no-lint` (don't require ktlint) options, in that order.
 
 ## Usage
 
