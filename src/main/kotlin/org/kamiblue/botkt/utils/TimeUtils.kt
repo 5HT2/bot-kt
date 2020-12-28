@@ -40,7 +40,7 @@ fun formatDuration(durationMillis: Long, displaySeconds: Boolean = true): String
             append(grammar(minute, "minute"))
         }
 
-        if (displaySeconds) {
+        if (!append || displaySeconds) {
             append(grammar(second, "second", false))
         }
     }.toString()
