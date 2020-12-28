@@ -1,11 +1,11 @@
 package org.kamiblue.botkt.command.commands.system
 
+import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.formatDuration
 import org.kamiblue.botkt.utils.untilNow
-import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 object UptimeCommand : BotCommand(
@@ -15,11 +15,11 @@ object UptimeCommand : BotCommand(
 ) {
     init {
         execute {
-            val uptimeMillis = Instant.ofEpochSecond(1605034200).untilNow(ChronoUnit.MILLIS)
+            val uptimeMillis = Main.startUpTime.untilNow(ChronoUnit.MILLIS)
             message.channel.send {
                 embed {
                     title = "Uptime"
-                    description = formatDuration(uptimeMillis)
+                    description = formatDuration(uptimeMillis, false)
                     color = Colors.PRIMARY.color
                 }
             }

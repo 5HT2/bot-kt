@@ -12,7 +12,7 @@ fun Instant.prettyFormat(): String = formatter.format(this)
 
 fun Instant.untilNow(unit: ChronoUnit = ChronoUnit.DAYS) = this.until(Instant.now(), unit)
 
-fun formatDuration(durationMillis: Long): String {
+fun formatDuration(durationMillis: Long, displaySeconds: Boolean = true): String {
     val week = durationMillis / 604800000L
     val day = durationMillis / 86400000L % 7
     val hour = durationMillis / 3600000L % 24L
@@ -40,7 +40,9 @@ fun formatDuration(durationMillis: Long): String {
             append(grammar(minute, "minute"))
         }
 
-        append(grammar(second, "second", false))
+        if (displaySeconds) {
+            append(grammar(second, "second", false))
+        }
     }.toString()
 }
 
