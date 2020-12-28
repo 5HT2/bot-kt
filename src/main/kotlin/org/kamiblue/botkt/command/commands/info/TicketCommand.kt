@@ -39,7 +39,7 @@ object TicketCommand : BotCommand(
 
     private val config get() = ConfigManager.readConfigSafe<TicketConfig>(ConfigType.TICKET, false)
     private val ticketFolder = File("ticket_logs")
-    private val ticketFileRegex = "\\d{4}-\\d{2}-\\d{2}_\\d{2}\\.\\d{2}\\.\\d{2}_\\d{18}\\.".toRegex()
+    private val ticketFileRegex = "^\\d{4}-\\d{2}-\\d{2}_\\d{2}\\.\\d{2}\\.\\d{2}_\\d{18}\\.txt".toRegex()
     private val ticketIOScope = CoroutineScope(Dispatchers.IO + CoroutineName("Ticket IO"))
     private var cachedMessages = HashMap<ServerTextChannel, StringBuilder>()
 
