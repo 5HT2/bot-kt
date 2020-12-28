@@ -34,7 +34,7 @@ Why should you use this over other Kotlin bots:
 1. `cd bot-kt`
 2. `./completeBuild.sh`
 
-Note: `compileKotlin.sh` has the optional `-s` (silent) and `--no-lint` (don't require ktlint) options, in that order.
+Note: `completeBuild.sh` has the optional `-s` (silent) and `--no-lint` (don't require ktlint) options, in that order.
 
 ## Usage
 
