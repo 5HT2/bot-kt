@@ -21,7 +21,7 @@ fun formatDuration(durationMillis: Long, displaySeconds: Boolean = true): String
     var append = false
 
     return StringBuilder(4).apply {
-        if (append || week != 0L) {
+        if (week != 0L) {
             append(grammar(week, "week"))
             append = true
         }
@@ -37,7 +37,7 @@ fun formatDuration(durationMillis: Long, displaySeconds: Boolean = true): String
         }
 
         if (append || minute != 0L) {
-            append(grammar(minute, "minute"))
+            append(grammar(minute, "minute", displaySeconds))
             append = true
         }
 
