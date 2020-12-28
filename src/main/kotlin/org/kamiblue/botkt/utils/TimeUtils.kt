@@ -18,21 +18,25 @@ fun formatDuration(durationMillis: Long): String {
     val hour = durationMillis / 3600000L % 24L
     val minute = durationMillis / 60000L % 60L
     val second = durationMillis / 1000L % 60L
+    var append = false
 
     return StringBuilder(4).apply {
-        if (week != 0L) {
+        if (append || week != 0L) {
             append(grammar(week, "week"))
+            append = true
         }
 
-        if (day != 0L) {
+        if (append || day != 0L) {
             append(grammar(day, "day"))
+            append = true
         }
 
-        if (hour != 0L) {
+        if (append || hour != 0L) {
             append(grammar(hour, "hour"))
+            append = true
         }
 
-        if (minute != 0L) {
+        if (append || minute != 0L) {
             append(grammar(minute, "minute"))
         }
 
