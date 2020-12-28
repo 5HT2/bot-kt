@@ -10,12 +10,8 @@ import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverw
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.PermissionTypes.*
 import org.kamiblue.botkt.command.*
-import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageUtils.error
-import org.kamiblue.botkt.utils.MessageUtils.normal
-import org.kamiblue.botkt.utils.MessageUtils.success
+import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
-import org.kamiblue.botkt.utils.pretty
 import kotlin.collections.set
 
 object ChannelCommand : BotCommand(
@@ -32,7 +28,7 @@ object ChannelCommand : BotCommand(
     init {
         literal("save") {
             executeIfHas(MANAGE_CHANNELS, "Save a channel's permissions") {
-                val serverChannel = message.serverChannel(message) ?: return@executeIfHas
+                val serverChannel = message.serverChannel() ?: return@executeIfHas
                 val name = serverChannel.name
 
                 save(name, serverChannel, message)
@@ -40,7 +36,7 @@ object ChannelCommand : BotCommand(
 
             string("name") { name ->
                 executeIfHas(MANAGE_CHANNELS, "Save a channel's permissions") {
-                    val serverChannel = message.serverChannel(message) ?: return@executeIfHas
+                    val serverChannel = message.serverChannel() ?: return@executeIfHas
 
                     save(name.value, serverChannel, message)
                 }
@@ -49,7 +45,7 @@ object ChannelCommand : BotCommand(
 
         literal("print") {
             executeIfHas(MANAGE_CHANNELS, "Print the current channels permissions") {
-                val c = message.serverChannel(message) ?: return@executeIfHas
+                val c = message.serverChannel() ?: return@executeIfHas
                 val name = c.name
 
                 print(name, message)
@@ -73,7 +69,7 @@ object ChannelCommand : BotCommand(
         @Suppress("UNREACHABLE_CODE") // TODO: Doesn't work
         literal("undo") {
             executeIfHas(MANAGE_CHANNELS, "Undo the last change to channels") {
-                message.channel.error("Undo isn't fully supported yet!")
+                channel.error("Undo isn't fully supported yet!")
                 return@executeIfHas
 
                 undo(message)
@@ -83,14 +79,14 @@ object ChannelCommand : BotCommand(
         literal("sync") {
             literal("category") {
                 executeIfHas(MANAGE_CHANNELS, "Sync category permissions to channel permissions") {
-                    val c = message.serverChannel(message) ?: return@executeIfHas
+                    val c = message.serverChannel() ?: return@executeIfHas
 
                     sync(true, message, c)
                 }
             }
 
             executeIfHas(MANAGE_CHANNELS, "Sync channel permissions to category permissions") {
-                val c = message.serverChannel(message) ?: return@executeIfHas
+                val c = message.serverChannel() ?: return@executeIfHas
 
                 sync(false, message, c)
             }
@@ -103,9 +99,9 @@ object ChannelCommand : BotCommand(
                         rateLimitPerUser = 0
                     }
 
-                    message.channel.success("Removed slowmode")
+                    channel.success("Removed slowmode")
                 } ?: run {
-                    message.channel.error("Server channel is null, are you running this from a DM?")
+                    channel.error("Server channel is null, are you running this from a DM?")
                 }
             }
 
@@ -118,19 +114,18 @@ object ChannelCommand : BotCommand(
                             rateLimitPerUser = wait
                         }
 
-                        message.channel.success(if (wait != 0) "Set slowmode to ${wait}s" else "Removed slowmode")
+                        channel.success(if (wait != 0) "Set slowmode to ${wait}s" else "Removed slowmode")
                     } ?: run {
-                        message.channel.error("Server channel is null, are you running this from a DM?")
+                        channel.error("Server channel is null, are you running this from a DM?")
                     }
                 }
-
             }
         }
 
         literal("archive") {
             executeIfHas(ARCHIVE_CHANNEL, "Archive the current channel") {
-                val c = message.serverChannel(message) ?: return@executeIfHas
-                val s = server ?: run { message.channel.error("Server is null, are you running this from a DM?"); return@executeIfHas }
+                val c = message.serverChannel() ?: return@executeIfHas
+                val s = server ?: run { channel.error("Server is null, are you running this from a DM?"); return@executeIfHas }
                 val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
                 val oldName = c.name
 
@@ -144,8 +139,7 @@ object ChannelCommand : BotCommand(
                     name = "archived-$totalArchived"
                 }
 
-                message.channel.success("Changed name from `$oldName` to `archived-$totalArchived`")
-
+                channel.success("Changed name from `$oldName` to `archived-$totalArchived`")
             }
         }
 
@@ -209,7 +203,7 @@ object ChannelCommand : BotCommand(
             return
         }
 
-        val serverChannel = message.serverChannel(message) ?: return
+        val serverChannel = message.serverChannel() ?: return
         previousChange = Triple(Pair(ChangeType.LOAD, name), serverChannel, serverChannel.rolePermissionOverwrites)
 
         serverChannel.setPermissions(selectedChannel)
@@ -307,7 +301,6 @@ object ChannelCommand : BotCommand(
             }
             message.channel.success("Unlocked ${if (category) "category" else "channel"}!")
         }
-
     }
 
     private fun ServerChannel.tryGetPrevPerm(): Collection<RolePermissionOverwrite>? {
@@ -324,11 +317,11 @@ object ChannelCommand : BotCommand(
         }
     }
 
-    private suspend fun Message.serverChannel(message: Message): ServerChannel? {
+    private suspend fun Message.serverChannel(): ServerChannel? {
         val sc = this.server?.channels?.find(this.channel.id)
 
         if (sc == null) {
-            message.channel.error("Channel is null! Are you running this from a DM?")
+            channel.error("Channel is null! Are you running this from a DM?")
         }
 
         return sc

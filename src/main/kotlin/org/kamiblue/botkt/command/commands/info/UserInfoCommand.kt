@@ -6,7 +6,6 @@ import net.ayataka.kordis.entity.server.member.Member
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.*
-import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.StringUtils.toUserID
 
@@ -23,7 +22,7 @@ object UserInfoCommand : BotCommand(
         execute("Get info for yourself") {
             val username: String = message.author?.id?.toString() ?: run {
                 message.author?.tag ?: run {
-                    message.channel.error("Couldn't find your user, try using a direct ID!")
+                    channel.error("Couldn't find your user, try using a direct ID!")
                     return@execute
                 }
             }
@@ -67,5 +66,4 @@ object UserInfoCommand : BotCommand(
             }
         }
     }
-
 }

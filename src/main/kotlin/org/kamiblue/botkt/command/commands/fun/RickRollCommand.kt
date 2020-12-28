@@ -2,8 +2,8 @@ package org.kamiblue.botkt.command.commands.`fun`
 
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
-import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.StringUtils.isUrl
+import org.kamiblue.botkt.utils.error
 
 object RickRollCommand : BotCommand(
     name = "rickroll",
@@ -19,7 +19,7 @@ object RickRollCommand : BotCommand(
             execute {
                 val url = urlArg.value
                 if (!url.isUrl() || !url.matches(cdnRegex)) {
-                    message.channel.error("Invalid url!")
+                    channel.error("Invalid url!")
                     return@execute
                 }
                 val redirectLink = url.replace(cdnRegex, "$urlPrefix/$1/$2/$3")
@@ -28,5 +28,4 @@ object RickRollCommand : BotCommand(
             }
         }
     }
-
 }

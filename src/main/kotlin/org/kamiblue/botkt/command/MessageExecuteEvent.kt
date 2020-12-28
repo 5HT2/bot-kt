@@ -12,11 +12,11 @@ class MessageExecuteEvent(
 ) : ExecuteEvent(CommandManager, args), MessageEvent by event {
 
     val message by event::message
+    val channel = message.channel
 
     fun ArgIdentifier<Long>.getTextChannelOrNull(): TextChannel? =
         server?.let {
             it.textChannels.find(this.value)
                 ?: it.announcementChannels.find(this.value)
         }
-
 }

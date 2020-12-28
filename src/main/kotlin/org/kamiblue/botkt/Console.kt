@@ -140,6 +140,5 @@ object Console {
                 }
             }
         }
-
     }
 }

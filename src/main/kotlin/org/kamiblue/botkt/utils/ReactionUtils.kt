@@ -16,7 +16,7 @@ import org.kamiblue.botkt.entity.Reaction
  */
 suspend fun Message.addReaction(emoji: Emoji) {
     Main.discordHttp.put<Unit> {
-        url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions/${emoji.urlCoded}/@me")
+        url("https://discord.com/api/v8/channels/${channel.id}/messages/$id/reactions/${emoji.urlCoded}/@me")
     }
 }
 
@@ -25,7 +25,7 @@ suspend fun Message.addReaction(emoji: Emoji) {
  */
 suspend fun Message.removeReaction(emoji: Emoji) {
     Main.discordHttp.delete<Unit> {
-        url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions/${emoji.urlCoded}/@me")
+        url("https://discord.com/api/v8/channels/${channel.id}/messages/$id/reactions/${emoji.urlCoded}/@me")
     }
 }
 
@@ -34,7 +34,7 @@ suspend fun Message.removeReaction(emoji: Emoji) {
  */
 suspend fun Message.removeReaction(user: User, emoji: Emoji) {
     Main.discordHttp.delete<Unit> {
-        url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions/${emoji.urlCoded}/${user.id}")
+        url("https://discord.com/api/v8/channels/${channel.id}/messages/$id/reactions/${emoji.urlCoded}/${user.id}")
     }
 }
 
@@ -43,7 +43,7 @@ suspend fun Message.removeReaction(user: User, emoji: Emoji) {
  */
 suspend fun Message.clearReaction(emoji: Emoji) {
     Main.discordHttp.delete<Unit> {
-        url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions/${emoji.urlCoded}")
+        url("https://discord.com/api/v8/channels/${channel.id}/messages/$id/reactions/${emoji.urlCoded}")
     }
 }
 
@@ -52,16 +52,16 @@ suspend fun Message.clearReaction(emoji: Emoji) {
  */
 suspend fun Message.clearReaction() {
     Main.discordHttp.delete<Unit> {
-        url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions")
+        url("https://discord.com/api/v8/channels/${channel.id}/messages/$id/reactions")
     }
 }
 
 /**
  * Get a list of users that reacted to the message with [emoji]
  */
-suspend fun Message.getReactions(emoji: Emoji) : List<User> {
+suspend fun Message.getReactions(emoji: Emoji): List<User> {
     return Main.discordHttp.get<JsonArray> {
-        url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}/reactions/${emoji.urlCoded}")
+        url("https://discord.com/api/v8/channels/${channel.id}/messages/$id/reactions/${emoji.urlCoded}")
     }.map {
         UserImpl(Main.client as DiscordClientImpl, it.asJsonObject)
     }
@@ -70,9 +70,9 @@ suspend fun Message.getReactions(emoji: Emoji) : List<User> {
 /**
  * Get a list of reactions for this message
  */
-suspend fun Message.getReactions() : List<Reaction> {
+suspend fun Message.getReactions(): List<Reaction> {
     return Main.discordHttp.get<JsonObject> {
-        url("https://discord.com/api/v8/channels/${channel.id}/messages/${id}")
+        url("https://discord.com/api/v8/channels/${channel.id}/messages/$id")
     }.getAsJsonArray("reactions").map {
         Reaction(it.asJsonObject)
     }

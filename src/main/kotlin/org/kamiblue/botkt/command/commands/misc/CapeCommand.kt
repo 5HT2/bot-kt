@@ -14,13 +14,8 @@ import org.kamiblue.botkt.helpers.ShellHelper.bash
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.manager.managers.UUIDManager
-import org.kamiblue.botkt.manager.managers.UUIDManager.UUIDFormatException
-import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageUtils.error
-import org.kamiblue.botkt.utils.MessageUtils.normal
-import org.kamiblue.botkt.utils.MessageUtils.success
+import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
-import org.kamiblue.botkt.utils.maxEmojiSlots
 import org.kamiblue.capeapi.*
 import org.kamiblue.commons.utils.MathUtils
 import org.kamiblue.event.listener.listener
@@ -65,7 +60,7 @@ object CapeCommand : BotCommand(
                         }
 
                         if (type == null) {
-                            message.channel.error("Couldn't find Cape type \"${userCapeType.toHumanReadable()}\"!")
+                            channel.error("Couldn't find Cape type \"${userCapeType.toHumanReadable()}\"!")
                             return@executeIfHas
                         }
 
@@ -96,18 +91,18 @@ object CapeCommand : BotCommand(
                         val finalID = userArg.value.id
 
                         val user = capeUserMap[finalID] ?: run {
-                            message.channel.error("Couldn't find a Cape User with the ID `$finalID`!")
+                            channel.error("Couldn't find a Cape User with the ID `$finalID`!")
                             return@executeIfHas
                         }
 
                         val cape = user.capes.find { it.capeUUID.equals(capeUUID, true) } ?: run {
-                            message.channel.error(capeError(capeUUID))
+                            channel.error(capeError(capeUUID))
                             return@executeIfHas
                         }
 
                         user.deleteCape(cape)
 
-                        message.channel.success("Removed Cape `$capeUUID` from Cape User `$finalID`!")
+                        channel.success("Removed Cape `$capeUUID` from Cape User `$finalID`!")
                     }
                 }
             }
@@ -117,7 +112,7 @@ object CapeCommand : BotCommand(
             user("id") { userArg ->
                 execute("List Capes for a user") {
                     val userCapes = capeUserMap[userArg.value.id]?.capes ?: run {
-                        message.channel.error("User ${userArg.value.mention} does not have any capes!")
+                        channel.error("User ${userArg.value.mention} does not have any capes!")
                         return@execute
                     }
 
@@ -158,20 +153,14 @@ object CapeCommand : BotCommand(
                         val capes = message.getCapes() ?: return@execute
 
                         val cape = capes.find { it.capeUUID == capeUUID } ?: run {
-                            message.channel.error(capeError(capeUUID))
+                            channel.error(capeError(capeUUID))
                             return@execute
                         }
 
-                        val profilePair: PlayerProfile?
-                        try {
-                            profilePair = UUIDManager.getByString(username)
-                        } catch (e: UUIDFormatException) {
-                            message.channel.error(e.message.toString() + "\nMake sure your UUID / username is correct")
-                            return@execute
-                        }
+                        val profilePair = UUIDManager.getByString(username)
 
                         val msg = if (profilePair != null) {
-                            message.channel.normal("Found UUID to attach to Cape `$capeUUID` - verifying")
+                            channel.normal("Found UUID to attach to Cape `$capeUUID` - verifying")
                         } else {
                             message.channel.send {
                                 embed {
@@ -235,19 +224,19 @@ object CapeCommand : BotCommand(
                     val capes = message.getCapes() ?: return@execute
 
                     val cape = capes.find { it.capeUUID == capeUUID } ?: run {
-                        message.channel.error(capeError(capeUUID))
+                        channel.error(capeError(capeUUID))
                         return@execute
                     }
 
                     changeTimeOut(capeUUID)?.let {
-                        message.channel.error(changeError(capeUUID, it))
+                        channel.error(changeError(capeUUID, it))
                         return@execute
                     }
 
                     val name = UUIDManager.getByUUID(cape.playerUUID)?.name
                     cape.playerUUID = null
 
-                    message.channel.success("Successfully removed $name from Cape `${cape.capeUUID}`!")
+                    channel.success("Successfully removed $name from Cape `${cape.capeUUID}`!")
                 }
             }
         }
@@ -260,7 +249,7 @@ object CapeCommand : BotCommand(
                     val capes = message.getCapes() ?: return@execute
 
                     val cape = capes.find { it.capeUUID == capeUUID } ?: run {
-                        message.channel.error(capeError(capeUUID))
+                        channel.error(capeError(capeUUID))
                         return@execute
                     }
 
@@ -288,22 +277,22 @@ object CapeCommand : BotCommand(
                             val capes = message.getCapes() ?: return@execute
 
                             val cape = capes.find { it.capeUUID == capeUUID } ?: run {
-                                message.channel.error(capeError(capeUUID))
+                                channel.error(capeError(capeUUID))
                                 return@execute
                             }
 
                             if (cape.type != CapeType.CONTEST) {
-                                message.channel.error("You're only able to change the colors of Contest Capes, `${capeUUID}` is a ${cape.type.realName} Cape!")
+                                channel.error("You're only able to change the colors of Contest Capes, `$capeUUID` is a ${cape.type.realName} Cape!")
                                 return@execute
                             }
 
                             if (!hexRegex.matches(colorPrimary) || !hexRegex.matches(colorBorder)) {
-                                message.channel.error("You must enter both colors in 6-long hex format, eg `9b90ff` or `8778ff`.")
+                                channel.error("You must enter both colors in 6-long hex format, eg `9b90ff` or `8778ff`.")
                                 return@execute
                             }
 
                             changeTimeOut(capeUUID)?.let {
-                                message.channel.error(changeError(capeUUID, it))
+                                channel.error(changeError(capeUUID, it))
                                 return@execute
                             }
 
@@ -339,14 +328,14 @@ object CapeCommand : BotCommand(
             executeIfHas(PermissionTypes.AUTHORIZE_CAPES) {
                 save()
                 commit()
-                message.channel.success("Saved!")
+                channel.success("Saved!")
             }
         }
 
         literal("load") {
             executeIfHas(PermissionTypes.AUTHORIZE_CAPES) {
                 load()
-                message.channel.success("Loaded!")
+                channel.success("Loaded!")
             }
         }
 
@@ -426,7 +415,7 @@ object CapeCommand : BotCommand(
         }
     }
 
-    private suspend fun Message.getCapes(): ArrayList<Cape>? {
+    private fun Message.getCapes(): ArrayList<Cape>? {
         return author?.let { author ->
             capeUserMap[author.id]?.capes.also {
                 if (it == null) error("User ${author.mention} does not have any capes!")
@@ -437,10 +426,10 @@ object CapeCommand : BotCommand(
     private suspend fun CapeColor.toEmoji(): String {
         return StringBuilder(4).run {
             append(makeEmojiFromHex(primary)?.let { "<:${it.name}:${it.id}> " } ?: missingTexture)
-            append("Primary (#${primary})\n")
+            append("Primary (#$primary)\n")
 
             append(makeEmojiFromHex(border)?.let { "<:${it.name}:${it.id}> " } ?: missingTexture)
-            append("Border (#${border})")
+            append("Border (#$border)")
 
             toString()
         }

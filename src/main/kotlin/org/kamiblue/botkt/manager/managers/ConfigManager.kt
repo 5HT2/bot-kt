@@ -20,7 +20,7 @@ object ConfigManager : Manager {
     private val gson = GsonBuilder().setPrettyPrinting().create()
 
     fun writeConfig(configType: ConfigType) {
-        val data = configType.data?: return
+        val data = configType.data ?: return
         val file = File(configType.configPath)
         try {
             file.bufferedWriter().use {

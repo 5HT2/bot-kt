@@ -35,5 +35,4 @@ object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThreadPoolCont
             }
         }
     }
-
 }

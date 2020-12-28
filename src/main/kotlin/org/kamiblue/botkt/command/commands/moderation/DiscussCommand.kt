@@ -34,7 +34,6 @@ object DiscussCommand : BotCommand(
                             }
                         }
                     }
-
                 }
             }
         }

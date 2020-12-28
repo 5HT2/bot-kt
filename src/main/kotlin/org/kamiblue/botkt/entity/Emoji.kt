@@ -7,7 +7,6 @@ import net.ayataka.kordis.utils.asLongOrNull
 import net.ayataka.kordis.utils.getOrNull
 import org.kamiblue.botkt.utils.StringUtils.urlEncode
 
-
 class Emoji(
     val id: Long?,
     val name: String,
@@ -27,7 +26,6 @@ class Emoji(
         id != null -> "<:$name:$id>"
         else -> name
     }
-
 }
 
 fun partialEmoji(jsonObject: JsonObject): PartialEmoji =

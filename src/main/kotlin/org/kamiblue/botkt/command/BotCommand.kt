@@ -60,5 +60,4 @@ abstract class BotCommand(
     ) {
         arg(UserArg(name), block)
     }
-
 }
