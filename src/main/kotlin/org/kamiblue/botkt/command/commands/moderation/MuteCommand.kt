@@ -96,6 +96,7 @@ object MuteCommand : BotCommand(
 
         if (convertedDuration !in 1000L..2592000000L) {
             channel.error("Duration must be at least 1 second and not longer than 1 month!")
+            return
         }
 
         val member = server.members.find(user) ?: run {
