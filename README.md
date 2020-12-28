@@ -79,7 +79,7 @@ If that still does not help, Hit `Add Configuration` in the upper right of your 
 #### Running prebuilt binaries
 
 ```bash
-java -jar bot-kt-v1.6.1.jar
+java -jar bot-kt-v1.6.2.jar
 ```
 
 #### Disabling update checking
