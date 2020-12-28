@@ -13,25 +13,26 @@ fun Instant.prettyFormat(): String = formatter.format(this)
 fun Instant.untilNow(unit: ChronoUnit = ChronoUnit.DAYS) = this.until(Instant.now(), unit)
 
 fun formatDuration(durationMillis: Long): String {
-    val day = durationMillis / 86400000L
+    val week = durationMillis / 604800000L
+    val day = durationMillis / 86400000L % 7
     val hour = durationMillis / 3600000L % 24L
     val minute = durationMillis / 60000L % 60L
     val second = durationMillis / 1000L % 60L
 
     return StringBuilder(4).apply {
-        var added = false
+        if (week != 0L) {
+            append(grammar(week, "week"))
+        }
 
-        if (added || day != 0L) {
+        if (day != 0L) {
             append(grammar(day, "day"))
-            added = true
         }
 
-        if (added || hour != 0L) {
+        if (hour != 0L) {
             append(grammar(hour, "hour"))
-            added = true
         }
 
-        if (added || minute != 0L) {
+        if (minute != 0L) {
             append(grammar(minute, "minute"))
         }
 
@@ -39,5 +40,5 @@ fun formatDuration(durationMillis: Long): String {
     }.toString()
 }
 
-private fun grammar(long: Long, string: String, appendSpace: Boolean = true) =
-    (if (long > 1 || long == 0L) "$long ${string}s" else "$long $string") + if (appendSpace) " " else ""
+private fun grammar(time: Long, unit: String, join: Boolean = true) =
+    (if (time > 1 || time == 0L) "$time ${unit}s" else "$time $unit") + if (join) ", " else ""
