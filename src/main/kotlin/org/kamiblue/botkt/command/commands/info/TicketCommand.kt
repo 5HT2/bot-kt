@@ -124,7 +124,7 @@ object TicketCommand : BotCommand(
                 channel.send {
                     embed {
                         joinToFields(getTickets().withIndex(), "\n") {
-                            "`${it.index}`: ${it.value.name.formatName()}\n"
+                            "`${it.index}`: ${it.value.name.formatName()}"
                         }
                         color = Colors.PRIMARY.color
                     }
