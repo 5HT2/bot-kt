@@ -99,6 +99,7 @@ object IssueCommand : BotCommand(
                         delay(500)
                         form.addReaction(Emoji("⛔"))
 
+                        Main.logger.debug("Added form ${form.id} from issue create")
                         queuedIssues[form.id] = QueuedIssue(form, issue, message.member, repo)
                     }
                 }
@@ -176,8 +177,10 @@ object IssueCommand : BotCommand(
                 return@asyncListener // no config, issues are allowed inside any channel
             }
 
-            if (event.message.author?.bot == true && queuedIssues[event.message.id] == null) {
-                delay(5000)
+            if (event.message.author?.bot == true) {
+                delay(5000) // give bot messages a few seconds to be read, then delete
+                if (queuedIssues[event.message.id] != null) return@asyncListener
+                Main.logger.debug("Deleting bot message ${event.message.id} in suggestion channel")
                 event.message.delete()
                 return@asyncListener
             }
