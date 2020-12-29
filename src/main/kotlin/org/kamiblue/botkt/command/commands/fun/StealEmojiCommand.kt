@@ -75,7 +75,7 @@ object StealEmojiCommand : BotCommand(
                 Main.discordHttp.get<ByteArray> {
                     url("https://cdn.discordapp.com/emojis/$id.gif")
                 }
-            } catch (e: FileNotFoundException) {
+            } catch (e: ClientRequestException) {
                 Main.discordHttp.get<ByteArray> {
                     url("https://cdn.discordapp.com/emojis/$id.png")
                 }
