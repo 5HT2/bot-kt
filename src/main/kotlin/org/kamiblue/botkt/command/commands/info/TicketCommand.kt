@@ -208,7 +208,7 @@ object TicketCommand : BotCommand(
     }
 
     private fun getTickets() =
-        ticketFolder.listFiles(FileFilter { it.isFile && it.name.matches(ticketFileRegex) })!!.toList()
+        ticketFolder.listFiles(FileFilter { it.isFile && it.name.matches(ticketFileRegex) })!!.toList().sortedBy { it.name }
 
     private suspend fun MessageExecuteEvent.indexNotFound(index: Int) {
         channel.error("Ticket with index `$index` could not be found")
