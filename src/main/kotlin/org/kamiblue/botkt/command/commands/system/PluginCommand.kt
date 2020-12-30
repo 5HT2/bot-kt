@@ -1,5 +1,8 @@
 package org.kamiblue.botkt.command.commands.system
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
@@ -133,15 +136,18 @@ object PluginCommand : BotCommand(
                         val time = System.currentTimeMillis()
                         val name = fileNameArg.value.removeSuffix(".jar") + ".jar"
 
-                        val msg = channel.normal("Downloading plugin `$name` from URL <${urlArg.value}>...")
+                        val deferred = coroutineScope {
+                            async(Dispatchers.IO) {
+                                val bytes = URL(urlArg.value).readBytes()
+                                File(PluginManager.pluginPath + name).writeBytes(bytes)
+                            }
+                        }
 
-                        @Suppress("BlockingMethodInNonBlockingContext")
-                        val bytes = URL(urlArg.value).readBytes()
+                        val message = channel.normal("Downloading plugin `$name` from URL <${urlArg.value}>...")
 
-                        File(PluginManager.pluginPath + name).writeBytes(bytes)
-
+                        deferred.join()
                         val stopTime = System.currentTimeMillis() - time
-                        msg.edit {
+                        message.edit {
                             description = "Downloaded plugin `$name`, took $stopTime ms!"
                             color = Colors.SUCCESS.color
                         }
@@ -154,6 +160,7 @@ object PluginCommand : BotCommand(
             greedy("file name") { fileNameArg ->
                 executeIfHas(PermissionTypes.MANAGE_PLUGINS, "Delete a plugin") {
                     val name = fileNameArg.value.removeSuffix(".jar") + ".jar"
+
                     val file = File(PluginManager.pluginPath + name)
 
                     if (!file.exists()) {
