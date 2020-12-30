@@ -1,6 +1,5 @@
 package org.kamiblue.botkt.plugin
 
-import me.zeroeightsix.kami.plugin.PluginInfoMissingException
 import org.kamiblue.botkt.Main
 import org.kamiblue.commons.collections.NameableSet
 import java.io.File
@@ -61,7 +60,7 @@ internal object PluginManager {
             }
 
             // Unsupported check
-            if (convertVersionDirty(loader.info.kamiVersion) > botVersion) {
+            if (convertVersionDirty(loader.info.botVersion) > botVersion) {
                 PluginError.UNSUPPORTED.handleError(loader)
                 invalids.add(loader)
             }
@@ -167,7 +166,7 @@ internal object PluginManager {
 
     private fun convertVersionDirty(version: String) = version
         .split('.')
-        .map { it.filter { it.isDigit() }.toInt() }.let {
+        .map { string -> string.filter { it.isDigit() }.toInt() }.let {
             it[0] * 100 + it[1] * 10 + it[2]
         }
 

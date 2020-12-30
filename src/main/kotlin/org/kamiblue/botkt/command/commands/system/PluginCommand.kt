@@ -6,12 +6,11 @@ import kotlinx.coroutines.coroutineScope
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.command.MessageExecuteEvent
+import org.kamiblue.botkt.plugin.Plugin
 import org.kamiblue.botkt.plugin.PluginLoader
 import org.kamiblue.botkt.plugin.PluginManager
-import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.error
-import org.kamiblue.botkt.utils.normal
-import org.kamiblue.botkt.utils.success
+import org.kamiblue.botkt.utils.*
 import java.io.File
 import java.net.URL
 
@@ -176,22 +175,66 @@ object PluginCommand : BotCommand(
 
         literal("list") {
             executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
-                val string = if (PluginManager.loadedPlugins.isEmpty()) {
-                    "No plugin loaded"
+                if (PluginManager.loadedPlugins.isEmpty()) {
+                    channel.warn("No plugins loaded")
                 } else {
-                    PluginManager.loadedPlugins.withIndex().joinToString("\n") { (index, it) ->
-                        "`$index`. $it"
-                    }
-                }
-
-                message.channel.send {
-                    embed {
-                        title = "Loaded plugins"
-                        description = string
-                        color = Colors.SUCCESS.color
+                    channel.send {
+                        embed {
+                            title = "Loaded plugins: `${PluginManager.loadedPlugins.size}`"
+                            description = PluginManager.loadedPlugins.withIndex().joinToString("\n") { (index, plugin)->
+                                "`$index`. ${plugin.name}"
+                            }
+                        }
                     }
                 }
             }
         }
+
+        literal("info") {
+            int("index") { indexArg ->
+                executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
+                    val index = indexArg.value
+                    val plugin = PluginManager.loadedPlugins.toList().getOrNull(index)
+                        ?: run {
+                            channel.error("No plugin found for index: `$index`")
+                            return@executeIfHas
+                        }
+                    val loader = PluginManager.pluginLoaderMap[plugin]!!
+
+                    channel.send {
+                        embed {
+                            title = "Info for plugin: $loader"
+                            description = plugin.toString()
+                            color = Colors.PRIMARY.color
+                        }
+                    }
+                }
+            }
+
+            string("plugin name") { nameArg ->
+                execute {
+                    val name = nameArg.value
+                    val plugin = PluginManager.loadedPlugins[name]
+                        ?: run {
+                            channel.error("No plugin found for name: `$name`")
+                            return@execute
+                        }
+                    val loader = PluginManager.pluginLoaderMap[plugin]!!
+
+                    sendPluginInfo(plugin, loader)
+                }
+            }
+        }
     }
+
+    private suspend fun MessageExecuteEvent.sendPluginInfo(plugin: Plugin, loader: PluginLoader) {
+        channel.send {
+            embed {
+                title = "Info for plugin: $loader"
+                description = plugin.toString()
+                color = Colors.PRIMARY.color
+            }
+        }
+    }
+
 }

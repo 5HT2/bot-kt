@@ -2,7 +2,6 @@ package org.kamiblue.botkt.plugin
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import me.zeroeightsix.kami.plugin.PluginInfo
 import org.kamiblue.botkt.Main
 import org.kamiblue.commons.interfaces.Nameable
 import java.io.File

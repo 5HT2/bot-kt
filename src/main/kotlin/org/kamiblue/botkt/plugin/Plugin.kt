@@ -1,6 +1,5 @@
 package org.kamiblue.botkt.plugin
 
-import me.zeroeightsix.kami.plugin.PluginInfo
 import org.kamiblue.botkt.BackgroundJob
 import org.kamiblue.botkt.BackgroundScope
 import org.kamiblue.botkt.command.BotCommand
@@ -23,7 +22,7 @@ open class Plugin : Nameable {
     private lateinit var info: PluginInfo
     override val name: String get() = info.name
     val version: String get() = info.version
-    val kamiVersion: String get() = info.kamiVersion
+    val botVersion: String get() = info.botVersion
     val description: String get() = info.description
     val authors: Array<String> get() = info.authors
     val requiredPlugins: Array<String> get() = info.requiredPlugins

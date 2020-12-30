@@ -1,8 +1,7 @@
-package me.zeroeightsix.kami.plugin
+package org.kamiblue.botkt.plugin
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
-import org.kamiblue.botkt.plugin.Plugin
 import org.kamiblue.commons.interfaces.Nameable
 import java.io.InputStream
 
@@ -12,7 +11,7 @@ class PluginInfo private constructor(
     @SerializedName("authors") private val authors0: Array<String>?,
     @SerializedName("description") private val description0: String?,
     @SerializedName("url") private val url0: String?,
-    @SerializedName("kami_version") private val kamiVersion0: String?,
+    @SerializedName("bot_version") private val botVersion0: String?,
     @SerializedName("required_plugins") private val requiredPlugins0: Array<String>?,
     @SerializedName("main_class") private val mainClass0: String?,
     @SerializedName("hot_reload") private val hotReload0: Boolean?
@@ -34,7 +33,7 @@ class PluginInfo private constructor(
     val url get() = url0 ?: urlNull
 
     /** The minimum version of KAMI Blue required for the plugin to run. */
-    val kamiVersion: String get() = kamiVersion0.nonBlank("kami_version")
+    val botVersion: String get() = botVersion0.nonBlank("bot_version")
 
     /** Other plugins that must be loaded in order for this plugin to work correctly.*/
     val requiredPlugins: Array<String> get() = requiredPlugins0 ?: requiredPluginsNull
@@ -59,11 +58,11 @@ class PluginInfo private constructor(
 
     override fun hashCode() = name.hashCode()
 
-    override fun toString() = "Name: ${name}, " +
-        "Version: ${version}, " +
-        "Authors: ${authors.joinToString(",")}, " +
-        "Description: ${description}, " +
-        "Bot Version: ${kamiVersion}, " +
+    override fun toString() = "Name: ${name}\n" +
+        "Version: ${version}\n" +
+        "Authors: ${authors.joinToString(",")}\n" +
+        "Description: ${description}\n" +
+        "Bot Version: ${botVersion}\n" +
         "Required Plugins: ${requiredPlugins.joinToString(",")}"
 
     companion object {
