@@ -7,7 +7,10 @@ import org.kamiblue.botkt.plugin.PluginLoader
 import org.kamiblue.botkt.plugin.PluginManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.error
+import org.kamiblue.botkt.utils.normal
+import org.kamiblue.botkt.utils.success
 import java.io.File
+import java.net.URL
 
 object PluginCommand : BotCommand(
     name = "plugin",
@@ -16,16 +19,16 @@ object PluginCommand : BotCommand(
 ) {
     init {
         literal("load") {
-            string("jar name") { nameArg ->
-                executeIfHas(PermissionTypes.REBOOT_BOT) {
+            greedy("jar name") { nameArg ->
+                executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
                     val name = nameArg.value
                     val file = File("${PluginManager.pluginPath}$name")
                     if (!file.exists() || !file.extension.equals("jar", true)) {
-                        message.channel.error("$name is not a valid jar file name!")
+                        channel.error("$name is not a valid jar file name!")
                     }
 
                     val time = System.currentTimeMillis()
-                    val message = message.channel.send("Loading plugin $name...")
+                    val message = channel.normal("Loading plugin $name...")
 
                     val loader = PluginLoader(file)
                     val plugin = loader.load()
@@ -36,80 +39,136 @@ object PluginCommand : BotCommand(
                     PluginManager.load(loader)
 
                     val stopTime = System.currentTimeMillis() - time
-                    message.edit("Loaded plugin $name, took $stopTime ms!")
+                    message.edit {
+                        description = "Loaded plugin $name, took $stopTime ms!"
+                        color = Colors.SUCCESS.color
+                    }
                 }
             }
         }
 
         literal("reload") {
-            string("plugin name") { nameArg ->
-                executeIfHas(PermissionTypes.REBOOT_BOT) {
+            greedy("plugin name") { nameArg ->
+                executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
                     val name = nameArg.value
                     val plugin = PluginManager.loadedPlugins[name]
 
                     if (plugin == null) {
-                        message.channel.error("No plugin found for name $name")
+                        channel.error("No plugin found for name $name")
                         return@executeIfHas
                     }
 
                     val time = System.currentTimeMillis()
-                    val message = message.channel.send("Reloading plugin $name...")
+                    val message = channel.normal("Reloading plugin $name...")
 
                     val file = PluginManager.pluginLoaderMap[plugin]!!.file
                     PluginManager.unload(plugin)
                     PluginManager.load(PluginLoader(file))
 
                     val stopTime = System.currentTimeMillis() - time
-                    message.edit("Reloaded plugin $name, took $stopTime ms!")
+                    message.edit {
+                        description = "Reloaded plugin $name, took $stopTime ms!"
+                        color = Colors.SUCCESS.color
+                    }
                 }
             }
 
-            executeIfHas(PermissionTypes.REBOOT_BOT) {
+            executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
                 val time = System.currentTimeMillis()
-                val message = message.channel.send("Reloading plugins...")
+                val message = channel.normal("Reloading all plugins...")
 
                 PluginManager.unloadAll()
                 PluginManager.loadAll(PluginManager.getLoaders())
 
                 val stopTime = System.currentTimeMillis() - time
-                message.edit("Reloaded plugins, took $stopTime ms!")
+                message.edit {
+                    description = "Reloaded plugins, took $stopTime ms!"
+                    color = Colors.SUCCESS.color
+                }
             }
         }
 
         literal("unload") {
-            string("plugin name") { nameArg ->
-                executeIfHas(PermissionTypes.REBOOT_BOT) {
+            greedy("plugin name") { nameArg ->
+                executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
                     val name = nameArg.value
                     val plugin = PluginManager.loadedPlugins[name]
 
                     if (plugin == null) {
-                        message.channel.error("No plugin found for name $name")
+                        channel.error("No plugin found for name $name")
                         return@executeIfHas
                     }
 
                     val time = System.currentTimeMillis()
-                    val message = message.channel.send("Unloading plugin $name...")
+                    val message = channel.normal("Unloading plugin $name...")
 
                     PluginManager.unload(plugin)
 
                     val stopTime = System.currentTimeMillis() - time
-                    message.edit("Unloaded plugin $name, took $stopTime ms!")
+                    message.edit {
+                        description = "Unloaded plugin $name, took $stopTime ms!"
+                        color = Colors.SUCCESS.color
+                    }
                 }
             }
 
-            executeIfHas(PermissionTypes.REBOOT_BOT) {
+            executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
                 val time = System.currentTimeMillis()
-                val message = message.channel.send("Unloading plugins...")
+                val message = channel.normal("Unloading plugins...")
 
                 PluginManager.unloadAll()
 
                 val stopTime = System.currentTimeMillis() - time
-                message.edit("Unloaded plugins, took $stopTime ms!")
+                message.edit {
+                    description = "Unloaded plugins, took $stopTime ms!"
+                    color = Colors.SUCCESS.color
+                }
+            }
+        }
+
+        literal("download") {
+            string("file name") { fileNameArg ->
+                greedy("url") { urlArg ->
+                    executeIfHas(PermissionTypes.MANAGE_PLUGINS, "Download a plugin") {
+                        val time = System.currentTimeMillis()
+                        val name = fileNameArg.value.removeSuffix(".jar") + ".jar"
+
+                        val msg = channel.normal("Downloading plugin `$name` from URL <${urlArg.value}>...")
+
+                        @Suppress("BlockingMethodInNonBlockingContext")
+                        val bytes = URL(urlArg.value).readBytes()
+
+                        File(PluginManager.pluginPath + name).writeBytes(bytes)
+
+                        val stopTime = System.currentTimeMillis() - time
+                        msg.edit {
+                            description = "Downloaded plugin `$name`, took $stopTime ms!"
+                            color = Colors.SUCCESS.color
+                        }
+                    }
+                }
+            }
+        }
+
+        literal("delete") {
+            greedy("file name") { fileNameArg ->
+                executeIfHas(PermissionTypes.MANAGE_PLUGINS, "Delete a plugin") {
+                    val name = fileNameArg.value.removeSuffix(".jar") + ".jar"
+                    val file = File(PluginManager.pluginPath + name)
+
+                    if (!file.exists()) {
+                        channel.error("Could not find a plugin file with the name `$name`")
+                        return@executeIfHas
+                    }
+
+                    file.delete()
+                    channel.success("Deleted plugin with file name `$name`")
+                }
             }
         }
 
         literal("list") {
-            executeIfHas(PermissionTypes.REBOOT_BOT) {
+            executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
                 val string = if (PluginManager.loadedPlugins.isEmpty()) {
                     "No plugin loaded"
                 } else {
@@ -117,6 +176,7 @@ object PluginCommand : BotCommand(
                         "`$index`. $it"
                     }
                 }
+
                 message.channel.send {
                     embed {
                         title = "Loaded plugins"
