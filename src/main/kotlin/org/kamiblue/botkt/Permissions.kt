@@ -24,7 +24,6 @@ object Permissions {
             }
         }
     }
-
 }
 
 @Suppress("UNUSED")

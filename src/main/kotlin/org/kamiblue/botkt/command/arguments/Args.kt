@@ -12,7 +12,6 @@ class ChannelArg(
     override suspend fun convertToType(string: String?): Long? {
         return string?.filter { it.isDigit() }?.toLongOrNull()
     }
-
 }
 
 class EmojiArg(
@@ -20,8 +19,7 @@ class EmojiArg(
 ) : AbstractArg<Emoji>() {
 
     override suspend fun convertToType(string: String?): Emoji? {
-        string?: return null
-
+        string ?: return null
 
         if (string.matches(emojiRegex)) {
             return Emoji(string)
@@ -42,7 +40,6 @@ class EmojiArg(
     private companion object {
         val emojiRegex = "([\\u2000-\\u3300]|[\\uD83C\\uD000-\\uD83C\\uDFFF]|[\\uD83D\\uD000-\\uD83D\\uDFFF]|[\\uD83E\\uD000-\\uD83E\\uDFFF])+".toRegex()
     }
-
 }
 
 class UserArg(
@@ -57,5 +54,4 @@ class UserArg(
 
         return Main.client.getUser(id)
     }
-
 }

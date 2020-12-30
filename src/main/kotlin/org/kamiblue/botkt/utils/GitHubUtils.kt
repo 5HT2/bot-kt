@@ -11,7 +11,6 @@ import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.UserConfig
 import org.kamiblue.botkt.manager.managers.ConfigManager
-import org.kamiblue.botkt.utils.MessageUtils.error
 import org.l1ving.api.issue.Issue
 
 object GitHubUtils {

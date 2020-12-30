@@ -43,7 +43,6 @@ internal object KordisEventProcessor {
         BotEventBus.post(event)
     }
 
-
     /* Server */
     @EventHandler
     fun serverReadyEventListener(event: ServerReadyEvent) {
@@ -59,7 +58,6 @@ internal object KordisEventProcessor {
     fun serverUpdateEventListener(event: ServerUpdateEvent) {
         BotEventBus.post(event)
     }
-
 
     /* Channel */
     @EventHandler
@@ -77,13 +75,11 @@ internal object KordisEventProcessor {
         BotEventBus.post(event)
     }
 
-
     /* Emoji */
     @EventHandler
     fun emojiUpdateEventListener(event: EmojiUpdateEvent) {
         BotEventBus.post(event)
     }
-
 
     /* Role */
     @EventHandler
@@ -101,7 +97,6 @@ internal object KordisEventProcessor {
         BotEventBus.post(event)
     }
 
-
     /* User */
     @EventHandler
     fun userBanEventListener(event: UserBanEvent) {
@@ -112,7 +107,6 @@ internal object KordisEventProcessor {
     fun userJoinEventListener(event: UserJoinEvent) {
         BotEventBus.post(event)
     }
-
 
     @EventHandler
     fun userLeaveEventListener(event: UserLeaveEvent) {
@@ -133,5 +127,4 @@ internal object KordisEventProcessor {
     fun userUpdateEventListener(event: UserUpdateEvent) {
         BotEventBus.post(event)
     }
-
 }

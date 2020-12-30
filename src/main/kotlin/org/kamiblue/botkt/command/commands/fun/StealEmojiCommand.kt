@@ -9,9 +9,9 @@ import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
 import org.kamiblue.botkt.command.*
-import org.kamiblue.botkt.utils.MessageUtils.error
-import org.kamiblue.botkt.utils.MessageUtils.normal
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
+import org.kamiblue.botkt.utils.error
+import org.kamiblue.botkt.utils.normal
 import java.io.FileNotFoundException
 
 object StealEmojiCommand : BotCommand(
@@ -25,7 +25,7 @@ object StealEmojiCommand : BotCommand(
                 val emoji = emojiArg.value
 
                 if (!emoji.isCustom) {
-                    message.channel.error("Emoji must be a custom emoji")
+                    channel.error("Emoji must be a custom emoji")
                     return@executeIfHas
                 }
 
@@ -53,12 +53,12 @@ object StealEmojiCommand : BotCommand(
                     val idUnchecked = try {
                         urlArg.value.substring(34, 52)
                     } catch (e: StringIndexOutOfBoundsException) {
-                        message.channel.error("${urlArg.name.toHumanReadable()} is not valid format!")
+                        channel.error("${urlArg.name.toHumanReadable()} is not valid format!")
                         return@executeIfHas
                     }
 
                     val id = idUnchecked.toLongOrNull() ?: run {
-                        message.channel.error("Emoji ID `$idUnchecked` could not be formatted to a Long!")
+                        channel.error("Emoji ID `$idUnchecked` could not be formatted to a Long!")
                         return@executeIfHas
                     }
 
@@ -75,13 +75,13 @@ object StealEmojiCommand : BotCommand(
                 Main.discordHttp.get<ByteArray> {
                     url("https://cdn.discordapp.com/emojis/$id.gif")
                 }
-            } catch (e: FileNotFoundException) {
+            } catch (e: ClientRequestException) {
                 Main.discordHttp.get<ByteArray> {
                     url("https://cdn.discordapp.com/emojis/$id.png")
                 }
             }
         } catch (e: FileNotFoundException) {
-            message.channel.error("Couldn't find an emoji with the ID `$id`!")
+            channel.error("Couldn't find an emoji with the ID `$id`!")
             null
         }
     }

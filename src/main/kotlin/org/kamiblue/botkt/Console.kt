@@ -140,6 +140,5 @@ internal object Console {
                 }
             }
         }
-
     }
 }

@@ -11,13 +11,8 @@ import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.entity.Emoji
 import org.kamiblue.botkt.manager.managers.ConfigManager
-import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.GitHubUtils
-import org.kamiblue.botkt.utils.MessageUtils.error
-import org.kamiblue.botkt.utils.MessageUtils.success
+import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
-import org.kamiblue.botkt.utils.addReaction
-import org.kamiblue.botkt.utils.authenticatedRequest
 import org.kamiblue.commons.extension.max
 import org.kamiblue.event.listener.asyncListener
 import org.l1ving.api.issue.Issue
@@ -76,14 +71,14 @@ object IssueCommand : BotCommand(
                         val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
                         issueChannel?.issueCreationChannel?.let {
                             if (it != message.channel.id) {
-                                message.channel.error("You're only allowed to create issues in <#$it>!")
+                                channel.error("You're only allowed to create issues in <#$it>!")
                                 return@execute
                             }
                         }
 
                         val user = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)?.defaultGithubUser
                             ?: run {
-                                message.channel.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
+                                channel.error("Default Github User is not set in `${ConfigType.USER.configPath.substring(7)}`!")
                                 return@execute
                             }
 
@@ -104,6 +99,7 @@ object IssueCommand : BotCommand(
                         delay(500)
                         form.addReaction(Emoji("⛔"))
 
+                        Main.logger.debug("Added form ${form.id} from issue create")
                         queuedIssues[form.id] = QueuedIssue(form, issue, message.member, repo)
                     }
                 }
@@ -136,7 +132,6 @@ object IssueCommand : BotCommand(
                         field("Repository:", "$user/${form.repo}")
                         color = Colors.SUCCESS.color
                     }
-
                 }
 
                 form.formMessage.delete()
@@ -166,7 +161,6 @@ object IssueCommand : BotCommand(
 
                 val feedback = message.channel.error("Issue `${form.issue.title}` rejected!")
 
-
                 delay(5000)
                 message.delete()
                 delay(5000)
@@ -176,19 +170,27 @@ object IssueCommand : BotCommand(
         }
 
         asyncListener<MessageReceiveEvent> { event ->
-            if (event.message.author?.bot == true) return@asyncListener
-
-            if (event.message.author.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) return@asyncListener
-
             val issueChannel = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
             issueChannel?.issueCreationChannel?.let {
                 if (it != event.message.channel.id) return@asyncListener // only run the following code on messages in the issue channel
             } ?: run {
-                return@asyncListener // issues are allowed inside any channel
+                return@asyncListener // no config, issues are allowed inside any channel
             }
 
-            if (event.message.content.isEmpty() || !event.message.content.startsWith("$name create")) {
-                val reply = event.message.channel.error("You need to use the `$name create` command to create an issue!")
+            if (event.message.author?.bot == true) {
+                delay(5000) // give bot messages a few seconds to be read, then delete
+                if (queuedIssues[event.message.id] != null) return@asyncListener
+                Main.logger.debug("Deleting bot message ${event.message.id} in suggestion channel")
+                event.message.delete()
+                return@asyncListener
+            }
+
+            if (event.message.author.hasPermission(PermissionTypes.APPROVE_ISSUE_CREATION)) {
+                return@asyncListener
+            }
+
+            if (event.message.content.isEmpty() || !event.message.content.startsWith("${Main.prefix}issue create")) {
+                val reply = event.message.channel.error("You need to use the `${Main.prefix}issue create` command to create an issue!")
 
                 event.message.delete()
                 delay(5000)

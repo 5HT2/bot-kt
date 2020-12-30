@@ -5,7 +5,7 @@ import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.error
 
 object HelpCommand : BotCommand(
     name = "help",
@@ -20,7 +20,7 @@ object HelpCommand : BotCommand(
                 if (index in Category.values().indices) {
                     printHelpForCategory(Category.values()[index])
                 } else {
-                    message.channel.error("Invalid page number")
+                    channel.error("Invalid page number")
                 }
             }
         }

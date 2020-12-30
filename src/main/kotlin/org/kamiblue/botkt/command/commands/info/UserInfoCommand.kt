@@ -1,14 +1,9 @@
 package org.kamiblue.botkt.command.commands.info
 
-import net.ayataka.kordis.entity.findByTag
-import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.member.Member
-import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.utils.*
-import org.kamiblue.botkt.utils.MessageUtils.error
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
-import org.kamiblue.botkt.utils.StringUtils.toUserID
 
 object UserInfoCommand : BotCommand(
     name = "userinfo",
@@ -23,35 +18,25 @@ object UserInfoCommand : BotCommand(
         execute("Get info for yourself") {
             val username: String = message.author?.id?.toString() ?: run {
                 message.author?.tag ?: run {
-                    message.channel.error("Couldn't find your user, try using a direct ID!")
+                    channel.error("Couldn't find your user, try using a direct ID!")
                     return@execute
                 }
             }
-            send(username, message)
+            send(username)
         }
 
         greedy("name") { nameArg ->
             execute("Find a user with their name, a ping or their ID") {
                 val name = nameArg.value
-                send(name, message)
+                send(name)
             }
         }
     }
 
-    private suspend fun send(username: String, message: Message) {
-        val members = message.server?.members
-        val id = username.toUserID()
+    private suspend fun MessageExecuteEvent.send(username: String) {
+        val user = findUserEverywhere(username) ?: return
 
-        val user = id?.let { members?.find(it) }
-            ?: members?.findByTag(username, true)
-            ?: members?.findByName(username, true)
-            ?: id?.let { Main.client.getUser(it) }
-            ?: run {
-                message.channel.error("Couldn't find user nor a valid ID!")
-                return
-            }
-
-        message.channel.send {
+        channel.send {
             embed {
                 title = user.tag
                 color = Colors.PRIMARY.color
@@ -67,5 +52,4 @@ object UserInfoCommand : BotCommand(
             }
         }
     }
-
 }

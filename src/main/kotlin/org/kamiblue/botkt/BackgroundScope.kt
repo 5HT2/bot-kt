@@ -42,5 +42,4 @@ internal object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThrea
             }
         }
     }
-
 }

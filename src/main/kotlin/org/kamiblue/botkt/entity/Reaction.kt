@@ -15,5 +15,4 @@ data class Reaction(
             jsonObject.get("count").asInt,
             jsonObject.get("me").asBoolean
         )
-
 }

@@ -15,5 +15,4 @@ internal object ManagerLoader {
 
         Main.logger.info("Loaded ${managerClasses.size} managers!")
     }
-
 }

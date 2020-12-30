@@ -163,5 +163,4 @@ object MuteManager : Manager {
             save()
         }
     }
-
 }
