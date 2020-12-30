@@ -6,7 +6,7 @@ import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.plugin.PluginLoader
 import org.kamiblue.botkt.plugin.PluginManager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.MessageUtils.error
+import org.kamiblue.botkt.utils.error
 import java.io.File
 
 object PluginCommand : BotCommand(
@@ -69,7 +69,7 @@ object PluginCommand : BotCommand(
                 val message = message.channel.send("Reloading plugins...")
 
                 PluginManager.unloadAll()
-                PluginManager.loadAll(PluginManager.preLoad())
+                PluginManager.loadAll(PluginManager.getLoaders())
 
                 val stopTime = System.currentTimeMillis() - time
                 message.edit("Reloaded plugins, took $stopTime ms!")
@@ -114,7 +114,7 @@ object PluginCommand : BotCommand(
                     "No plugin loaded"
                 } else {
                     PluginManager.loadedPlugins.withIndex().joinToString("\n") { (index, it) ->
-                        "`$index`. Name: ${it.name}, Version: ${it.version}, Author: ${it.author}"
+                        "`$index`. $it"
                     }
                 }
                 message.channel.send {

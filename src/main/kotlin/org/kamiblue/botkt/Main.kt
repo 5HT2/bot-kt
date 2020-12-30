@@ -76,7 +76,7 @@ object Main {
             val started = System.currentTimeMillis()
 
             logger.info("Starting bot!")
-            val deferred = mainScope.async { PluginManager.preLoad() }
+            val deferred = mainScope.async { PluginManager.getLoaders() }
             login()
 
             UpdateHelper.writeVersion(currentVersion)
