@@ -181,7 +181,7 @@ object PluginCommand : BotCommand(
                     channel.send {
                         embed {
                             title = "Loaded plugins: `${PluginManager.loadedPlugins.size}`"
-                            description = PluginManager.loadedPlugins.withIndex().joinToString("\n") { (index, plugin)->
+                            description = PluginManager.loadedPlugins.withIndex().joinToString("\n") { (index, plugin) ->
                                 "`$index`. ${plugin.name}"
                             }
                         }
@@ -230,5 +230,4 @@ object PluginCommand : BotCommand(
             }
         }
     }
-
 }

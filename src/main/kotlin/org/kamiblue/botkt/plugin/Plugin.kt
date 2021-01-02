@@ -88,12 +88,12 @@ open class Plugin : Nameable {
      */
     open fun onUnload() {}
 
-    override fun equals(other: Any?) = this === other
-        || (other is Plugin
-        && name == other.name)
+    override fun equals(other: Any?) = this === other || (
+        other is Plugin &&
+            name == other.name
+        )
 
     override fun hashCode() = name.hashCode()
 
     override fun toString() = info.toString()
-
 }

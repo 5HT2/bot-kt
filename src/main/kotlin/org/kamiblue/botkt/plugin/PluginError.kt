@@ -16,13 +16,13 @@ internal enum class PluginError {
                 Main.logger.error("Plugin $loader cannot be hot reloaded.")
             }
             DUPLICATE -> {
-                Main.logger.error("Duplicate plugin ${loader}.")
+                Main.logger.error("Duplicate plugin $loader.")
             }
             UNSUPPORTED -> {
-                Main.logger.error("Unsupported plugin ${loader}. Required version: ${loader.info.botVersion}")
+                Main.logger.error("Unsupported plugin $loader. Required version: ${loader.info.botVersion}")
             }
             REQUIRED_PLUGIN -> {
-                Main.logger.error("Missing required plugin for ${loader}. Required plugins: ${loader.info.requiredPlugins.joinToString()}")
+                Main.logger.error("Missing required plugin for $loader. Required plugins: ${loader.info.requiredPlugins.joinToString()}")
             }
         }
 
@@ -43,5 +43,4 @@ internal enum class PluginError {
             }
         }
     }
-
 }

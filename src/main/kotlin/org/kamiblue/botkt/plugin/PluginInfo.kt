@@ -52,9 +52,10 @@ class PluginInfo private constructor(
             else -> this
         }
 
-    override fun equals(other: Any?) = this === other
-        || (other is Plugin
-        && name == other.name)
+    override fun equals(other: Any?) = this === other || (
+        other is Plugin &&
+            name == other.name
+        )
 
     override fun hashCode() = name.hashCode()
 
@@ -77,7 +78,6 @@ class PluginInfo private constructor(
             gson.fromJson(it, PluginInfo::class.java)!!
         }
     }
-
 }
 
 class PluginInfoMissingException(val infoName: String, message: String) : Exception(message)

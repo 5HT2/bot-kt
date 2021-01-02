@@ -78,8 +78,8 @@ internal object PluginManager {
 
         for (loader in loaders) {
             // Required plugin check
-            if (!loadedPlugins.containsNames(loader.info.requiredPlugins)
-                && !loaderSet.containsNames(loader.info.requiredPlugins)
+            if (!loadedPlugins.containsNames(loader.info.requiredPlugins) &&
+                !loaderSet.containsNames(loader.info.requiredPlugins)
             ) {
                 PluginError.REQUIRED_PLUGIN.handleError(loader)
                 invalids.add(loader)
@@ -169,5 +169,4 @@ internal object PluginManager {
         .map { string -> string.filter { it.isDigit() }.toInt() }.let {
             it[0] * 100 + it[1] * 10 + it[2]
         }
-
 }
