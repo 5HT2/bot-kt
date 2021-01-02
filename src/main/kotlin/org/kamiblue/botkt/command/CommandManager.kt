@@ -13,13 +13,15 @@ import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.command.AbstractCommandManager
+import org.kamiblue.command.Command
+import org.kamiblue.command.CommandBuilder
 import org.kamiblue.command.utils.CommandNotFoundException
 import org.kamiblue.command.utils.SubCommandNotFoundException
 import org.kamiblue.commons.extension.max
 import org.kamiblue.commons.utils.ClassUtils
 import org.kamiblue.event.listener.asyncListener
 
-object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
+internal object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
     private val commandScope = CoroutineScope(Dispatchers.Default + CoroutineName("Bot-kt Command"))
 
@@ -37,13 +39,30 @@ object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
 
         for (clazz in commandClasses) {
             val botCommand = ClassUtils.getInstance(clazz)
-            BotEventBus.subscribe(botCommand)
-            botCommand.category.commands.add(register(botCommand))
+            register(botCommand)
         }
 
         Main.logger.info("Registered ${getCommands().size} commands!")
 
         BotEventBus.subscribe(this)
+    }
+
+    override fun register(builder: CommandBuilder<MessageExecuteEvent>): Command<MessageExecuteEvent> {
+        synchronized(lockObject) {
+            BotEventBus.subscribe(builder)
+            return super.register(builder).also {
+                (builder as BotCommand).category.commands.add(it)
+            }
+        }
+    }
+
+    override fun unregister(builder: CommandBuilder<MessageExecuteEvent>): Command<MessageExecuteEvent>? {
+        synchronized(lockObject) {
+            BotEventBus.unsubscribe(builder)
+            return super.unregister(builder)?.also {
+                (builder as BotCommand).category.commands.remove(it)
+            }
+        }
     }
 
     fun runCommand(event: MessageReceiveEvent, string: String) {

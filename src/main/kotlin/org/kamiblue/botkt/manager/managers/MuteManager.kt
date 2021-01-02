@@ -144,7 +144,7 @@ object MuteManager : Manager {
         }
 
         init {
-            BackgroundScope.add(5000L) {
+            BackgroundScope.launchLooping("Mute manager", 5000L) {
                 for ((id, unmuteTime) in muteMap) {
                     delay(500L)
                     if (muteMap.containsKey(id) && !coroutineMap.containsKey(id)) {
@@ -158,7 +158,7 @@ object MuteManager : Manager {
     }
 
     init {
-        BackgroundScope.add(30000L, "Failed to save mute to json") {
+        BackgroundScope.launchLooping("Mute saving", 30000L) {
             delay(30000L)
             save()
         }

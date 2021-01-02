@@ -15,7 +15,7 @@ object Permissions {
         } ?: false
     }
 
-    suspend fun Message.missingPermissions(permission: PermissionTypes) {
+    internal suspend fun Message.missingPermissions(permission: PermissionTypes) {
         this.channel.send {
             embed {
                 title = "Missing permission"
@@ -26,7 +26,6 @@ object Permissions {
     }
 }
 
-@Suppress("UNUSED")
 enum class PermissionTypes {
     ARCHIVE_CHANNEL,
     COUNCIL_MEMBER,
@@ -39,5 +38,6 @@ enum class PermissionTypes {
     APPROVE_ISSUE_CREATION,
     AUTHORIZE_CAPES,
     CREATE_RELEASE,
-    PURGE_PROTECTED
+    PURGE_PROTECTED,
+    MANAGE_PLUGINS
 }

@@ -19,7 +19,7 @@ import net.ayataka.kordis.utils.getOrNull
 import org.kamiblue.botkt.command.CommandManager
 import java.time.Instant
 
-object Console {
+internal object Console {
 
     fun start() {
         while (true) {
