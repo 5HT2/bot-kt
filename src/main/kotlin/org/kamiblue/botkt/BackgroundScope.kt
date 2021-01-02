@@ -1,37 +1,44 @@
 package org.kamiblue.botkt
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.newFixedThreadPoolContext
 import net.ayataka.kordis.utils.TimerScope
 import net.ayataka.kordis.utils.timer
 
 @Suppress("EXPERIMENTAL_API_USAGE")
-object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThreadPoolContext(2, "Bot-kt Background")) {
+internal object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThreadPoolContext(2, "Bot-kt Background")) {
 
-    private val list = ArrayList<Triple<Long, String?, suspend TimerScope.() -> Unit>>()
+    private val jobs = LinkedHashMap<BackgroundJob, Job?>()
     private var started = false
 
     fun start() {
         started = true
-        for ((delay, errorMessage, block) in list) {
-            launch(delay, errorMessage, block)
+        for ((job, _) in jobs) {
+            jobs[job] = startJob(job)
         }
     }
 
-    fun add(delay: Long, errorMessage: String? = null, block: suspend TimerScope.() -> Unit) {
+    fun launchLooping(name: String, delay: Long, block: suspend TimerScope.() -> Unit) {
+        launchLooping(BackgroundJob(name, delay, block))
+    }
+
+    fun launchLooping(job: BackgroundJob) {
         if (!started) {
-            list.add(Triple(delay, errorMessage, block))
+            jobs[job] = null
         } else {
-            launch(delay, errorMessage, block)
+            jobs[job] = startJob(job)
         }
     }
 
-    private fun launch(delay: Long, errorMessage: String? = null, block: suspend TimerScope.() -> Unit) {
-        timer(delay, false) {
+    fun cancel(job: BackgroundJob) = jobs.remove(job)?.cancel()
+
+    private fun startJob(job: BackgroundJob): Job {
+        return timer(job.delay, false) {
             try {
-                block()
+                job.block(this)
             } catch (e: Exception) {
-                Main.logger.warn(errorMessage ?: "Exception in ${Thread.currentThread().name}", e)
+                Main.logger.warn("Error occurred while running background job ${job.name}", e)
             }
         }
     }

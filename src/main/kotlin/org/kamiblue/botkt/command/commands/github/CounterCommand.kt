@@ -38,7 +38,7 @@ object CounterCommand : BotCommand(
             }
         }
 
-        BackgroundScope.add(600000, "Failed to updated counter channels") {
+        BackgroundScope.launchLooping("Counter channel update", 600000) {
             updateChannel()
             Main.logger.debug("Updated counter channels")
         }

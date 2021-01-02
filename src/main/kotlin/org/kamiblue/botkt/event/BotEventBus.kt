@@ -12,7 +12,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentSkipListSet
 
-object BotEventBus : AbstractAsyncEventBus() {
+internal object BotEventBus : AbstractAsyncEventBus() {
     override val subscribedObjects = ConcurrentHashMap<Any, MutableSet<Listener<*>>>()
     override val subscribedListeners = ConcurrentHashMap<Class<*>, MutableSet<Listener<*>>>()
     override val newSet get() = ConcurrentSkipListSet<Listener<*>>(Comparator.reverseOrder())
