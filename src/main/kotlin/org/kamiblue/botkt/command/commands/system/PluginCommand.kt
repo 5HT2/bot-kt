@@ -201,13 +201,7 @@ object PluginCommand : BotCommand(
                         }
                     val loader = PluginManager.pluginLoaderMap[plugin]!!
 
-                    channel.send {
-                        embed {
-                            title = "Info for plugin: $loader"
-                            description = plugin.toString()
-                            color = Colors.PRIMARY.color
-                        }
-                    }
+                    sendPluginInfo(plugin, loader)
                 }
             }
 
