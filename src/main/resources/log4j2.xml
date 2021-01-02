@@ -13,7 +13,7 @@
             <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
-                <SizeBasedTriggeringPolicy size="20 MB"/>
+                <SizeBasedTriggeringPolicy size="7 MB"/>
                 <OnStartupTriggeringPolicy/>
             </Policies>
             <DefaultRolloverStrategy max="${sys:log.debug_max:-10}"/>
@@ -23,7 +23,7 @@
             <PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger]: %msg%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
-                <SizeBasedTriggeringPolicy size="20 MB"/>
+                <SizeBasedTriggeringPolicy size="7 MB"/>
                 <OnStartupTriggeringPolicy/>
             </Policies>
             <DefaultRolloverStrategy max="${sys:log.error_max:-20}"/>

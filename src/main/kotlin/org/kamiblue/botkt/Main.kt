@@ -10,6 +10,7 @@ import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.channel.TextChannel
 import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
+import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.kamiblue.botkt.command.CommandManager
@@ -21,6 +22,7 @@ import org.kamiblue.botkt.manager.ManagerLoader
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.plugin.PluginManager
 import org.kamiblue.botkt.utils.Colors
+import java.io.PrintStream
 import java.time.Instant
 import kotlin.system.exitProcess
 
@@ -49,6 +51,9 @@ object Main {
 
     @JvmStatic
     fun main(vararg args: String) {
+        System.setOut(createLoggingProxy("STDOUT", System.out, Level.INFO))
+        System.setErr(createLoggingProxy("STDERR", System.err, Level.ERROR))
+
         addShutdownHook()
         start()
         BackgroundScope.start()
@@ -57,6 +62,19 @@ object Main {
 
     internal fun exit() {
         exitProcess(0)
+    }
+
+    private fun createLoggingProxy(name: String, realPrintStream: PrintStream, level: Level): PrintStream {
+        return object : PrintStream(realPrintStream) {
+            private val logger = LogManager.getLogger(name)
+
+            override fun print(string: String?) {
+                logger.log(level, string)
+            }
+            override fun println(string: String?) {
+                logger.log(level, string)
+            }
+        }
     }
 
     private fun addShutdownHook() {
