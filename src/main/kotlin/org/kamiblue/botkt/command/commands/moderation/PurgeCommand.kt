@@ -42,7 +42,7 @@ object PurgeCommand : BotCommand(
             user("purge this user") { userArg ->
                 executeIfHas(COUNCIL_MEMBER, "Purge X messages sent by a user") {
                     val user = userArg.value
-                    if (!message.author.hasPermission(PURGE_PROTECTED) && user.hasPermission(COUNCIL_MEMBER) || user.bot) {
+                    if (!message.author.hasPermission(PURGE_PROTECTED) && (user.hasPermission(COUNCIL_MEMBER) || user.bot)) {
                         channel.error(
                             "Sorry, but you're missing the " +
                                 "'${PURGE_PROTECTED.name.toHumanReadable()}'" +
