@@ -6,7 +6,7 @@
 [![Travis Action](https://img.shields.io/travis/com/kami-blue/bot-kt?logo=travis)](https://travis-ci.com/github/kami-blue/bot-kt)
 
 [![Discord](https://img.shields.io/discord/573954110454366214?logo=discord&logoColor=white)](https://kamiblue.org/discord)
-[![Paypal](https://img.shields.io/badge/paypal-donate-red?color=169bd7&logo=paypal)](https://paypal.me/mik4a/5USD)
+[![Paypal](https://img.shields.io/badge/paypal-donate-red?color=169bd7&logo=paypal)](https://kamiblue.org/donate)
 
 
 The moderation bot for KAMI Blue's Discord, written in Kotlin for reliability. 
