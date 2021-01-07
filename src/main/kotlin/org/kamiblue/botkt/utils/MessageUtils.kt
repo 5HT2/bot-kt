@@ -9,10 +9,12 @@ import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import net.ayataka.kordis.DiscordClientImpl
 import net.ayataka.kordis.entity.channel.TextChannel
+import net.ayataka.kordis.entity.deleteAll
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.message.MessageImpl
 import net.ayataka.kordis.entity.message.embed.EmbedBuilder
 import net.ayataka.kordis.entity.server.channel.ServerChannel
+import net.ayataka.kordis.exception.NotFoundException
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.utils.StringUtils.elseEmpty
 import org.kamiblue.botkt.utils.StringUtils.joinToChunks
@@ -21,12 +23,13 @@ import java.io.File
 fun <E> EmbedBuilder.joinToFields(
     iterable: Iterable<E>,
     separator: CharSequence = ", ",
+    titlePrefix: String = "",
     lineTransformer: (E) -> String = { it.toString() }
 ) {
     val chunks = iterable.joinToChunks(separator, 1024, lineTransformer)
 
     for ((index, chunk) in chunks.withIndex()) {
-        field("${index + 1} / ${chunks.size}", chunk.elseEmpty("Empty"))
+        field("$titlePrefix ${index + 1} / ${chunks.size}", chunk.elseEmpty("Empty"))
     }
 }
 
@@ -101,6 +104,22 @@ suspend fun TextChannel.upload(file: File, message: String = ""): Message = Main
         }
     )
 }.toMessage(this)
+
+suspend fun Message.safeDelete() {
+    try {
+        this.delete()
+    } catch (e: NotFoundException) {
+        Main.logger.debug("Failed to delete ${this}\n${e.stackTraceToString()}")
+    }
+}
+
+suspend fun Collection<Message>.safeDelete() {
+    try {
+        this.deleteAll()
+    } catch (e: NotFoundException) {
+        Main.logger.debug("Failed to delete ${this}\n${e.stackTraceToString()}")
+    }
+}
 
 private fun FormBuilder.appendFile(file: File) = appendInput(
     key = file.absolutePath,
