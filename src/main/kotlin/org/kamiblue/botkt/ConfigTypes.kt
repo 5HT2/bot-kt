@@ -15,7 +15,8 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
     COUNTER("config/counters.json"),
     JOIN_LEAVE("config/joinleave.json"),
     TICKET("config/tickets.json"),
-    STAR_BOARD("config/starboard.json")
+    STAR_BOARD("config/starboard.json"),
+    LOGGING("config/logging.json")
 }
 
 /**
@@ -133,8 +134,19 @@ data class TicketConfig(
  * @param messages <Message ID> Messages added to the star board
  * @param threshold Amount Star emoji reactions to be added to star board
  */
-class StarBoardConfig(
+data class StarBoardConfig(
     val channels: HashMap<Long, Long>,
     val messages: HashSet<Long>,
     val threshold: Int
+)
+
+/**
+ * @param ignoreChannels Channel IDs to not log
+ * @param ignorePrefix A message prefix to not log when editing a council member edits their message
+ * @param loggingChannel Channel ID of where to log to
+ */
+data class LoggingConfig(
+    val ignoreChannels: HashSet<Long>?,
+    val ignorePrefix: String?,
+    val loggingChannel: Long?
 )
