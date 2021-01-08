@@ -103,7 +103,7 @@ object PurgeCommand : BotCommand(
     private suspend fun log(oldMessage: Message?, message: Message, server: Server?, edit: Boolean) {
         val channel = server?.textChannels?.find(config?.loggingChannel ?: -1)
         if (config?.loggingChannel == null || channel == null) return
-        if (config?.ignoreChannels?.contains(message.id) == true) return
+        if (config?.ignoreChannels?.contains(message.channel.id) == true) return
         if (config?.loggingChannel == message.channel.id) return
 
         config?.ignorePrefix?.let { prefix ->
@@ -115,24 +115,25 @@ object PurgeCommand : BotCommand(
         if (edit) {
             channel.send {
                 embed {
-                    title = message.author?.tag
                     oldMessage?.let {
                         joinToFields(it.content.split("\n"), "\n", titlePrefix = "Original Message")
                     }
                     joinToFields(message.content.split("\n"), "\n", titlePrefix = "New Message")
-                    color = Colors.EDITED_MESSAGE.color
-                    footer("ID: ${message.author?.id}", message.author?.avatar?.url)
+
+                    author(message.author?.tag, message.link, message.author?.avatar?.url)
+                    footer("ID: ${message.author?.id}")
                     timestamp = Instant.now()
+                    color = Colors.EDITED_MESSAGE.color
                 }
             }
         } else {
             channel.send {
                 embed {
-                    title = message.author?.tag
                     joinToFields(message.content.split("\n"), "\n", titlePrefix = "Deleted Message")
-                    color = Colors.ERROR.color
-                    footer("ID: ${message.author?.id}", message.author?.avatar?.url)
+                    author(message.author?.tag, message.link, message.author?.avatar?.url)
+                    footer("ID: ${message.author?.id}")
                     timestamp = Instant.now()
+                    color = Colors.ERROR.color
                 }
             }
         }
