@@ -118,7 +118,7 @@ object PurgeCommand : BotCommand(
                     oldMessage?.let {
                         joinToFields(it.content.split("\n"), "\n", titlePrefix = "Original Message")
                     }
-                    joinToFields(message.content.split("\n"), "\n", titlePrefix = "New Message")
+                    joinToFields(message.content.lines(), "\n", titlePrefix = "New Message")
 
                     author(message.author?.tag, message.link, message.author?.avatar?.url)
                     footer("ID: ${message.author?.id}")
@@ -129,7 +129,7 @@ object PurgeCommand : BotCommand(
         } else {
             channel.send {
                 embed {
-                    joinToFields(message.content.split("\n"), "\n", titlePrefix = "Deleted Message")
+                    joinToFields(message.content.lines(), "\n", titlePrefix = "Deleted Message")
                     author(message.author?.tag, message.link, message.author?.avatar?.url)
                     footer("ID: ${message.author?.id}")
                     timestamp = Instant.now()
