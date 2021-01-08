@@ -91,6 +91,7 @@ object PurgeCommand : BotCommand(
 
             messages.sortedBy { msg -> msg.timestamp.prettyFormat() }.forEach { message ->
                 log(null, message, deletedMsg.server, false)
+                delay(100)
             }
         }
 
@@ -106,8 +107,8 @@ object PurgeCommand : BotCommand(
         if (config?.loggingChannel == message.channel.id) return
 
         config?.ignorePrefix?.let { prefix ->
-            if (message.author.hasPermission(COUNCIL_MEMBER)
-                && (message.content.startsWith(prefix) || oldMessage?.content?.startsWith(prefix) == true)
+            if (message.author.hasPermission(COUNCIL_MEMBER) &&
+                (message.content.startsWith(prefix) || oldMessage?.content?.startsWith(prefix) == true)
             ) return
         }
 
@@ -136,7 +137,6 @@ object PurgeCommand : BotCommand(
             }
         }
     }
-
 
     private fun cacheMessage(toCache: Message?) { // TODO: Kordis does not support viewing the old edited message
         while (cachedMsgs.size >= 100) {
