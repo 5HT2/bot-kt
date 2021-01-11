@@ -14,14 +14,14 @@ import org.kamiblue.botkt.command.MessageExecuteEvent
 import org.kamiblue.botkt.manager.managers.MuteManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.error
-import org.kamiblue.botkt.utils.success
 import org.kamiblue.botkt.utils.formatDuration
+import org.kamiblue.botkt.utils.success
 
 object MuteCommand : BotCommand(
     name = "mute",
     alias = arrayOf("shut", "shutup", "shh"),
     category = Category.MODERATION,
-    description = "Now stop talking!"
+    description = "Mute a user for a certain duration. Valid units are s/m/h/d."
 ) {
 
     init {
@@ -49,22 +49,42 @@ object MuteCommand : BotCommand(
             long("duration") { durationArg ->
                 string("unit") { unitArg ->
                     greedy("reason") { reasonArg ->
-                        executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Mute user with reason") {
-                            handleMute(userArg.value, durationArg.value, unitArg.value, reasonArg.value)
+                        executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Mute a user with a reason") {
+                            handleMute(userArg.value, durationArg.value.toString(), unitArg.value, reasonArg.value)
                         }
                     }
 
-                    executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Mute user without reason") {
-                        handleMute(userArg.value, durationArg.value, unitArg.value, "No reason provided")
+                    executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Mute a user without a reason") {
+                        handleMute(userArg.value, durationArg.value.toString(), unitArg.value, "No reason provided")
                     }
+                }
+            }
+
+            string("duration and unit") { timeArg ->
+                greedy("reason") { reasonArg ->
+                    executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Mute a user with a reason") {
+                        val time = parseTime(timeArg.value)
+                        handleMute(userArg.value, time.first, time.second, reasonArg.value)
+                    }
+                }
+
+                executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Mute a user without a reason") {
+                    val time = parseTime(timeArg.value)
+                    handleMute(userArg.value, time.first, time.second, "No reason provided")
                 }
             }
         }
     }
 
+    private fun parseTime(durationAndUnit: String): Pair<String, String> {
+        val unit = durationAndUnit.last().toString()
+        val duration = durationAndUnit.removeSuffix(unit)
+        return Pair(duration, unit)
+    }
+
     private suspend fun MessageExecuteEvent.handleMute(
         user: User,
-        duration: Long,
+        durationIn: String,
         unit: String,
         reason: String
     ) {
@@ -80,6 +100,11 @@ object MuteCommand : BotCommand(
 
         if (MuteManager.serverMap[server.id]?.muteMap?.containsKey(user.id) == true) {
             channel.error("${user.mention} is already muted")
+            return
+        }
+
+        val duration = durationIn.toLongOrNull() ?: run {
+            channel.error("Invalid time unit length: $durationIn")
             return
         }
 
