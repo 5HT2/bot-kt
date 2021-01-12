@@ -28,7 +28,7 @@ import kotlin.system.exitProcess
 
 object Main {
 
-    const val currentVersion = "v1.7.1"
+    const val currentVersion = "v1.7.2"
 
     val startUpTime: Instant = Instant.now()
     @Suppress("EXPERIMENTAL_API_USAGE")
