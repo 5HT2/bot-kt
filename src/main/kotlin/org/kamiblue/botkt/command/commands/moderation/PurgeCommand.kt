@@ -120,7 +120,7 @@ object PurgeCommand : BotCommand(
                     }
                     joinToFields(message.content.lines(), "\n", titlePrefix = "New Message")
 
-                    description = "[**link to context**](${message.link})"
+                    description = "[**\\[link to context\\]**](${message.link})"
                     author(message.author?.tag, iconUrl = message.author?.avatar?.url)
                     footer("ID: ${message.author?.id}")
                     timestamp = Instant.now()
@@ -131,7 +131,7 @@ object PurgeCommand : BotCommand(
             channel.send {
                 embed {
                     joinToFields(message.content.lines(), "\n", titlePrefix = "Deleted Message")
-                    description = "[**link to context**](${message.link})"
+                    description = "[**\\[link to context\\]**](${message.link})"
                     author(message.author?.tag, iconUrl = message.author?.avatar?.url)
                     footer("ID: ${message.author?.id}")
                     timestamp = Instant.now()
