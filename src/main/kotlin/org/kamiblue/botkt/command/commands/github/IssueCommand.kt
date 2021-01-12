@@ -61,7 +61,7 @@ object IssueCommand : BotCommand(
                     execute("Create an issue ticket") {
                         val repo = repoArg.value
 
-                        val split = contentsArg.value.split('-', 2)
+                        val split = contentsArg.value.split('-', limit = 2)
                         val title = split.getOrNull(0)
                         val body = split.getOrNull(1)
 
