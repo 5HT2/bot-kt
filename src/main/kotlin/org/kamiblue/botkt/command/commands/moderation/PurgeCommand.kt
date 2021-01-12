@@ -120,7 +120,8 @@ object PurgeCommand : BotCommand(
                     }
                     joinToFields(message.content.lines(), "\n", titlePrefix = "New Message")
 
-                    author(message.author?.tag, message.link, message.author?.avatar?.url)
+                    description = "[**link to context**](${message.link})"
+                    author(message.author?.tag, iconUrl = message.author?.avatar?.url)
                     footer("ID: ${message.author?.id}")
                     timestamp = Instant.now()
                     color = Colors.EDITED_MESSAGE.color
@@ -130,7 +131,8 @@ object PurgeCommand : BotCommand(
             channel.send {
                 embed {
                     joinToFields(message.content.lines(), "\n", titlePrefix = "Deleted Message")
-                    author(message.author?.tag, message.link, message.author?.avatar?.url)
+                    description = "[**link to context**](${message.link})"
+                    author(message.author?.tag, iconUrl = message.author?.avatar?.url)
                     footer("ID: ${message.author?.id}")
                     timestamp = Instant.now()
                     color = Colors.ERROR.color
