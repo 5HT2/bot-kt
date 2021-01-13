@@ -116,7 +116,7 @@ object PurgeCommand : BotCommand(
             channel.send {
                 embed {
                     oldMessage?.let {
-                        joinToFields(it.content.split("\n"), "\n", titlePrefix = "Original Message")
+                        joinToFields(it.content.lines(), "\n", titlePrefix = "Original Message")
                     }
                     joinToFields(message.content.lines(), "\n", titlePrefix = "New Message")
 
