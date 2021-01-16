@@ -94,12 +94,13 @@ suspend fun TextChannel.upload(files: Collection<File>, message: String = ""): M
     }
 }
 
-suspend fun TextChannel.upload(file: File, message: String = ""): Message = Main.discordHttp.post<JsonObject> {
+suspend fun TextChannel.upload(file: File, message: String = "", embed: JsonObject? = null): Message = Main.discordHttp.post<JsonObject> {
     url("https://discord.com/api/v8/channels/$id/messages")
     header("Accept", ContentType.MultiPart.FormData)
     body = MultiPartFormDataContent(
         formData {
-            if (message.isNotBlank()) append("content", message)
+            if (embed != null) append("payload_json", embed.toString())
+            if (message.isNotBlank()) append("content", message) // this will not be added if embed isn't null
             appendFile(file)
         }
     )
