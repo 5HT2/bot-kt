@@ -92,5 +92,7 @@ fun checkPermission(client: DiscordClientImpl, server: Server, permission: Permi
     }
 }
 
+val notNumberRegex = Regex("[^0-9]")
+
 // Bot users can not have one or fewer roles. If so, this means the server roles are not initialized yet.
 private fun isNotInitialized(myself: Member) = myself.roles.size < 2
