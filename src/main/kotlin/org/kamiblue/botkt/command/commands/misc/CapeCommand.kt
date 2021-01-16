@@ -75,6 +75,7 @@ object CapeCommand : BotCommand(
                                 field("User", user.mention)
                                 field("Type", type.realName)
                                 field("Cape UUID", newCape.capeUUID)
+                                field("Attaching", "To attach your cape use:\n"`;cape attach [Your Cape UUID] [Your Minecraft Nickname]`")
                                 color = Colors.SUCCESS.color
                             }
                         }
