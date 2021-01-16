@@ -75,6 +75,11 @@ object CapeCommand : BotCommand(
                                 field("User", user.mention)
                                 field("Type", type.realName)
                                 field("Cape UUID", newCape.capeUUID)
+                                capeUserMap[user.id]?.let {
+                                    if (!it.capes.any { cape -> cape.playerUUID != null }) {
+                                        field("Attaching", "To attach your Cape:\n`;cape attach <Cape UUID> <username>`")
+                                    }
+                                }
                                 color = Colors.SUCCESS.color
                             }
                         }
