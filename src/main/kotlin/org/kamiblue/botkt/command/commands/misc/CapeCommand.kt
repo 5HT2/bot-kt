@@ -77,7 +77,7 @@ object CapeCommand : BotCommand(
                                 field("Cape UUID", newCape.capeUUID)
                                 capeUserMap[user.id]?.let {
                                     if (!it.capes.any { cape -> cape.playerUUID != null }) {
-                                        field("Attaching", "To attach your cape use:\n`;cape attach [Your Cape UUID] [Your Minecraft Nickname]`")
+                                        field("Attaching", "To attach your Cape:\n`;cape attach [Your Cape UUID] [Your Minecraft Username]`")
                                     }
                                 }
                                 color = Colors.SUCCESS.color
