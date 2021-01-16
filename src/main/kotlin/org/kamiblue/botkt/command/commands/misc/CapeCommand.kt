@@ -7,6 +7,7 @@ import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.emoji.Emoji
+import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.event.events.ShutdownEvent
@@ -116,10 +117,7 @@ object CapeCommand : BotCommand(
         literal("list") {
             user("id") { userArg ->
                 execute("List Capes for a user") {
-                    val userCapes = capeUserMap[userArg.value.id]?.capes ?: run {
-                        channel.error("User ${userArg.value.mention} does not have any capes!")
-                        return@execute
-                    }
+                    val userCapes = message.getCapes(userArg.value) ?: return@execute
 
                     message.channel.send {
                         embed {
@@ -420,10 +418,12 @@ object CapeCommand : BotCommand(
         }
     }
 
-    private fun Message.getCapes(): ArrayList<Cape>? {
-        return author?.let { author ->
+    private suspend fun Message.getCapes(user: User? = author): ArrayList<Cape>? {
+        return user?.let { author ->
             capeUserMap[author.id]?.capes.also {
-                if (it == null) error("User ${author.mention} does not have any capes!")
+                if (it == null) {
+                    this.channel.error("User ${author.mention} does not have any capes!")
+                }
             }
         }
     }
@@ -468,7 +468,7 @@ object CapeCommand : BotCommand(
         }
     }
 
-    suspend fun trimAndSyncEmojis() {
+    private suspend fun trimAndSyncEmojis() {
         server?.let { server ->
             // Sync emojis
             cachedEmojis.values.removeIf { !server.emojis.contains(it) }
