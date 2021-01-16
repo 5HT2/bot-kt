@@ -3,6 +3,7 @@ package org.kamiblue.botkt.command.commands.info
 import kotlinx.coroutines.*
 import net.ayataka.kordis.entity.everyone
 import net.ayataka.kordis.entity.message.Message
+import net.ayataka.kordis.entity.message.MessageBuilder
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.channel.category.ChannelCategory
 import net.ayataka.kordis.entity.server.channel.text.ServerTextChannel
@@ -63,7 +64,7 @@ object TicketCommand : BotCommand(
                         saveChannel(channel, it)
                         response.edit {
                             description =
-                                "Saved `${messages.size}` messages for ticket `${message.serverChannel?.topic}`!"
+                                "Saved `${messages.size}` messages for ticket `${message.serverChannel?.topic?.topicTime()}`!"
                             color = Colors.SUCCESS.color
                         }
                     }
@@ -119,31 +120,7 @@ object TicketCommand : BotCommand(
             }
         }
 
-        literal("list") {
-            executeIfHas(PermissionTypes.COUNCIL_MEMBER, "List closed tickets") {
-                channel.send {
-                    embed {
-                        joinToFields(getTickets().withIndex(), "\n") {
-                            "`${it.index}`: ${it.value.name.formatName()}"
-                        }
-                        color = Colors.PRIMARY.color
-                    }
-                }
-            }
-        }
-
         literal("close") {
-            int("ticket number") { ticketNum ->
-                executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Close a ticket") {
-                    val ticketChannel = message.server?.textChannels?.findByName("ticket-${ticketNum.value}") ?: run {
-                        channel.error("Couldn't find a ticket named `ticket-${ticketNum.value}`!")
-                        return@executeIfHas
-                    }
-
-                    closeTicket(ticketChannel, message)
-                }
-            }
-
             executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Close the current ticket") {
                 val channel = message.serverChannel
 
@@ -199,15 +176,6 @@ object TicketCommand : BotCommand(
         }
     }
 
-    private fun String.formatName(): String {
-        if (length < 38) return this.removeSuffix(".txt")
-
-        val id = substring(20, 38).toLongOrNull() ?: return this.removeSuffix(".txt")
-        val time = substring(0, 19).replace("_", " ").replace(".", ":")
-
-        return "$time <@!$id>"
-    }
-
     private fun getTickets() =
         ticketFolder.listFiles(FileFilter { it.isFile && it.name.matches(ticketFileRegex) })!!.toList().sortedBy { it.name }
 
@@ -226,7 +194,7 @@ object TicketCommand : BotCommand(
 
         val ticketChannel = server.createTextChannel {
             name = "ticket-${tickets.size}"
-            topic = "${Instant.now().prettyFormat()} ${author.id}"
+            topic = "${Instant.now().prettyFormat()} ${author.id} ${message.content}".max(1024)
             category = ticketCategory
         }
 
@@ -265,9 +233,9 @@ object TicketCommand : BotCommand(
     }
 
     private suspend fun closeTicket(channel: ServerTextChannel, message: Message) {
-        logMessage(channel, message, "Closed ticket `${channel.topic}`")
+        logMessage(channel, message, "Closed ticket `${channel.topic?.topicTime()}`")
         cachedMessages.remove(channel)?.let {
-            ticketIOScope.launch { saveChannel(channel, it) }
+            ticketIOScope.launch { saveChannel(channel, it, true) }
         }
         channel.delete()
     }
@@ -294,15 +262,59 @@ object TicketCommand : BotCommand(
         }.awaitAll()
     }
 
-    private fun saveChannel(channel: ServerTextChannel, stringBuilder: java.lang.StringBuilder) {
+    @Suppress("BlockingMethodInNonBlockingContext")
+    private suspend fun saveChannel(channel: ServerTextChannel, stringBuilder: StringBuilder, uploadFile: Boolean = false) {
         val ticketName = if (channel.id == config?.ticketCreateChannel) channel.name
-        else channel.topic!!.replace(" ", "_").replace(":", ".")
+        else channel.topic!!.topicTime().replace(" ", "_").replace(":", ".")
 
         if (!ticketFolder.exists()) ticketFolder.mkdir()
 
-        File("${ticketFolder.name}/$ticketName.txt").run {
+        val file = File("${ticketFolder.name}/$ticketName.txt")
+
+        file.run {
             if (!exists()) createNewFile()
             appendText(stringBuilder.toString())
         }
+
+        if (uploadFile) {
+            val user = channel.topic?.substring(20, 38)?.replace(notNumberRegex, "").toString()
+            val ticketTopic = channel.topic?.substring(38) // can't throw an exception, there has to be a topic
+
+            val users = arrayListOf<String>()
+            file.readLines().forEach {
+                try {
+                    val ticketUser = it.substring(25, 43)
+                    if (ticketUser != Main.client.botUser.id.toString() && !users.contains(ticketUser)) {
+                        users.add(ticketUser)
+                    }
+                } catch (e: ArrayIndexOutOfBoundsException) {
+                    Main.logger.debug(e)
+                }
+            }
+
+            config?.ticketUploadChannel?.let { uploadChannelConfig ->
+                val uploadChannel = channel.server.textChannels.find(uploadChannelConfig) ?: run {
+                    Main.logger.warn("Invalid ticketUploadChannel set")
+                    return
+                }
+
+                val embed = MessageBuilder().apply {
+                    embed {
+                        field("Ticket Author", "<@!$user>")
+                        field("Ticket Author ID", user)
+                        field("Topic", ticketTopic ?: "No Topic")
+                        field("Ticket Name", channel.name)
+                        field("Participants", users.joinToString("\n") { "<@!$it>" })
+                        color = Colors.PRIMARY.color
+                    }
+                }.build()
+
+                uploadChannel.upload(file, embed = embed.asJsonObject)
+            } ?: run {
+                Main.logger.warn("Couldn't upload ticket file because ticketUploadChannel is not set")
+            }
+        }
     }
+
+    private fun String.topicTime() = this.max(38)
 }

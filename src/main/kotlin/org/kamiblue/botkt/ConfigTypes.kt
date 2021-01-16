@@ -126,7 +126,8 @@ data class JoinLeaveConfig(
 data class TicketConfig(
     val ticketCategory: Long?,
     val ticketCreateChannel: Long?,
-    val ticketPingRole: Long?
+    val ticketPingRole: Long?,
+    val ticketUploadChannel: Long?
 )
 
 /**
