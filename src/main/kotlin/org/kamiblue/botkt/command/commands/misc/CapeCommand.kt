@@ -411,7 +411,7 @@ object CapeCommand : BotCommand(
         return apply {
             this.capes.removeIf { it.capeUUID == cape.capeUUID }
             this.capes.add(cape)
-            this.isPremium = this.isPremium || capes.any { it.type == CapeType.DONOR }
+            this.isPremium = this.isPremium || capes.any { it.type == CapeType.DONOR || it.type == CapeType.CONTRIBUTOR }
         }
     }
 
