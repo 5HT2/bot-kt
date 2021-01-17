@@ -277,8 +277,9 @@ object TicketCommand : BotCommand(
         }
 
         if (uploadFile) {
-            val user = channel.topic?.substring(20, 38)?.replace(notNumberRegex, "").toString()
-            val ticketTopic = channel.topic?.substring(38) // can't throw an exception, there has to be a topic
+            val user = channel.topic?.substring(20, 38)?.replace(notNumberRegex, "")?.toLongOrNull()?.let {
+                Main.client.getUser(it)
+            }
 
             val users = arrayListOf<String>()
             file.readLines().forEach {
@@ -300,11 +301,12 @@ object TicketCommand : BotCommand(
 
                 val embed = MessageBuilder().apply {
                     embed {
-                        field("Ticket Author", "<@!$user>")
-                        field("Ticket Author ID", user)
-                        field("Topic", ticketTopic ?: "No Topic")
-                        field("Ticket Name", channel.name)
+                        field("Ticket Name", "`${channel.name}`")
+                        channel.topic?.substring(38)?.let { field("Topic", "`$it`") }
+                        field("Author", user?.mention.toString())
+                        channel.topic?.substring(0, 19)?.let { field("Opened Date",  it) }
                         field("Participants", users.joinToString("\n") { "<@!$it>" })
+                        footer("ID: ${user?.id}", user?.avatar?.url)
                         color = Colors.PRIMARY.color
                     }
                 }.build()
