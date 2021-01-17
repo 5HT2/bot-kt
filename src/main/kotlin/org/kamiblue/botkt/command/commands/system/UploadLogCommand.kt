@@ -19,7 +19,7 @@ object UploadLogCommand : BotCommand(
 ) {
     init {
         executeIfHas(VIEW_LOGS, "Upload the `debug.log`") {
-            uploadLog("latest.log", LogType.LATEST)
+            uploadLog("debug.log", LogType.DEBUG)
         }
 
         literal("list") {
@@ -49,12 +49,10 @@ object UploadLogCommand : BotCommand(
         }
     }
 
-
     private suspend fun MessageExecuteEvent.uploadLog(logName: String, logType: LogType) {
         val file = File("logs/${logType.folder}$logName")
         if (!file.exists() || file.isDirectory) {
-            channel.error("Could not find ${logType.getName()} log named `${logName}`")
-
+            channel.error("Could not find ${logType.getName()} log named `$logName`")
         } else {
             channel.upload(file, embed = getEmbed(logType, file))
         }
