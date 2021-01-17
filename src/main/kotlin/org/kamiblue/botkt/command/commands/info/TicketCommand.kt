@@ -302,7 +302,7 @@ object TicketCommand : BotCommand(
                 val embed = MessageBuilder().apply {
                     embed {
                         field("Ticket Name", "`${channel.name}`")
-                        channel.topic?.substring(38)?.let { field("Topic", "`$it`") }
+                        channel.topic?.substring(39)?.let { field("Topic", "`$it`") }
                         field("Author", user?.mention.toString())
                         channel.topic?.substring(0, 19)?.let { field("Opened Date", it) }
                         field("Participants", users.joinToString("\n") { "<@!$it>" })
