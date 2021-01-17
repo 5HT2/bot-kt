@@ -304,7 +304,7 @@ object TicketCommand : BotCommand(
                         field("Ticket Name", "`${channel.name}`")
                         channel.topic?.substring(38)?.let { field("Topic", "`$it`") }
                         field("Author", user?.mention.toString())
-                        channel.topic?.substring(0, 19)?.let { field("Opened Date",  it) }
+                        channel.topic?.substring(0, 19)?.let { field("Opened Date", it) }
                         field("Participants", users.joinToString("\n") { "<@!$it>" })
                         footer("ID: ${user?.id}", user?.avatar?.url)
                         color = Colors.PRIMARY.color
