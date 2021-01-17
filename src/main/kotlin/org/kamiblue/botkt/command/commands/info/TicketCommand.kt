@@ -315,7 +315,7 @@ object TicketCommand : BotCommand(
                     }
                 }.build()
 
-                uploadChannel.upload(file, embed = embed.asJsonObject)
+                uploadChannel.upload(file, embed = embed)
             } ?: run {
                 Main.logger.warn("Couldn't upload ticket file because ticketUploadChannel is not set")
             }
