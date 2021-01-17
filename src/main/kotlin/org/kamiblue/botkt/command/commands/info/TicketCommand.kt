@@ -292,7 +292,7 @@ object TicketCommand : BotCommand(
                     if (ticketUser != Main.client.botUser.id.toString() && !users.contains(ticketUser)) {
                         users.add(ticketUser)
                     }
-                } catch (e: ArrayIndexOutOfBoundsException) {
+                } catch (e: StringIndexOutOfBoundsException) {
                     Main.logger.debug(e)
                 }
             }
