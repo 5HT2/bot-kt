@@ -190,10 +190,12 @@ object TicketCommand : BotCommand(
         author: User,
         ticketCategory: ChannelCategory
     ) {
-        val tickets = server.textChannels.filter { it.category == ticketCategory }
+        val config = config ?: return // lazy
+
+        config.ticketTotalAmount = config.ticketTotalAmount?.let { it + 1 } ?: 1
 
         val ticketChannel = server.createTextChannel {
-            name = "ticket-${tickets.size}"
+            name = "ticket-${config.ticketTotalAmount}"
             topic = "${Instant.now().prettyFormat()} ${author.id} ${message.content}".max(1024)
             category = ticketCategory
         }
@@ -202,7 +204,7 @@ object TicketCommand : BotCommand(
 
         logMessage(ticketChannel, message, "Created ticket: `${message.content}`".max(2048))
 
-        ticketChannel.send("${author.mention} <@&${config?.ticketPingRole}>")
+        ticketChannel.send("${author.mention} <@&${config.ticketPingRole}>")
 
         ticketChannel.send {
             embed {
@@ -254,6 +256,8 @@ object TicketCommand : BotCommand(
     private fun formatMessage(message: Message) = "[${message.timestamp.prettyFormat()}] [${message.author?.mention}] "
 
     private suspend fun saveAll() {
+        ConfigManager.writeConfig(ConfigType.TICKET)
+
         val prev = cachedMessages
         cachedMessages = HashMap()
 
