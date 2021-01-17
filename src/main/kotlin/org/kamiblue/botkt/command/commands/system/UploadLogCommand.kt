@@ -25,9 +25,13 @@ object UploadLogCommand : BotCommand(
         literal("list") {
             enum<LogType>("log type") { logTypeArg ->
                 executeIfHas(VIEW_LOGS, "List available logs") {
-                    File("logs/${logTypeArg.value.folder}").listFiles()?.filter { it.isFile }?.sortedBy { it.name }?.let {
-                        channel.normal(it.joinToString("\n") { file -> "`${file.name}`" }.max(2048))
-                    } ?: run {
+                    File("logs/${logTypeArg.value.folder}").listFiles()
+                        ?.filter { it.isFile }
+                        ?.sortedBy { it.name }
+                        ?.reversed()
+                        ?.let {
+                            channel.normal(it.joinToString("\n") { file -> "`${file.name}`" }.max(2048))
+                        } ?: run {
                         channel.error("Could not find any logs inside `logs/${logTypeArg.value}`!")
                     }
                 }
