@@ -39,5 +39,6 @@ enum class PermissionTypes {
     AUTHORIZE_CAPES,
     CREATE_RELEASE,
     PURGE_PROTECTED,
-    MANAGE_PLUGINS
+    MANAGE_PLUGINS,
+    VIEW_LOGS
 }
