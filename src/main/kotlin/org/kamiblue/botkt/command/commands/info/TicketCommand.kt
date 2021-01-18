@@ -285,11 +285,11 @@ object TicketCommand : BotCommand(
                 Main.client.getUser(it)
             }
 
-            val users = arrayListOf<String>()
+            val users = arrayListOf<Long>()
             file.readLines().forEach {
                 try {
-                    val ticketUser = it.substring(25, 43)
-                    if (ticketUser != Main.client.botUser.id.toString() && !users.contains(ticketUser)) {
+                    val ticketUser = it.substring(25, 43).toLongOrNull() ?: return@forEach
+                    if (ticketUser != Main.client.botUser.id && !users.contains(ticketUser)) {
                         users.add(ticketUser)
                     }
                 } catch (e: StringIndexOutOfBoundsException) {
