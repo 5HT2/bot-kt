@@ -8,7 +8,6 @@ import org.kamiblue.botkt.command.commands.github.IssueCommand
  */
 enum class ConfigType(val configPath: String, var data: Any? = null) {
     AUTH("config/auth.json"),
-    MUTE("config/mutes.json"),
     RULES("config/rules.json"),
     USER("config/user.json"),
     PERMISSION("config/permissions.json"),
@@ -16,7 +15,8 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
     JOIN_LEAVE("config/joinleave.json"),
     TICKET("config/tickets.json"),
     STAR_BOARD("config/starboard.json"),
-    LOGGING("config/logging.json")
+    LOGGING("config/logging.json"),
+    ARCHIVE_CHANNEL("config/archived_channels.json")
 }
 
 /**
@@ -26,16 +26,6 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
 data class AuthConfig(
     val botToken: String,
     val githubToken: String
-)
-
-/**
- * [id] is the user snowflake ID
- * [unixUnmute] is the UNIX time of when they should be unmuted.
- * When adding a new [unixUnmute] time, it should be current UNIX time + mute time in seconds
- */
-data class MuteConfig(
-    val id: Long,
-    val unixUnmute: Long
 )
 
 /**
@@ -152,4 +142,8 @@ data class LoggingConfig(
     val ignoreChannels: HashSet<Long>?,
     val ignorePrefix: String?,
     val loggingChannel: Long?
+)
+
+data class ArchivedChannelsConfig(
+    var amount: Int?
 )

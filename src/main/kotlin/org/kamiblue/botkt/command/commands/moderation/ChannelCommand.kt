@@ -1,5 +1,6 @@
 package org.kamiblue.botkt.command.commands.moderation
 
+import kotlinx.coroutines.runBlocking
 import net.ayataka.kordis.entity.edit
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
@@ -10,8 +11,11 @@ import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverw
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.PermissionTypes.*
 import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.event.events.ShutdownEvent
+import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
+import org.kamiblue.event.listener.listener
 import kotlin.collections.set
 
 object ChannelCommand : BotCommand(
@@ -20,6 +24,7 @@ object ChannelCommand : BotCommand(
     category = Category.MODERATION,
     description = "Modify, copy, save, archive and slow channels"
 ) {
+    private val config get() = ConfigManager.readConfigSafe<ArchivedChannelsConfig>(ConfigType.ARCHIVE_CHANNEL, false)
     private val permissions = HashMap<String, Collection<RolePermissionOverwrite>>()
     private val rolePermHistory = HashMap<ServerChannel, ArrayDeque<List<RolePermissionOverwrite>>>()
 
@@ -124,22 +129,30 @@ object ChannelCommand : BotCommand(
 
         literal("archive") {
             executeIfHas(ARCHIVE_CHANNEL, "Archive the current channel") {
+                val config = config ?: run {
+                    config?.amount = 0
+                    ConfigManager.writeConfig(ConfigType.ARCHIVE_CHANNEL) // attempt to save a blank config
+                    ConfigManager.readConfigSafe<ArchivedChannelsConfig>(ConfigType.ARCHIVE_CHANNEL, true) ?: run {
+                        channel.error("`${ConfigType.ARCHIVE_CHANNEL.configPath}` is not setup and failed to create!")
+                        return@executeIfHas
+                    } // attempt to load said config
+                }
+
                 val c = message.serverChannel() ?: return@executeIfHas
                 val s = server ?: run { channel.error("Server is null, are you running this from a DM?"); return@executeIfHas }
                 val everyone = s.roles.find(s.id)!! // this cannot be null, as it's the @everyone role and we already checked server null
                 val oldName = c.name
 
-                val archivedChannels = s.channels.filter { n -> n.name.contains(Regex("archived-[0-9]+")) }
-                val totalArchived = archivedChannels.size
+                config.amount = config.amount?.let { it + 1 } ?: 1
 
                 c.edit {
                     userPermissionOverwrites.clear()
                     rolePermissionOverwrites.clear()
                     rolePermissionOverwrites.add(RolePermissionOverwrite(everyone, PermissionSet(0), PermissionSet(1024))) // disallow read for everyone
-                    name = "archived-$totalArchived"
+                    name = "archived-${config.amount}"
                 }
 
-                channel.success("Changed name from `$oldName` to `archived-$totalArchived`")
+                channel.success("Changed name from `$oldName` to `archived-$${config.amount}`")
             }
         }
 
@@ -164,6 +177,18 @@ object ChannelCommand : BotCommand(
 
             executeIfHas(COUNCIL_MEMBER, "Unlock the current channel") {
                 lockOrUnlock(category = false, lock = false, message, server)
+            }
+        }
+
+        BackgroundScope.launchLooping("Archived channel saving", 1800000L) {
+            ConfigManager.writeConfig(ConfigType.ARCHIVE_CHANNEL)
+
+            Main.logger.debug("Saved archived channels amount")
+        }
+
+        listener<ShutdownEvent> {
+            runBlocking {
+                ConfigManager.writeConfig(ConfigType.ARCHIVE_CHANNEL)
             }
         }
     }
