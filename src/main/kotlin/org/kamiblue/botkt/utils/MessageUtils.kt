@@ -124,6 +124,8 @@ suspend fun Collection<Message>.safeDelete() {
 
 val Message.link get() = "https://discord.com/channels/${this.server?.id}/${this.channel.id}/${this.id}"
 
+val Message.contextLink get() = "[\\[context\\]](${this.link})"
+
 private fun FormBuilder.appendFile(file: File) = appendInput(
     key = file.absolutePath,
     headers = Headers.build { append(HttpHeaders.ContentDisposition, "filename=${file.name}") },

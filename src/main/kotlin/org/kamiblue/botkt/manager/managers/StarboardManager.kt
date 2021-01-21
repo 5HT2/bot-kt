@@ -10,11 +10,13 @@ import org.kamiblue.botkt.StarBoardConfig
 import org.kamiblue.botkt.entity.Emoji
 import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.manager.Manager
+import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.StringUtils.isUrl
+import org.kamiblue.botkt.utils.contextLink
 import org.kamiblue.botkt.utils.getReactions
+import org.kamiblue.commons.extension.max
 import org.kamiblue.event.listener.asyncListener
 import org.kamiblue.event.listener.listener
-import java.awt.Color
 
 object StarboardManager : Manager {
 
@@ -47,19 +49,13 @@ object StarboardManager : Manager {
                 Main.logger.debug("Star received, message ${message.id} now has ${reactionUsers.size} star")
 
                 if (reactionUsers.size >= cfg.threshold && !cfg.messages.contains(message.id)) {
-                    (server.channels.find(starBoardChannel) as TextChannel).send {
+                    (server.channels.find(starBoardChannel) as? TextChannel)?.send {
                         embed {
-                            author(
-                                name = message.author?.name,
-                                url = null,
-                                iconUrl = message.author?.avatar?.url
-                            )
-                            title = "https://discord.com/channels/${server.id}/${channel.id}/${message.id}"
-                            description = message.content
+                            description = "${message.contextLink}\n\n${message.content}".max(2048)
                             imageUrl = image
-                            color = Color(255, 172, 51)
-                            footer("Message ID: ${message.id}")
+                            author(name = message.author?.tag, iconUrl = message.author?.avatar?.url)
                             timestamp = message.timestamp
+                            color = Colors.STARBOARD.color
                         }
                     }
                     cfg.messages.add(message.id)
