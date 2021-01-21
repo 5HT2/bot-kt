@@ -120,7 +120,7 @@ object PurgeCommand : BotCommand(
                     }
                     joinToFields(message.content.lines(), "\n", titlePrefix = "New Message")
 
-                    description = "[**\\[link to context\\]**](${message.link})"
+                    description = message.contextLink
                     author(message.author?.tag, iconUrl = message.author?.avatar?.url)
                     footer("ID: ${message.author?.id}")
                     timestamp = Instant.now()

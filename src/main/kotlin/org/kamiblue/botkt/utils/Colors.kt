@@ -8,5 +8,6 @@ enum class Colors(val color: Color) {
     WARN(Color(222, 182, 60)),
     SUCCESS(Color(60, 222, 90)),
     MERGED_PULL_REQUEST(Color(100, 29, 188)),
-    EDITED_MESSAGE(Color(51, 127, 213))
+    EDITED_MESSAGE(Color(51, 127, 213)),
+    STARBOARD(Color(255, 172, 51))
 }
