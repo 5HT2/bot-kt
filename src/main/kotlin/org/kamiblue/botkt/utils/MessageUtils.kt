@@ -106,6 +106,18 @@ suspend fun TextChannel.upload(file: File, message: String = "", embed: JsonObje
     )
 }.toMessage(this)
 
+private fun FormBuilder.appendFile(file: File) = appendInput(
+    key = file.absolutePath,
+    headers = Headers.build { append(HttpHeaders.ContentDisposition, "filename=${file.name}") },
+    size = file.length(),
+    block = {
+        buildPacket { writeFully(file.readBytes()) }
+    }
+)
+
+private fun JsonObject.toMessage(channel: TextChannel) =
+    MessageImpl(Main.client as DiscordClientImpl, this, (channel as? ServerChannel?)?.server)
+
 suspend fun Message.tryDelete() {
     try {
         this.delete()
@@ -125,15 +137,3 @@ suspend fun Collection<Message>.tryDeleteAll() {
 val Message.link get() = "https://discord.com/channels/${this.server?.id}/${this.channel.id}/${this.id}"
 
 val Message.contextLink get() = "[[context]](${this.link})"
-
-private fun FormBuilder.appendFile(file: File) = appendInput(
-    key = file.absolutePath,
-    headers = Headers.build { append(HttpHeaders.ContentDisposition, "filename=${file.name}") },
-    size = file.length(),
-    block = {
-        buildPacket { writeFully(file.readBytes()) }
-    }
-)
-
-private fun JsonObject.toMessage(channel: TextChannel) =
-    MessageImpl(Main.client as DiscordClientImpl, this, (channel as? ServerChannel?)?.server)
