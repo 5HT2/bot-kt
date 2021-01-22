@@ -152,7 +152,7 @@ object ChannelCommand : BotCommand(
                     name = "archived-${config.amount}"
                 }
 
-                channel.success("Changed name from `$oldName` to `archived-$${config.amount}`")
+                channel.success("Changed name from `$oldName` to `archived-${config.amount}`")
             }
         }
 
