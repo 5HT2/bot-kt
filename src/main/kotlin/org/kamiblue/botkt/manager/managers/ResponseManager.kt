@@ -21,7 +21,7 @@ object ResponseManager : Manager {
             val channel = event.message.channel
 
             config.responses.firstOrNull {
-                it.ignoreRoles?.contains(event.message.author?.id) == false
+                it.ignoreRoles?.contains(event.message.author?.id) != true
             }?.let { response ->
                 val replacedMessage = if (response.whitelistReplace != null && response.whitelistReplace.isNotEmpty()) {
                     var messageToReplace = message
