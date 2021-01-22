@@ -7,27 +7,26 @@ import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.safeDelete
 import org.kamiblue.event.listener.asyncListener
-import java.awt.Color
 
 object ResponseManager : Manager {
 
     val config get() = ConfigManager.readConfigSafe<ResponseConfig>(ConfigType.ARCHIVE_CHANNEL, false)
 
     init {
-        asyncListener<MessageReceiveEvent> { messageArg ->
+        asyncListener<MessageReceiveEvent> { event ->
             val config = config ?: return@asyncListener
 
-            val messageTemp = messageArg.message.content
+            val messageTemp = event.message.content
             if (messageTemp.isBlank()) return@asyncListener
-            val channel = messageArg.message.channel
+            val channel = event.message.channel
 
             for (response in config.responses) {
-                if (response.ignoreRoles.contains(messageArg.message.author?.id)) continue // see if anything else matches
+                if (response.ignoreRoles.contains(event.message.author?.id)) continue // see if anything else matches
 
                 val message = if (response.whitelistReplace.isNotEmpty()) {
                     var messageToReplace = messageTemp
-                    response.whitelistReplace.forEach { replacement ->
-                        messageToReplace = messageToReplace.replace(replacement, "")
+                    response.whitelistReplace.forEach {
+                        messageToReplace = messageToReplace.replace(it, "")
                     }
                     messageToReplace
                 } else {
@@ -44,7 +43,7 @@ object ResponseManager : Manager {
                     }
 
                     if (response.deleteMessage) {
-                        messageArg.message.safeDelete()
+                        event.message.safeDelete()
                         break // stop auto-responding if the message has been deleted
                     }
                 }
@@ -52,15 +51,16 @@ object ResponseManager : Manager {
         }
     }
 
-    data class Response(
-        private val regex: String,
-        val compiledRegex: Regex = Regex(regex),
-        val deleteMessage: Boolean,
-        val responseDescription: String,
+    class Response(
         val responseTitle: String = "",
+        val responseDescription: String,
         private val responseColor: Colors = Colors.PRIMARY,
+        val deleteMessage: Boolean,
+        private val regex: String,
         val whitelistReplace: List<String> = emptyList(),
         val ignoreRoles: Set<Long> = emptySet(),
-        val color: Color = responseColor.color
-    )
+    ) {
+        val compiledRegex by lazy { Regex(regex) }
+        val color get()= responseColor.color
+    }
 }
