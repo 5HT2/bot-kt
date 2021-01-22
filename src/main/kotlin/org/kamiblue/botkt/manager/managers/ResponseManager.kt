@@ -16,24 +16,24 @@ object ResponseManager : Manager {
         asyncListener<MessageReceiveEvent> { event ->
             val config = config ?: return@asyncListener
 
-            val messageTemp = event.message.content
-            if (messageTemp.isBlank()) return@asyncListener
+            val message = event.message.content
+            if (message.isBlank()) return@asyncListener
             val channel = event.message.channel
 
-            for (response in config.responses) {
-                if (response.ignoreRoles.contains(event.message.author?.id)) continue // see if anything else matches
-
-                val message = if (response.whitelistReplace.isNotEmpty()) {
-                    var messageToReplace = messageTemp
+            config.responses.firstOrNull {
+                !it.ignoreRoles.contains(event.message.author?.id)
+            }?.let { response ->
+                val replacedMessage = if (response.whitelistReplace.isNotEmpty()) {
+                    var messageToReplace = message
                     response.whitelistReplace.forEach {
                         messageToReplace = messageToReplace.replace(it, "")
                     }
                     messageToReplace
                 } else {
-                    messageTemp
+                    message
                 }
 
-                if (response.compiledRegex.containsMatchIn(message)) {
+                if (response.compiledRegex.containsMatchIn(replacedMessage)) {
                     channel.send {
                         embed {
                             title = response.responseTitle
@@ -44,7 +44,6 @@ object ResponseManager : Manager {
 
                     if (response.deleteMessage) {
                         event.message.safeDelete()
-                        break // stop auto-responding if the message has been deleted
                     }
                 }
             }
