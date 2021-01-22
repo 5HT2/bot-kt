@@ -9,16 +9,6 @@ import org.kamiblue.botkt.utils.safeDelete
 import org.kamiblue.event.listener.asyncListener
 import java.awt.Color
 
-fun main() {
-
-    for (index in 0 until 10) {
-        if (index == 2) continue
-        println(index)
-
-        if (index == 5) break
-    }
-}
-
 object ResponseManager : Manager {
 
     val config get() = ConfigManager.readConfigSafe<ResponseConfig>(ConfigType.ARCHIVE_CHANNEL, false)
