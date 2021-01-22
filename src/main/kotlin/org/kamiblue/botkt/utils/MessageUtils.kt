@@ -106,19 +106,19 @@ suspend fun TextChannel.upload(file: File, message: String = "", embed: JsonObje
     )
 }.toMessage(this)
 
-suspend fun Message.safeDelete() {
+suspend fun Message.tryDelete() {
     try {
         this.delete()
     } catch (e: NotFoundException) {
-        Main.logger.debug("Failed to delete ${this}\n${e.stackTraceToString()}")
+        Main.logger.debug("Failed to delete message", e)
     }
 }
 
-suspend fun Collection<Message>.safeDelete() {
+suspend fun Collection<Message>.tryDeleteAll() {
     try {
         this.deleteAll()
     } catch (e: NotFoundException) {
-        Main.logger.debug("Failed to delete ${this}\n${e.stackTraceToString()}")
+        Main.logger.debug("Failed to delete messages", e)
     }
 }
 

@@ -5,7 +5,7 @@ import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.ResponseConfig
 import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.Colors
-import org.kamiblue.botkt.utils.safeDelete
+import org.kamiblue.botkt.utils.tryDelete
 import org.kamiblue.event.listener.asyncListener
 
 object ResponseManager : Manager {
@@ -43,7 +43,7 @@ object ResponseManager : Manager {
                     }
 
                     if (response.deleteMessage) {
-                        event.message.safeDelete()
+                        event.message.tryDelete()
                     }
                 }
             }
