@@ -151,5 +151,5 @@ data class ArchivedChannelsConfig(
 )
 
 data class ResponseConfig(
-    val responses: HashSet<ResponseManager.Response>
+    val responses: List<ResponseManager.Response> = emptyList()
 )

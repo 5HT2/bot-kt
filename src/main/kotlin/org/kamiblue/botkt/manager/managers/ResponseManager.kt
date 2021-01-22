@@ -59,8 +59,8 @@ object ResponseManager : Manager {
         val responseDescription: String,
         val responseTitle: String = "",
         private val responseColor: Colors = Colors.PRIMARY,
-        val whitelistReplace: HashSet<String> = hashSetOf(),
-        val ignoreRoles: HashSet<Long> = hashSetOf(),
+        val whitelistReplace: List<String> = emptyList(),
+        val ignoreRoles: Set<Long> = emptySet(),
         val color: Color = responseColor.color
     )
 }
