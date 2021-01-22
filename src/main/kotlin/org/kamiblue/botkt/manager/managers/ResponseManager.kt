@@ -51,15 +51,20 @@ object ResponseManager : Manager {
     }
 
     class Response(
-        val responseTitle: String = "",
+        val responseTitle: String,
         val responseDescription: String,
-        private val responseColor: Colors = Colors.PRIMARY,
+        private val responseColor: Colors?,
         val deleteMessage: Boolean,
         private val regex: String,
-        val whitelistReplace: List<String>? = null,
-        val ignoreRoles: Set<Long>? = null,
+        val whitelistReplace: List<String>?,
+        val ignoreRoles: Set<Long>?,
     ) {
-        val compiledRegex by lazy { Regex(regex) }
-        val color get() = responseColor.color
+        val color get() = (responseColor?: Colors.PRIMARY).color
+
+        private var compiledRegexCache: Regex? = null
+        val compiledRegex
+            get() = compiledRegexCache ?: synchronized(this) {
+                Regex(regex, RegexOption.IGNORE_CASE).also { compiledRegexCache = it }
+            }
     }
 }
