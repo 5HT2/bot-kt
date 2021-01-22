@@ -10,7 +10,7 @@ import org.kamiblue.event.listener.asyncListener
 
 object ResponseManager : Manager {
 
-    val config get() = ConfigManager.readConfigSafe<ResponseConfig>(ConfigType.ARCHIVE_CHANNEL, false)
+    val config get() = ConfigManager.readConfigSafe<ResponseConfig>(ConfigType.RESPONSE, false)
 
     init {
         asyncListener<MessageReceiveEvent> { event ->
