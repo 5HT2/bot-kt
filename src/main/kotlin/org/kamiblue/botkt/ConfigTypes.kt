@@ -1,6 +1,7 @@
 package org.kamiblue.botkt
 
 import org.kamiblue.botkt.command.commands.github.IssueCommand
+import org.kamiblue.botkt.manager.managers.ResponseManager
 
 /**
  * [configPath] is the file name on disk, OR a remote URL. If it is a URL, it must be a valid URL which includes http/https as a prefix
@@ -16,7 +17,8 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
     TICKET("config/tickets.json"),
     STAR_BOARD("config/starboard.json"),
     LOGGING("config/logging.json"),
-    ARCHIVE_CHANNEL("config/archived_channels.json")
+    ARCHIVE_CHANNEL("config/archived_channels.json"),
+    RESPONSE("config/responses.json")
 }
 
 /**
@@ -146,4 +148,8 @@ data class LoggingConfig(
 
 data class ArchivedChannelsConfig(
     var amount: Int?
+)
+
+data class ResponseConfig(
+    val responses: HashSet<ResponseManager.Response>
 )
