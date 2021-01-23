@@ -28,12 +28,12 @@ object ResponseManager : Manager {
             for (response in config.responses.sort()) {
                 val roles = response.ignoreRoles
                 if (roles?.isNotEmpty() == true && !message.startsWith(config.roleIgnorePrefix) && roles.findIgnoredRole(member)) {
-                    continue
+                    continue // If the message doesn't start with the ignore prefix and they have an ignored role, skip to the next regex
                 }
 
                 val replacedMessage = if (response.whitelistReplace?.isEmpty() == false) {
                     var messageToReplace = message
-                    response.whitelistReplace.forEach {
+                    response.whitelistReplace.forEach { // Replace whitelisted words, usually used for fixing false positives
                         messageToReplace = messageToReplace.replace(it, "")
                     }
                     messageToReplace
