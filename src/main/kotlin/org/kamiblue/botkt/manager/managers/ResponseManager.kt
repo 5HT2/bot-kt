@@ -31,9 +31,9 @@ object ResponseManager : Manager {
                     continue // If the message doesn't start with the ignore prefix and they have an ignored role, skip to the next regex
                 }
 
-                val replacedMessage = if (response.whitelistReplace?.isEmpty() == false) {
+                val replacedMessage = if (response.compiledWhiteLists?.isEmpty() == false) {
                     var messageToReplace = message
-                    response.whitelistReplace.forEach { // Replace whitelisted words, usually used for fixing false positives
+                    response.compiledWhiteLists?.forEach { // Replace whitelisted words, usually used for fixing false positives
                         messageToReplace = messageToReplace.replace(it, "")
                     }
                     messageToReplace
@@ -69,10 +69,16 @@ object ResponseManager : Manager {
         private val responseColor: Colors?,
         val deleteMessage: Boolean,
         private val regexes: List<String>,
-        val whitelistReplace: List<String>?,
+        private val whitelistReplace: List<String>?,
         val ignoreRoles: Set<Long>?,
     ) {
         val color get() = (responseColor ?: Colors.PRIMARY).color
+
+        private var compiledWhiteListCache: List<Regex>? = null
+        val compiledWhiteLists
+            get() = compiledWhiteListCache ?: synchronized(this) {
+                whitelistReplace?.toRegex().also { compiledWhiteListCache = it }
+            }
 
         private var compiledRegexCache: List<Regex>? = null
         val compiledRegexes
@@ -90,7 +96,7 @@ object ResponseManager : Manager {
         return regexes
     }
 
-    // Magic sort method to get responses with the delete boolean first
+    // Magic sort method to get responses with the delete Boolean first
     private fun List<Response>.sort(): Array<Response> {
         val array = this.toTypedArray()
         array.sortWith { response1, response2 ->
