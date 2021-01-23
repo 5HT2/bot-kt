@@ -106,26 +106,6 @@ suspend fun TextChannel.upload(file: File, message: String = "", embed: JsonObje
     )
 }.toMessage(this)
 
-suspend fun Message.safeDelete() {
-    try {
-        this.delete()
-    } catch (e: NotFoundException) {
-        Main.logger.debug("Failed to delete ${this}\n${e.stackTraceToString()}")
-    }
-}
-
-suspend fun Collection<Message>.safeDelete() {
-    try {
-        this.deleteAll()
-    } catch (e: NotFoundException) {
-        Main.logger.debug("Failed to delete ${this}\n${e.stackTraceToString()}")
-    }
-}
-
-val Message.link get() = "https://discord.com/channels/${this.server?.id}/${this.channel.id}/${this.id}"
-
-val Message.contextLink get() = "[[context]](${this.link})"
-
 private fun FormBuilder.appendFile(file: File) = appendInput(
     key = file.absolutePath,
     headers = Headers.build { append(HttpHeaders.ContentDisposition, "filename=${file.name}") },
@@ -137,3 +117,23 @@ private fun FormBuilder.appendFile(file: File) = appendInput(
 
 private fun JsonObject.toMessage(channel: TextChannel) =
     MessageImpl(Main.client as DiscordClientImpl, this, (channel as? ServerChannel?)?.server)
+
+suspend fun Message.tryDelete() {
+    try {
+        this.delete()
+    } catch (e: Exception) {
+        Main.logger.debug("Failed to delete message", e)
+    }
+}
+
+suspend fun Collection<Message>.tryDeleteAll() {
+    try {
+        this.deleteAll()
+    } catch (e: Exception) {
+        Main.logger.debug("Failed to delete messages", e)
+    }
+}
+
+val Message.link get() = "https://discord.com/channels/${this.server?.id}/${this.channel.id}/${this.id}"
+
+val Message.contextLink get() = "[[context]](${this.link})"
