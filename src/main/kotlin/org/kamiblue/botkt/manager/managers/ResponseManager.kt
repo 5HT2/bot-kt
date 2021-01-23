@@ -2,6 +2,7 @@ package org.kamiblue.botkt.manager.managers
 
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.kamiblue.botkt.ConfigType
+import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.ResponseConfig
 import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.Colors
@@ -20,9 +21,13 @@ object ResponseManager : Manager {
             if (message.isBlank()) return@asyncListener
             val channel = event.message.channel
 
-            config.responses.firstOrNull {
-                it.ignoreRoles?.contains(event.message.author?.id) != true
-            }?.let { response ->
+            for (response in config.responses) {
+                response.ignoreRoles?.let {
+                    if (it.isNotEmpty() && it.any { responseRole -> event.message.member?.roles?.any { role -> role.id == responseRole } == true }) {
+                        return@asyncListener
+                    }
+                }
+
                 val replacedMessage = if (response.whitelistReplace != null && response.whitelistReplace.isNotEmpty()) {
                     var messageToReplace = message
                     response.whitelistReplace.forEach {
@@ -33,7 +38,7 @@ object ResponseManager : Manager {
                     message
                 }
 
-                if (response.compiledRegex.containsMatchIn(replacedMessage)) {
+                if (response.compiledRegexes.all { it.containsMatchIn(replacedMessage) }) {
                     channel.send {
                         embed {
                             title = response.responseTitle
@@ -55,16 +60,25 @@ object ResponseManager : Manager {
         val responseDescription: String,
         private val responseColor: Colors?,
         val deleteMessage: Boolean,
-        private val regex: String,
+        private val regexes: List<String>,
         val whitelistReplace: List<String>?,
         val ignoreRoles: Set<Long>?,
     ) {
-        val color get() = (responseColor?: Colors.PRIMARY).color
+        val color get() = (responseColor ?: Colors.PRIMARY).color
 
-        private var compiledRegexCache: Regex? = null
-        val compiledRegex
+        private var compiledRegexCache: List<Regex>? = null
+        val compiledRegexes
             get() = compiledRegexCache ?: synchronized(this) {
-                Regex(regex, RegexOption.IGNORE_CASE).also { compiledRegexCache = it }
+                regexes.toRegex().also { compiledRegexCache = it }
             }
+    }
+
+    private fun List<String>.toRegex(): List<Regex> {
+        val regexes = arrayListOf<Regex>()
+        this.forEach {
+            Main.logger.debug("Creating regex cache \"$it\" for ResponseManager")
+            regexes.add(Regex(it, RegexOption.IGNORE_CASE))
+        }
+        return regexes
     }
 }
