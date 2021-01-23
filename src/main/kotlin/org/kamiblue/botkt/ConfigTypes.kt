@@ -155,6 +155,6 @@ class ArchivedChannelsConfig(
  */
 class ResponseConfig(
     val responses: List<ResponseManager.Response> = emptyList(),
-    val roleIgnorePrefix: String = ":",
+    val roleIgnorePrefix: String? = ":",
     val ignoreChannels: HashSet<Long>?,
 )
