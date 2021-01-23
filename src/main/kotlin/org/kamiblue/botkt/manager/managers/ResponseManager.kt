@@ -1,6 +1,8 @@
 package org.kamiblue.botkt.manager.managers
 
+import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.member.Member
+import net.ayataka.kordis.event.events.message.MessageEditEvent
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
@@ -16,48 +18,63 @@ object ResponseManager : Manager {
 
     init {
         asyncListener<MessageReceiveEvent> { event ->
-            val config = config ?: return@asyncListener
-            val message = event.message.content
+            config?.let { config ->
+                val startTime = System.currentTimeMillis()
+                handleResponse(startTime, event.message, config.responses.sort())
+            }
+        }
 
-            if (message.isBlank()) return@asyncListener
+        asyncListener<MessageEditEvent> { event ->
+            config?.let { config ->
+                event.message?.let { message ->
+                    val startTime = System.currentTimeMillis()
+                    handleResponse(startTime, message, config.responses.filter { it.deleteMessage })
+                }
+            }
+        }
+    }
 
-            val member = event.message.member
-            val startTime = System.currentTimeMillis()
-            val channel = event.message.channel
+    private suspend fun handleResponse(startTime: Long, message: Message, responses: List<Response>) {
+        val config = config ?: return
 
-            for (response in config.responses.sort()) {
-                val roles = response.ignoreRoles
-                if (roles?.isNotEmpty() == true && !message.startsWith(config.roleIgnorePrefix) && roles.findIgnoredRole(member)) {
-                    continue // If the message doesn't start with the ignore prefix and they have an ignored role, skip to the next regex
+        val messageContent = message.content
+        if (messageContent.isBlank()) return
+
+        val member = message.member
+        val channel = message.channel
+
+        for (response in responses) {
+            val roles = response.ignoreRoles
+            if (roles?.isNotEmpty() == true && !messageContent.startsWith(config.roleIgnorePrefix) && roles.findIgnoredRole(member)) {
+                continue // If the message doesn't start with the ignore prefix and they have an ignored role, skip to the next regex
+            }
+
+            val replacedMessage = if (response.compiledWhiteLists?.isEmpty() == false) {
+                var messageToReplace = messageContent
+                response.compiledWhiteLists?.forEach { // Replace whitelisted words, usually used for fixing false positives
+                    messageToReplace = messageToReplace.replace(it, "")
+                }
+                messageToReplace
+            } else {
+                messageContent
+            }
+
+            if (response.compiledRegexes.all { it.containsMatchIn(replacedMessage) }) {
+                val stopTime = System.currentTimeMillis()
+                val finalTime = (startTime - stopTime).coerceAtLeast(1) // don't ask me how this is so fast
+
+                channel.send {
+                    embed {
+                        title = response.responseTitle
+                        description = response.responseDescription
+                        color = response.color
+                        footer("ID: ${member?.id} | Time: ${finalTime}ms", iconUrl = member?.avatar?.url)
+                    }
                 }
 
-                val replacedMessage = if (response.compiledWhiteLists?.isEmpty() == false) {
-                    var messageToReplace = message
-                    response.compiledWhiteLists?.forEach { // Replace whitelisted words, usually used for fixing false positives
-                        messageToReplace = messageToReplace.replace(it, "")
-                    }
-                    messageToReplace
-                } else {
-                    message
-                }
-
-                if (response.compiledRegexes.all { it.containsMatchIn(replacedMessage) }) {
-                    val stopTime = System.currentTimeMillis()
-                    val finalTime = (startTime - stopTime).coerceAtLeast(1) // don't ask me how this is so fast
-
-                    channel.send {
-                        embed {
-                            title = response.responseTitle
-                            description = response.responseDescription
-                            color = response.color
-                            footer("ID: ${member?.id} | Time: ${finalTime}ms", iconUrl = member?.avatar?.url)
-                        }
-                    }
-
-                    if (response.deleteMessage) {
-                        event.message.tryDelete()
-                        break // Once the message has been deleted we want to stop responding to the regexes
-                    }
+                if (response.deleteMessage) {
+                    message.tryDelete()
+                    break // Once the message has been deleted we want to stop responding to the regexes
                 }
             }
         }
@@ -97,12 +114,12 @@ object ResponseManager : Manager {
     }
 
     // Magic sort method to get responses with the delete Boolean first
-    private fun List<Response>.sort(): Array<Response> {
+    private fun List<Response>.sort(): List<Response> {
         val array = this.toTypedArray()
         array.sortWith { response1, response2 ->
             response2.deleteMessage.compareTo(response1.deleteMessage)
         }
-        return array
+        return array.toList()
     }
 
     // Don't ask me how this works, it's stupid
