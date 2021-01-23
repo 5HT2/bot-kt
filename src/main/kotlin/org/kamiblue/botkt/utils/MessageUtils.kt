@@ -121,7 +121,7 @@ private fun JsonObject.toMessage(channel: TextChannel) =
 suspend fun Message.tryDelete() {
     try {
         this.delete()
-    } catch (e: NotFoundException) {
+    } catch (e: Exception) {
         Main.logger.debug("Failed to delete message", e)
     }
 }
@@ -129,7 +129,7 @@ suspend fun Message.tryDelete() {
 suspend fun Collection<Message>.tryDeleteAll() {
     try {
         this.deleteAll()
-    } catch (e: NotFoundException) {
+    } catch (e: Exception) {
         Main.logger.debug("Failed to delete messages", e)
     }
 }

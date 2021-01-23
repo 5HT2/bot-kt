@@ -150,6 +150,10 @@ class ArchivedChannelsConfig(
     var amount: Int?
 )
 
+/**
+ * @param roleIgnorePrefix skip the ignored role list if the message starts with this prefix
+ */
 class ResponseConfig(
-    val responses: List<ResponseManager.Response> = emptyList()
+    val responses: List<ResponseManager.Response> = emptyList(),
+    val roleIgnorePrefix: String = ":"
 )

@@ -1,5 +1,6 @@
 package org.kamiblue.botkt.manager.managers
 
+import net.ayataka.kordis.entity.server.member.Member
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
@@ -16,19 +17,21 @@ object ResponseManager : Manager {
     init {
         asyncListener<MessageReceiveEvent> { event ->
             val config = config ?: return@asyncListener
-
             val message = event.message.content
+
             if (message.isBlank()) return@asyncListener
+
+            val member = event.message.member
+            val startTime = System.currentTimeMillis()
             val channel = event.message.channel
 
-            for (response in config.responses) {
-                response.ignoreRoles?.let {
-                    if (it.isNotEmpty() && it.any { responseRole -> event.message.member?.roles?.any { role -> role.id == responseRole } == true }) {
-                        return@asyncListener
-                    }
+            for (response in config.responses.sort()) {
+                val roles = response.ignoreRoles
+                if (roles?.isNotEmpty() == true && !message.startsWith(config.roleIgnorePrefix) && roles.findIgnoredRole(member)) {
+                    continue
                 }
 
-                val replacedMessage = if (response.whitelistReplace != null && response.whitelistReplace.isNotEmpty()) {
+                val replacedMessage = if (response.whitelistReplace?.isEmpty() == false) {
                     var messageToReplace = message
                     response.whitelistReplace.forEach {
                         messageToReplace = messageToReplace.replace(it, "")
@@ -39,11 +42,15 @@ object ResponseManager : Manager {
                 }
 
                 if (response.compiledRegexes.all { it.containsMatchIn(replacedMessage) }) {
+                    val stopTime = System.currentTimeMillis()
+                    val finalTime = (startTime - stopTime).coerceAtLeast(1) // don't ask me how this is so fast
+
                     channel.send {
                         embed {
                             title = response.responseTitle
                             description = response.responseDescription
                             color = response.color
+                            footer("ID: ${member?.id} | Time: ${finalTime}ms", iconUrl = member?.avatar?.url)
                         }
                     }
 
@@ -81,5 +88,19 @@ object ResponseManager : Manager {
             regexes.add(Regex(it, RegexOption.IGNORE_CASE))
         }
         return regexes
+    }
+
+    // Magic sort method to get responses with the delete boolean first
+    private fun List<Response>.sort(): Array<Response> {
+        val array = this.toTypedArray()
+        array.sortWith { response1, response2 ->
+            response2.deleteMessage.compareTo(response1.deleteMessage)
+        }
+        return array
+    }
+
+    // Don't ask me how this works, it's stupid
+    private fun Set<Long>.findIgnoredRole(member: Member?): Boolean {
+        return this.any { responseRole -> member?.roles?.any { role -> role.id == responseRole } == true }
     }
 }
