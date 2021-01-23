@@ -37,22 +37,17 @@ object PurgeCommand : BotCommand(
 
                 purge(msgs, message)
             }
+        }
 
-            boolean("delete protected msgs") { protected ->
-                executeIfHas(PURGE_PROTECTED, "Purge X messages, including council & bot") {
-                    val msgs = message.channel
-                        .getMessages()
-                        .filter { protected.value || !it.author.hasPermission(COUNCIL_MEMBER) && it.author?.bot == false }
-                        .take(numberArg.value)
-
-                    purge(msgs, message)
-                }
-            }
-
-            user("purge this user") { userArg ->
+        user("purge this user") { userArg ->
+            int("amount") { numberArg ->
                 executeIfHas(COUNCIL_MEMBER, "Purge X messages sent by a user") {
                     val user = userArg.value
-                    if (!message.author.hasPermission(PURGE_PROTECTED) && (user.hasPermission(COUNCIL_MEMBER) || user.bot)) {
+                    if (
+                        message.author?.id != user.id &&
+                        !message.author.hasPermission(PURGE_PROTECTED) &&
+                        (user.hasPermission(COUNCIL_MEMBER) || user.bot)
+                    ) {
                         channel.error(
                             "Sorry, but you're missing the " +
                                 "'${PURGE_PROTECTED.name.toHumanReadable()}'" +
@@ -66,6 +61,18 @@ object PurgeCommand : BotCommand(
                     val msgs = message.channel
                         .getMessages()
                         .filter { it.author?.id == user.id }
+                        .take(numberArg.value)
+
+                    purge(msgs, message)
+                }
+            }
+        }
+
+        literal("protected") {
+            int("amount") { numberArg ->
+                executeIfHas(PURGE_PROTECTED, "Purge X messages, including council & bot") {
+                    val msgs = message.channel
+                        .getMessages()
                         .take(numberArg.value)
 
                     purge(msgs, message)
@@ -131,7 +138,7 @@ object PurgeCommand : BotCommand(
             channel.send {
                 embed {
                     joinToFields(message.content.lines(), "\n", titlePrefix = "Deleted Message")
-                    description = "[**\\[link to context\\]**](${message.link})"
+                    description = message.contextLink
                     author(message.author?.tag, iconUrl = message.author?.avatar?.url)
                     footer("ID: ${message.author?.id}")
                     timestamp = Instant.now()
