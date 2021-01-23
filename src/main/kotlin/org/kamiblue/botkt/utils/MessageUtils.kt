@@ -14,7 +14,6 @@ import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.message.MessageImpl
 import net.ayataka.kordis.entity.message.embed.EmbedBuilder
 import net.ayataka.kordis.entity.server.channel.ServerChannel
-import net.ayataka.kordis.exception.NotFoundException
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.utils.StringUtils.elseEmpty
 import org.kamiblue.botkt.utils.StringUtils.joinToChunks
