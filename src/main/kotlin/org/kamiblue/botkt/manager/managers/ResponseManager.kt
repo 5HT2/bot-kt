@@ -59,8 +59,7 @@ object ResponseManager : Manager {
 
         for (response in responses) {
             if (response.ignoreRoles?.isNotEmpty() == true
-                && config.roleIgnorePrefix != null
-                && !messageContent.startsWith(config.roleIgnorePrefix)
+                && (config.roleIgnorePrefix.isNullOrEmpty() || !messageContent.startsWith(config.roleIgnorePrefix))
                 && member.roles.any { response.ignoreRoles.contains(it.id) }
             ) {
                 continue // If the message doesn't start with the ignore prefix and they have an ignored role, skip to the next regex
