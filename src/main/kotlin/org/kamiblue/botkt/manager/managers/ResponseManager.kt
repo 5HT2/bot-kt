@@ -19,6 +19,7 @@ object ResponseManager : Manager {
     init {
         asyncListener<MessageReceiveEvent> { event ->
             config?.let { config ->
+                if (config.ignoreChannels?.contains(event.message.channel.id) == true) return@asyncListener
                 val startTime = System.currentTimeMillis()
                 handleResponse(startTime, event.message, config.responses.sort())
             }
@@ -27,6 +28,7 @@ object ResponseManager : Manager {
         asyncListener<MessageEditEvent> { event ->
             config?.let { config ->
                 event.message?.let { message ->
+                    if (config.ignoreChannels?.contains(message.channel.id) == true) return@asyncListener
                     val startTime = System.currentTimeMillis()
                     handleResponse(startTime, message, config.responses.filter { it.deleteMessage })
                 }
