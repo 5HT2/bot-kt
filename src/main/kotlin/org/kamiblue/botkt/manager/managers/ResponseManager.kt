@@ -47,7 +47,7 @@ object ResponseManager : Manager {
 
         for (response in responses) {
             val roles = response.ignoreRoles
-            if (roles?.isNotEmpty() == true && !messageContent.startsWith(config.roleIgnorePrefix) && roles.findIgnoredRole(member)) {
+            if (roles?.isNotEmpty() == true && !messageContent.startsWith(config.roleIgnorePrefix ?: "") && roles.findIgnoredRole(member)) {
                 continue // If the message doesn't start with the ignore prefix and they have an ignored role, skip to the next regex
             }
 
