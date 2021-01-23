@@ -1,6 +1,7 @@
 package org.kamiblue.botkt
 
 import org.kamiblue.botkt.command.commands.github.IssueCommand
+import org.kamiblue.botkt.manager.managers.ResponseManager
 
 /**
  * [configPath] is the file name on disk, OR a remote URL. If it is a URL, it must be a valid URL which includes http/https as a prefix
@@ -16,14 +17,15 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
     TICKET("config/tickets.json"),
     STAR_BOARD("config/starboard.json"),
     LOGGING("config/logging.json"),
-    ARCHIVE_CHANNEL("config/archived_channels.json")
+    ARCHIVE_CHANNEL("config/archived_channels.json"),
+    RESPONSE("config/responses.json")
 }
 
 /**
  * [botToken] is the token given to you from https://discord.com/developers/applications/BOT_ID_HERE/bot
  * [githubToken] can be generated with the full "repo" access checked https://github.com/settings/tokens
  */
-data class AuthConfig(
+class AuthConfig(
     val botToken: String,
     val githubToken: String
 )
@@ -31,13 +33,13 @@ data class AuthConfig(
 /**
  * [rules] is a HashMap with the rule name/number as the key and the rule as the value
  */
-data class RulesConfig(val rules: HashMap<String, String>)
+class RulesConfig(val rules: HashMap<String, String>)
 
 /**
  * [version] is a semver format version String
  * Checked by comparing [Main.currentVersion] against https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json
  */
-data class VersionConfig(val version: String)
+class VersionConfig(val version: String)
 
 /**
  * [autoUpdate] is whether the bot should automatically update after a successful update check. Will not do anything when set to true if update checking is disabled.
@@ -53,7 +55,7 @@ data class VersionConfig(val version: String)
  * [unknownCommandError] is if you want a response when a command is ran with your [prefix], but there is no registered command for it
  * // TODO: refactor into module-specific settings
  */
-data class UserConfig(
+class UserConfig(
     val autoUpdate: Boolean?,
     val autoUpdateRestart: Boolean?,
     val primaryServerId: Long?,
@@ -71,7 +73,7 @@ data class UserConfig(
 /**
  * [councilMembers] is a hashmap of all the council members
  */
-data class PermissionConfig(val councilMembers: HashMap<Long, List<PermissionTypes>>)
+class PermissionConfig(val councilMembers: HashMap<Long, List<PermissionTypes>>)
 
 /**
  * [memberEnabled] is if the member counter is enabled.
@@ -83,7 +85,7 @@ data class PermissionConfig(val councilMembers: HashMap<Long, List<PermissionTyp
  * [downloadNightlyUrl] is the alternate / nightly repository in the format of kami-blue/bot-kt
  * [perPage] is the max releases per page when using the Github API. Defaults to 200
  */
-data class CounterConfig(
+class CounterConfig(
     val memberEnabled: Boolean?,
     val downloadEnabled: Boolean?,
     val memberChannel: Long?,
@@ -99,7 +101,7 @@ data class CounterConfig(
  * @param kickTooNew kick accounts less than 24 hours old
  * @param banRepeatedJoin ban accounts which were kicked 3 times
  */
-data class JoinLeaveConfig(
+class JoinLeaveConfig(
     val joinChannel: Long?,
     val leaveChannel: Long?,
     val banChannel: Long?,
@@ -114,7 +116,7 @@ data class JoinLeaveConfig(
  * @param ticketPingRole role to ping when new ticket created, optional
  * @param ticketUploadChannel channel to upload tickets when closed, optional
  */
-data class TicketConfig(
+class TicketConfig(
     val ticketCategory: Long?,
     val ticketCreateChannel: Long?,
     val ticketPingRole: Long?,
@@ -127,7 +129,7 @@ data class TicketConfig(
  * @param messages <Message ID> Messages added to the star board
  * @param threshold Amount Star emoji reactions to be added to star board
  */
-data class StarBoardConfig(
+class StarBoardConfig(
     val channels: HashMap<Long, Long>,
     val messages: HashSet<Long>,
     val threshold: Int
@@ -138,12 +140,20 @@ data class StarBoardConfig(
  * @param ignorePrefix A message prefix to not log when editing a council member edits their message
  * @param loggingChannel Channel ID of where to log to
  */
-data class LoggingConfig(
+class LoggingConfig(
     val ignoreChannels: HashSet<Long>?,
     val ignorePrefix: String?,
     val loggingChannel: Long?
 )
 
-data class ArchivedChannelsConfig(
+class ArchivedChannelsConfig(
     var amount: Int?
+)
+
+/**
+ * @param roleIgnorePrefix skip the ignored role list if the message starts with this prefix
+ */
+class ResponseConfig(
+    val responses: List<ResponseManager.Response> = emptyList(),
+    val roleIgnorePrefix: String = ":"
 )

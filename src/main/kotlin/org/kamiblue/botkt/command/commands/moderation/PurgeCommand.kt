@@ -164,9 +164,9 @@ object PurgeCommand : BotCommand(
             }
         }
 
-        msgs.safeDelete() // we want to safe delete because messages could get deleted by users while purging
+        msgs.tryDeleteAll() // we want to safe delete because messages could get deleted by users while purging
         delay(5000)
-        response.safeDelete()
-        message.safeDelete()
+        response.tryDelete()
+        message.tryDelete()
     }
 }
