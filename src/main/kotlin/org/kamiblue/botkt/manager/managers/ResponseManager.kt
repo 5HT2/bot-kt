@@ -10,6 +10,7 @@ import org.kamiblue.botkt.ResponseConfig
 import org.kamiblue.botkt.entity.Emoji
 import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.StringUtils.toRegexes
 import org.kamiblue.botkt.utils.addReaction
 import org.kamiblue.botkt.utils.tryDelete
 import org.kamiblue.event.listener.asyncListener
@@ -149,12 +150,10 @@ object ResponseManager : Manager {
         private var compiledRegexCache: List<Regex>? = null
         val compiledRegexes
             get() = compiledRegexCache ?: synchronized(this) {
-                regexes.toRegexes().also { compiledRegexCache = it }
+                regexes.toRegexes().also {
+                    Main.logger.debug("Creating regex cache \"$it\" for ResponseManager")
+                    compiledRegexCache = it
+                }
             }
-
-        private fun List<String>.toRegexes() = map {
-            Main.logger.debug("Creating regex cache \"$it\" for ResponseManager")
-            Regex(it, RegexOption.IGNORE_CASE)
-        }
     }
 }
