@@ -2,6 +2,7 @@ package org.kamiblue.botkt
 
 import org.kamiblue.botkt.command.commands.github.IssueCommand
 import org.kamiblue.botkt.manager.managers.ResponseManager
+import org.kamiblue.botkt.utils.StringUtils.toRegexes
 
 /**
  * [configPath] is the file name on disk, OR a remote URL. If it is a URL, it must be a valid URL which includes http/https as a prefix
@@ -18,7 +19,8 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
     STAR_BOARD("config/starboard.json"),
     LOGGING("config/logging.json"),
     ARCHIVE_CHANNEL("config/archived_channels.json"),
-    RESPONSE("config/responses.json")
+    RESPONSE("config/responses.json"),
+    NAME_SANITIZING("config/name_sanitizing.json")
 }
 
 /**
@@ -158,3 +160,33 @@ class ResponseConfig(
     val roleIgnorePrefix: String? = ":",
     val ignoreChannels: HashSet<Long>?,
 )
+
+/**
+ * @param removePrefix Remove non-allowed chars from the name
+ * @param minNormalChars Minimum allows chars in a name before resetting
+ * @param minNormalPercentage Minimum normal char percentage before resetting
+ * @param wordListAmount Amount of words to choose from [wordList]
+ * @param talkNameLimit How often to check someone's nickname after chatting, in milliseconds. Saves processing power.
+ * @param allowedChars Allowed characters to be checked for [minNormalChars] and [minNormalPercentage]
+ * @param wordList Words to choose from when resetting a name
+ */
+class NameSanitizingConfig(
+    val removePrefix: Boolean,
+    val minNormalChars: Int,
+    val minNormalPercentage: Int,
+    val wordListAmount: Int,
+    val talkNameLimit: Int,
+    val allowedChars: List<Char>,
+    val wordList: List<String>,
+    val ignoreRoles: Set<Long>?,
+    private val disallowedRegexesList: List<String>
+) {
+    private var compiledRegexCache: List<Regex>? = null
+    val disallowedRegexes
+        get() = compiledRegexCache ?: synchronized(this) {
+            disallowedRegexesList.toRegexes().also {
+                Main.logger.debug("Creating regex cache \"$it\" for NameSanitizing")
+                compiledRegexCache = it
+            }
+        }
+}

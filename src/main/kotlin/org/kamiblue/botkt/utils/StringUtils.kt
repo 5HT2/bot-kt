@@ -18,6 +18,10 @@ object StringUtils {
 
     fun String.elseEmpty(alternate: String) = if (isEmpty()) alternate else this
 
+    fun List<String>.toRegexes() = map {
+        Regex(it, RegexOption.IGNORE_CASE)
+    }
+
     fun <E> Iterable<E>.joinToChunks(
         separator: CharSequence = ", ",
         chunkSize: Int,
