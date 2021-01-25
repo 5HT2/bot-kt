@@ -18,8 +18,8 @@ class Emoji(
     val isCustom = id != null
 
     val urlCoded: String =
-        if (id == null) name.urlEncode()
-        else "$name:$id".urlEncode()
+        if (id == null) name.urlEncode().removeVariationSelector()
+        else "$name:$id".urlEncode().removeVariationSelector()
 
     override fun toString() = when {
         animated -> "<a:$name:$id>"
@@ -27,6 +27,9 @@ class Emoji(
         else -> name
     }
 }
+
+// Discord does not like this
+private fun String.removeVariationSelector() = this.replace("%EF%B8%8F", "")
 
 fun partialEmoji(jsonObject: JsonObject): PartialEmoji =
     PartialEmojiImpl(
