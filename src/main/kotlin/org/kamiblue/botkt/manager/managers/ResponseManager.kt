@@ -54,8 +54,7 @@ object ResponseManager : Manager {
     private fun getCachedResponse(config: ResponseConfig): Pair<List<Response>, List<Response>> {
         return if (config != prevConfig) {
             synchronized(this) {
-                (config.responses.sortedByDescending { it.deleteMessage }
-                    to config.responses.filter { it.deleteMessage })
+                (config.responses.sortedByDescending { it.deleteMessage } to config.responses.filter { it.deleteMessage })
                     .also { cachedResponses = it }
             }
         } else {
@@ -71,9 +70,9 @@ object ResponseManager : Manager {
         val channel = message.channel
 
         for (response in responses) {
-            if (response.ignoreRoles?.isNotEmpty() == true
-                && (config.roleIgnorePrefix.isNullOrEmpty() || !messageContent.startsWith(config.roleIgnorePrefix))
-                && member.roles.any { response.ignoreRoles.contains(it.id) }
+            if (response.ignoreRoles?.isNotEmpty() == true &&
+                (config.roleIgnorePrefix.isNullOrEmpty() || !messageContent.startsWith(config.roleIgnorePrefix)) &&
+                member.roles.any { response.ignoreRoles.contains(it.id) }
             ) {
                 continue // If the message doesn't start with the ignore prefix and they have an ignored role, skip to the next regex
             }

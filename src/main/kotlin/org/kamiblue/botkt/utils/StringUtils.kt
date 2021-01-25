@@ -12,7 +12,7 @@ object StringUtils {
 
     fun String.capitalizeWords(): String = split(" ").joinToString(" ") { it.capitalize() }
 
-    fun String.urlEncode(): String = URLEncoder.encode(this, Charsets.UTF_8)
+    fun String.urlEncode(): String = URLEncoder.encode(this, "UTF-8")
 
     fun String.toUserID() = replace("[<@!>]".toRegex(), "").toLongOrNull()
 
