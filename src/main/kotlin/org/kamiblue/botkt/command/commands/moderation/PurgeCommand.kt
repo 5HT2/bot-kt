@@ -68,7 +68,7 @@ object PurgeCommand : BotCommand(
             }
         }
 
-        literal("protected") {
+        literal("protected", "force") {
             int("amount") { numberArg ->
                 executeIfHas(PURGE_PROTECTED, "Purge X messages, including council & bot") {
                     val msgs = message.channel
