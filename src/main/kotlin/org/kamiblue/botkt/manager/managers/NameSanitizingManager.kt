@@ -1,6 +1,5 @@
 package org.kamiblue.botkt.manager.managers
 
-import com.google.gson.GsonBuilder
 import net.ayataka.kordis.entity.server.member.Member
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import net.ayataka.kordis.event.events.server.user.UserJoinEvent
@@ -61,7 +60,7 @@ object NameSanitizingManager : Manager {
         val originalName = nickname
 
         // If the nickname has any disallowed words in it, reset entirely, don't keep original
-        if (config.disallowedRegexes.any { it.containsMatchIn(nickname)}) {
+        if (config.disallowedRegexes.any { it.containsMatchIn(nickname) }) {
             nickname = getAllowedWords("") ?: return
             member.setNickSafe(nickname)
             return
@@ -110,5 +109,4 @@ object NameSanitizingManager : Manager {
             // this is fine
         }
     }
-
 }
