@@ -64,7 +64,7 @@ object ResponseManager : Manager {
     }
 
     private suspend fun handleResponse(config: ResponseConfig, startTime: Long, message: Message, responses: List<Response>) {
-        val messageContent = message.content
+        val messageContent = message.content.replace("`", "")
         if (messageContent.isBlank()) return
 
         val member = message.member ?: return // Should be ignored in DM
