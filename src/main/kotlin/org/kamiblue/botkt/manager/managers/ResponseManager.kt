@@ -29,7 +29,10 @@ object ResponseManager : Manager {
             config?.let { config ->
                 if (config.ignoreChannels?.contains(event.message.channel.id) == true) return@asyncListener
                 val startTime = System.currentTimeMillis()
-                handleResponse(config, startTime, event.message, getCachedResponse(config).first)
+
+                shouldRespond(config, event.message, getCachedResponse(config).first)?.let {
+                    handleResponse(it, startTime, event.message)
+                }
             }
         }
 
@@ -38,7 +41,10 @@ object ResponseManager : Manager {
                 event.message?.let { message ->
                     if (config.ignoreChannels?.contains(message.channel.id) == true) return@asyncListener
                     val startTime = System.currentTimeMillis()
-                    handleResponse(config, startTime, message, getCachedResponse(config).second)
+
+                    shouldRespond(config, message, getCachedResponse(config).second)?.let {
+                        handleResponse(it, startTime, message)
+                    }
                 }
             }
         }
@@ -63,12 +69,54 @@ object ResponseManager : Manager {
         }
     }
 
-    private suspend fun handleResponse(config: ResponseConfig, startTime: Long, message: Message, responses: List<Response>) {
-        val messageContent = message.content
-        if (messageContent.isBlank()) return
-
+    private suspend fun handleResponse(response: Response, startTime: Long, message: Message) {
         val member = message.member ?: return // Should be ignored in DM
         val channel = message.channel
+
+        val stopTime = System.currentTimeMillis()
+        val finalTime = stopTime - startTime // don't ask me how this is so fast
+
+        synchronized(responseSentTimes) {
+            responseSentTimes[response.hashCode()]?.let { lastTime ->
+                if (stopTime - lastTime < response.rateLimit) return
+            }
+
+            responseSentTimes[response.hashCode()] = stopTime
+        }
+
+        val sentResponse = channel.send {
+            embed {
+                title = response.responseTitle
+                description = response.responseDescription
+                color = response.color
+                footer("ID: ${member.id} | Time: ${finalTime}ms", iconUrl = member.avatar.url)
+            }
+        }
+
+        if (response.deleteMessage) {
+            message.tryDelete()
+        } else if (response.rateLimit > 0) { // We don't want to make responses without a limit deletable
+            if (cachedSentResponses.size > 100) {
+                cachedSentResponses.asIterable().sortedBy { it.value.timestamp.epochSecond }
+                    .take(70).forEach { cachedResponse ->
+                    cachedSentResponses.remove(cachedResponse.key)
+                }
+            }
+
+            cachedSentResponses[sentResponse.id] = sentResponse
+            Main.logger.debug("CachedSentResponses is now ${cachedSentResponses.size} large")
+
+            sentResponse.addReaction(Emoji("🗑️"))
+        }
+    }
+
+    // Allow plugins to use this method.
+    @Suppress("MemberVisibilityCanBePrivate")
+    fun shouldRespond(config: ResponseConfig, message: Message, responses: List<Response>): Response? {
+        val messageContent = message.content
+        if (messageContent.isBlank()) return null
+
+        val member = message.member ?: return null // Should be ignored in DM
 
         for (response in responses) {
             if (response.ignoreRoles?.isNotEmpty() == true &&
@@ -89,43 +137,11 @@ object ResponseManager : Manager {
             }
 
             if (response.compiledRegexes.all { it.containsMatchIn(replacedMessage) }) {
-                val stopTime = System.currentTimeMillis()
-                val finalTime = stopTime - startTime // don't ask me how this is so fast
-
-                synchronized(responseSentTimes) {
-                    responseSentTimes[response.hashCode()]?.let { lastTime ->
-                        if (stopTime - lastTime < response.rateLimit) return
-                    }
-
-                    responseSentTimes[response.hashCode()] = stopTime
-                }
-
-                val sentResponse = channel.send {
-                    embed {
-                        title = response.responseTitle
-                        description = response.responseDescription
-                        color = response.color
-                        footer("ID: ${member.id} | Time: ${finalTime}ms", iconUrl = member.avatar.url)
-                    }
-                }
-
-                if (response.deleteMessage) {
-                    message.tryDelete()
-                    break // Once the message has been deleted we want to stop responding to the regexes
-                } else if (response.rateLimit > 0) { // We don't want to make responses without a limit deletable
-                    if (cachedSentResponses.size > 100) {
-                        cachedSentResponses.asIterable().sortedBy { it.value.timestamp.epochSecond }.take(70).forEach { cachedResponse ->
-                            cachedSentResponses.remove(cachedResponse.key)
-                        }
-                    }
-
-                    cachedSentResponses[sentResponse.id] = sentResponse
-                    Main.logger.debug("CachedSentResponses is now ${cachedSentResponses.size} large")
-
-                    sentResponse.addReaction(Emoji("🗑️"))
-                }
+                return response
             }
         }
+
+        return null
     }
 
     class Response(
