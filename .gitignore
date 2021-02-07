@@ -13,6 +13,7 @@ run/
 # Compiled class files
 *.class
 build/
+out/
 
 # Log file
 *.log
