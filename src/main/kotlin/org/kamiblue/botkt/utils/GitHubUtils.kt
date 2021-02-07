@@ -39,22 +39,4 @@ object GitHubUtils {
         if (repo == null) message?.channel?.error("Default user / org not set in `${ConfigType.USER.configPath.substring(7)}`!")
         return repo
     }
-
-    /**
-     * [user] and [repo] is the user/repo you want to create the issue in.
-     * [token] is a Github Token with repo:public_repo checked
-     */
-    fun createGithubIssue(issue: Issue, user: String, repo: String, token: String) {
-        val url = "https://api.github.com/repos/$user/$repo/issues"
-        val body = Gson().toJson(issue).toRequestBody("".toMediaTypeOrNull())
-
-        val request = Request.Builder()
-            .addHeader("Accept", "application/vnd.github.v3+json")
-            .addHeader("Authorization", "token $token")
-            .url(url).post(body).build()
-
-        val response = OkHttpClient().newCall(request).execute()
-
-        Main.logger.debug(response.body?.string())
-    }
 }
