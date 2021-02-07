@@ -1,17 +1,11 @@
 package org.kamiblue.botkt.utils
 
-import com.google.gson.Gson
 import net.ayataka.kordis.entity.message.Message
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.kamiblue.botkt.AuthConfig
 import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.UserConfig
 import org.kamiblue.botkt.manager.managers.ConfigManager
-import org.l1ving.api.issue.Issue
 
 object GitHubUtils {
     /**
