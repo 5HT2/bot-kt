@@ -58,7 +58,9 @@ object ResponseManager : Manager {
         }
     }
 
-    private fun getCachedResponse(config: ResponseConfig): Pair<List<Response>, List<Response>> {
+    // Allow plugins to use this method.
+    @Suppress("MemberVisibilityCanBePrivate")
+    fun getCachedResponse(config: ResponseConfig): Pair<List<Response>, List<Response>> {
         return if (config != prevConfig) {
             synchronized(this) {
                 (config.responses.sortedByDescending { it.deleteMessage } to config.responses.filter { it.deleteMessage })
