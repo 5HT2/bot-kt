@@ -35,7 +35,6 @@ enum class PermissionTypes {
     SAY,
     MANAGE_CHANNELS,
     MASS_BAN,
-    APPROVE_ISSUE_CREATION,
     AUTHORIZE_CAPES,
     PURGE_PROTECTED,
     MANAGE_PLUGINS,
