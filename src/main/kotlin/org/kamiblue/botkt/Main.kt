@@ -37,6 +37,7 @@ object Main {
 
     lateinit var client: DiscordClient; private set
     lateinit var discordHttp: HttpClient; private set
+    lateinit var httpClient: HttpClient; private set
 
     var ready = false; private set
     var prefix: Char? = null
@@ -130,6 +131,14 @@ object Main {
             }
             defaultRequest {
                 header("Authorization", "Bot $authToken")
+            }
+        }
+
+        httpClient = HttpClient {
+            install(JsonFeature) {
+                serializer = GsonSerializer() {
+                    setLenient()
+                }
             }
         }
     }
