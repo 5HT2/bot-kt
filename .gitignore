@@ -3,6 +3,7 @@ config/
 process.json
 currentVersion
 run/
+kami-blue-plugin
 
 # Intellij IDEA configuration files
 .idea/
