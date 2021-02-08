@@ -101,8 +101,8 @@ object ResponseManager : Manager {
             if (cachedSentResponses.size > 100) {
                 cachedSentResponses.asIterable().sortedBy { it.value.timestamp.epochSecond }
                     .take(70).forEach { cachedResponse ->
-                    cachedSentResponses.remove(cachedResponse.key)
-                }
+                        cachedSentResponses.remove(cachedResponse.key)
+                    }
             }
 
             cachedSentResponses[sentResponse.id] = sentResponse
