@@ -100,13 +100,3 @@ val notNumberRegex = Regex("[^0-9]")
 
 // Bot users can not have one or fewer roles. If so, this means the server roles are not initialized yet.
 private fun isNotInitialized(myself: Member) = myself.roles.size < 2
-
-suspend fun isNon200Response(url: String): Boolean {
-    return try {
-        (Main.discordHttp.get<HttpStatusCode> {
-            url(url)
-        }.value == 200)
-    } catch (e: MalformedInputException) { // for some reason HttpStatusCode throws an exception on 404
-        false
-    }
-}
