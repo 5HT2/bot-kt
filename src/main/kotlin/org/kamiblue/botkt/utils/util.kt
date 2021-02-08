@@ -3,6 +3,9 @@ package org.kamiblue.botkt.utils
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
+import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.utils.io.charsets.*
 import net.ayataka.kordis.DiscordClientImpl
 import net.ayataka.kordis.entity.find
 import net.ayataka.kordis.entity.server.Server
@@ -18,6 +21,7 @@ import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
+import kotlin.text.get
 
 /**
  * @return a pretty formatted set of permissions, "None" if empty
@@ -96,3 +100,13 @@ val notNumberRegex = Regex("[^0-9]")
 
 // Bot users can not have one or fewer roles. If so, this means the server roles are not initialized yet.
 private fun isNotInitialized(myself: Member) = myself.roles.size < 2
+
+suspend fun isNon200Response(url: String): Boolean {
+    return try {
+        (Main.discordHttp.get<HttpStatusCode> {
+            url(url)
+        }.value == 200)
+    } catch (e: MalformedInputException) { // for some reason HttpStatusCode throws an exception on 404
+        false
+    }
+}
