@@ -10,6 +10,7 @@ open class GlobalConfig(name: String) : AbstractConfig(name) {
         private val globalConfigs = LinkedHashSet<GlobalConfig>()
 
         fun register(config: GlobalConfig) {
+            config.load()
             globalConfigs.add(config)
         }
 
