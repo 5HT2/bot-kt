@@ -1,6 +1,10 @@
 package org.kamiblue.botkt.config
 
+import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.Main
+import org.kamiblue.botkt.event.BotEventBus
+import org.kamiblue.botkt.event.events.ShutdownEvent
+import org.kamiblue.event.listener.listener
 
 open class ServerConfig(name: String) : AbstractConfig(name) {
 
@@ -15,6 +19,14 @@ open class ServerConfig(name: String) : AbstractConfig(name) {
 
     companion object {
         private val serverConfigs = LinkedHashMap<Class<out ServerConfig>, LinkedHashMap<Long, ServerConfig>>()
+
+        init {
+            listener<ShutdownEvent> {
+                saveAll()
+            }
+
+            BotEventBus.subscribe(this)
+        }
 
         inline fun <reified T : ServerConfig> register() {
             register(T::class.java)
@@ -90,7 +102,15 @@ open class ServerConfig(name: String) : AbstractConfig(name) {
             }
         }
 
-        inline operator fun <reified T : ServerConfig> get(server: Long): T {
+        inline fun <reified T : ServerConfig> get(server: Server): T {
+            return get(server.id, T::class.java)
+        }
+
+        fun <T : ServerConfig> get(server: Server, clazz: Class<out T>): T {
+            return getServerConfigMap(clazz).getServerInstance(server.id, clazz)
+        }
+
+        inline fun <reified T : ServerConfig> get(server: Long): T {
             return get(server, T::class.java)
         }
 

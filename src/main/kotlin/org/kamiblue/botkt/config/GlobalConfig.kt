@@ -1,6 +1,9 @@
 package org.kamiblue.botkt.config
 
 import org.kamiblue.botkt.Main
+import org.kamiblue.botkt.event.BotEventBus
+import org.kamiblue.botkt.event.events.ShutdownEvent
+import org.kamiblue.event.listener.listener
 
 open class GlobalConfig(name: String) : AbstractConfig(name) {
     final override val path: String
@@ -8,6 +11,14 @@ open class GlobalConfig(name: String) : AbstractConfig(name) {
 
     companion object {
         private val globalConfigs = LinkedHashSet<GlobalConfig>()
+
+        init {
+            listener<ShutdownEvent> {
+                saveAll()
+            }
+
+            BotEventBus.subscribe(this)
+        }
 
         fun register(config: GlobalConfig) {
             config.load()
