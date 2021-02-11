@@ -5,17 +5,16 @@ import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import net.ayataka.kordis.entity.server.member.Member
 import net.ayataka.kordis.entity.user.User
-import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.manager.managers.MuteManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.error
 import org.kamiblue.botkt.utils.formatDuration
-import org.kamiblue.botkt.utils.success
 
 object MuteCommand : BotCommand(
     name = "mute",
@@ -25,36 +24,16 @@ object MuteCommand : BotCommand(
 ) {
 
     init {
-        try {
-            MuteManager.load()
-        } catch (e: Exception) {
-            Main.logger.warn("Failed to load mute config", e)
-        }
-
-        literal("reload", "Reload mute config") {
-            executeIfHas(PermissionTypes.MANAGE_CONFIG) {
-                MuteManager.load()
-                channel.success("Successfully reloaded mute config!")
-            }
-        }
-
-        literal("save", "Force save mute config") {
-            executeIfHas(PermissionTypes.MANAGE_CONFIG) {
-                MuteManager.save()
-                channel.success("Successfully saved mute config!")
-            }
-        }
-
         user("user") { userArg ->
             long("duration") { durationArg ->
                 string("unit") { unitArg ->
                     greedy("reason") { reasonArg ->
-                        executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Mute a user with a reason") {
+                        execute("Mute a user with a reason", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                             handleMute(userArg.value, durationArg.value.toString(), unitArg.value, reasonArg.value)
                         }
                     }
 
-                    executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Mute a user without a reason") {
+                    execute("Mute a user without a reason", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                         handleMute(userArg.value, durationArg.value.toString(), unitArg.value, "No reason provided")
                     }
                 }
@@ -62,13 +41,13 @@ object MuteCommand : BotCommand(
 
             string("duration and unit") { timeArg ->
                 greedy("reason") { reasonArg ->
-                    executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Mute a user with a reason") {
+                    execute("Mute a user with a reason", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                         val time = parseTime(timeArg.value)
                         handleMute(userArg.value, time.first, time.second, reasonArg.value)
                     }
                 }
 
-                executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Mute a user without a reason") {
+                execute("Mute a user without a reason", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                     val time = parseTime(timeArg.value)
                     handleMute(userArg.value, time.first, time.second, "No reason provided")
                 }

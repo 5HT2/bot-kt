@@ -13,10 +13,8 @@ import net.ayataka.kordis.exception.MissingPermissionsException
 import net.ayataka.kordis.exception.NotFoundException
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.kamiblue.botkt.AuthConfig
-import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
-import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.config.global.SystemConfig
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 
 /**
@@ -47,17 +45,10 @@ inline fun <reified T> authenticatedRequest(authType: String, token: String, url
     return Gson().fromJson(response.body!!.string(), T::class.java)
 }
 
-/**
- * @return non-null bot authentication token
- */
-fun getAuthToken(): String {
-    return readConfigSafe<AuthConfig>(ConfigType.AUTH, false)!!.botToken
-}
-
 fun Server.maxEmojiSlots(): Int {
     val url = "https://discord.com/api/v6/guilds/${this.id}"
     val request = Request.Builder()
-        .addHeader("Authorization", "Bot ${getAuthToken()}")
+        .addHeader("Authorization", "Bot ${SystemConfig.botToken}")
         .url(url).get().build()
 
     val response = OkHttpClient().newCall(request).execute()

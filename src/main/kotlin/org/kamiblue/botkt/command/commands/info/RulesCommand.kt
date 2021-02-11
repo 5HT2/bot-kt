@@ -1,10 +1,9 @@
 package org.kamiblue.botkt.command.commands.info
 
-import org.kamiblue.botkt.ConfigType
-import org.kamiblue.botkt.RulesConfig
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
-import org.kamiblue.botkt.manager.managers.ConfigManager
+import org.kamiblue.botkt.config.ServerConfigs
+import org.kamiblue.botkt.config.server.RuleConfig
 import org.kamiblue.botkt.utils.Colors
 
 object RulesCommand : BotCommand(
@@ -16,16 +15,15 @@ object RulesCommand : BotCommand(
     init {
         string("ruleName") { ruleNameArg ->
             execute {
+                val server = server?: return@execute
                 val ruleName = ruleNameArg.value
-                val rule = ConfigManager.readConfigSafe<RulesConfig>(ConfigType.RULES, false)?.rules?.getOrDefault(
-                    ruleName,
-                    "Couldn't find rule $ruleName."
-                ) ?: "Couldn't find rule config file!"
+                val ruleConfig = ServerConfigs.get<RuleConfig>(server)
+                val rule = ruleConfig.rules[ruleName]
 
                 message.channel.send {
-                    if (rule.startsWith("Couldn't find rule")) {
+                    if (rule == null) {
                         embed {
-                            description = rule
+                            description = "Couldn't find rule $ruleName."
                             color = Colors.ERROR.color
                         }
                     } else {

@@ -24,7 +24,7 @@ object IssueCommand : BotCommand(
             string("repoName") { repo ->
                 int("issueNum") { issueNum ->
                     execute("Fetch a Github issue / pull") {
-                        val githubToken = GitHubUtils.getGithubToken(message, "IssueCommand1") ?: return@execute // Error message is handled already
+                        val githubToken = GitHubUtils.getGithubToken(message) ?: return@execute // Error message is handled already
 
                         sendResponse(message, githubToken, user.value, repo.value, issueNum.value)
                     }
@@ -35,7 +35,7 @@ object IssueCommand : BotCommand(
         string("repoName") { repo ->
             int("issueNum") { issueNum ->
                 execute("Fetch a Github issue / pull") {
-                    val githubToken = GitHubUtils.getGithubToken(message, "IssueCommand2")
+                    val githubToken = GitHubUtils.getGithubToken(message)
                         ?: return@execute // Error message is handled already
                     val user: String = GitHubUtils.getDefaultGithubUser(message) ?: return@execute
 

@@ -5,6 +5,7 @@ import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.error
@@ -25,7 +26,7 @@ object ConfigCommand : BotCommand(
     init {
         literal("print") {
             enum<ConfigType>("type") { typeArg ->
-                executeIfHas(PermissionTypes.MANAGE_CONFIG, "Print a config by type") {
+                execute("Print a config by type", HasPermission.get(PermissionTypes.MANAGE_CONFIG)) {
                     val configType = typeArg.value
 
                     ConfigManager.readConfig<Any>(configType, false)?.let {
@@ -36,7 +37,7 @@ object ConfigCommand : BotCommand(
         }
 
         literal("list") {
-            executeIfHas(PermissionTypes.MANAGE_CONFIG, "List the config types") {
+            execute("List the config types", HasPermission.get(PermissionTypes.MANAGE_CONFIG)) {
                 message.channel.send {
                     embed {
                         title = "Config Types"
@@ -49,7 +50,7 @@ object ConfigCommand : BotCommand(
 
         literal("reload") {
             enum<ConfigType>("type") { typeArg ->
-                executeIfHas(PermissionTypes.MANAGE_CONFIG, "Reload a config by type") {
+                execute("Reload a config by type", HasPermission.get(PermissionTypes.MANAGE_CONFIG)) {
                     val configType = typeArg.value
 
                     val message = channel.normal("Reloading the `${configType.name}` config")
@@ -71,7 +72,7 @@ object ConfigCommand : BotCommand(
         literal("download") {
             enum<ConfigType>("name") { typeArg ->
                 greedy("url") { urlArg ->
-                    executeIfHas(PermissionTypes.MANAGE_CONFIG, "Download a new config by type") {
+                    execute("Download a new config by type", HasPermission.get(PermissionTypes.MANAGE_CONFIG)) {
                         val configName = typeArg.value.configPath.substring(7)
                         val message = channel.normal("Downloading `$configName`...")
 

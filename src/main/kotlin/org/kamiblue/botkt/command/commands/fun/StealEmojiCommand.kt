@@ -7,8 +7,9 @@ import io.ktor.http.*
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.Main
-import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
+import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.botkt.utils.error
 import org.kamiblue.botkt.utils.normal
@@ -21,12 +22,12 @@ object StealEmojiCommand : BotCommand(
 ) {
     init {
         emoji("emoji") { emojiArg ->
-            executeIfHas(COUNCIL_MEMBER) {
+            execute(HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                 val emoji = emojiArg.value
 
                 if (!emoji.isCustom) {
                     channel.error("Emoji must be a custom emoji")
-                    return@executeIfHas
+                    return@execute
                 }
 
                 val extension = if (emojiArg.value.animated) "gif" else "png"
@@ -41,28 +42,28 @@ object StealEmojiCommand : BotCommand(
 
         string("name") { name ->
             long("emoji id") { idArg ->
-                executeIfHas(COUNCIL_MEMBER) {
+                execute(HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                     val id = idArg.value
-                    val bytes = downloadFromId(id) ?: return@executeIfHas
+                    val bytes = downloadFromId(id) ?: return@execute
                     addEmoji(name.value, bytes, message, server)
                 }
             }
 
             greedy("emoji url") { urlArg ->
-                executeIfHas(COUNCIL_MEMBER) {
+                execute(HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                     val idUnchecked = try {
                         urlArg.value.substring(34, 52)
                     } catch (e: StringIndexOutOfBoundsException) {
                         channel.error("${urlArg.name.toHumanReadable()} is not valid format!")
-                        return@executeIfHas
+                        return@execute
                     }
 
                     val id = idUnchecked.toLongOrNull() ?: run {
                         channel.error("Emoji ID `$idUnchecked` could not be formatted to a Long!")
-                        return@executeIfHas
+                        return@execute
                     }
 
-                    val bytes = downloadFromId(id) ?: return@executeIfHas
+                    val bytes = downloadFromId(id) ?: return@execute
                     addEmoji(name.value, bytes, message, server)
                 }
             }
