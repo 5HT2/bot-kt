@@ -10,6 +10,7 @@ import kotlin.reflect.KProperty
 class Setting<T : Any>(
     override val name: String,
     value: T,
+    val description: String,
     val consumer: (T, T) -> T
 ) : Nameable {
 
