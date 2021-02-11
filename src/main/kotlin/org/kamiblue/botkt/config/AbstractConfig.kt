@@ -42,6 +42,10 @@ abstract class AbstractConfig(
             JsonParser.parseReader(it).asJsonObject
         }
 
+        read(jsonObject)
+    }
+
+    fun read(jsonObject: JsonObject) {
         for (setting in settings) {
             val jsonElement = jsonObject[setting.jsonName] ?: continue
             setting.read(jsonElement)
@@ -60,15 +64,17 @@ abstract class AbstractConfig(
             file.createNewFile()
         }
 
-        val jsonObject = JsonObject()
-        for (setting in settings) {
-            jsonObject.add(setting.jsonName, setting.write())
-        }
-
         file.bufferedWriter().use {
-            gson.toJson(jsonObject, it)
+            gson.toJson(write(), it)
         }
     }
+
+    fun write() =
+        JsonObject().apply {
+            settings.forEach {
+                add(it.jsonName, it.write())
+            }
+        }
 
     override fun toString(): String {
         return settings.joinToString(prefix = "{", postfix = "}")
