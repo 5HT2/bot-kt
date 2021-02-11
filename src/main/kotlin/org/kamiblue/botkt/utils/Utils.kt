@@ -3,9 +3,6 @@ package org.kamiblue.botkt.utils
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import io.ktor.client.request.*
-import io.ktor.http.*
-import io.ktor.utils.io.charsets.*
 import net.ayataka.kordis.DiscordClientImpl
 import net.ayataka.kordis.entity.find
 import net.ayataka.kordis.entity.server.Server
@@ -21,7 +18,6 @@ import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
-import kotlin.text.get
 
 /**
  * @return a pretty formatted set of permissions, "None" if empty
