@@ -14,7 +14,9 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.config.GlobalConfig
+import org.kamiblue.botkt.config.GlobalConfigs
 import org.kamiblue.botkt.config.ServerConfig
+import org.kamiblue.botkt.config.ServerConfigs
 import org.kamiblue.botkt.config.global.SystemConfig
 import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.event.KordisEventProcessor
@@ -119,11 +121,11 @@ object Main {
 
     private fun registerConfigs() {
         ClassUtils.findClasses("org.kamiblue.botkt.config.global", GlobalConfig::class.java).forEach {
-            GlobalConfig.register(ClassUtils.getInstance(it))
+            GlobalConfigs.register(ClassUtils.getInstance(it))
         }
 
         ClassUtils.findClasses("org.kamiblue.botkt.config.server", ServerConfig::class.java).forEach {
-            ServerConfig.register(it)
+            ServerConfigs.register(it)
         }
     }
 
