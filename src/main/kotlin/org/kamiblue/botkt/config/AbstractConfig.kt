@@ -96,21 +96,8 @@ abstract class AbstractConfig(
         return result
     }
 
-    protected companion object {
-        private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
-
-        fun <T> Iterable<T>.runCatchingAll(block: (T) -> Unit, catch: (T, Exception) -> Unit): Boolean {
-            var success = true
-            this.forEach {
-                try {
-                    block(it)
-                } catch (e: Exception) {
-                    success = false
-                    catch(it, e)
-                }
-            }
-            return success
-        }
+    private companion object {
+        val gson: Gson = GsonBuilder().setPrettyPrinting().create()
     }
 
 }
