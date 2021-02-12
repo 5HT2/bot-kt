@@ -9,7 +9,6 @@ import org.kamiblue.botkt.utils.StringUtils.toRegexes
  * [data] the actual config data, read in the format of clazz
  */
 enum class ConfigType(val configPath: String, var data: Any? = null) {
-    RULES("config/rules.json"),
     USER("config/user.json"),
     PERMISSION("config/permissions.json"),
     COUNTER("config/counters.json"),
@@ -21,11 +20,6 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
     RESPONSE("config/responses.json"),
     NAME_SANITIZING("config/name_sanitizing.json")
 }
-
-/**
- * [rules] a HashMap with the rule name/number as the key and the rule as the value
- */
-class RulesConfig(val rules: HashMap<String, String>)
 
 /**
  * [version] a semver format version String
