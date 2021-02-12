@@ -1,26 +1,24 @@
 package org.kamiblue.botkt.utils
 
 import net.ayataka.kordis.entity.message.Message
-import org.kamiblue.botkt.AuthConfig
 import org.kamiblue.botkt.ConfigType
-import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.UserConfig
+import org.kamiblue.botkt.config.global.GithubConfig
 import org.kamiblue.botkt.manager.managers.ConfigManager
 
 object GitHubUtils {
     /**
-     * Will send an error in the [message]?.channel if null.
-     * @return the Github token, set in [AuthConfig]
+     * Will send an error in the channel if blank.
+     * @return the Github token in [GithubConfig]
      */
-    suspend fun getGithubToken(message: Message?, scope: String? = null): String? {
-        val token = ConfigManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, false)?.githubToken
-        if (token == null) {
-            message?.channel?.error("Github token not set in `${ConfigType.AUTH.configPath.substring(7)}`!")
+    suspend fun getGithubToken(message: Message?): String? {
+        val token = GithubConfig.githubToken
+
+        if (token.isBlank()) {
+            message?.channel?.error("Github token not set in GithubConfig!")
+            return null
         }
 
-        scope?.let {
-            Main.logger.debug("$scope called getGithubToken, token is ${if (token == null) "null" else "not null"}")
-        }
         return token
     }
 

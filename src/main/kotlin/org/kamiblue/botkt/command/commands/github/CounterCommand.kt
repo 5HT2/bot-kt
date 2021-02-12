@@ -60,7 +60,7 @@ object CounterCommand : BotCommand(
 
         if (server == null || stableUrl == null || nightlyUrl == null) return false
 
-        val downloads = GitHubUtils.getGithubToken(null, "CounterCommand")?.let { token ->
+        val downloads = GitHubUtils.getGithubToken(null)?.let { token ->
             authenticatedRequest<Download>("token", token, formatApiUrl(stableUrl, perPage)).countDownload() to // Stable
                 authenticatedRequest<Download>("token", token, formatApiUrl(nightlyUrl, perPage)).countDownload() // Nightly
         } ?: run {

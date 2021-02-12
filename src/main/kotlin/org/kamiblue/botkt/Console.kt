@@ -17,6 +17,7 @@ import net.ayataka.kordis.utils.asStringOrNull
 import net.ayataka.kordis.utils.getArrayOrNull
 import net.ayataka.kordis.utils.getOrNull
 import org.kamiblue.botkt.command.CommandManager
+import org.kamiblue.botkt.config.global.SystemConfig
 import java.time.Instant
 
 internal object Console {
@@ -27,7 +28,7 @@ internal object Console {
             if (line.isNullOrBlank()) continue
 
             val event = MessageReceiveEvent(FakeMessage(line))
-            CommandManager.runCommand(event, line.removePrefix(Main.prefix.toString()))
+            CommandManager.runCommand(event, line.removePrefix(SystemConfig.prefix.toString()))
         }
     }
 

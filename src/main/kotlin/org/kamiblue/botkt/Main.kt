@@ -8,20 +8,22 @@ import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.channel.TextChannel
-import net.ayataka.kordis.entity.server.enums.ActivityType
 import net.ayataka.kordis.entity.server.enums.UserStatus
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.kamiblue.botkt.command.CommandManager
+import org.kamiblue.botkt.config.GlobalConfig
+import org.kamiblue.botkt.config.ServerConfig
+import org.kamiblue.botkt.config.global.SystemConfig
 import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.event.KordisEventProcessor
 import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.manager.ManagerLoader
-import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.plugin.PluginManager
 import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.commons.utils.ClassUtils
 import java.io.PrintStream
 import java.time.Instant
 import kotlin.system.exitProcess
@@ -40,15 +42,10 @@ object Main {
     lateinit var httpClient: HttpClient; private set
 
     var ready = false; private set
-    var prefix: Char? = null
-        private set
-        get() {
-            return field ?: run {
-                (ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)?.prefix ?: ';').also {
-                    field = it
-                }
-            }
-        }
+
+    internal fun exit() {
+        exitProcess(0)
+    }
 
     @JvmStatic
     fun main(vararg args: String) {
@@ -59,10 +56,6 @@ object Main {
         start()
         BackgroundScope.start()
         Console.start()
-    }
-
-    internal fun exit() {
-        exitProcess(0)
     }
 
     private fun createLoggingProxy(name: String, realPrintStream: PrintStream, level: Level): PrintStream {
@@ -95,14 +88,15 @@ object Main {
             val started = System.currentTimeMillis()
 
             logger.info("Starting bot!")
+            registerConfigs()
+
             val deferred = mainScope.async { PluginManager.getLoaders() }
             login()
 
             UpdateHelper.writeVersion(currentVersion)
             UpdateHelper.updateCheck()
 
-            val userConfig = ConfigManager.readConfigSafe<UserConfig>(ConfigType.USER, false)
-            updateStatus(userConfig)
+            updateStatus()
 
             CommandManager.init()
             ManagerLoader.load()
@@ -118,19 +112,28 @@ object Main {
 
             initMessage.lines().forEach { logger.info(it) }
             mainScope.launch {
-                sendStartupMessageToServers(userConfig, initMessage)
+                sendStartupMessageToServers(initMessage)
             }
         }
     }
 
+    private fun registerConfigs() {
+        ClassUtils.findClasses("org.kamiblue.botkt.config.global", GlobalConfig::class.java).forEach {
+            GlobalConfig.register(ClassUtils.getInstance(it))
+        }
+
+        ClassUtils.findClasses("org.kamiblue.botkt.config.server", ServerConfig::class.java).forEach {
+            ServerConfig.register(it)
+        }
+    }
+
     private fun initHttpClients() {
-        val authToken = ConfigManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, false)!!.botToken
         discordHttp = HttpClient {
             install(JsonFeature) {
                 serializer = defaultSerializer()
             }
             defaultRequest {
-                header("Authorization", "Bot $authToken")
+                header("Authorization", "Bot ${SystemConfig.botToken}")
             }
         }
 
@@ -144,36 +147,32 @@ object Main {
     }
 
     private suspend fun login() {
-        val config = ConfigManager.readConfigSafe<AuthConfig>(ConfigType.AUTH, false)
-
-        if (config?.botToken == null) {
-            logger.error("Bot token not found, exiting. Make sure your file is formatted correctly!")
+        if (SystemConfig.botToken.isEmpty()) {
+            logger.error("Bot token is empty, exiting. Make sure your file is formatted correctly!")
             exit()
             return
         }
 
         client = Kordis.create {
-            token = config.botToken
+            token = SystemConfig.botToken
         }
     }
 
-    private fun updateStatus(userConfig: UserConfig?) {
-        val message = userConfig?.statusMessage ?: return
-        val typeIndex = userConfig.statusMessageType ?: return
-        val type = ActivityType.values().getOrNull(typeIndex) ?: return
-        client.updateStatus(UserStatus.ONLINE, type, message)
+    private fun updateStatus() {
+        client.updateStatus(UserStatus.ONLINE, SystemConfig.statusType, SystemConfig.statusMessage)
     }
 
-    private suspend fun sendStartupMessageToServers(userConfig: UserConfig?, initMessage: String) {
-        val startUpChannel = userConfig?.startUpChannel ?: return
+    private suspend fun sendStartupMessageToServers(initMessage: String) {
+        val startUpChannel = SystemConfig.startUpChannel
+        if (startUpChannel.isEmpty()) return
 
-        if (userConfig.primaryServerId == null) {
+        if (SystemConfig.startupServer == -1L) {
             client.servers.forEach {
                 delay(100) // we don't want to hit the message rate limit, 10 messages a second should be fine
                 it.textChannels.findByName(startUpChannel)?.sendStartUpMessage(initMessage)
             }
         } else {
-            val channel = client.servers.find(userConfig.primaryServerId)?.textChannels?.findByName(startUpChannel)
+            val channel = client.servers.find(SystemConfig.startupServer)?.textChannels?.findByName(startUpChannel)
             channel?.sendStartUpMessage(initMessage)
         }
     }

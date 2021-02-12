@@ -1,9 +1,8 @@
 package org.kamiblue.botkt.helpers
 
-import org.kamiblue.botkt.ConfigType
 import org.kamiblue.botkt.Main
-import org.kamiblue.botkt.UserConfig
 import org.kamiblue.botkt.VersionConfig
+import org.kamiblue.botkt.config.global.SystemConfig
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import java.io.File
 import java.io.FileWriter
@@ -37,9 +36,7 @@ object UpdateHelper {
     }
 
     private fun updateBot(version: String) {
-        val userConfig = ConfigManager.readConfig<UserConfig>(ConfigType.USER, false)
-
-        if (userConfig?.autoUpdate == null || !userConfig.autoUpdate) {
+        if (!SystemConfig.autoUpdate) {
             return
         }
 
@@ -68,11 +65,9 @@ object UpdateHelper {
 
         Main.logger.info("Auto Update - Finished updating to $version")
 
-        userConfig.autoUpdateRestart?.let {
-            if (it) {
-                Main.logger.info("Auto Update - Restarting bot")
-                Main.exit()
-            }
+        if (SystemConfig.autoUpdateRestart) {
+            Main.logger.info("Auto Update - Restarting bot")
+            Main.exit()
         }
     }
 
