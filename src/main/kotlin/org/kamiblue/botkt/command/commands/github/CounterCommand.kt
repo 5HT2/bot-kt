@@ -1,14 +1,17 @@
 package org.kamiblue.botkt.command.commands.github
 
 import net.ayataka.kordis.entity.server.Server
-import org.kamiblue.botkt.*
+import org.kamiblue.botkt.BackgroundScope
+import org.kamiblue.botkt.Main
+import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.config.global.CounterConfig
 import org.kamiblue.botkt.config.global.SystemConfig
-import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.*
 import org.l1ving.api.download.Download
 
+// TODO: Get the github download counter out of this and make this server dependent
 object CounterCommand : BotCommand(
     name = "counter",
     category = Category.GITHUB,
@@ -16,26 +19,23 @@ object CounterCommand : BotCommand(
 ) {
     init {
         executeIfHas(PermissionTypes.UPDATE_COUNTERS) {
-            val path = ConfigType.COUNTER.configPath.substring(7)
-            val userPath = ConfigType.USER.configPath.substring(7)
-            val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)
 
             when {
-                config?.downloadEnabled != true && config?.memberEnabled != true -> {
-                    channel.error("Counters are not configured / enabled!")
+                !CounterConfig.downloadCounter && !CounterConfig.memberCounter -> {
+                    channel.warn("Counters are not enabled!")
                 }
-                config.downloadEnabled != true -> {
-                    channel.error("Download counter is not enabled in the `$path` config!")
+                !CounterConfig.downloadCounter -> {
+                    channel.warn("Download counter is not enabled in the `Counter` config!")
                 }
-                config.memberEnabled != true -> {
-                    channel.error("Member counter is not enabled in the `$path` config!")
+                !CounterConfig.memberCounter -> {
+                    channel.warn("Member counter is not enabled in the `Counter` config!")
                 }
             }
 
             if (updateChannel()) {
                 channel.success("Successfully updated counters!")
             } else {
-                channel.error("Failed to update counters. Make sure `$path` is configured correctly, and `primaryServerId` is set in `$userPath`!")
+                channel.error("Failed to update counters. Make sure `CounterConfig` is configured correctly, and `startupServer` is set in `SystemConfig`!")
             }
         }
 
@@ -45,49 +45,61 @@ object CounterCommand : BotCommand(
         }
     }
 
-    /**
-     * @author sourTaste000
-     * @since 9/22/2020
-     */
     private suspend fun updateChannel(): Boolean {
-        val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false) ?: return false
+        val server = Main.client.servers.find(SystemConfig.startupServer) ?: return false
 
-        val server = Main.client.servers.find(SystemConfig.startupServer)
-        val stableUrl = config.downloadStableUrl
-        val nightlyUrl = config.downloadNightlyUrl
-        val perPage = config.perPage ?: 200
-
-        if (server == null || stableUrl == null || nightlyUrl == null) return false
+        val stableUrl = formatApiUrl(CounterConfig.stableRepo)
+        val nightlyUrl = formatApiUrl(CounterConfig.nightlyRepo)
 
         val downloads = GitHubUtils.getGithubToken(null)?.let { token ->
-            authenticatedRequest<Download>("token", token, formatApiUrl(stableUrl, perPage)).countDownload() to // Stable
-                authenticatedRequest<Download>("token", token, formatApiUrl(nightlyUrl, perPage)).countDownload() // Nightly
+            authenticatedRequest<Download>("token", token, nightlyUrl).countDownload() to // Stable
+                authenticatedRequest<Download>("token", token, stableUrl).countDownload() // Nightly
         } ?: run {
-            request<Download>(formatApiUrl(stableUrl, perPage)).countDownload() to
-                request<Download>(formatApiUrl(nightlyUrl, perPage)).countDownload()
+            request<Download>(stableUrl).countDownload() to
+                request<Download>(nightlyUrl).countDownload()
         }
 
         val memberCount = server.members.size
         val totalDownload = downloads.first.first + downloads.second.first
 
         return if (totalDownload != 0 || memberCount != 0) {
-            edit(config, server, totalDownload, downloads.second.second, memberCount)
+            edit(server, totalDownload, downloads.second.second, memberCount)
             true
         } else {
             false
         }
     }
 
-    private fun formatApiUrl(repo: String, perPage: Int) = "https://api.github.com/repos/$repo/releases?per_page=$perPage"
+    private fun formatApiUrl(repo: String) =
+        "https://api.github.com/repos/$repo/releases?per_page=${CounterConfig.perPage}"
 
     private fun Download.countDownload(): Pair<Int, Int> {
         return this.sumBy { release -> release.assets.sumBy { it.download_count } } to
             this[0].assets.sumBy { it.download_count }
     }
 
-    private suspend fun edit(config: CounterConfig, server: Server, totalCount: Int, latestCount: Int, memberCount: Int) {
-        config.downloadChannelTotal?.let { server.voiceChannels.find(it)?.edit { name = "$totalCount Downloads" } }
-        config.downloadChannelLatest?.let { server.voiceChannels.find(it)?.edit { name = "$latestCount Nightly DLs" } }
-        config.memberChannel?.let { server.voiceChannels.find(it)?.edit { name = "$memberCount Members" } }
+    private suspend fun edit(
+        server: Server,
+        totalCount: Int,
+        latestCount: Int,
+        memberCount: Int
+    ) {
+        if (CounterConfig.totalDownloadChannel != -1L) {
+            server.voiceChannels.find(CounterConfig.totalDownloadChannel)?.edit {
+                name = "$totalCount Downloads"
+            }
+        }
+
+        if (CounterConfig.nightlyDownloadChannel != -1L) {
+            server.voiceChannels.find(CounterConfig.nightlyDownloadChannel)?.edit {
+                name = "$latestCount Nightly DLs"
+            }
+        }
+
+        if (CounterConfig.memberChannel != -1L) {
+            server.voiceChannels.find(CounterConfig.memberChannel)?.edit {
+                name = "$memberCount Members"
+            }
+        }
     }
 }

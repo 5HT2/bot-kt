@@ -9,7 +9,6 @@ import org.kamiblue.botkt.utils.StringUtils.toRegexes
  */
 enum class ConfigType(val configPath: String, var data: Any? = null) {
     PERMISSION("config/permissions.json"),
-    COUNTER("config/counters.json"),
     TICKET("config/tickets.json"),
     ARCHIVE_CHANNEL("config/archived_channels.json"),
     RESPONSE("config/responses.json"),
@@ -20,27 +19,6 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
  * [councilMembers] a hashmap of all the council members
  */
 class PermissionConfig(val councilMembers: HashMap<Long, List<PermissionTypes>>)
-
-/**
- * [memberEnabled] if the member counter is enabled.
- * [downloadEnabled] if the download counter is enabled.
- * [memberChannel] the voice channel ID for the desired member counter.
- * [downloadChannelTotal] the voice channel ID for the desired total downloads counter.
- * [downloadChannelLatest] the voice channel ID for the desired latest release downloads counter.
- * [downloadStableUrl] the main / stable repository in the format of kami-blue/bot-kt
- * [downloadNightlyUrl] the alternate / nightly repository in the format of kami-blue/bot-kt
- * [perPage] the max releases per page when using the Github API. Defaults to 200
- */
-class CounterConfig(
-    val memberEnabled: Boolean?,
-    val downloadEnabled: Boolean?,
-    val memberChannel: Long?,
-    val downloadChannelTotal: Long?,
-    val downloadChannelLatest: Long?,
-    val downloadStableUrl: String?,
-    val downloadNightlyUrl: String?,
-    val perPage: Int?
-)
 
 /**
  * @param ticketCategory channel category of where to create tickets, required
