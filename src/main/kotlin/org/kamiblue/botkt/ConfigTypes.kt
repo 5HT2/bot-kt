@@ -13,7 +13,6 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
     PERMISSION("config/permissions.json"),
     COUNTER("config/counters.json"),
     TICKET("config/tickets.json"),
-    LOGGING("config/logging.json"),
     ARCHIVE_CHANNEL("config/archived_channels.json"),
     RESPONSE("config/responses.json"),
     NAME_SANITIZING("config/name_sanitizing.json")
@@ -68,17 +67,6 @@ class TicketConfig(
     val ticketPingRole: Long?,
     val ticketUploadChannel: Long?,
     var ticketTotalAmount: Int?
-)
-
-/**
- * @param ignoreChannels Channel IDs to not log
- * @param ignorePrefix A message prefix to not log when editing a council member edits their message
- * @param loggingChannel Channel ID of where to log to
- */
-class LoggingConfig(
-    val ignoreChannels: HashSet<Long>?,
-    val ignorePrefix: String?,
-    val loggingChannel: Long?
 )
 
 class ArchivedChannelsConfig(
