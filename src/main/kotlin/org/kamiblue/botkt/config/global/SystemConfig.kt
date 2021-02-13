@@ -4,7 +4,7 @@ import net.ayataka.kordis.entity.server.enums.ActivityType
 import org.kamiblue.botkt.config.GlobalConfig
 
 object SystemConfig : GlobalConfig("System") {
-    val botToken by setting("Bot Token", "", "Discord bot token from https://discord.com/developers/applications/BOT_ID_HERE/bot")
+    val botToken by setting("Bot Token", "", "Discord bot token from https://discord.com/developers/applications/BOT_ID_HERE/bot", true)
 
     val autoUpdate by setting("Auto Update", true, "Automatically update the bot after a successful update check.")
     val autoUpdateRestart by setting("Auto Update Restart", true, "Restart after auto update.")

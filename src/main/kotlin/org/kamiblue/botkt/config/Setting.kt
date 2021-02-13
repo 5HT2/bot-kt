@@ -11,6 +11,7 @@ class Setting<T : Any>(
     override val name: String,
     value: T,
     val description: String,
+    private val hidden: Boolean,
     val consumer: (T, T) -> T
 ) : Nameable {
 
@@ -39,7 +40,7 @@ class Setting<T : Any>(
     fun write() = gson.toJsonTree(value)
 
     override fun toString(): String {
-        return "$name: $value"
+        return if (hidden) "[REDACTED]" else value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

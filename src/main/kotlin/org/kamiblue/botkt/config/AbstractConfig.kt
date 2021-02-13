@@ -24,8 +24,14 @@ abstract class AbstractConfig(
     private val file: File
         get() = File("$path/$fileName.json")
 
-    protected fun <T : Any> setting(name: String, value: T, description: String = "No description", consumer: (T, T) -> T = { _, it -> it }): Setting<T> {
-        return Setting(name, value, description, consumer).also {
+    protected fun <T : Any> setting(
+        name: String,
+        value: T,
+        description: String = "No description",
+        hidden: Boolean = false,
+        consumer: (T, T) -> T = { _, it -> it },
+    ): Setting<T> {
+        return Setting(name, value, description, hidden, consumer).also {
             settings.add(it)
         }
     }
@@ -77,7 +83,7 @@ abstract class AbstractConfig(
         }
 
     override fun toString(): String {
-        return settings.joinToString(prefix = "{", postfix = "}")
+        return settings.joinToString(prefix = "{", postfix = "}") { "${it.name}: $it" }
     }
 
     override fun equals(other: Any?): Boolean {

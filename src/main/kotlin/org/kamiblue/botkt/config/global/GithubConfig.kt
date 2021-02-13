@@ -6,5 +6,5 @@ object GithubConfig : GlobalConfig("System") {
     /**
      * Generated with the full repo access at https://github.com/settings/tokens.
      */
-    val githubToken by setting("Github Token", "", "Generated with the full repo access at https://github.com/settings/tokens.")
+    val githubToken by setting("Github Token", "", "Generated with the full repo access at https://github.com/settings/tokens.", true)
 }
