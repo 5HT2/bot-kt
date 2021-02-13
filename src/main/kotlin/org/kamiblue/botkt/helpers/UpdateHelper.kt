@@ -1,35 +1,43 @@
 package org.kamiblue.botkt.helpers
 
+import com.google.gson.JsonParser
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.kamiblue.botkt.Main
-import org.kamiblue.botkt.VersionConfig
 import org.kamiblue.botkt.config.global.SystemConfig
-import org.kamiblue.botkt.manager.managers.ConfigManager
+import org.kamiblue.commons.utils.ConnectionUtils
 import java.io.File
 import java.io.FileWriter
 import java.net.URL
 import java.nio.file.Paths
 
-/**
- * @author l1ving
- * @since 2020/08/25 20:06
- */
 object UpdateHelper {
+    private const val versionUrl = "https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json"
+
     fun updateCheck() {
         if (File("noUpdateCheck").exists()) return
-        val versionConfig =
-            ConfigManager.readConfigFromUrl<VersionConfig>("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json")
+        val response = ConnectionUtils.requestRawJsonFrom(versionUrl)
 
-        if (versionConfig?.version == null) {
-            Main.logger.info("Couldn't access remote version when checking for update")
+        if (response == null) {
+            Main.logger.warn("Failed to request version info")
             return
         }
 
-        if (versionConfig.version != Main.currentVersion) {
+        val version = try {
+            JsonParser.parseString(response).asJsonObject["version"].asString!!
+        } catch (e: Exception) {
+            Main.logger.warn("Failed to parser version info json", e)
+            return
+        }
+
+        if (version != Main.currentVersion) {
             Main.logger.info("Not up to date:")
             Main.logger.info("Current version: ${Main.currentVersion}")
-            Main.logger.info("Latest Version: ${versionConfig.version}")
+            Main.logger.info("Latest Version: $version")
 
-            updateBot(versionConfig.version)
+            updateBot(version)
         } else {
             Main.logger.info("Up to date! Running on ${Main.currentVersion}")
         }
@@ -40,10 +48,42 @@ object UpdateHelper {
             return
         }
 
-        val path = Paths.get(System.getProperty("user.dir"))
-        val deleted = arrayListOf<String>()
-        File(path.toString()).walk().forEach {
-            if (it.name.matches(Regex("bot-kt.*.jar"))) {
+        runBlocking {
+            val deferred = async(Dispatchers.IO) {
+                val url = URL("https://github.com/kami-blue/bot-kt/releases/download/$version/bot-kt-$version.jar")
+                url.readBytes()
+            }
+
+            val path = System.getProperty("user.dir")!!
+
+            launch(Dispatchers.IO) {
+                deleteOldJars(path)
+            }
+
+            val slashRemoved = path.removeSuffix("/")
+            val targetFile = "$slashRemoved/bot-kt-$version.jar"
+
+            val bytes = deferred.await()
+            Main.logger.info("Auto Update - Downloaded bot-kt-$version.jar ${bytes.size / 1000000}MB")
+
+            File(targetFile).writeBytes(bytes)
+            writeVersion(version)
+
+            Main.logger.info("Auto Update - Finished updating to $version")
+
+            if (SystemConfig.autoUpdateRestart) {
+                Main.logger.info("Auto Update - Restarting bot")
+                Main.exit()
+            }
+        }
+    }
+
+    private fun deleteOldJars(path: String) {
+        val deleted = ArrayList<String>()
+        val regex = Regex("bot-kt.*.jar", RegexOption.IGNORE_CASE)
+
+        File(path).listFiles()?.forEach {
+            if (it.name.matches(regex)) {
                 deleted.add(it.name)
                 it.delete()
             }
@@ -51,23 +91,6 @@ object UpdateHelper {
 
         if (deleted.isNotEmpty()) {
             Main.logger.info("Auto Update - Deleted the following files:\n" + deleted.joinToString())
-        }
-
-        val bytes =
-            URL("https://github.com/kami-blue/bot-kt/releases/download/$version/bot-kt-$version.jar").readBytes()
-
-        Main.logger.info("Auto Update - Downloaded bot-kt-$version.jar ${bytes.size / 1000000}MB")
-        val appendSlash = if (path.endsWith("/")) "" else "/"
-        val targetFile = path.toString() + appendSlash + "bot-kt-$version.jar"
-        File(targetFile).writeBytes(bytes)
-
-        writeVersion(version)
-
-        Main.logger.info("Auto Update - Finished updating to $version")
-
-        if (SystemConfig.autoUpdateRestart) {
-            Main.logger.info("Auto Update - Restarting bot")
-            Main.exit()
         }
     }
 

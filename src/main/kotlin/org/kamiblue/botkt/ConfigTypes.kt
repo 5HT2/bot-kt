@@ -22,12 +22,6 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
 }
 
 /**
- * [version] a semver format version String
- * Checked by comparing [Main.currentVersion] against https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json
- */
-class VersionConfig(val version: String)
-
-/**
  * [primaryServerId] the main server where startup messages should be sent. Omit from config to send to all servers.
  * [defaultGithubUser] the default user / org used in the [IssueCommand].
  * [defaultBanReason] the default Reason for ban.
