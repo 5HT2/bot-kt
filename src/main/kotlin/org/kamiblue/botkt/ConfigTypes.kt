@@ -22,13 +22,11 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
 }
 
 /**
- * [primaryServerId] the main server where startup messages should be sent. Omit from config to send to all servers.
  * [defaultGithubUser] the default user / org used in the [IssueCommand].
  * [defaultBanReason] the default Reason for ban.
  * // TODO: refactor into module-specific settings
  */
 class UserConfig(
-    val primaryServerId: Long?,
     val defaultGithubUser: String?,
     val defaultBanReason: String?,
     val capeCommit: Boolean?

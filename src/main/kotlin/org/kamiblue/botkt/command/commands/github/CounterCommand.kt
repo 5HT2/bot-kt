@@ -4,6 +4,7 @@ import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.config.global.SystemConfig
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.*
 import org.l1ving.api.download.Download
@@ -51,9 +52,7 @@ object CounterCommand : BotCommand(
     private suspend fun updateChannel(): Boolean {
         val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false) ?: return false
 
-        val server = readConfigSafe<UserConfig>(ConfigType.USER, false)?.primaryServerId?.let {
-            Main.client.servers.find(it)
-        }
+        val server = Main.client.servers.find(SystemConfig.startupServer)
         val stableUrl = config.downloadStableUrl
         val nightlyUrl = config.downloadNightlyUrl
         val perPage = config.perPage ?: 200
