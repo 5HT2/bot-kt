@@ -12,7 +12,6 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
     USER("config/user.json"),
     PERMISSION("config/permissions.json"),
     COUNTER("config/counters.json"),
-    JOIN_LEAVE("config/joinleave.json"),
     TICKET("config/tickets.json"),
     STAR_BOARD("config/starboard.json"),
     LOGGING("config/logging.json"),
@@ -56,20 +55,6 @@ class CounterConfig(
     val downloadStableUrl: String?,
     val downloadNightlyUrl: String?,
     val perPage: Int?
-)
-
-/**
- * @param embed format messages as embeds or not
- * @param kickTooNew kick accounts less than 24 hours old
- * @param banRepeatedJoin ban accounts which were kicked 3 times
- */
-class JoinLeaveConfig(
-    val joinChannel: Long?,
-    val leaveChannel: Long?,
-    val banChannel: Long?,
-    val embed: Boolean?,
-    val kickTooNew: Boolean?,
-    val banRepeatedJoin: Boolean?
 )
 
 /**

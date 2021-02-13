@@ -6,10 +6,10 @@ import net.ayataka.kordis.entity.user.User
 import net.ayataka.kordis.event.events.server.user.UserBanEvent
 import net.ayataka.kordis.event.events.server.user.UserJoinEvent
 import net.ayataka.kordis.event.events.server.user.UserLeaveEvent
-import org.kamiblue.botkt.ConfigType
-import org.kamiblue.botkt.JoinLeaveConfig
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.command.commands.moderation.BanCommand
+import org.kamiblue.botkt.config.ServerConfigs.getConfig
+import org.kamiblue.botkt.config.server.JoinLeaveConfig
 import org.kamiblue.botkt.manager.Manager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.accountAge
@@ -22,67 +22,81 @@ object JoinLeaveManager : Manager {
 
     init {
         asyncListener<UserBanEvent> {
-            val cfg = ConfigManager.readConfigSafe<JoinLeaveConfig>(ConfigType.JOIN_LEAVE, false)
+            val config = it.getConfig<JoinLeaveConfig>()
+            val banChannel = config.banChannel
 
-            cfg?.banChannel?.let { banChannel ->
+            if (banChannel != -1L) {
                 val channel = it.server.channels.find(banChannel) as? TextChannel ?: return@asyncListener
-                sendJoinLeave("Member Banned", cfg.embed, channel, it.user, Colors.WARN.color)
+                sendJoinLeave("Member Banned", config.embed, channel, it.user, Colors.WARN.color)
             }
         }
 
         asyncListener<UserLeaveEvent> { event ->
-            if (event.member.server.bans().any { it.user.id == event.member.id }) return@asyncListener
-            val cfg = ConfigManager.readConfigSafe<JoinLeaveConfig>(ConfigType.JOIN_LEAVE, false)
+            if (event.server.bans().any { it.user.id == event.member.id }) return@asyncListener
 
-            cfg?.leaveChannel?.let { leaveChannel ->
+            val config = event.getConfig<JoinLeaveConfig>()
+            val leaveChannel = config.leaveChannel
+
+            if (leaveChannel != -1L) {
                 val channel = event.server.channels.find(leaveChannel) as? TextChannel ?: return@asyncListener
-                sendJoinLeave("Member Left", cfg.embed, channel, event.member, Colors.ERROR.color)
+                sendJoinLeave("Member Left", config.embed, channel, event.member, Colors.ERROR.color)
             }
         }
 
         asyncListener<UserJoinEvent> { event ->
-            val cfg = ConfigManager.readConfigSafe<JoinLeaveConfig>(ConfigType.JOIN_LEAVE, false)
             val member = event.member
-            val self = Main.client.botUser
+            val config = event.getConfig<JoinLeaveConfig>()
 
             joins[member.id]?.let {
-                if (it > 3 && cfg?.banRepeatedJoin == true) {
-                    BanCommand.ban(
-                        member,
-                        false,
-                        "Automated ban due to rejoining too many times while account too new.",
-                        member.server,
-                        null
-                    )
-                    joins.remove(member.id)
+                if (it > 3 && config.banRepeatedJoin) {
+                    banRepeatedJoin(member)
                     return@asyncListener
                 }
             }
 
-            if (cfg?.kickTooNew == true && member.accountAge() < 1) {
-                joins[member.id] = joins.getOrDefault(member.id, 0) + 1
-                try {
-                    member.getPrivateChannel().send {
-                        embed {
-                            field(
-                                "Account too new!",
-                                "You were automatically kicked because your account is less than 24 hours old. Rejoin once your account is older."
-                            )
-                            color = Colors.ERROR.color
-                            footer("ID: ${self.id}", self.avatar.url)
-                        }
-                    }
-                    member.kick()
-                } catch (e: Exception) {
-                    // this is fine
-                }
+            if (config.kickTooNew && member.accountAge() < 1) {
+                kickNew(member)
                 return@asyncListener
             }
 
-            cfg?.joinChannel?.let { joinChannel ->
+            val joinChannel = config.joinChannel
+
+            if (joinChannel != -1L) {
                 val channel = event.server.channels.find(joinChannel) as? TextChannel ?: return@asyncListener
-                sendJoinLeave("Member Joined", cfg.embed, channel, member, Colors.SUCCESS.color)
+                sendJoinLeave("Member Joined", config.embed, channel, member, Colors.SUCCESS.color)
             }
+        }
+    }
+
+    private suspend fun banRepeatedJoin(member: Member) {
+        BanCommand.ban(
+            member,
+            false,
+            "Automated ban due to rejoining too many times while account too new.",
+            member.server,
+            null
+        )
+        joins.remove(member.id)
+    }
+
+    private suspend fun kickNew(member: Member) {
+        joins[member.id] = joins.getOrDefault(member.id, 0) + 1
+        val self = Main.client.botUser
+
+        try {
+            member.getPrivateChannel().send {
+                embed {
+                    field(
+                        "Account too new!",
+                        "You were automatically kicked because your account is less than 24 hours old. Rejoin once your account is older."
+                    )
+                    color = Colors.ERROR.color
+                    footer("ID: ${self.id}", self.avatar.url)
+                }
+            }
+            member.kick()
+        } catch (e: Exception) {
+            // Ignored
         }
     }
 

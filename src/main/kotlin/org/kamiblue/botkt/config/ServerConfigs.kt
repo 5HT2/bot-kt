@@ -1,6 +1,7 @@
 package org.kamiblue.botkt.config
 
 import net.ayataka.kordis.entity.server.Server
+import net.ayataka.kordis.event.events.server.ServerEvent
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.event.events.ShutdownEvent
@@ -90,6 +91,14 @@ object ServerConfigs {
             Main.logger.warn("Failed to save server config ${clazz.simpleName}", e)
             false
         }
+    }
+
+    inline fun <reified T : ServerConfig> ServerEvent.getConfig(): T {
+        return get(server.id, T::class.java)
+    }
+
+    fun <T : ServerConfig> ServerEvent.getConfig(clazz: Class<out T>): T {
+        return getServerConfigMap(clazz).getServerInstance(server.id, clazz)
     }
 
     inline fun <reified T : ServerConfig> get(server: Server): T {
