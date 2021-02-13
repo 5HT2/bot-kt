@@ -1,8 +1,6 @@
 package org.kamiblue.botkt.command.commands.misc
 
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.server.Server
@@ -10,10 +8,10 @@ import net.ayataka.kordis.entity.server.emoji.Emoji
 import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.config.global.CapeConfig
 import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.helpers.ShellHelper.bash
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash
-import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.manager.managers.UUIDManager
 import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
@@ -23,8 +21,6 @@ import org.kamiblue.event.listener.listener
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.util.*
 import javax.imageio.ImageIO
 import kotlin.collections.HashMap
@@ -42,6 +38,8 @@ object CapeCommand : BotCommand(
     private val capeUserMap = HashMap<Long, CapeUser>()
     private val cachedEmojis = LinkedHashMap<String, Emoji>()
     private var cachedServer: Server? = null
+
+    private val capeUserArrayType = Array<CapeUser>::class.java
 
     private const val capeUUIDArgName = "cape uuid"
     private const val capesFile = "cache/capes.json"
@@ -78,7 +76,10 @@ object CapeCommand : BotCommand(
                                 field("Cape UUID", newCape.capeUUID)
                                 capeUserMap[user.id]?.let {
                                     if (!it.capes.any { cape -> cape.playerUUID != null }) {
-                                        field("Attaching", "To attach your Cape:\n`;cape attach <Cape UUID> <username>`")
+                                        field(
+                                            "Attaching",
+                                            "To attach your Cape:\n`;cape attach <Cape UUID> <username>`"
+                                        )
                                     }
                                 }
                                 color = Colors.SUCCESS.color
@@ -123,7 +124,10 @@ object CapeCommand : BotCommand(
                         embed {
                             userCapes.forEach {
                                 val playerName = UUIDManager.getByUUID(it.playerUUID)?.name ?: "Not attached"
-                                field("Cape UUID ${it.capeUUID}", "Player Name: $playerName\nCape Type: ${it.type.realName}")
+                                field(
+                                    "Cape UUID ${it.capeUUID}",
+                                    "Player Name: $playerName\nCape Type: ${it.type.realName}"
+                                )
                             }
                             color = Colors.PRIMARY.color
                         }
@@ -138,7 +142,10 @@ object CapeCommand : BotCommand(
                     embed {
                         userCapes.forEach {
                             val playerName = UUIDManager.getByUUID(it.playerUUID)?.name ?: "Not attached"
-                            field("Cape UUID ${it.capeUUID}", "Player Name: $playerName\nCape Type: ${it.type.realName}")
+                            field(
+                                "Cape UUID ${it.capeUUID}",
+                                "Player Name: $playerName\nCape Type: ${it.type.realName}"
+                            )
                         }
                         color = Colors.PRIMARY.color
                     }
@@ -190,11 +197,13 @@ object CapeCommand : BotCommand(
                             break
                         }
 
-                        val attachedMsg = if (attachedUser == message.author?.id) "You already have" else "<@!$attachedUser> already has"
+                        val attachedMsg =
+                            if (attachedUser == message.author?.id) "You already have" else "<@!$attachedUser> already has"
 
                         if (attachedCape != null) {
                             msg.edit {
-                                description = "$attachedMsg ${profilePair.name} attached to Cape `${attachedCape.capeUUID}`!"
+                                description =
+                                    "$attachedMsg ${profilePair.name} attached to Cape `${attachedCape.capeUUID}`!"
                                 color = Colors.ERROR.color
                             }
                             return@execute
@@ -358,14 +367,18 @@ object CapeCommand : BotCommand(
     }
 
     private fun load() {
-        if (!File(capesFile).exists()) return
-        if (readConfigSafe<UserConfig>(ConfigType.USER, false)?.capeCommit != true) return
+        if (!CapeConfig.capeCommit) return
+
+        val file = File(capesFile)
+        if (!file.exists()) return
 
         try {
-            Files.newBufferedReader(Paths.get(capesFile)).use { bufferedReader ->
-                val cacheList = Gson().fromJson<List<CapeUser>>(bufferedReader, object : TypeToken<List<CapeUser>>() {}.type)
+            file.bufferedReader().use { reader ->
+                val cacheList = gson.fromJson(reader, capeUserArrayType)
                 capeUserMap.clear()
-                capeUserMap.putAll(cacheList.associateBy { it.id })
+                cacheList.forEach {
+                    capeUserMap[it.id] = it
+                }
             }
         } catch (e: Exception) {
             Main.logger.warn("Error loading capes!", e)
@@ -373,19 +386,19 @@ object CapeCommand : BotCommand(
     }
 
     private fun save() {
-        if (readConfigSafe<UserConfig>(ConfigType.USER, false)?.capeCommit != true) return
+        if (!CapeConfig.capeCommit) return
 
-        val capeUsers = capeUserMap.values.toList()
+        val capeUsers = capeUserMap.values.toTypedArray()
         val file = File(capesFile)
         if (!file.exists()) file.createNewFile()
 
-        Files.newBufferedWriter(Paths.get(capesFile)).use {
-            it.write(gson.toJson(capeUsers, object : TypeToken<List<CapeUser>>() {}.type))
+        file.bufferedWriter().use {
+            gson.toJson(capeUsers, it)
         }
     }
 
     private suspend fun commit() { // TODO: hardcoded and a hack. I'm embarrassed to push this, but this is waiting for me to add plugin support
-        if (readConfigSafe<UserConfig>(ConfigType.USER, false)?.capeCommit != true) return
+        if (!CapeConfig.capeCommit) return
 
         val assets = "/home/mika/projects/cape-api"
         val time = "date -u +\"%H:%M:%S %Y-%m-%d\"".bash()
@@ -414,7 +427,8 @@ object CapeCommand : BotCommand(
         return apply {
             this.capes.removeIf { it.capeUUID == cape.capeUUID }
             this.capes.add(cape)
-            this.isPremium = this.isPremium || capes.any { it.type == CapeType.DONOR || it.type == CapeType.CONTRIBUTOR }
+            this.isPremium =
+                this.isPremium || capes.any { it.type == CapeType.DONOR || it.type == CapeType.CONTRIBUTOR }
         }
     }
 
@@ -429,7 +443,7 @@ object CapeCommand : BotCommand(
     }
 
     private suspend fun CapeColor.toEmoji(): String {
-        return StringBuilder(4).run {
+        return StringBuilder().run {
             append(makeEmojiFromHex(primary)?.let { "<:${it.name}:${it.id}> " } ?: missingTexture)
             append("Primary (#$primary)\n")
 
@@ -440,25 +454,27 @@ object CapeCommand : BotCommand(
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun makeEmojiFromHex(hex: String): Emoji? {
         trimAndSyncEmojis()
 
         return server?.let {
             try {
                 cachedEmojis.getOrPut(hex) {
-                    val b = ByteArrayOutputStream()
-                    val bufferedImage = BufferedImage(64, 64, BufferedImage.TYPE_INT_RGB)
+                    val stream = ByteArrayOutputStream()
+                    val color = hex.toInt(16)
+                    val bufferedImage = BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB)
 
-                    for (x in 0 until bufferedImage.width) for (y in 0 until bufferedImage.height) {
-                        bufferedImage.setRGB(x, y, Integer.decode("0x$hex"))
+                    for (x in 0 until bufferedImage.width) {
+                        for (y in 0 until bufferedImage.height) {
+                            bufferedImage.setRGB(x, y, color)
+                        }
                     }
 
-                    ImageIO.write(bufferedImage, "jpg", b)
+                    ImageIO.write(bufferedImage, "png", stream)
 
                     it.createEmoji {
                         name = hex
-                        image = b.toByteArray()
+                        image = stream.toByteArray()
                     }
                 }
             } catch (e: Exception) {
@@ -508,6 +524,9 @@ object CapeCommand : BotCommand(
             server
         }
 
-    private fun capeError(capeUUID: String) = "Couldn't find a Cape with a UUID of `$capeUUID`. Make sure you're entering the short UUID as the Cape UUID, not your player UUID"
-    private fun changeError(capeUUID: String, time: Double) = "Cape `$capeUUID` was changed recently, you must wait $time more minutes before you can change it again!"
+    private fun capeError(capeUUID: String) =
+        "Couldn't find a Cape with a UUID of `$capeUUID`. Make sure you're entering the short UUID as the Cape UUID, not your player UUID"
+
+    private fun changeError(capeUUID: String, time: Double) =
+        "Cape `$capeUUID` was changed recently, you must wait $time more minutes before you can change it again!"
 }

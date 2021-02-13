@@ -12,7 +12,8 @@ import org.kamiblue.botkt.*
 import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.*
-import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
+import org.kamiblue.botkt.config.ServerConfigs
+import org.kamiblue.botkt.config.server.BanConfig
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.checkPermission
 import org.kamiblue.botkt.utils.error
@@ -121,13 +122,16 @@ object BanCommand : BotCommand(
         user: User,
         deleteMsgs: Boolean, // if we should delete the past day of their messages or not
         reason: String?, // reason why they were banned. tries to dm before banning
-        nullableServer: Server?,
+        server: Server?,
         message: Message?
     ) {
-        val server = nullableServer ?: run { message?.channel?.error("Server is null, make sure you aren't running this from a DM!"); return }
+        if (server == null) {
+            message?.channel?.error("Server is null, make sure you aren't running this from a DM!")
+            return
+        }
 
         val deleteMessageDays = if (deleteMsgs) 1 else 0
-        val fixedReason = if (!reason.isNullOrBlank()) reason else readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultBanReason ?: "No Reason Specified"
+        val fixedReason = ServerConfigs.get<BanConfig>(server).defaultReason
 
         if (!canBan(user, message, server)) return
 

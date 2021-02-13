@@ -1,6 +1,5 @@
 package org.kamiblue.botkt
 
-import org.kamiblue.botkt.command.commands.github.IssueCommand
 import org.kamiblue.botkt.manager.managers.ResponseManager
 import org.kamiblue.botkt.utils.StringUtils.toRegexes
 
@@ -9,7 +8,6 @@ import org.kamiblue.botkt.utils.StringUtils.toRegexes
  * [data] the actual config data, read in the format of clazz
  */
 enum class ConfigType(val configPath: String, var data: Any? = null) {
-    USER("config/user.json"),
     PERMISSION("config/permissions.json"),
     COUNTER("config/counters.json"),
     TICKET("config/tickets.json"),
@@ -17,17 +15,6 @@ enum class ConfigType(val configPath: String, var data: Any? = null) {
     RESPONSE("config/responses.json"),
     NAME_SANITIZING("config/name_sanitizing.json")
 }
-
-/**
- * [defaultGithubUser] the default user / org used in the [IssueCommand].
- * [defaultBanReason] the default Reason for ban.
- * // TODO: refactor into module-specific settings
- */
-class UserConfig(
-    val defaultGithubUser: String?,
-    val defaultBanReason: String?,
-    val capeCommit: Boolean?
-)
 
 /**
  * [councilMembers] a hashmap of all the council members
