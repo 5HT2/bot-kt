@@ -131,7 +131,7 @@ object BanCommand : BotCommand(
         }
 
         val deleteMessageDays = if (deleteMsgs) 1 else 0
-        val fixedReason = ServerConfigs.get<BanConfig>(server).defaultReason
+        val fixedReason = if (reason.isNullOrBlank()) ServerConfigs.get<BanConfig>(server).defaultReason else reason
 
         if (!canBan(user, message, server)) return
 
