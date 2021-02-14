@@ -19,6 +19,7 @@ import org.kamiblue.command.utils.CommandNotFoundException
 import org.kamiblue.command.utils.SubCommandNotFoundException
 import org.kamiblue.commons.extension.max
 import org.kamiblue.commons.utils.ClassUtils
+import org.kamiblue.commons.utils.ClassUtils.instance
 import org.kamiblue.event.listener.asyncListener
 
 internal object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
@@ -35,11 +36,10 @@ internal object CommandManager : AbstractCommandManager<MessageExecuteEvent>() {
     }
 
     fun init() {
-        val commandClasses = ClassUtils.findClasses("org.kamiblue.botkt.command.commands", BotCommand::class.java)
+        val commandClasses = ClassUtils.findClasses<BotCommand>("org.kamiblue.botkt.command.commands")
 
         for (clazz in commandClasses) {
-            val botCommand = ClassUtils.getInstance(clazz)
-            register(botCommand)
+            register(clazz.instance)
         }
 
         Main.logger.info("Registered ${getCommands().size} commands!")
