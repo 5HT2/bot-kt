@@ -4,8 +4,8 @@ import net.ayataka.kordis.entity.message.MessageBuilder
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
-import org.kamiblue.botkt.command.HasPermission
 import org.kamiblue.botkt.command.MessageExecuteEvent
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.commons.extension.max

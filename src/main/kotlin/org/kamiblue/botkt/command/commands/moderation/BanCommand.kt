@@ -11,6 +11,8 @@ import net.ayataka.kordis.exception.NotFoundException
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.command.options.HasPermission
+import org.kamiblue.botkt.command.options.ServerOnly
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.checkPermission
