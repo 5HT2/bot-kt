@@ -16,7 +16,7 @@ import org.kamiblue.commons.utils.MathUtils
 import java.util.*
 import kotlin.collections.HashMap
 
-class HasPermission(private val permission: PermissionTypes) : ExecuteOption<MessageExecuteEvent> {
+class HasPermission private constructor(private val permission: PermissionTypes) : ExecuteOption<MessageExecuteEvent> {
     override suspend fun canExecute(event: MessageExecuteEvent): Boolean {
         return event.message is Console.FakeMessage
             || event.message.author.hasPermission(permission)
@@ -29,6 +29,14 @@ class HasPermission(private val permission: PermissionTypes) : ExecuteOption<Mes
                 description = "You need the permission `${permission.name.toHumanReadable()}` to use this command!"
                 color = Colors.ERROR.color
             }
+        }
+    }
+
+    companion object {
+        private val cached = EnumMap<PermissionTypes, HasPermission>(PermissionTypes::class.java)
+
+        fun get(permission: PermissionTypes): HasPermission = cached.getOrPut(permission) {
+            HasPermission(permission)
         }
     }
 }

@@ -19,13 +19,13 @@ object UploadLogCommand : BotCommand(
     category = Category.SYSTEM
 ) {
     init {
-        execute("Upload the `debug.log`", HasPermission(PermissionTypes.VIEW_LOGS)) {
+        execute("Upload the `debug.log`", HasPermission.get(PermissionTypes.VIEW_LOGS)) {
             uploadLog("debug.log", LogType.DEBUG)
         }
 
         literal("list") {
             enum<LogType>("log type") { logTypeArg ->
-                execute("List available logs", HasPermission(PermissionTypes.VIEW_LOGS)) {
+                execute("List available logs", HasPermission.get(PermissionTypes.VIEW_LOGS)) {
                     File("logs/${logTypeArg.value.folder}").listFiles()
                         ?.filter { it.isFile }
                         ?.sortedByDescending { it.name }
@@ -40,14 +40,14 @@ object UploadLogCommand : BotCommand(
 
         enum<LogType>("log type") { logTypeArg ->
             string("log name") { logNameArg ->
-                execute("Upload a log of this type", HasPermission(PermissionTypes.VIEW_LOGS)) {
+                execute("Upload a log of this type", HasPermission.get(PermissionTypes.VIEW_LOGS)) {
                     uploadLog(logNameArg.value, logTypeArg.value)
                 }
             }
         }
 
         greedy("log folder and name") { logNameArg ->
-            execute("Upload a log with this name and folder", HasPermission(PermissionTypes.VIEW_LOGS)) {
+            execute("Upload a log with this name and folder", HasPermission.get(PermissionTypes.VIEW_LOGS)) {
                 uploadLog(logNameArg.value, LogType.LATEST) // use latest because empty root folder
             }
         }

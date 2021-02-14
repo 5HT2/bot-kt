@@ -30,7 +30,7 @@ object BanCommand : BotCommand(
         literal("regex") {
             literal("confirm") {
                 greedy("userRegex") { userRegexArg ->
-                    execute("Mass ban members by regex", ServerOnly, HasPermission(PermissionTypes.MASS_BAN)) {
+                    execute("Mass ban members by regex", ServerOnly, HasPermission.get(PermissionTypes.MASS_BAN)) {
                         val server = server ?: run {
                             channel.error("Server members are null, are you running this from a DM?")
                             return@execute
@@ -79,7 +79,7 @@ object BanCommand : BotCommand(
             }
 
             greedy("userRegex") { userRegexArg ->
-                execute("Preview mass banning by regex", ServerOnly, HasPermission(PermissionTypes.MASS_BAN)) {
+                execute("Preview mass banning by regex", ServerOnly, HasPermission.get(PermissionTypes.MASS_BAN)) {
                     val regex = userRegexArg.value.toRegex()
 
                     val members = server?.members ?: run {
@@ -101,19 +101,19 @@ object BanCommand : BotCommand(
         user("user") { user ->
             literal("purge") {
                 greedy("reason") { reason ->
-                    execute("Delete messages, custom reason", ServerOnly, HasPermission(PermissionTypes.COUNCIL_MEMBER)) {
+                    execute("Delete messages, custom reason", ServerOnly, HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                         ban(user.value, true, reason.value, server, message)
                     }
                 }
             }
 
             greedy("reason") { reason ->
-                execute("Don't delete messages, custom reason", ServerOnly, HasPermission(PermissionTypes.COUNCIL_MEMBER)) {
+                execute("Don't delete messages, custom reason", ServerOnly, HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                     ban(user.value, false, reason.value, server, message)
                 }
             }
 
-            execute("Don't delete messages, use default reason", ServerOnly, HasPermission(PermissionTypes.COUNCIL_MEMBER)) {
+            execute("Don't delete messages, use default reason", ServerOnly, HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                 ban(user.value, false, null, server, message)
             }
         }
