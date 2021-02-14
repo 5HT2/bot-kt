@@ -11,11 +11,11 @@ import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.event.events.ShutdownEvent
-import org.kamiblue.botkt.helpers.ShellHelper.bash
-import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.manager.managers.UUIDManager
 import org.kamiblue.botkt.utils.*
+import org.kamiblue.botkt.utils.ShellHelper.bash
+import org.kamiblue.botkt.utils.ShellHelper.systemBash
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.capeapi.*
 import org.kamiblue.commons.utils.MathUtils

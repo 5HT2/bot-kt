@@ -17,11 +17,11 @@ import org.kamiblue.botkt.command.CommandManager
 import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.event.KordisEventProcessor
 import org.kamiblue.botkt.event.events.ShutdownEvent
-import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.manager.ManagerLoader
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.plugin.PluginManager
 import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.UpdateHelper
 import java.io.PrintStream
 import java.time.Instant
 import kotlin.system.exitProcess
