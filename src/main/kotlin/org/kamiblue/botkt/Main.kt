@@ -72,8 +72,17 @@ object Main {
             override fun print(string: String?) {
                 logger.log(level, string)
             }
+
             override fun println(string: String?) {
                 logger.log(level, string)
+            }
+
+            override fun print(x: Any?) {
+                logger.log(level, x)
+            }
+
+            override fun println(x: Any?) {
+                logger.log(level, x)
             }
         }
     }
