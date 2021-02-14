@@ -9,7 +9,6 @@ import net.ayataka.kordis.entity.server.permission.Permission
 import net.ayataka.kordis.entity.user.User
 import net.ayataka.kordis.exception.NotFoundException
 import org.kamiblue.botkt.*
-import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
@@ -31,8 +30,11 @@ object BanCommand : BotCommand(
         literal("regex") {
             literal("confirm") {
                 greedy("userRegex") { userRegexArg ->
-                    executeIfHas(PermissionTypes.MASS_BAN, "Mass ban members by regex") {
-                        val server = server ?: run { channel.error("Server members are null, are you running this from a DM?"); return@executeIfHas }
+                    execute("Mass ban members by regex", ServerOnly, HasPermission(PermissionTypes.MASS_BAN)) {
+                        val server = server ?: run {
+                            channel.error("Server members are null, are you running this from a DM?")
+                            return@execute
+                        }
 
                         val m = channel.error("Banning [calculating] members...")
 
@@ -46,7 +48,7 @@ object BanCommand : BotCommand(
                                 description = "Not banning anybody! 0 members found."
                                 color = Colors.ERROR.color
                             }
-                            return@executeIfHas
+                            return@execute
                         } else {
                             m.edit {
                                 description = "Banning ${filtered.size} members..."
@@ -77,12 +79,12 @@ object BanCommand : BotCommand(
             }
 
             greedy("userRegex") { userRegexArg ->
-                executeIfHas(PermissionTypes.MASS_BAN, "Preview mass banning by regex") {
+                execute("Preview mass banning by regex", ServerOnly, HasPermission(PermissionTypes.MASS_BAN)) {
                     val regex = userRegexArg.value.toRegex()
 
                     val members = server?.members ?: run {
                         channel.error("Server members are null, are you running this from a DM?")
-                        return@executeIfHas
+                        return@execute
                     }
 
                     val filtered = members.filter { it.name.contains(regex) }.joinToString(separator = "\n") { it.mention }
@@ -99,19 +101,19 @@ object BanCommand : BotCommand(
         user("user") { user ->
             literal("purge") {
                 greedy("reason") { reason ->
-                    executeIfHas(COUNCIL_MEMBER, "Delete messages, custom reason") {
+                    execute("Delete messages, custom reason", ServerOnly, HasPermission(PermissionTypes.COUNCIL_MEMBER)) {
                         ban(user.value, true, reason.value, server, message)
                     }
                 }
             }
 
             greedy("reason") { reason ->
-                executeIfHas(COUNCIL_MEMBER, "Don't delete messages, custom reason") {
+                execute("Don't delete messages, custom reason", ServerOnly, HasPermission(PermissionTypes.COUNCIL_MEMBER)) {
                     ban(user.value, false, reason.value, server, message)
                 }
             }
 
-            executeIfHas(COUNCIL_MEMBER, "Don't delete messages, use default reason") {
+            execute("Don't delete messages, use default reason", ServerOnly, HasPermission(PermissionTypes.COUNCIL_MEMBER)) {
                 ban(user.value, false, null, server, message)
             }
         }
@@ -203,7 +205,7 @@ object BanCommand : BotCommand(
 
     private suspend fun canBan(user: User, message: Message?, server: Server): Boolean {
         when {
-            user.hasPermission(COUNCIL_MEMBER) -> {
+            user.hasPermission(PermissionTypes.COUNCIL_MEMBER) -> {
                 message?.channel?.error("That user is protected, I can't do that.")
                 return false
             }
