@@ -5,12 +5,9 @@ import org.kamiblue.botkt.Console
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.Permissions.missingPermissions
-import org.kamiblue.botkt.command.arguments.ChannelArg
-import org.kamiblue.botkt.command.arguments.EmojiArg
-import org.kamiblue.botkt.command.arguments.UserArg
 import org.kamiblue.botkt.entity.Emoji
-import org.kamiblue.command.AbstractArg
 import org.kamiblue.command.CommandBuilder
+import org.kamiblue.command.args.AbstractArg
 import org.kamiblue.command.utils.BuilderBlock
 import org.kamiblue.command.utils.ExecuteBlock
 
@@ -34,7 +31,7 @@ abstract class BotCommand(
                 this.message.missingPermissions(permission)
             }
         }
-        this.execute(description, blockWithIf)
+        this.execute(description, block = blockWithIf)
     }
 
     @CommandBuilder

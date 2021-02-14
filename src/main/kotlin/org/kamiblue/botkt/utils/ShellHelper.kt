@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.helpers
+package org.kamiblue.botkt.utils
 
 import org.kamiblue.botkt.helpers.ShellHelper.bash
 import java.io.BufferedReader
