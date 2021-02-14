@@ -3,6 +3,7 @@ package org.kamiblue.botkt.command.commands.moderation
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.utils.normal
 import org.kamiblue.botkt.utils.success
 import org.kamiblue.commons.extension.max
@@ -15,7 +16,7 @@ object TopicCommand : BotCommand(
     init {
         literal("set") {
             greedy("topic") { topicArg ->
-                executeIfHas(PermissionTypes.MANAGE_CHANNELS, "Set the topic of the channel") {
+                execute("Set the topic of the channel", HasPermission.get(PermissionTypes.MANAGE_CHANNELS)) {
                     val setTopic = topicArg.value.max(1024)
 
                     message.serverChannel?.edit {
@@ -28,7 +29,7 @@ object TopicCommand : BotCommand(
         }
 
         literal("clear") {
-            executeIfHas(PermissionTypes.MANAGE_CHANNELS, "Reset the topic of the channel to nothing") {
+            execute("Reset the topic of the channel to nothing", HasPermission.get(PermissionTypes.MANAGE_CHANNELS)) {
 
                 message.serverChannel?.edit {
                     topic = null

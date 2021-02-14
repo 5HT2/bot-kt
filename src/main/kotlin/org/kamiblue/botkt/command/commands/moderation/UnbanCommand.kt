@@ -3,6 +3,7 @@ package org.kamiblue.botkt.command.commands.moderation
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.error
 import org.kamiblue.botkt.utils.findUserEverywhere
@@ -14,14 +15,14 @@ object UnbanCommand : BotCommand(
 ) {
     init {
         greedy("name") { nameArg ->
-            executeIfHas(PermissionTypes.COUNCIL_MEMBER) {
+            execute(HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                 val server = server ?: run {
                     channel.error("This command must be called from a server!")
-                    return@executeIfHas
+                    return@execute
                 }
 
                 val name = nameArg.value
-                val user = findUserEverywhere(name) ?: return@executeIfHas
+                val user = findUserEverywhere(name) ?: return@execute
 
                 server.unban(user)
 

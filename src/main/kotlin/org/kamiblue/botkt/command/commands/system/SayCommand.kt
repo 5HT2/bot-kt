@@ -3,6 +3,7 @@ package org.kamiblue.botkt.command.commands.system
 import net.ayataka.kordis.entity.message.Message
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.error
 
@@ -16,10 +17,10 @@ object SayCommand : BotCommand(
             boolean("embed") { embedArg ->
                 string("title") { titleArg ->
                     greedy("content") { contentArg ->
-                        executeIfHas(PermissionTypes.SAY, "Say something in a channel") {
+                        execute("Say something in a channel", HasPermission.get(PermissionTypes.SAY)) {
                             val channel = channelArg.getTextChannelOrNull() ?: run {
                                 message.channelError()
-                                return@executeIfHas
+                                return@execute
                             }
 
                             if (embedArg.value) {
@@ -44,15 +45,15 @@ object SayCommand : BotCommand(
                 long("message") { messageArg ->
                     string("title") { titleArg ->
                         greedy("content") { contentArg ->
-                            executeIfHas(PermissionTypes.SAY, "Edit an existing message in a channel") {
+                            execute("Edit an existing message in a channel", HasPermission.get(PermissionTypes.SAY)) {
                                 val channel = channelArg.getTextChannelOrNull() ?: run {
                                     message.channelError()
-                                    return@executeIfHas
+                                    return@execute
                                 }
 
                                 val message = channel.getMessage(messageArg.value) ?: run {
                                     channel.error("Error editing message! The message ID could not be found in ${channel.id}")
-                                    return@executeIfHas
+                                    return@execute
                                 }
 
                                 if (message.embeds.isNullOrEmpty()) {

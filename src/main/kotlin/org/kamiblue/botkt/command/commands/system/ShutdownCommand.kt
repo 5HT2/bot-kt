@@ -4,6 +4,7 @@ import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.utils.Colors
 
 object ShutdownCommand : BotCommand(
@@ -12,7 +13,7 @@ object ShutdownCommand : BotCommand(
     description = "Shutdown the bot"
 ) {
     init {
-        executeIfHas(PermissionTypes.REBOOT_BOT) {
+        execute(HasPermission.get(PermissionTypes.REBOOT_BOT)) {
             message.channel.send {
                 embed {
                     title = "Shutting down..."
