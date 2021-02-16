@@ -4,6 +4,7 @@ import net.ayataka.kordis.entity.message.Message
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.command.options.HasPermission
+import org.kamiblue.botkt.command.options.IgnoreSelf
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.error
 
@@ -17,7 +18,7 @@ object SayCommand : BotCommand(
             boolean("embed") { embedArg ->
                 string("title") { titleArg ->
                     greedy("content") { contentArg ->
-                        execute("Say something in a channel", HasPermission.get(PermissionTypes.SAY)) {
+                        execute("Say something in a channel", IgnoreSelf, HasPermission.get(PermissionTypes.SAY)) {
                             val channel = channelArg.getTextChannelOrNull() ?: run {
                                 message.channelError()
                                 return@execute
@@ -45,7 +46,7 @@ object SayCommand : BotCommand(
                 long("message") { messageArg ->
                     string("title") { titleArg ->
                         greedy("content") { contentArg ->
-                            execute("Edit an existing message in a channel", HasPermission.get(PermissionTypes.SAY)) {
+                            execute("Edit an existing message in a channel", IgnoreSelf, HasPermission.get(PermissionTypes.SAY)) {
                                 val channel = channelArg.getTextChannelOrNull() ?: run {
                                     message.channelError()
                                     return@execute
