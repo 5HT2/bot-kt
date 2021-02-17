@@ -4,6 +4,7 @@ import net.ayataka.kordis.entity.server.Server
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.manager.managers.ConfigManager.readConfigSafe
 import org.kamiblue.botkt.utils.*
 import org.l1ving.api.download.Download
@@ -14,7 +15,7 @@ object CounterCommand : BotCommand(
     description = "Count members and Github repo downloads"
 ) {
     init {
-        executeIfHas(PermissionTypes.UPDATE_COUNTERS) {
+        execute(HasPermission.get(PermissionTypes.UPDATE_COUNTERS)) {
             val path = ConfigType.COUNTER.configPath.substring(7)
             val userPath = ConfigType.USER.configPath.substring(7)
             val config = readConfigSafe<CounterConfig>(ConfigType.COUNTER, false)
