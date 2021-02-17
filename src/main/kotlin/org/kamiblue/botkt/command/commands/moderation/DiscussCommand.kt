@@ -5,6 +5,7 @@ import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverw
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.utils.Colors
 
 // TODO: make this not hardcoded
@@ -16,7 +17,7 @@ object DiscussCommand : BotCommand(
     init {
         literal("addon") {
             greedy("idea") { idea ->
-                executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Add to an existing discussion") {
+                execute("Add to an existing discussion", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                     val name = "t-" + server!!.channels.find(message.channel.id)!!.name.substring(2)
                     val discussionTopic = server.textChannels.findByName(name)!!
 
@@ -40,7 +41,7 @@ object DiscussCommand : BotCommand(
 
         string("topic") { topicArg ->
             greedy("description") { description ->
-                executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Create a new discussion topic") {
+                execute("Create a new discussion topic", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                     val upperCouncil = server!!.roles.findByName("upper council")!!
                     val lowerCouncil = server.roles.findByName("lower council")!!
 

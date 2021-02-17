@@ -6,6 +6,7 @@ import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.manager.managers.MuteManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.error
@@ -18,15 +19,15 @@ object UnmuteCommand : BotCommand(
 ) {
     init {
         user("user") { userArg ->
-            executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Unmute user") {
+            execute("Unmute user", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                 if (server == null) {
                     channel.error("Server is null, are you running this from a DM?")
-                    return@executeIfHas
+                    return@execute
                 }
 
                 val member = server.members.find(userArg.value) ?: run {
                     channel.error("Member not found!")
-                    return@executeIfHas
+                    return@execute
                 }
 
                 val serverMuteInfo = MuteManager.serverMap.getOrPut(server.id) { MuteManager.ServerMuteInfo(server) }

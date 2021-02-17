@@ -18,6 +18,7 @@ import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.*
@@ -50,8 +51,8 @@ object TicketCommand : BotCommand(
         if (!ticketFolder.exists()) ticketFolder.mkdir()
 
         literal("saveall") {
-            executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Saves the last 100 messages. Do not use on new tickets.") {
-                val channel = (channel as? ServerTextChannel) ?: return@executeIfHas
+            execute("Saves the last 100 messages. Do not use on new tickets.", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
+                val channel = (channel as? ServerTextChannel) ?: return@execute
                 val messages = this.channel.getMessages().reversed()
                 val response = this.channel.normal("Saving `${messages.size}` messages...")
 
@@ -74,7 +75,7 @@ object TicketCommand : BotCommand(
 
         literal("upload") {
             int("index") { indexArg ->
-                executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Upload a closed ticket file") {
+                execute("Upload a closed ticket file", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                     val index = indexArg.value
                     try {
                         channel.upload(getTickets()[index])
@@ -89,7 +90,7 @@ object TicketCommand : BotCommand(
 
         literal("delete") {
             int("index") { indexArg ->
-                executeIfHas(PermissionTypes.PURGE_PROTECTED, "Delete a closed ticket entirely") {
+                execute("Delete a closed ticket entirely", HasPermission.get(PermissionTypes.PURGE_PROTECTED)) {
                     try {
                         getTickets().getOrNull(indexArg.value)?.delete()
                         channel.success("Deleted ticket with index `${indexArg.value}`")
@@ -102,7 +103,7 @@ object TicketCommand : BotCommand(
 
         literal("view") {
             int("index") { indexArg ->
-                executeIfHas(PermissionTypes.COUNCIL_MEMBER, "View a closed ticket") {
+                execute("View a closed ticket", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                     val index = indexArg.value
                     try {
                         channel.send {
@@ -121,12 +122,12 @@ object TicketCommand : BotCommand(
         }
 
         literal("close") {
-            executeIfHas(PermissionTypes.COUNCIL_MEMBER, "Close the current ticket") {
+            execute("Close the current ticket", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                 val channel = message.serverChannel
 
                 if (channel?.name?.startsWith("ticket-") != true) {
                     channel?.error("The ${message.serverChannel?.mention} channel is not a ticket!")
-                    return@executeIfHas
+                    return@execute
                 }
 
                 closeTicket(channel, message)

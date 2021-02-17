@@ -1,9 +1,10 @@
 package org.kamiblue.botkt.command.commands.system
 
 import org.kamiblue.botkt.Main
-import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
+import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.utils.error
 import org.kamiblue.botkt.utils.normal
 import org.kamiblue.botkt.utils.success
@@ -19,7 +20,7 @@ object ExceptionCommand : BotCommand(
 
     init {
         literal("list") {
-            executeIfHas(COUNCIL_MEMBER, "List saved exceptions") {
+            execute("List saved exceptions", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                 if (exceptions.isEmpty()) {
                     channel.success("No exceptions caught recently!")
                 } else {
@@ -31,7 +32,7 @@ object ExceptionCommand : BotCommand(
         }
 
         int("index") { indexArg ->
-            executeIfHas(COUNCIL_MEMBER, "Print a saved exception") {
+            execute("Print a saved exception", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                 if (exceptions.isEmpty()) {
                     channel.success("No exceptions caught recently!")
                 } else {

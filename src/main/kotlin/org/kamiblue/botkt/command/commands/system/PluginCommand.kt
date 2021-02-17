@@ -7,6 +7,7 @@ import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.plugin.Plugin
 import org.kamiblue.botkt.plugin.PluginLoader
 import org.kamiblue.botkt.plugin.PluginManager
@@ -22,7 +23,7 @@ object PluginCommand : BotCommand(
     init {
         literal("load") {
             greedy("jar name") { nameArg ->
-                executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
+                execute(HasPermission.get(PermissionTypes.MANAGE_PLUGINS)) {
                     val name = nameArg.value
                     val file = File("${PluginManager.pluginPath}$name")
                     if (!file.exists() || !file.extension.equals("jar", true)) {
@@ -36,7 +37,7 @@ object PluginCommand : BotCommand(
                     val plugin = loader.load()
                     if (PluginManager.loadedPlugins.contains(plugin)) {
                         message.edit("Plugin $name already loaded!")
-                        return@executeIfHas
+                        return@execute
                     }
                     PluginManager.load(loader)
 
@@ -51,13 +52,13 @@ object PluginCommand : BotCommand(
 
         literal("reload") {
             greedy("plugin name") { nameArg ->
-                executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
+                execute(HasPermission.get(PermissionTypes.MANAGE_PLUGINS)) {
                     val name = nameArg.value
                     val plugin = PluginManager.loadedPlugins[name]
 
                     if (plugin == null) {
                         channel.error("No plugin found for name $name")
-                        return@executeIfHas
+                        return@execute
                     }
 
                     val time = System.currentTimeMillis()
@@ -75,7 +76,7 @@ object PluginCommand : BotCommand(
                 }
             }
 
-            executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
+            execute(HasPermission.get(PermissionTypes.MANAGE_PLUGINS)) {
                 val time = System.currentTimeMillis()
                 val message = channel.normal("Reloading all plugins...")
 
@@ -92,13 +93,13 @@ object PluginCommand : BotCommand(
 
         literal("unload") {
             greedy("plugin name") { nameArg ->
-                executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
+                execute(HasPermission.get(PermissionTypes.MANAGE_PLUGINS)) {
                     val name = nameArg.value
                     val plugin = PluginManager.loadedPlugins[name]
 
                     if (plugin == null) {
                         channel.error("No plugin found for name $name")
-                        return@executeIfHas
+                        return@execute
                     }
 
                     val time = System.currentTimeMillis()
@@ -114,7 +115,7 @@ object PluginCommand : BotCommand(
                 }
             }
 
-            executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
+            execute(HasPermission.get(PermissionTypes.MANAGE_PLUGINS)) {
                 val time = System.currentTimeMillis()
                 val message = channel.normal("Unloading plugins...")
 
@@ -131,7 +132,7 @@ object PluginCommand : BotCommand(
         literal("download") {
             string("file name") { fileNameArg ->
                 greedy("url") { urlArg ->
-                    executeIfHas(PermissionTypes.MANAGE_PLUGINS, "Download a plugin") {
+                    execute("Download a plugin", HasPermission.get(PermissionTypes.MANAGE_PLUGINS)) {
                         val time = System.currentTimeMillis()
                         val name = fileNameArg.value.removeSuffix(".jar") + ".jar"
 
@@ -157,14 +158,14 @@ object PluginCommand : BotCommand(
 
         literal("delete") {
             greedy("file name") { fileNameArg ->
-                executeIfHas(PermissionTypes.MANAGE_PLUGINS, "Delete a plugin") {
+                execute("Delete a plugin", HasPermission.get(PermissionTypes.MANAGE_PLUGINS)) {
                     val name = fileNameArg.value.removeSuffix(".jar") + ".jar"
 
                     val file = File(PluginManager.pluginPath + name)
 
                     if (!file.exists()) {
                         channel.error("Could not find a plugin file with the name `$name`")
-                        return@executeIfHas
+                        return@execute
                     }
 
                     file.delete()
@@ -174,7 +175,7 @@ object PluginCommand : BotCommand(
         }
 
         literal("list") {
-            executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
+            execute(HasPermission.get(PermissionTypes.MANAGE_PLUGINS)) {
                 if (PluginManager.loadedPlugins.isEmpty()) {
                     channel.warn("No plugins loaded")
                 } else {
@@ -192,12 +193,12 @@ object PluginCommand : BotCommand(
 
         literal("info") {
             int("index") { indexArg ->
-                executeIfHas(PermissionTypes.MANAGE_PLUGINS) {
+                execute(HasPermission.get(PermissionTypes.MANAGE_PLUGINS)) {
                     val index = indexArg.value
                     val plugin = PluginManager.loadedPlugins.toList().getOrNull(index)
                         ?: run {
                             channel.error("No plugin found for index: `$index`")
-                            return@executeIfHas
+                            return@execute
                         }
                     val loader = PluginManager.pluginLoaderMap[plugin]!!
 
