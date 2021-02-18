@@ -21,10 +21,10 @@ import org.kamiblue.botkt.config.global.SystemConfig
 import org.kamiblue.botkt.event.BotEventBus
 import org.kamiblue.botkt.event.KordisEventProcessor
 import org.kamiblue.botkt.event.events.ShutdownEvent
-import org.kamiblue.botkt.helpers.UpdateHelper
 import org.kamiblue.botkt.manager.ManagerLoader
 import org.kamiblue.botkt.plugin.PluginManager
 import org.kamiblue.botkt.utils.Colors
+import org.kamiblue.botkt.utils.UpdateHelper
 import org.kamiblue.commons.utils.ClassUtils
 import java.io.PrintStream
 import java.time.Instant
@@ -67,8 +67,17 @@ object Main {
             override fun print(string: String?) {
                 logger.log(level, string)
             }
+
             override fun println(string: String?) {
                 logger.log(level, string)
+            }
+
+            override fun print(x: Any?) {
+                logger.log(level, x)
+            }
+
+            override fun println(x: Any?) {
+                logger.log(level, x)
             }
         }
     }

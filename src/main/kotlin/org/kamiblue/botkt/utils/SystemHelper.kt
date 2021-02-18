@@ -1,6 +1,6 @@
-package org.kamiblue.botkt.helpers
+package org.kamiblue.botkt.utils
 
-import org.kamiblue.botkt.helpers.ShellHelper.bash
+import org.kamiblue.botkt.utils.ShellHelper.bash
 import org.kamiblue.commons.utils.MathUtils
 import java.io.File
 

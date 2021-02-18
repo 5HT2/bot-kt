@@ -8,12 +8,15 @@ import net.ayataka.kordis.entity.server.emoji.Emoji
 import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.*
 import org.kamiblue.botkt.command.*
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.config.global.CapeConfig
 import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.helpers.ShellHelper.bash
 import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 import org.kamiblue.botkt.manager.managers.UUIDManager
 import org.kamiblue.botkt.utils.*
+import org.kamiblue.botkt.utils.ShellHelper.bash
+import org.kamiblue.botkt.utils.ShellHelper.systemBash
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.capeapi.*
 import org.kamiblue.commons.utils.MathUtils
@@ -49,7 +52,7 @@ object CapeCommand : BotCommand(
         literal("create") {
             string("type") { typeArg ->
                 user("id") { userArg ->
-                    executeIfHas(PermissionTypes.AUTHORIZE_CAPES, "Create a Cape for a user") {
+                    execute("Create a Cape for a user", HasPermission.get(PermissionTypes.AUTHORIZE_CAPES)) {
                         val user = userArg.value
                         val userCapeType = typeArg.value
 
@@ -60,7 +63,7 @@ object CapeCommand : BotCommand(
 
                         if (type == null) {
                             channel.error("Couldn't find Cape type \"${userCapeType.toHumanReadable()}\"!")
-                            return@executeIfHas
+                            return@execute
                         }
 
                         val newCape = Cape(type = type)
@@ -93,18 +96,18 @@ object CapeCommand : BotCommand(
         literal("delete") {
             string(capeUUIDArgName) { uuidArg ->
                 user("user") { userArg ->
-                    executeIfHas(PermissionTypes.AUTHORIZE_CAPES, "Delete a Cape for a user") {
+                    execute("Delete a Cape for a user", HasPermission.get(PermissionTypes.AUTHORIZE_CAPES)) {
                         val capeUUID = uuidArg.value
                         val finalID = userArg.value.id
 
                         val user = capeUserMap[finalID] ?: run {
                             channel.error("Couldn't find a Cape User with the ID `$finalID`!")
-                            return@executeIfHas
+                            return@execute
                         }
 
                         val cape = user.capes.find { it.capeUUID.equals(capeUUID, true) } ?: run {
                             channel.error(capeError(capeUUID))
-                            return@executeIfHas
+                            return@execute
                         }
 
                         user.deleteCape(cape)
@@ -337,7 +340,7 @@ object CapeCommand : BotCommand(
         }
 
         literal("save") {
-            executeIfHas(PermissionTypes.AUTHORIZE_CAPES) {
+            execute(HasPermission.get(PermissionTypes.AUTHORIZE_CAPES)) {
                 save()
                 commit()
                 channel.success("Saved!")
@@ -345,7 +348,7 @@ object CapeCommand : BotCommand(
         }
 
         literal("load") {
-            executeIfHas(PermissionTypes.AUTHORIZE_CAPES) {
+            execute(HasPermission.get(PermissionTypes.AUTHORIZE_CAPES)) {
                 load()
                 channel.success("Loaded!")
             }

@@ -1,4 +1,4 @@
-package org.kamiblue.botkt.helpers
+package org.kamiblue.botkt.utils
 
 import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers

@@ -1,9 +1,9 @@
-package org.kamiblue.botkt.command.arguments
+package org.kamiblue.botkt.command
 
 import net.ayataka.kordis.entity.user.User
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.entity.Emoji
-import org.kamiblue.command.AbstractArg
+import org.kamiblue.command.args.AbstractArg
 
 class ChannelArg(
     override val name: String

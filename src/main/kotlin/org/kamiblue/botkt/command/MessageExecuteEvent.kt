@@ -3,8 +3,8 @@ package org.kamiblue.botkt.command
 import net.ayataka.kordis.entity.channel.TextChannel
 import net.ayataka.kordis.event.events.message.MessageEvent
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
-import org.kamiblue.command.ArgIdentifier
-import org.kamiblue.command.ExecuteEvent
+import org.kamiblue.command.args.ArgIdentifier
+import org.kamiblue.command.execute.ExecuteEvent
 
 class MessageExecuteEvent(
     args: Array<String>,

@@ -1,10 +1,11 @@
 package org.kamiblue.botkt.command.commands.system
 
 import net.ayataka.kordis.entity.message.MessageBuilder
-import org.kamiblue.botkt.PermissionTypes.VIEW_LOGS
+import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.StringUtils.toHumanReadable
 import org.kamiblue.commons.extension.max
@@ -18,17 +19,16 @@ object UploadLogCommand : BotCommand(
     category = Category.SYSTEM
 ) {
     init {
-        executeIfHas(VIEW_LOGS, "Upload the `debug.log`") {
+        execute("Upload the `debug.log`", HasPermission.get(PermissionTypes.VIEW_LOGS)) {
             uploadLog("debug.log", LogType.DEBUG)
         }
 
         literal("list") {
             enum<LogType>("log type") { logTypeArg ->
-                executeIfHas(VIEW_LOGS, "List available logs") {
+                execute("List available logs", HasPermission.get(PermissionTypes.VIEW_LOGS)) {
                     File("logs/${logTypeArg.value.folder}").listFiles()
                         ?.filter { it.isFile }
-                        ?.sortedBy { it.name }
-                        ?.reversed()
+                        ?.sortedByDescending { it.name }
                         ?.let {
                             channel.normal(it.joinToString("\n") { file -> "`${file.name}`" }.max(2048))
                         } ?: run {
@@ -40,14 +40,14 @@ object UploadLogCommand : BotCommand(
 
         enum<LogType>("log type") { logTypeArg ->
             string("log name") { logNameArg ->
-                executeIfHas(VIEW_LOGS, "Upload a log of this type") {
+                execute("Upload a log of this type", HasPermission.get(PermissionTypes.VIEW_LOGS)) {
                     uploadLog(logNameArg.value, logTypeArg.value)
                 }
             }
         }
 
         greedy("log folder and name") { logNameArg ->
-            executeIfHas(VIEW_LOGS, "Upload a log with this name and folder") {
+            execute("Upload a log with this name and folder", HasPermission.get(PermissionTypes.VIEW_LOGS)) {
                 uploadLog(logNameArg.value, LogType.LATEST) // use latest because empty root folder
             }
         }

@@ -6,6 +6,7 @@ import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
+import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.config.global.CounterConfig
 import org.kamiblue.botkt.config.global.SystemConfig
 import org.kamiblue.botkt.utils.*
@@ -18,8 +19,8 @@ object CounterCommand : BotCommand(
     description = "Count members and Github repo downloads"
 ) {
     init {
-        executeIfHas(PermissionTypes.UPDATE_COUNTERS) {
-
+        execute(HasPermission.get(PermissionTypes.UPDATE_COUNTERS)) {
+=
             when {
                 !CounterConfig.downloadCounter && !CounterConfig.memberCounter -> {
                     channel.warn("Counters are not enabled!")
