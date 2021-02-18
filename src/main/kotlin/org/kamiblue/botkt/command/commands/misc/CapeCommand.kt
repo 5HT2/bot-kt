@@ -11,8 +11,6 @@ import org.kamiblue.botkt.command.*
 import org.kamiblue.botkt.command.options.HasPermission
 import org.kamiblue.botkt.config.global.CapeConfig
 import org.kamiblue.botkt.event.events.ShutdownEvent
-import org.kamiblue.botkt.helpers.ShellHelper.bash
-import org.kamiblue.botkt.helpers.ShellHelper.systemBash
 import org.kamiblue.botkt.manager.managers.UUIDManager
 import org.kamiblue.botkt.utils.*
 import org.kamiblue.botkt.utils.ShellHelper.bash

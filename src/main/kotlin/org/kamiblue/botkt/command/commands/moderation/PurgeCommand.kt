@@ -2,8 +2,7 @@ package org.kamiblue.botkt.command.commands.moderation
 
 import kotlinx.coroutines.delay
 import net.ayataka.kordis.entity.message.Message
-import org.kamiblue.botkt.PermissionTypes.COUNCIL_MEMBER
-import org.kamiblue.botkt.PermissionTypes.PURGE_PROTECTED
+import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.Permissions.hasPermission
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category

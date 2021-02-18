@@ -20,7 +20,7 @@ object CounterCommand : BotCommand(
 ) {
     init {
         execute(HasPermission.get(PermissionTypes.UPDATE_COUNTERS)) {
-=
+
             when {
                 !CounterConfig.downloadCounter && !CounterConfig.memberCounter -> {
                     channel.warn("Counters are not enabled!")

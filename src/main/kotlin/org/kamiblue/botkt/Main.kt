@@ -26,6 +26,7 @@ import org.kamiblue.botkt.plugin.PluginManager
 import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.UpdateHelper
 import org.kamiblue.commons.utils.ClassUtils
+import org.kamiblue.commons.utils.ClassUtils.instance
 import java.io.PrintStream
 import java.time.Instant
 import kotlin.system.exitProcess
@@ -129,11 +130,11 @@ object Main {
     }
 
     private fun registerConfigs() {
-        ClassUtils.findClasses("org.kamiblue.botkt.config.global", GlobalConfig::class.java).forEach {
-            GlobalConfigs.register(ClassUtils.getInstance(it))
+        ClassUtils.findClasses<GlobalConfig>("org.kamiblue.botkt.config.global").forEach {
+            GlobalConfigs.register(it.instance)
         }
 
-        ClassUtils.findClasses("org.kamiblue.botkt.config.server", ServerConfig::class.java).forEach {
+        ClassUtils.findClasses<ServerConfig>("org.kamiblue.botkt.config.server").forEach {
             ServerConfigs.register(it)
         }
     }
