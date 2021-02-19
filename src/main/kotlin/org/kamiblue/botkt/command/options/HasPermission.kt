@@ -11,8 +11,8 @@ import java.util.*
 
 class HasPermission private constructor(private val permission: PermissionTypes) : ExecuteOption<MessageExecuteEvent> {
     override suspend fun canExecute(event: MessageExecuteEvent): Boolean {
-        return event.message is Console.FakeMessage
-            || event.message.author.hasPermission(permission)
+        return event.message is Console.FakeMessage ||
+            event.message.author.hasPermission(permission)
     }
 
     override suspend fun onFailed(event: MessageExecuteEvent) {

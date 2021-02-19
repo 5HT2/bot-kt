@@ -12,8 +12,8 @@ class AnyPermission(private vararg val permissions: PermissionTypes) : ExecuteOp
     private val permissionListString = permissions.joinToString { "`${it.name.toHumanReadable()}`" }
 
     override suspend fun canExecute(event: MessageExecuteEvent): Boolean {
-        return event.message is Console.FakeMessage
-            || permissions.any { event.message.author.hasPermission(it) }
+        return event.message is Console.FakeMessage ||
+            permissions.any { event.message.author.hasPermission(it) }
     }
 
     override suspend fun onFailed(event: MessageExecuteEvent) {
