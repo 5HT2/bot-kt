@@ -28,9 +28,10 @@ import kotlin.system.exitProcess
 
 object Main {
 
-    const val currentVersion = "v1.8.9"
+    const val currentVersion = "v1.9.0"
 
     val startUpTime: Instant = Instant.now()
+
     @Suppress("EXPERIMENTAL_API_USAGE")
     val mainScope = CoroutineScope(newSingleThreadContext("Bot-kt Main"))
     val logger: Logger = LogManager.getLogger("Bot-kt")
