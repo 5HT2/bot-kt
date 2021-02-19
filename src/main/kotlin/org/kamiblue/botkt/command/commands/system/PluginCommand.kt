@@ -1,8 +1,10 @@
 package org.kamiblue.botkt.command.commands.system
 
+import io.ktor.client.request.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.PermissionTypes
 import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
@@ -13,7 +15,6 @@ import org.kamiblue.botkt.plugin.PluginLoader
 import org.kamiblue.botkt.plugin.PluginManager
 import org.kamiblue.botkt.utils.*
 import java.io.File
-import java.net.URL
 
 object PluginCommand : BotCommand(
     name = "plugin",
@@ -138,7 +139,10 @@ object PluginCommand : BotCommand(
 
                         val deferred = coroutineScope {
                             async(Dispatchers.IO) {
-                                val bytes = URL(urlArg.value).readBytes()
+                                val bytes = Main.httpClient.get<ByteArray> {
+                                    header("User-Agent", "")
+                                    url(urlArg.value)
+                                }
                                 File(PluginManager.pluginPath + name).writeBytes(bytes)
                             }
                         }
@@ -182,9 +186,10 @@ object PluginCommand : BotCommand(
                     channel.send {
                         embed {
                             title = "Loaded plugins: `${PluginManager.loadedPlugins.size}`"
-                            description = PluginManager.loadedPlugins.withIndex().joinToString("\n") { (index, plugin) ->
-                                "`$index`. ${plugin.name}"
-                            }
+                            description = PluginManager.loadedPlugins.withIndex()
+                                .joinToString("\n") { (index, plugin) ->
+                                    "`$index`. ${plugin.name}"
+                                }
                         }
                     }
                 }
