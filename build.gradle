@@ -4,7 +4,7 @@ buildscript {
 
 plugins {
     id "org.jetbrains.kotlin.jvm" version "$kotlin_version"
-    id 'maven-publish'
+    id 'maven'
 }
 
 group 'org.kamiblue'
@@ -42,28 +42,29 @@ compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-task apiJar(type: Jar) {
-    group 'build'
-    description 'Assemble API library archive'
-
-    archiveClassifier.set('api')
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    from sourceSets.main.output
+jar {
+    manifest {
+        attributes 'Main-Class': 'org.kamiblue.botkt.Main'
+    }
 }
 
 task sourceJar(type: Jar) {
     group 'build'
     description 'Assemble API library source archive'
 
-    archiveClassifier.set('api-sources')
+    archiveClassifier.set('sources')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from sourceSets.main.allSource
 }
 
-jar {
-    manifest {
-        attributes 'Main-Class': 'org.kamiblue.botkt.Main'
-    }
+task binJar(type: Jar) {
+    group 'build'
+    description 'Assemble binary archive with dependencies'
+
+    archiveClassifier.set('bin')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from sourceSets.main.output
 
     // copy deps to jar
     from {
@@ -73,20 +74,7 @@ jar {
     }
 }
 
-task buildApi {
-    group 'build'
-    dependsOn apiJar
-    dependsOn sourceJar
-    description 'Assemble API library archives'
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            artifactId = 'bot-kt'
-            version = "$bot_kt_version-api"
-
-            from components.java
-        }
-    }
+artifacts {
+    archives jar
+    archives sourceJar
 }
