@@ -4,6 +4,7 @@ buildscript {
 
 plugins {
     id "org.jetbrains.kotlin.jvm" version "$kotlin_version"
+    id 'maven-publish'
 }
 
 group 'org.kamiblue'
@@ -77,4 +78,8 @@ task buildApi {
     dependsOn apiJar
     dependsOn sourceJar
     description 'Assemble API library archives'
+}
+
+publish {
+    dependsOn buildApi
 }
