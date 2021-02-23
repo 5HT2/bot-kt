@@ -84,6 +84,7 @@ publishing {
     publications {
         maven(MavenPublication) {
             artifactId = 'bot-kt-api'
+            version = "$bot_kt_version-api"
 
             artifact apiJar
             artifact sourceJar
