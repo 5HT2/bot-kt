@@ -83,7 +83,7 @@ task buildApi {
 publishing {
     publications {
         maven(MavenPublication) {
-            artifactId = 'bot-kt-api'
+            artifactId = 'bot-kt'
             version = "$bot_kt_version-api"
 
             from components.java
