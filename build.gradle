@@ -80,6 +80,6 @@ task buildApi {
     description 'Assemble API library archives'
 }
 
-publish {
+publishToMavenLocal {
     dependsOn buildApi
 }
