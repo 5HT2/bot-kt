@@ -78,9 +78,9 @@ else
 fi
 
 # Now we are finally ready to build, suppress the build output as it's usually unnecessary
-log "$1" "Running gradlew build..."
-./gradlew build >/dev/null 2>&1 || {
-  error "Running './gradlew build' failed! Run './gradlew build' manually"
+log "$1" "Running gradlew buildAll..."
+./gradlew buildAll >/dev/null 2>&1 || {
+  error "Running './gradlew buildAll' failed! Run './gradlew buildAll' manually"
   exit 1
 }
 
