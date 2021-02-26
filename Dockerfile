@@ -1,9 +1,9 @@
-FROM gradle:6.6 as build
+FROM gradle:6.8.3 as build
 
 WORKDIR /build
 
 COPY "gradle" "gradle"
-COPY "build.gradle" "settings.gradle" "gradle.properties" "/build"/
+COPY "build.gradle.kts" "settings.gradle.kits" "gradle.properties" "/build"/
 
 RUN gradle build
 

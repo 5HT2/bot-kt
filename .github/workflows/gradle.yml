@@ -33,5 +33,5 @@ jobs:
         restore-keys: ${{ runner.os }}-gradle-
 
     - name: Gradle build
-      run: ./gradlew --build-cache build
+      run: ./gradlew --build-cache classes
 
