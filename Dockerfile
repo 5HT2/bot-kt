@@ -3,7 +3,7 @@ FROM gradle:6.8.3 as build
 WORKDIR /build
 
 COPY "gradle" "gradle"
-COPY "build.gradle.kts" "settings.gradle.kits" "gradle.properties" "/build"/
+COPY "build.gradle.kts" "settings.gradle.kts" "gradle.properties.kts" "/build"/
 
 RUN gradle build
 
