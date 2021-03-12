@@ -1,6 +1,7 @@
 # Bot configuration files
 process.json
 run/
+kami-blue-plugin
 
 # Intellij IDEA configuration files
 .idea/
@@ -11,6 +12,7 @@ run/
 # Compiled class files
 *.class
 build/
+out/
 
 # Log file
 *.log
