@@ -1,6 +1,5 @@
 package org.kamiblue.botkt.command.commands.moderation
 
-import com.google.gson.GsonBuilder
 import kotlinx.coroutines.delay
 import net.ayataka.kordis.DiscordClientImpl
 import net.ayataka.kordis.entity.message.Message
@@ -19,6 +18,7 @@ import org.kamiblue.botkt.utils.checkPermission
 import org.kamiblue.botkt.utils.error
 import org.kamiblue.botkt.utils.normal
 import org.kamiblue.commons.extension.max
+import org.kamiblue.commons.utils.MathUtils
 
 object BanCommand : BotCommand(
     name = "ban",
@@ -26,62 +26,55 @@ object BanCommand : BotCommand(
     description = "Ban a user or multiple users"
 ) {
     private const val banReason = "Ban Reason:"
-    private val gson = GsonBuilder().setPrettyPrinting().create()
 
     init {
+        literal("multi") {
+            greedy("list of users") { usersArg ->
+                execute(
+                    "Ban a list of users by ID",
+                    ServerOnly,
+                    HasPermission.get(PermissionTypes.MASS_BAN)
+                ) {
+                    val server = server!!
+                    val split = usersArg.value.split(" ")
+                    val collected = arrayListOf<User>()
+
+                    split.forEach {
+                        it.toLongOrNull()?.let { long ->
+                            Main.client.getUser(long)?.let { user ->
+                                collected.add(user)
+                            }
+                        }
+                        delay(100)
+                    }
+
+                    ban(collected, server, message)
+                }
+            }
+        }
+
         literal("regex") {
             literal("confirm") {
                 greedy("userRegex") { userRegexArg ->
-                    execute("Mass ban members by regex", ServerOnly, HasPermission.get(PermissionTypes.MASS_BAN)) {
-                        val server = server ?: run {
-                            channel.error("Server members are null, are you running this from a DM?")
-                            return@execute
-                        }
-
-                        val m = channel.error("Banning [calculating] members...")
-
-                        var banned = 0
+                    execute(
+                        "Mass ban server members by regex",
+                        ServerOnly,
+                        HasPermission.get(PermissionTypes.MASS_BAN)
+                    ) {
+                        val server = server!!
                         val regex = userRegexArg.value.toRegex()
-                        val reason = "Mass ban by ${message.author?.mention}"
                         val filtered = server.members.filter { it.name.contains(regex) }
-
-                        if (filtered.isEmpty()) {
-                            m.edit {
-                                description = "Not banning anybody! 0 members found."
-                                color = Colors.ERROR.color
-                            }
-                            return@execute
-                        } else {
-                            m.edit {
-                                description = "Banning ${filtered.size} members..."
-                                color = Colors.ERROR.color
-                            }
-                        }
-
-                        filtered.forEach {
-                            banned++
-                            ban(it, true, reason, server, null)
-                            delay(200)
-                        }
-
-                        m.edit {
-                            field(
-                                "$banned members were banned by:",
-                                message.author?.mention.toString()
-                            )
-                            field(
-                                banReason,
-                                reason
-                            )
-                            footer("ID: ${message.author?.id}", message.author?.avatar?.url)
-                            color = Colors.ERROR.color
-                        }
+                        ban(filtered, server, message)
                     }
                 }
             }
 
             greedy("userRegex") { userRegexArg ->
-                execute("Preview mass banning by regex", ServerOnly, HasPermission.get(PermissionTypes.MASS_BAN)) {
+                execute(
+                    "Preview mass banning by regex",
+                    ServerOnly,
+                    HasPermission.get(PermissionTypes.MASS_BAN)
+                ) {
                     val regex = userRegexArg.value.toRegex()
 
                     val members = server?.members ?: run {
@@ -89,12 +82,18 @@ object BanCommand : BotCommand(
                         return@execute
                     }
 
-                    val filtered = members.filter { it.name.contains(regex) }.joinToString(separator = "\n") { it.mention }
+                    val filtered = members.filter { it.name.contains(regex) }
+                        .joinToString(separator = "\n") { it.mention }
 
                     if (members.isEmpty()) {
                         channel.error("Couldn't find any members that match the regex `$regex`!")
                     } else {
-                        channel.normal(filtered.max(2048, "\nNot all users are shown, due to size limitations."))
+                        channel.normal(
+                            filtered.max(
+                                2048,
+                                "\nNot all users are shown, due to size limitations."
+                            )
+                        )
                     }
                 }
             }
@@ -103,24 +102,87 @@ object BanCommand : BotCommand(
         user("user") { user ->
             literal("purge") {
                 greedy("reason") { reason ->
-                    execute("Delete messages, custom reason", ServerOnly, HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
+                    execute(
+                        "Delete messages, custom reason",
+                        ServerOnly,
+                        HasPermission.get(PermissionTypes.COUNCIL_MEMBER)
+                    ) {
                         ban(user.value, true, reason.value, server, message)
                     }
                 }
             }
 
             greedy("reason") { reason ->
-                execute("Don't delete messages, custom reason", ServerOnly, HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
+                execute(
+                    "Don't delete messages, custom reason",
+                    ServerOnly,
+                    HasPermission.get(PermissionTypes.COUNCIL_MEMBER)
+                ) {
                     ban(user.value, false, reason.value, server, message)
                 }
             }
 
-            execute("Don't delete messages, use default reason", ServerOnly, HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
+            execute(
+                "Don't delete messages, use default reason",
+                ServerOnly,
+                HasPermission.get(PermissionTypes.COUNCIL_MEMBER)
+            ) {
                 ban(user.value, false, null, server, message)
             }
         }
     }
 
+    @Suppress("MemberVisibilityCanBePrivate") // Allow plugins to reuse
+    suspend fun ban(
+        users: List<User>,
+        server: Server,
+        message: Message
+    ) {
+        val m = message.channel.send {
+            embed {
+                description = "Banning [calculating] members..."
+                color = Colors.ERROR.color
+            }
+        }
+
+        var banned = 0
+        val reason = "Mass ban by ${message.author?.mention}"
+
+        if (users.isEmpty()) {
+            m.edit {
+                description = "Not banning anybody! 0 members found."
+                color = Colors.ERROR.color
+            }
+            return
+        } else {
+            m.edit {
+                description = "Banning ${users.size} members, will take an estimated " +
+                    "${MathUtils.round((users.size * 200) / 1000.0, 2)} seconds..."
+                color = Colors.ERROR.color
+            }
+        }
+
+        users.forEach {
+            banned++
+            ban(it, true, reason, server, null)
+            delay(200)
+        }
+
+        m.edit {
+            field(
+                "$banned members were banned by:",
+                message.author?.mention.toString()
+            )
+            field(
+                banReason,
+                reason
+            )
+            footer("ID: ${message.author?.id}", message.author?.avatar?.url)
+            color = Colors.ERROR.color
+        }
+    }
+
+    @Suppress("MemberVisibilityCanBePrivate") // Allow plugins to reuse
     suspend fun ban(
         user: User,
         deleteMsgs: Boolean, // if we should delete the past day of their messages or not
@@ -128,10 +190,14 @@ object BanCommand : BotCommand(
         nullableServer: Server?,
         message: Message?
     ) {
-        val server = nullableServer ?: run { message?.channel?.error("Server is null, make sure you aren't running this from a DM!"); return }
+        val server = nullableServer
+            ?: run { message?.channel?.error("Server is null, make sure you aren't running this from a DM!"); return }
 
         val deleteMessageDays = if (deleteMsgs) 1 else 0
-        val fixedReason = if (!reason.isNullOrBlank()) reason else readConfigSafe<UserConfig>(ConfigType.USER, false)?.defaultBanReason ?: "No Reason Specified"
+        val fixedReason = if (!reason.isNullOrBlank()) reason else readConfigSafe<UserConfig>(
+            ConfigType.USER,
+            false
+        )?.defaultBanReason ?: "No Reason Specified"
 
         if (!canBan(user, message, server)) return
 
@@ -173,7 +239,12 @@ object BanCommand : BotCommand(
         }
     }
 
-    private suspend fun messageReason(bannedUser: User, message: Message?, server: Server, fixedReason: String) {
+    private suspend fun messageReason(
+        bannedUser: User,
+        message: Message?,
+        server: Server,
+        fixedReason: String
+    ) {
         val user = message?.author ?: Main.client.botUser
         try {
             bannedUser.getPrivateChannel().send {
@@ -198,7 +269,8 @@ object BanCommand : BotCommand(
             message?.channel?.send {
                 embed {
                     title = "Error"
-                    description = "I couldn't DM that user the ban reason, they might have had DMs disabled."
+                    description =
+                        "I couldn't DM that user the ban reason, they might have had DMs disabled."
                     color = Colors.ERROR.color
                 }
             }
@@ -219,7 +291,11 @@ object BanCommand : BotCommand(
 
             else -> {
                 try {
-                    checkPermission(Main.client as DiscordClientImpl, server, Permission.BAN_MEMBERS)
+                    checkPermission(
+                        Main.client as DiscordClientImpl,
+                        server,
+                        Permission.BAN_MEMBERS
+                    )
                 } catch (e: NotFoundException) {
                     message?.channel?.error("Client is not fully initialized, member list not loaded!")
                     return false
