@@ -6,7 +6,7 @@ group = "org.kamiblue"
 version = bot_kt_version
 
 plugins {
-    kotlin("jvm") version "1.4.31"
+    kotlin("jvm") version "1.5.0-M1"
 }
 
 repositories {
