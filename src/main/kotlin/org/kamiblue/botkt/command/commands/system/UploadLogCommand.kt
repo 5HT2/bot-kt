@@ -22,6 +22,19 @@ object UploadLogCommand : BotCommand(
         execute("Upload the `debug.log`", HasPermission.get(PermissionTypes.VIEW_LOGS)) {
             uploadLog("debug.log", LogType.DEBUG)
         }
+        
+        literal("preview") {
+            execute("Preview last 2000 chars of the log", HasPermission.get(PermissionTypes.VIEW_LOGS)) {
+                val file = File("logs/${LogType.DEBUG.folder}debug.log")
+
+                if (!file.exists() || file.isDirectory) {
+                    channel.error("Could not find ${LogType.DEBUG.getName()} log named `debug.log`")
+                } else {
+                    val formatted = file.readLines().joinToString("\n").takeLast(1992)
+                    channel.send("```\n$formatted\n```")
+                }
+            }
+        }
 
         literal("list") {
             enum<LogType>("log type") { logTypeArg ->
