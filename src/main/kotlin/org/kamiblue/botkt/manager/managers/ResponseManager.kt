@@ -50,10 +50,14 @@ object ResponseManager : Manager {
         }
 
         asyncListener<ReactionAddEvent> {
-            if (it.reaction.member?.bot != false || it.reaction.member?.id == Main.client.botUser.id) return@asyncListener
-            cachedSentResponses[it.reaction.messageId]?.let { message ->
+            val r = it.reaction
+            if (r.member?.bot != false || r.member?.id == Main.client.botUser.id || r.emoji.name != "🗑") {
+                return@asyncListener
+            }
+
+            cachedSentResponses[r.messageId]?.let { message ->
                 message.tryDelete()
-                cachedSentResponses.remove(it.reaction.messageId)
+                cachedSentResponses.remove(r.messageId)
             }
         }
     }
