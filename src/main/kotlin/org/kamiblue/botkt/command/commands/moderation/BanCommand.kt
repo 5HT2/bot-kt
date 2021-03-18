@@ -36,8 +36,17 @@ object BanCommand : BotCommand(
                     HasPermission.get(PermissionTypes.MASS_BAN)
                 ) {
                     val server = server!!
+                    val author = message.author
                     val split = usersArg.value.split(" ")
                     val collected = arrayListOf<User>()
+
+                    val message = message.channel.send {
+                        embed {
+                            description = "Banning [calculating] members..."
+                            color = Colors.ERROR.color
+                            footer("This will take about 100ms per member")
+                        }
+                    }
 
                     split.forEach {
                         it.toLongOrNull()?.let { long ->
@@ -48,7 +57,7 @@ object BanCommand : BotCommand(
                         delay(100)
                     }
 
-                    ban(collected, server, message)
+                    ban(collected, server, message, author)
                 }
             }
         }
@@ -62,9 +71,18 @@ object BanCommand : BotCommand(
                         HasPermission.get(PermissionTypes.MASS_BAN)
                     ) {
                         val server = server!!
+                        val author = message.author
                         val regex = userRegexArg.value.toRegex()
                         val filtered = server.members.filter { it.name.contains(regex) }
-                        ban(filtered, server, message)
+
+                        val message = message.channel.send {
+                            embed {
+                                description = "Banning [calculating] members..."
+                                color = Colors.ERROR.color
+                            }
+                        }
+
+                        ban(filtered, server, message, author)
                     }
                 }
             }
@@ -136,26 +154,25 @@ object BanCommand : BotCommand(
     suspend fun ban(
         users: List<User>,
         server: Server,
-        message: Message
+        message: Message,
+        author: User?
     ) {
-        val m = message.channel.send {
-            embed {
-                description = "Banning [calculating] members..."
-                color = Colors.ERROR.color
-            }
+        message.edit {
+            description = "Banning [calculating] members..."
+            color = Colors.ERROR.color
         }
 
         var banned = 0
-        val reason = "Mass ban by ${message.author?.mention}"
+        val reason = "Mass ban by ${author?.mention}"
 
         if (users.isEmpty()) {
-            m.edit {
+            message.edit {
                 description = "Not banning anybody! 0 members found."
                 color = Colors.ERROR.color
             }
             return
         } else {
-            m.edit {
+            message.edit {
                 description = "Banning ${users.size} members, will take an estimated " +
                     "${MathUtils.round((users.size * 200) / 1000.0, 2)} seconds..."
                 color = Colors.ERROR.color
@@ -168,16 +185,16 @@ object BanCommand : BotCommand(
             delay(200)
         }
 
-        m.edit {
+        message.edit {
             field(
                 "$banned members were banned by:",
-                message.author?.mention.toString()
+                author?.mention.toString()
             )
             field(
                 banReason,
                 reason
             )
-            footer("ID: ${message.author?.id}", message.author?.avatar?.url)
+            footer("ID: ${author?.id}", author?.avatar?.url)
             color = Colors.ERROR.color
         }
     }
