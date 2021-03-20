@@ -135,4 +135,4 @@ suspend fun Collection<Message>.tryDeleteAll() {
 
 val Message.link get() = "https://discord.com/channels/${this.server?.id}/${this.channel.id}/${this.id}"
 
-val Message.contextLink get() = "[[context]](${this.link})"
+val Message.contextLink get() = "[[context]](${this.link}) (<#${this.channel.id}>)"
