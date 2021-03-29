@@ -114,7 +114,9 @@ private fun FormBuilder.appendFile(file: File) = appendInput(
     }
 )
 
-private fun JsonObject.toMessage(channel: TextChannel) =
+// Allow plugins to use this method.
+@Suppress("MemberVisibilityCanBePrivate")
+fun JsonObject.toMessage(channel: TextChannel) =
     MessageImpl(Main.client as DiscordClientImpl, this, (channel as? ServerChannel?)?.server)
 
 suspend fun Message.tryDelete() {
