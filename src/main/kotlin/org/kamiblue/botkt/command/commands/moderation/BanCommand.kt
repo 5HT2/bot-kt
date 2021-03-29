@@ -150,7 +150,8 @@ object BanCommand : BotCommand(
         }
     }
 
-    @Suppress("MemberVisibilityCanBePrivate") // Allow plugins to reuse
+    // Allow plugins to use this method.
+    @Suppress("MemberVisibilityCanBePrivate")
     suspend fun ban(
         users: List<User>,
         server: Server,
@@ -199,7 +200,8 @@ object BanCommand : BotCommand(
         }
     }
 
-    @Suppress("MemberVisibilityCanBePrivate") // Allow plugins to reuse
+    // Allow plugins to use this method.
+    @Suppress("MemberVisibilityCanBePrivate")
     suspend fun ban(
         user: User,
         deleteMsgs: Boolean, // if we should delete the past day of their messages or not
