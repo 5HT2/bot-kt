@@ -6,6 +6,7 @@ import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.*
 import net.ayataka.kordis.DiscordClient
+import net.ayataka.kordis.GatewayIntent
 import net.ayataka.kordis.Kordis
 import net.ayataka.kordis.entity.channel.TextChannel
 import net.ayataka.kordis.entity.server.enums.ActivityType
@@ -24,6 +25,7 @@ import org.kamiblue.botkt.utils.Colors
 import org.kamiblue.botkt.utils.UpdateHelper
 import java.io.PrintStream
 import java.time.Instant
+import java.time.ZoneId
 import kotlin.system.exitProcess
 
 object Main {
@@ -35,6 +37,7 @@ object Main {
     @Suppress("EXPERIMENTAL_API_USAGE")
     val mainScope = CoroutineScope(newSingleThreadContext("Bot-kt Main"))
     val logger: Logger = LogManager.getLogger("Bot-kt")
+    val primaryTimeZone: ZoneId = ZoneId.of("America/Toronto") // TODO: Allow bot configs to configure
 
     lateinit var client: DiscordClient; private set
     lateinit var discordHttp: HttpClient; private set
