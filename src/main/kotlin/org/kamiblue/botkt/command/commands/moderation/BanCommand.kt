@@ -26,6 +26,7 @@ object BanCommand : BotCommand(
     description = "Ban a user or multiple users"
 ) {
     private const val banReason = "Ban Reason:"
+    private val multiSpaceRegex = Regex(" [ ]+")
 
     init {
         literal("multi") {
@@ -37,7 +38,10 @@ object BanCommand : BotCommand(
                 ) {
                     val server = server!!
                     val author = message.author
-                    val split = usersArg.value.split(" ")
+                    val split = usersArg.value
+                        .replace("\n", " ")
+                        .replace(multiSpaceRegex, " ")
+                        .split(" ")
                     val collected = arrayListOf<User>()
 
                     val message = message.channel.send {
