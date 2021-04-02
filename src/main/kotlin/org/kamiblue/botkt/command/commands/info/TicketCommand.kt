@@ -125,7 +125,7 @@ object TicketCommand : BotCommand(
             execute("Close the current ticket", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
                 val channel = message.serverChannel
 
-                if (channel?.name?.startsWith("ticket-") != true) {
+                if (channel?.name?.startsWith("ticket-") != true || channel.category?.id != config?.ticketCategory ?: 0) {
                     channel?.error("The ${message.serverChannel?.mention} channel is not a ticket!")
                     return@execute
                 }
