@@ -114,12 +114,14 @@ class JoinLeaveConfig(
  * @param ticketCategory channel category of where to create tickets, required
  * @param ticketCreateChannel channel where people can create tickets, required
  * @param ticketPingRole role to ping when new ticket created, optional
+ * @param ticketOpenedRole role to give to users who have opened tickets, to hide the new ticket channel, optional
  * @param ticketUploadChannel channel to upload tickets when closed, optional
  */
 class TicketConfig(
     val ticketCategory: Long?,
     val ticketCreateChannel: Long?,
     val ticketPingRole: Long?,
+    val ticketOpenedRole: Long?,
     val ticketUploadChannel: Long?,
     var ticketTotalAmount: Int?
 )
