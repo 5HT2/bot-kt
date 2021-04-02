@@ -30,7 +30,7 @@ import kotlin.system.exitProcess
 
 object Main {
 
-    const val currentVersion = "v1.9.1"
+    const val currentVersion = "v1.9.2"
 
     val startUpTime: Instant = Instant.now()
 
