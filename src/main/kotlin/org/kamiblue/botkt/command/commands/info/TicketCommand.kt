@@ -10,6 +10,7 @@ import net.ayataka.kordis.entity.server.channel.text.ServerTextChannel
 import net.ayataka.kordis.entity.server.permission.PermissionSet
 import net.ayataka.kordis.entity.server.permission.overwrite.RolePermissionOverwrite
 import net.ayataka.kordis.entity.server.permission.overwrite.UserPermissionOverwrite
+import net.ayataka.kordis.entity.server.role.Role
 import net.ayataka.kordis.entity.user.User
 import net.ayataka.kordis.event.events.message.MessageReceiveEvent
 import net.ayataka.kordis.exception.NotFoundException
@@ -19,6 +20,7 @@ import org.kamiblue.botkt.command.BotCommand
 import org.kamiblue.botkt.command.Category
 import org.kamiblue.botkt.command.MessageExecuteEvent
 import org.kamiblue.botkt.command.options.HasPermission
+import org.kamiblue.botkt.command.options.ServerOnly
 import org.kamiblue.botkt.event.events.ShutdownEvent
 import org.kamiblue.botkt.manager.managers.ConfigManager
 import org.kamiblue.botkt.utils.*
@@ -33,6 +35,7 @@ import java.time.Instant
 import java.util.*
 import kotlin.collections.HashMap
 
+// TODO: Move to plugin when plugins support custom config types
 object TicketCommand : BotCommand(
     name = "ticket",
     description = "Manage tickets",
@@ -44,6 +47,7 @@ object TicketCommand : BotCommand(
     private val ticketFileRegex = "^\\d{4}-\\d{2}-\\d{2}_\\d{2}\\.\\d{2}\\.\\d{2}_\\d{18}\\.txt".toRegex()
     private val ticketIOScope = CoroutineScope(Dispatchers.IO + CoroutineName("Ticket IO"))
     private var cachedMessages = HashMap<ServerTextChannel, StringBuilder>()
+    private var cachedOpenedTicketRole: Role? = null
 
     private const val messageEmpty = "Message was empty!"
 
@@ -122,15 +126,27 @@ object TicketCommand : BotCommand(
         }
 
         literal("close") {
-            execute("Close the current ticket", HasPermission.get(PermissionTypes.COUNCIL_MEMBER)) {
+            execute("Close the current ticket", ServerOnly) {
                 val channel = message.serverChannel
+                val server = server!!
 
                 if (channel?.name?.startsWith("ticket-") != true || channel.category?.id != config?.ticketCategory ?: 0) {
                     channel?.error("The ${message.serverChannel?.mention} channel is not a ticket!")
                     return@execute
                 }
 
+                val userID = channel.topic?.substring(20, 38)?.replace(notNumberRegex, "")?.toLongOrNull()
+
                 closeTicket(channel, message)
+
+                fixOpenedTicketRole(server)
+
+                // Very scuffed
+                cachedOpenedTicketRole?.let { role ->
+                    userID?.let {
+                        Main.client.getUser(it)?.toMember(server)?.removeRole(role)
+                    }
+                }
             }
         }
 
@@ -192,6 +208,7 @@ object TicketCommand : BotCommand(
         ticketCategory: ChannelCategory
     ) {
         val config = config ?: return // lazy
+        fixOpenedTicketRole(server)
 
         config.ticketTotalAmount = config.ticketTotalAmount?.let { it + 1 } ?: 1
 
@@ -218,6 +235,8 @@ object TicketCommand : BotCommand(
 
         val feedback = channel.success("${author.mention} Created ticket! Go to ${ticketChannel.mention}!")
         delay(5000)
+
+        cachedOpenedTicketRole?.let { author.toMember(server)?.addRole(it) }
         feedback.delete()
         message.delete()
     }
@@ -320,6 +339,15 @@ object TicketCommand : BotCommand(
             } ?: run {
                 Main.logger.warn("Couldn't upload ticket file because ticketUploadChannel is not set")
             }
+        }
+    }
+
+    private fun fixOpenedTicketRole(server: Server) {
+        if (cachedOpenedTicketRole != null) return
+        val id = config?.ticketOpenedRole ?: return
+
+        server.roles.find { role -> role.id == id }?.let {
+            cachedOpenedTicketRole = it
         }
     }
 
