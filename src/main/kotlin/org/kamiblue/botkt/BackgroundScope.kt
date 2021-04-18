@@ -7,7 +7,7 @@ import net.ayataka.kordis.utils.TimerScope
 import net.ayataka.kordis.utils.timer
 
 @Suppress("EXPERIMENTAL_API_USAGE")
-object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThreadPoolContext(2, "Bot-kt Background")) {
+internal object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThreadPoolContext(2, "Bot-kt Background")) {
 
     private val jobs = LinkedHashMap<BackgroundJob, Job?>()
     private var started = false
