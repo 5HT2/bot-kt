@@ -105,6 +105,16 @@ suspend fun TextChannel.upload(file: File, message: String = "", embed: JsonObje
     )
 }.toMessage(this)
 
+suspend fun TextChannel.send(embed: JsonObject? = null): Message = Main.discordHttp.post<JsonObject> {
+    url("https://discord.com/api/v8/channels/$id/messages")
+    header("Accept", ContentType.MultiPart.FormData)
+    body = MultiPartFormDataContent(
+        formData {
+            if (embed != null) append("payload_json", embed.toString())
+        }
+    )
+}.toMessage(this)
+
 private fun FormBuilder.appendFile(file: File) = appendInput(
     key = file.absolutePath,
     headers = Headers.build { append(HttpHeaders.ContentDisposition, "filename=${file.name}") },
