@@ -8,12 +8,15 @@ import io.ktor.client.request.forms.*
 import io.ktor.http.*
 import io.ktor.utils.io.core.*
 import net.ayataka.kordis.DiscordClientImpl
+import net.ayataka.kordis.entity.channel.PrivateTextChannel
 import net.ayataka.kordis.entity.channel.TextChannel
 import net.ayataka.kordis.entity.deleteAll
 import net.ayataka.kordis.entity.message.Message
 import net.ayataka.kordis.entity.message.MessageImpl
 import net.ayataka.kordis.entity.message.embed.EmbedBuilder
 import net.ayataka.kordis.entity.server.channel.ServerChannel
+import net.ayataka.kordis.entity.user.User
+import net.ayataka.kordis.exception.PrivateMessageBlockedException
 import org.kamiblue.botkt.Main
 import org.kamiblue.botkt.utils.StringUtils.elseEmpty
 import org.kamiblue.botkt.utils.StringUtils.joinToChunks
@@ -148,3 +151,11 @@ suspend fun Collection<Message>.tryDeleteAll() {
 val Message.link get() = "https://discord.com/channels/${this.server?.id}/${this.channel.id}/${this.id}"
 
 val Message.contextLink get() = "[[context]](${this.link}) (<#${this.channel.id}>)"
+
+suspend fun User?.directMessagesSafe(): PrivateTextChannel? {
+    return try {
+        this?.getPrivateChannel()
+    } catch (e: PrivateMessageBlockedException) {
+        null
+    }
+}
