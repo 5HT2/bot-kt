@@ -6,8 +6,9 @@ import kotlinx.coroutines.newFixedThreadPoolContext
 import net.ayataka.kordis.utils.TimerScope
 import net.ayataka.kordis.utils.timer
 
+// You need to relaunch the entire bot for these to work for plugins... TODO make a better solution
 @Suppress("EXPERIMENTAL_API_USAGE")
-internal object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThreadPoolContext(2, "Bot-kt Background")) {
+object BackgroundScope : CoroutineScope by CoroutineScope(newFixedThreadPoolContext(2, "Bot-kt Background")) {
 
     private val jobs = LinkedHashMap<BackgroundJob, Job?>()
     private var started = false
