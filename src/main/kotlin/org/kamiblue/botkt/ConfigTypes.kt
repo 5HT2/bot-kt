@@ -39,7 +39,7 @@ class RulesConfig(val rules: HashMap<String, String>)
 
 /**
  * [version] is a semver format version String
- * Checked by comparing [Main.currentVersion] against https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json
+ * Checked by comparing [Main.currentVersion] against https://raw.githubusercontent.com/l1ving/bot-kt/master/version.json
  */
 class VersionConfig(val version: String)
 
@@ -81,8 +81,8 @@ class PermissionConfig(val councilMembers: HashMap<Long, List<PermissionTypes>>)
  * [memberChannel] is the voice channel ID for the desired member counter.
  * [downloadChannelTotal] is the voice channel ID for the desired total downloads counter.
  * [downloadChannelLatest] is the voice channel ID for the desired latest release downloads counter.
- * [downloadStableUrl] is the main / stable repository in the format of kami-blue/bot-kt
- * [downloadNightlyUrl] is the alternate / nightly repository in the format of kami-blue/bot-kt
+ * [downloadStableUrl] is the main / stable repository in the format of l1ving/bot-kt
+ * [downloadNightlyUrl] is the alternate / nightly repository in the format of l1ving/bot-kt
  * [perPage] is the max releases per page when using the Github API. Defaults to 200
  */
 class CounterConfig(

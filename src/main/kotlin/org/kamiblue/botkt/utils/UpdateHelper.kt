@@ -18,7 +18,7 @@ object UpdateHelper {
     fun updateCheck() {
         if (File("noUpdateCheck").exists()) return
         val versionConfig =
-            ConfigManager.readConfigFromUrl<VersionConfig>("https://raw.githubusercontent.com/kami-blue/bot-kt/master/version.json")
+            ConfigManager.readConfigFromUrl<VersionConfig>("https://raw.githubusercontent.com/l1ving/bot-kt/master/version.json")
 
         if (versionConfig?.version == null) {
             Main.logger.info("Couldn't access remote version when checking for update")
@@ -57,7 +57,7 @@ object UpdateHelper {
         }
 
         val bytes =
-            URL("https://github.com/kami-blue/bot-kt/releases/download/$version/bot-kt-$version.jar").readBytes()
+            URL("https://github.com/l1ving/bot-kt/releases/download/$version/bot-kt-$version.jar").readBytes()
 
         Main.logger.info("Auto Update - Downloaded bot-kt-$version.jar ${bytes.size / 1000000}MB")
         val appendSlash = if (path.endsWith("/")) "" else "/"

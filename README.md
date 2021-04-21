@@ -1,16 +1,11 @@
 # bot-kt
 
-[![CodeFactor](https://www.codefactor.io/repository/github/kami-blue/bot-kt/badge)](https://www.codefactor.io/repository/github/kami-blue/bot-kt)
-[![Docker Action](https://img.shields.io/github/workflow/status/kami-blue/bot-kt/Docker?logo=docker)](https://github.com/orgs/kami-blue/packages/container/package/bot-kt)
-[![Gradle Action](https://img.shields.io/github/workflow/status/kami-blue/bot-kt/Gradle?logo=github)](https://github.com/kami-blue/bot-kt/actions)
-
-[![Discord](https://img.shields.io/discord/573954110454366214?logo=discord&logoColor=white)](https://kamiblue.org/discord)
-[![Paypal](https://img.shields.io/badge/paypal-donate-red?color=169bd7&logo=paypal)](https://kamiblue.org/donate)
-
-
-The moderation bot for KAMI Blue's Discord, written in Kotlin for reliability. 
+[![CodeFactor](https://www.codefactor.io/repository/github/l1ving/bot-kt/badge)](https://www.codefactor.io/repository/github/l1ving/bot-kt)
+[![Docker Action](https://img.shields.io/github/workflow/status/l1ving/bot-kt/Docker?logo=docker)](https://github.com/orgs/l1ving/packages/container/package/bot-kt)
+[![Gradle Action](https://img.shields.io/github/workflow/status/l1ving/bot-kt/Gradle?logo=github)](https://github.com/l1ving/bot-kt/actions)
 
 Why should you use this over other Kotlin bots:
+- Plugin support in the form of Kotlin
 - Extremely easy to add your own commands
 - Really easy to configure
 - Entirely modular, including config types and commands
@@ -21,14 +16,14 @@ Why should you use this over other Kotlin bots:
 
 ## Contributing
 
-0. `git clone --recurse-submodules https://github.com/kami-blue/bot-kt.git`
+0. `git clone --recurse-submodules https://github.com/l1ving/bot-kt.git`
 1. In Intellij IDEA select `File -> New -> Project from existing sources`
 3. Import the `build.gradle` file
 4. Wait for the Gradle import to finish
 
 ### Or without an IDE
 
-0. `git clone https://github.com/kami-blue/bot-kt.git`
+0. `git clone https://github.com/l1ving/bot-kt.git`
 1. `cd bot-kt`
 2. `./completeBuild.sh`
 

@@ -1,5 +1,5 @@
 
-Copyright (c) 2021, kami-blue
+Copyright (c) 2021, Liv <~@l1v.in>, Multiple Contributors
 
 Permission to use, copy, modify, and/or distribute this software for any
 purpose with or without fee is hereby granted, provided that the above

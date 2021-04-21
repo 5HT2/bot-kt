@@ -7,7 +7,7 @@ object ExampleCommand : BotCommand(
     name = "example",
     alias = arrayOf("ex"),
     category = Category.MISC,
-    description = "Example Command for kami-blue.command"
+    description = "Example Command for the command system"
 ) {
     init {
         literal("kami") {
